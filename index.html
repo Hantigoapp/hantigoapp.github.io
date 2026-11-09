@@ -769,7 +769,7 @@ $("forgot").addEventListener("click",async()=>{
   const email=$("aEmail").value.trim();
   if(!email.includes("@")){$("aErr").textContent="Marka hore sanduuqa Email ku qor emailkaaga, kadibna mar kale riix “Ma ilowday erayga sirta ah?”.";$("aEmail").focus();return}
   $("forgot").disabled=true;
-  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:NATIVE?"https://asadmoallim-hash.github.io/HantiGo/":location.origin+location.pathname});
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:NATIVE?"https://hantigoapp.github.io/":location.origin+location.pathname});
   $("aErr").textContent=error?(/rate|seconds/i.test(error.message)?"Fariimo badan ayaa la diray. Sug in yar kadibna mar kale isku day.":L("Khalad ayaa dhacay: ","Something went wrong: ")+error.message)
     :"Waxaan kuu dirnay email leh xiriir lagu beddelo erayga sirta ah. Fur emailkaaga (eeg sidoo kale Spam).";
   $("forgot").disabled=false;

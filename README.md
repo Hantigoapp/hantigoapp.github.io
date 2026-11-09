@@ -9,7 +9,7 @@ App lagu maamulo lacagta qofka: dakhliga (soo gal), kharashka (ka bax), lacagta 
 1. Repo-ga gal **Settings → Pages**.
 2. "Source" ka dooro **Deploy from a branch**, branch-na dooro **main** iyo **/(root)**, kadibna **Save**.
 3. 1–2 daqiiqo kadib app-ku wuxuu ka shaqaynayaa:
-   `https://asadmoallim-hash.github.io/HantiGo/`
+   `https://hantigoapp.github.io/`
 
 Fiiro gaar ah: GitHub Pages wuxuu u baahan yahay repo **public** ah haddii akoonkaagu bilaash yahay.
 
@@ -36,4 +36,4 @@ Fiiro gaar ah: GitHub Pages wuxuu u baahan yahay repo **public** ah haddii akoon
 
 ### Dejinta Supabase (hal mar)
 1. Supabase → **SQL Editor** → New query → ku dheji `supabase/schema.sql` → **Run**.
-2. **Authentication → URL Configuration** → Site URL: `https://asadmoallim-hash.github.io/HantiGo/` (Redirect URLs-na ku dar isla xiriirka).
+2. **Authentication → URL Configuration** → Site URL: `https://hantigoapp.github.io/` (Redirect URLs-na ku dar isla xiriirka).
