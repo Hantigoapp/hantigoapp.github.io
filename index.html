@@ -203,6 +203,10 @@ html:not([data-mode="business"]) #appView .biz-only{display:none!important}
 header{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;margin-top:-10px}
 .hright{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .acc-panel{font-size:.95rem}
+.outbtn{border-color:var(--out);color:var(--out);font-weight:600;padding:11px}
+.hlogout{padding:6px 10px;font-size:.82rem;font-weight:600;color:var(--out);border-color:var(--line)}
+header{gap:8px}
+header>div:first-child{flex:1 1 100%}.htop{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .bnav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:min(520px,calc(100% - 24px));padding:6px;border-radius:22px;background:var(--nav-bg);box-shadow:0 10px 30px rgba(10,20,40,.18);border:1px solid var(--line)}
 .bnav button{border:0;background:none;display:grid;justify-items:center;gap:1px;padding:7px 2px;border-radius:16px;color:var(--muted);font-size:.74rem;font-weight:600}
 .bnav button i{font-style:normal;font-size:1.2rem;line-height:1.2}
@@ -303,7 +307,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
 <div class="wrap" id="appView" hidden>
   <header>
     <div>
-      <h1>Hanti<span>Go</span></h1>
+      <div class="htop"><h1>Hanti<span>Go</span></h1><button type="button" class="logout hlogout" aria-label="Ka bax">🚪 Ka bax</button></div>
       <p class="sub" id="subline" hidden>Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.</p>
 
     </div>
@@ -440,7 +444,8 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
 
       <section class="panel" aria-labelledby="accH" data-tab="more">
         <h2 id="accH">Akoonkaaga</h2>
-      <div class="account acc-panel"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option></select></label><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a><button type="button" class="logout del" style="padding:4px 0">Ka bax</button></div>
+      <div class="account acc-panel"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option></select></label><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a></div>
+        <button type="button" class="logout outbtn">🚪 Ka bax akoonka</button>
       </section>
 
       <section class="panel biz-only owner-only" aria-labelledby="teamH" data-tab="more">
@@ -523,7 +528,7 @@ const L=(so,en)=>LANG==="en"?en:so;
 const EN={
 "HantiGo waa la furayaa…":"Opening HantiGo…","Luqadda":"Language",
 "Maamul lacagtaada meel kasta oo aad joogto.":"Manage your money wherever you are.","Waxaa sameeyay":"Made by",
-"Gal":"Log in","Jooji beddelka":"Cancel edit","✏️ Beddel":"✏️ Edit","Guriga":"Home","Ku dar":"Add","Qorshe":"Plan","Akoon":"Account","Akoonkaaga":"Your account","Qaybaha app-ka":"App sections","Magaalada aad joogto":"City you live in","— Dooro —":"— Choose —","Magaalo kale (Soomaaliya)":"Other city (Somalia)","Itoobiya":"Ethiopia","Jabuuti":"Djibouti","Dibadda (Yurub / Ameerika / kale)":"Abroad (Europe / America / other)","Xagee joogtaa?":"Where are you?","Noo sheeg magaaladaada si aan HantiGo ugu hagaajinno.":"Tell us your city so we can improve HantiGo.","Kaydi":"Save","Mar dambe":"Later","Is-diiwaangeli":"Sign up","Nooca akoonka":"Account type","👤 Shakhsi":"👤 Personal","🏢 Shirkad":"🏢 Business",
+"Gal":"Log in","🚪 Ka bax":"🚪 Log out","🚪 Ka bax akoonka":"🚪 Log out of account","Jooji beddelka":"Cancel edit","✏️ Beddel":"✏️ Edit","Guriga":"Home","Ku dar":"Add","Qorshe":"Plan","Akoon":"Account","Akoonkaaga":"Your account","Qaybaha app-ka":"App sections","Magaalada aad joogto":"City you live in","— Dooro —":"— Choose —","Magaalo kale (Soomaaliya)":"Other city (Somalia)","Itoobiya":"Ethiopia","Jabuuti":"Djibouti","Dibadda (Yurub / Ameerika / kale)":"Abroad (Europe / America / other)","Xagee joogtaa?":"Where are you?","Noo sheeg magaaladaada si aan HantiGo ugu hagaajinno.":"Tell us your city so we can improve HantiGo.","Kaydi":"Save","Mar dambe":"Later","Is-diiwaangeli":"Sign up","Nooca akoonka":"Account type","👤 Shakhsi":"👤 Personal","🏢 Shirkad":"🏢 Business",
 "Erayga sirta ah (ugu yaraan 6 xaraf)":"Password (at least 6 characters)","Akoon cusub wuxuu helayaa 7 maalmood oo bilaash ah.":"New accounts get 7 days free.",
 "Ma ilowday erayga sirta ah?":"Forgot your password?","Samee eray sir ah oo cusub":"Create a new password",
 "Erayga sirta ah ee cusub (ugu yaraan 6 xaraf)":"New password (at least 6 characters)","Ku celi erayga sirta ah":"Repeat the password","Kaydi erayga cusub":"Save new password",
