@@ -131,6 +131,11 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .stat.top-spend{grid-column:1/-1;background:var(--out-soft);border-color:transparent}
 .stat.top-spend .val{color:var(--out)}
 .stat.top-spend .note{color:var(--ink);font-size:.9rem;font-weight:600}
+.modecard{display:grid;gap:4px;text-align:left;padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.modecard b{font:700 1.1rem var(--display)}.modecard span{color:var(--muted)}
+.modecard:hover{border-color:var(--accent);background:var(--accent-soft)}
+.modesw select{width:auto;padding:4px 8px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-color:transparent}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .credit{text-align:center;color:var(--muted);font-size:.82rem;margin:0}
 :root{--ch-in:#16794a;--ch-out:#b3402a;--grid:#e3e9f0}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ch-in:#34a96e;--ch-out:#d65a38;--grid:#243140}}
@@ -187,6 +192,13 @@ details summary{cursor:pointer;color:var(--accent);font-weight:600}
   </div>
 </section>
 
+<section id="modeView" class="gate" hidden>
+  <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub">Dooro sida aad HantiGo u isticmaalayso</p></div>
+  <button type="button" class="modecard" data-mode="person"><b>👤 Shakhsi (qof caadi ah)</b><span>Mushaharka, kharashka guriga, cuntada maalinlaha, biilasha iyo kaydka qoyska.</span></button>
+  <button type="button" class="modecard" data-mode="business"><b>🏢 Shirkad / Ganacsi</b><span>Iibka, alaabta, mushaharka shaqaalaha, kirada dukaanka, alaab-qeybiyeyaasha iyo faa'iidada bishii.</span></button>
+  <p class="note" style="text-align:center;margin:0">Goor kasta waad beddeli kartaa, xogta labaduna way kala gooni yihiin.</p>
+</section>
+
 <section id="payView" class="gate" hidden>
   <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub" id="payWho"></p></div>
   <div class="panel sub-panel">
@@ -208,8 +220,8 @@ details summary{cursor:pointer;color:var(--accent);font-weight:600}
   <header>
     <div>
       <h1>Hanti<span>Go</span></h1>
-      <p class="sub">Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.</p>
-      <div class="account"><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a><button type="button" class="logout del" style="padding:4px 0">Ka bax</button></div>
+      <p class="sub" id="subline">Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.</p>
+      <div class="account"><label class="modesw"><span class="sr">Nooca akoonka</span><select id="modeSel" aria-label="Nooca akoonka"><option value="person">👤 Shakhsi</option><option value="business">🏢 Shirkad</option></select></label><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a><button type="button" class="logout del" style="padding:4px 0">Ka bax</button></div>
     </div>
     <div class="month" aria-label="Bisha">
       <button class="icon" id="prev" aria-label="Bishii hore">‹</button>
@@ -228,7 +240,7 @@ details summary{cursor:pointer;color:var(--accent);font-weight:600}
     <div class="stat"><span class="lbl">Ku haray bishan</span><span class="val" id="sNet">0</span></div>
     <div class="stat"><span class="lbl">Kaydka bishan</span><span class="val" id="sSaved">0</span><span class="note" id="sSavedAll"></span></div>
     <div class="stat top-spend"><span class="lbl">Meesha lacagtu ugu badan ka baxday bishan</span><span class="val" id="sTop">—</span><span class="note" id="sTopNote">Weli kharash lama qorin.</span></div>
-    <div class="stat top-spend"><span class="lbl">Shirkadda lacagta ugu badan laga siiyay bishan</span><span class="val" id="sTopPlace">—</span><span class="note" id="sTopPlaceNote">Ku qor magaca shirkadda marka aad kharash gelinayso.</span></div>
+    <div class="stat top-spend"><span class="lbl" id="topPlaceLbl">Shirkadda lacagta ugu badan laga siiyay bishan</span><span class="val" id="sTopPlace">—</span><span class="note" id="sTopPlaceNote">Ku qor magaca shirkadda marka aad kharash gelinayso.</span></div>
   </section>
 
   <section class="panel" aria-labelledby="chartH">
@@ -266,7 +278,7 @@ details summary{cursor:pointer;color:var(--accent);font-weight:600}
             <label class="field"><span>Taariikhda</span><input id="date" type="date" required></label>
           </div>
           <div class="row">
-            <label class="field"><span>Shirkadda ama meesha (ikhtiyaari)</span><input id="place" type="text" maxlength="40" list="placeList" placeholder="Tusaale: Hormuud, suuqa Bakaaraha"></label>
+            <label class="field"><span id="placeLbl">Shirkadda ama meesha (ikhtiyaari)</span><input id="place" type="text" maxlength="40" list="placeList" placeholder="Tusaale: Hormuud, suuqa Bakaaraha"></label>
             <label class="field"><span>Faahfaahin (ikhtiyaari)</span><input id="note" type="text" maxlength="80" placeholder="Tusaale: bilka Nofembar"></label>
           </div>
           <datalist id="placeList"></datalist>
@@ -333,13 +345,27 @@ details summary{cursor:pointer;color:var(--accent);font-weight:600}
 const PLACES=["Hormuud","Somtel","Golis","Telesom","Amtel","BECO","Dahabshiil","Amal Bank","Premier Bank","Salaam Bank","Hass Petroleum","Suuqa Bakaaraha","Suuqa Xamar Weyne","Hilib-dukaan","Farmashiye"];
 const METHODS=["EVC Plus","Bangi","Kaash"];
 const payMethod=()=>document.querySelector('input[name=method]:checked')?.value||"EVC Plus";
-const DAILY=["Hilib","Bariis","Baasto","Caano","Cabitaan","Sonkor","Bur","Malaay","Digaag","Caleen shaah","Qaxwo","Biyo caafi",
+const P_DAILY=["Hilib","Bariis","Baasto","Caano","Cabitaan","Sonkor","Bur","Malaay","Digaag","Caleen shaah","Qaxwo","Biyo caafi",
   "Rooti","Canjeero","Ukun","Saliid","Subag","Khudaar","Basal","Yaanyo","Baradho","Toon","Miro","Muus","Timir","Digir","Galley",
   "Cusbo","Xawaash","Caano boodhe","Malab","Cunto diyaarsan","Saabuun","Dhuxul","Gaas yar","Gaadiid maalinle","Kaarka taleefanka"];
-const CATS={
+const P_CATS={
   in:["Mushahar","Ganacsi","Xawaalad la helay","Hadiyad","Kale","Kayd"],
-  out:[...DAILY,"Cunto kale","Kiro guri","Koronto","Biyo","Gaas","Internet","Gaadiid","Taleefan","Caafimaad","Waxbarasho","Qoys (xawaalad)","Dhar","Kayd","Kale"]
+  out:[...P_DAILY,"Cunto kale","Kiro guri","Koronto","Biyo","Gaas","Internet","Gaadiid","Taleefan","Caafimaad","Waxbarasho","Qoys (xawaalad)","Dhar","Kayd","Kale"]
 };
+const B_DAILY=["Alaab (stock)","Rar & gaadiid","Shidaal","Shaqaale maalinle","Cunto shaqaale","Baakad & bac","Kaarka taleefanka","Nadaafad","Dayactir yar","Qalab yar"];
+const B_CATS={
+  in:["Iib (sales)","Adeeg","Deyn la soo celiyay","Maalgelin","Kale","Kayd"],
+  out:[...B_DAILY,"Mushaharka shaqaalaha","Kiro dukaan / xafiis","Koronto","Biyo","Internet","Taleefan","Canshuur & liisan","Xayeysiis","Caymis","Deyn bixin","Kale","Kayd"]
+};
+let MODE="person",DAILY=P_DAILY,CATS=P_CATS;
+const mine=k=>items.filter(i=>i.kind===k&&(i.mode||"person")===MODE);
+function applyMode(m){MODE=m==="business"?"business":"person";DAILY=MODE==="business"?B_DAILY:P_DAILY;CATS=MODE==="business"?B_CATS:P_CATS;
+  document.documentElement.dataset.mode=MODE;
+  if($("modeSel"))$("modeSel").value=MODE;
+  $("placeLbl").textContent=MODE==="business"?"Macmiil ama alaab-qeybiye (ikhtiyaari)":"Shirkadda ama meesha (ikhtiyaari)";
+  $("topPlaceLbl").textContent=MODE==="business"?"Alaab-qeybiyaha lacagta ugu badan la siiyay bishan":"Shirkadda lacagta ugu badan laga siiyay bishan";
+  $("subline").textContent=MODE==="business"?"Ganacsigaaga: qor iibka iyo kharashyada, ogowna faa'iidada bishii.":"Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.";
+  showAll=false;renderDaily();fillCats()}
 const MONTHS=["Janaayo","Febraayo","Maarso","Abriil","Maajo","Juun","Luulyo","Agoosto","Sebtembar","Oktoobar","Nofembar","Desembar"];
 const SYM={USD:"$",SOS:"Sh.So. "};
 const LS="dhaqaale.v1";
@@ -367,7 +393,7 @@ if(NATIVE){document.querySelectorAll(".pay-only").forEach(e=>e.hidden=true);$("n
 const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
 let me=null,profile=null,syncTimer=null,started=false;
 
-function showView(v){["loadingView","authView","resetView","payView","appView"].forEach(id=>$(id).hidden=id!==v)}
+function showView(v){["loadingView","authView","resetView","modeView","payView","appView"].forEach(id=>$(id).hidden=id!==v)}
 let recovering=/type=recovery/.test(location.hash);
 const cacheKey=()=>"hantigo.cache."+(me?.id||"x");
 function loadLocal(){try{return JSON.parse(localStorage.getItem(cacheKey())||"null")}catch{return null}}
@@ -382,6 +408,7 @@ async function syncNow(){
   else showBanner("");
 }
 async function put(doc){
+  if(["tx","goal","bill"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
   const i=items.findIndex(x=>x.id===doc.id);if(i>=0)items[i]=doc;else items.push(doc);
   saveLocal();render();scheduleSync();
 }
@@ -416,7 +443,10 @@ async function enter(user){
   else if(cached)items=cached;
   else{let legacy=null;try{legacy=JSON.parse(localStorage.getItem(LS)||"null")}catch{}items=legacy||[]}
   if(error&&cached){items=cached;showBanner("Internet la'aan: waxaa la muujinayaa xogtii taleefanka ku kaydsanayd.")}
-  saveLocal();mode="cloud";showView("appView");render();seedBills();
+  saveLocal();mode="cloud";
+  const st=items.find(i=>i.kind==="settings");
+  if(!st?.mode){showView("modeView");return}
+  applyMode(st.mode);showView("appView");render();seedBills();
   if(!data&&items.length)scheduleSync();
 }
 
@@ -491,7 +521,7 @@ function markChip(){document.querySelectorAll("[data-chip]").forEach(c=>c.classL
 function render(){
   $("monthLabel").textContent=MONTHS[view.getMonth()]+" "+view.getFullYear();
   $("currency").value=currency();
-  const txs=items.filter(i=>i.kind==="tx");
+  const txs=mine("tx");
   const month=txs.filter(inMonth).sort((a,b)=>(b.date+b.created).localeCompare(a.date+a.created));
   const sum=(arr,t)=>arr.filter(x=>x.type===t).reduce((s,x)=>s+Number(x.amount||0),0);
   const mi=sum(month,"in"),mo=sum(month,"out");
@@ -500,7 +530,7 @@ function render(){
   $("sMethods").innerHTML=METHODS.map(m=>{const ts=txs.filter(t=>(t.method||"Kaash")===m);return `<span>${m}: <b>${money(sum(ts,"in")-sum(ts,"out"))}</b></span>`}).join("");
   const kayd=month.filter(t=>t.cat==="Kayd");
   $("sSaved").textContent=money(kayd.filter(t=>t.type==="out").reduce((a,t)=>a+Number(t.amount),0)-kayd.filter(t=>t.type==="in").reduce((a,t)=>a+Number(t.amount),0));
-  $("sSavedAll").textContent="Wadarta kaydka: "+money(items.filter(i=>i.kind==="goal").reduce((a,g)=>a+Number(g.saved||0),0));
+  $("sSavedAll").textContent="Wadarta kaydka: "+money(mine("goal").reduce((a,g)=>a+Number(g.saved||0),0));
   $("count").textContent=month.length?month.length+" qoraal":"";
 
   const list=$("txList");
@@ -539,7 +569,7 @@ function render(){
 
   renderBills(txs);
   renderChart(txs);
-  const goals=items.filter(i=>i.kind==="goal").sort((a,b)=>a.created.localeCompare(b.created));
+  const goals=mine("goal").sort((a,b)=>a.created.localeCompare(b.created));
   $("goals").innerHTML=goals.length?goals.map(g=>{const p=Math.min(100,g.saved/g.target*100||0);return `<div class="goal">
       <div class="goal-top"><b>${esc(g.name)}</b><span>${money(g.saved)} / ${money(g.target)}</span></div>
       <div class="bar" role="progressbar" aria-valuenow="${Math.round(p)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${p}%"></i></div>
@@ -549,8 +579,9 @@ function render(){
 }
 
 const DEFAULT_BILLS=["Kiro guri","Koronto","Biyo","Gaas","Internet","Taleefan bille","Iskuul / waxbarasho","Xawaalad qoys","Gaadiid bille","Qashin qaad","Ilaalada xaafadda","Telefishin","Caymis caafimaad","Deyn bixin"];
+const B_BILLS=["Kiro dukaan / xafiis","Mushaharka shaqaalaha","Koronto","Biyo","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin"];
 const BILLS_VERSION=2;
-const bills=()=>items.filter(i=>i.kind==="bill").sort((a,b)=>a.created.localeCompare(b.created));
+const bills=()=>mine("bill").sort((a,b)=>a.created.localeCompare(b.created));
 const paidTx=(b,txs)=>txs.find(t=>t.billId===b.id&&inMonth(t));
 function renderBills(txs){
   $("billMonth").textContent=MONTHS[view.getMonth()];
@@ -572,13 +603,19 @@ async function payBill(b){if(!(b.amount>0))return false;
 let seeding=false;
 async function seedBills(){
   const st=items.find(i=>i.kind==="settings");
+  if(MODE==="business"){
+    if(seeding||st?.bizBillsSeeded)return;seeding=true;
+    try{const now=Date.now();const have=new Set(bills().map(b=>b.name));
+      for(let k=0;k<B_BILLS.length;k++)if(!have.has(B_BILLS[k]))await put({id:uid(),kind:"bill",name:B_BILLS[k],amount:0,created:new Date(now+k).toISOString()});
+      await put({...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),bizBillsSeeded:true});
+    }catch{}seeding=false;return}
   if(seeding||(st?.billsVersion||0)>=BILLS_VERSION)return;seeding=true;
   try{const now=Date.now();const have=new Set(bills().map(b=>b.name));
     const first=!st?.billsSeeded&&!bills().length;
     for(let k=0;k<DEFAULT_BILLS.length;k++){const n=DEFAULT_BILLS[k];
       if(have.has(n)||(!first&&k<5))continue;   // keep bills the person already deleted from the first five
       await put({id:uid(),kind:"bill",name:n,amount:0,created:new Date(now+k).toISOString()})}
-    await put({...(st||{id:"settings",kind:"settings"}),billsSeeded:true,billsVersion:BILLS_VERSION});
+    await put({...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),billsSeeded:true,billsVersion:BILLS_VERSION});
   }catch{}seeding=false}
 
 /* ---------- actions ---------- */
@@ -591,7 +628,7 @@ $("billForm").addEventListener("submit",async e=>{e.preventDefault();
 });
 document.addEventListener("change",async e=>{const id=e.target.dataset?.bamt;if(!id)return;
   const b=items.find(i=>i.id===id);const v=parseFloat(e.target.value)||0;if(b&&v!==Number(b.amount)){try{await put({...b,amount:v})}catch{}}});
-$("payAll").addEventListener("click",async()=>{const txs=items.filter(i=>i.kind==="tx");
+$("payAll").addEventListener("click",async()=>{const txs=mine("tx");
   for(const b of bills())if(!paidTx(b,txs))await payBill(b).catch(()=>{})});
 $("txForm").addEventListener("submit",async e=>{e.preventDefault();
   const amount=parseFloat($("amount").value);
@@ -664,8 +701,13 @@ function renderChart(txs){
   box.onpointerleave=()=>{$("chartTip").hidden=true;box.querySelector("#xh")?.setAttribute("visibility","hidden")};
   $("chartTable").innerHTML=`<tr><th>Bisha</th><th>Soo galay</th><th>Ka baxay</th><th>Farqiga</th></tr>`+chartData.map(r=>`<tr><td>${MONTHS[r.d.getMonth()]} ${r.d.getFullYear()}</td><td>${money(r.inn)}</td><td>${money(r.out)}</td><td>${money(r.inn-r.out)}</td></tr>`).join("");
 }
-let rsz;window.addEventListener("resize",()=>{clearTimeout(rsz);rsz=setTimeout(()=>renderChart(items.filter(i=>i.kind==="tx")),150)});
+let rsz;window.addEventListener("resize",()=>{clearTimeout(rsz);rsz=setTimeout(()=>renderChart(mine("tx")),150)});
 
+document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",async()=>{
+  const m=b.dataset.mode;const st=items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"};
+  applyMode(m);await put({...st,mode:m});showView("appView");render();seedBills()}));
+$("modeSel").addEventListener("change",async e=>{const m=e.target.value;const st=items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"};
+  applyMode(m);await put({...st,mode:m});render();seedBills()});
 $("prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
 $("next").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);render()};
 
