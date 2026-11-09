@@ -193,7 +193,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
 
 <section id="authView" class="gate" hidden>
   <div style="justify-self:end"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option></select></label></div>
-  <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub">Maamul lacagtaada meel kasta oo aad joogto.</p><p class="credit">Waxaa sameeyay <b>Asad Moallim</b></p></div>
+  <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub">Maamul lacagtaada meel kasta oo aad joogto.</p></div>
   <div class="panel">
     <div class="tabs" role="tablist">
       <button type="button" role="tab" id="tabIn" aria-selected="true">Gal</button>
@@ -441,7 +441,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
       </section>
     </div>
   </div>
-  <footer class="credit">HantiGo · Waxaa sameeyay <b>Asad Moallim</b> · <a href="privacy.html">Asturnaanta</a></footer>
+  <footer class="credit"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b> · <a href="privacy.html">Asturnaanta</a></footer>
 </div>
 
 <script>
@@ -489,7 +489,7 @@ const EN={
 "Lacagta aad buffer-ka ku shubto waxaa laga jarayaa akoonkaaga, “Ka qaado”-na dib ayay ugu celinaysaa. Sidaas ayaad ku kala garanaysaa lacagta la isticmaali karo iyo tan la kaydiyay.":"Money you put in a buffer is taken from your balance, and “Withdraw” puts it back. That way you can tell spendable money from saved money.",
 "Bixinta bishii":"Monthly payment","Ku bixi EVC Plus lambarka hoose, kadibna fariinta xaqiijinta ee EVC u gudbi (forward) isla lambarkaas.":"Pay with EVC Plus to the number below, then forward the EVC confirmation message to the same number.",
 "Lambarka EVC Plus":"EVC Plus number","Koobiyee koodhka":"Copy the code","Waa la koobiyeeyay":"Copied","Dooro oo koobiyee":"Select and copy",
-"Halkee lacagtu ku baxday?":"Where did the money go?","HantiGo · Waxaa sameeyay":"HantiGo · Made by","Asturnaanta":"Privacy",
+"Halkee lacagtu ku baxday?":"Where did the money go?","HantiGo · Waxaa sameeyay":"HantiGo · Made by","Asturnaanta":"Privacy","Aasaasaha HantiGo:":"HantiGo founder:",
 "Akoonka lama helin. Fadlan mar kale isku day inaad gasho.":"Account not found. Please try logging in again.",
 "Server-ka lama gaari karo. Hubi internetka, kadibna bogga dib u fur.":"Cannot reach the server. Check your internet, then reload the page.",
 "Lambarkaaga waa la helay. Marka lacagta la xaqiijiyo, akoonkaaga waa la furayaa.":"We have your number. Your account will be opened once the payment is confirmed.",
@@ -769,7 +769,7 @@ $("forgot").addEventListener("click",async()=>{
   const email=$("aEmail").value.trim();
   if(!email.includes("@")){$("aErr").textContent="Marka hore sanduuqa Email ku qor emailkaaga, kadibna mar kale riix “Ma ilowday erayga sirta ah?”.";$("aEmail").focus();return}
   $("forgot").disabled=true;
-  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:"https://asadmoallim-hash.github.io/HantiGo/"});
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:NATIVE?"https://asadmoallim-hash.github.io/HantiGo/":location.origin+location.pathname});
   $("aErr").textContent=error?(/rate|seconds/i.test(error.message)?"Fariimo badan ayaa la diray. Sug in yar kadibna mar kale isku day.":L("Khalad ayaa dhacay: ","Something went wrong: ")+error.message)
     :"Waxaan kuu dirnay email leh xiriir lagu beddelo erayga sirta ah. Fur emailkaaga (eeg sidoo kale Spam).";
   $("forgot").disabled=false;
@@ -1150,7 +1150,7 @@ function buildReport(){const {txs,title}=reportData();
   <h2>${L("Dhaqdhaqaaqa","Transactions")} (${txs.length})</h2>
   <table><tr><th>${L("Taariikhda","Date")}</th><th>${L("Nooca","Type")}</th><th>${L("Qaybta","Category")}</th><th>${L("Habka","Method")}</th><th>${L("Meesha / faahfaahin","Place / details")}</th><th>${L("Qadarka","Amount")}</th></tr>
   ${txs.map(t=>`<tr><td>${esc(t.date)}</td><td>${typeLabel(t.type)}</td><td>${esc(T(t.cat))}</td><td>${esc(T(t.method||"Kaash"))}</td><td>${esc([t.place,t.note].filter(Boolean).join(" · "))}</td><td class="n">${t.type==="in"?"+":"−"}${money(t.amount)}</td></tr>`).join("")}</table>
-  <p>${L("Waxaa la sameeyay","Created")} ${esc(new Date().toLocaleString())} · HantiGo · ${L("Waxaa sameeyay","Made by")} Asad Moallim</p>`}
+  <p>${L("Waxaa la sameeyay","Created")} ${esc(new Date().toLocaleString())} · HantiGo · ${L("Aasaasaha HantiGo:","HantiGo founder:")} Asad Moallim</p>`}
 $("repPdf").addEventListener("click",()=>{$("printArea").innerHTML=buildReport();document.body.classList.add("printing");
   const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
   window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50)});
