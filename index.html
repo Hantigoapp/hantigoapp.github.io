@@ -211,6 +211,7 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
     <div class="stat"><span class="lbl">Haraaga bishan</span><span class="val" id="sNet">0</span></div>
     <div class="stat"><span class="lbl">Kaydka (buffer)</span><span class="val" id="sSaved">0</span></div>
     <div class="stat top-spend"><span class="lbl">Meesha lacagtu ugu badan ka baxday bishan</span><span class="val" id="sTop">—</span><span class="note" id="sTopNote">Weli kharash lama qorin.</span></div>
+    <div class="stat top-spend"><span class="lbl">Shirkadda lacagta ugu badan laga siiyay bishan</span><span class="val" id="sTopPlace">—</span><span class="note" id="sTopPlaceNote">Ku qor magaca shirkadda marka aad kharash gelinayso.</span></div>
   </section>
 
   <div class="cols">
@@ -239,7 +240,11 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
             <label class="field"><span>Qaybta</span><select id="cat"></select></label>
             <label class="field"><span>Taariikhda</span><input id="date" type="date" required></label>
           </div>
-          <label class="field"><span>Faahfaahin (ikhtiyaari)</span><input id="note" type="text" maxlength="80" placeholder="Tusaale: suuqa Bakaaraha"></label>
+          <div class="row">
+            <label class="field"><span>Shirkadda ama meesha (ikhtiyaari)</span><input id="place" type="text" maxlength="40" list="placeList" placeholder="Tusaale: Hormuud, suuqa Bakaaraha"></label>
+            <label class="field"><span>Faahfaahin (ikhtiyaari)</span><input id="note" type="text" maxlength="80" placeholder="Tusaale: bilka Nofembar"></label>
+          </div>
+          <datalist id="placeList"></datalist>
           <div class="err" id="txErr" role="alert"></div>
           <button class="primary" type="submit">Kaydi</button>
         </form>
@@ -300,6 +305,7 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 </div>
 
 <script>
+const PLACES=["Hormuud","Somtel","Golis","Telesom","Amtel","BECO","Dahabshiil","Amal Bank","Premier Bank","Salaam Bank","Hass Petroleum","Suuqa Bakaaraha","Suuqa Xamar Weyne","Hilib-dukaan","Farmashiye"];
 const METHODS=["EVC Plus","Bangi","Kaash"];
 const payMethod=()=>document.querySelector('input[name=method]:checked')?.value||"EVC Plus";
 const DAILY=["Hilib","Bariis","Baasto","Caano","Cabitaan","Sonkor","Bur","Malaay","Digaag","Caleen shaah","Qaxwo","Biyo caafi",
@@ -478,7 +484,7 @@ function render(){
   }else{
     list.innerHTML=month.map(t=>`<li class="tx">
       <span class="dot ${t.type}" aria-hidden="true">${t.type==="in"?"+":"−"}</span>
-      <div style="min-width:0"><div class="name">${esc(t.cat)}<span class="pm">${esc(t.method||"Kaash")}</span></div><div class="meta">${esc(t.date)}${t.note?" · "+esc(t.note):""}</div></div>
+      <div style="min-width:0"><div class="name">${esc(t.cat)}<span class="pm">${esc(t.method||"Kaash")}</span></div><div class="meta">${esc(t.date)}${t.place?" · "+esc(t.place):""}${t.note?" · "+esc(t.note):""}</div></div>
       <span class="amt ${t.type}">${t.type==="in"?"+":"−"}${money(t.amount)}</span>
       <button class="del" data-del="${esc(t.id)}" aria-label="Tirtir">Tirtir</button></li>`).join("");
   }
@@ -490,6 +496,13 @@ function render(){
   if(rows.length){$("sTop").textContent=rows[0][0];
     $("sTopNote").textContent=money(rows[0][1])+" · "+Math.round(rows[0][1]/spent*100)+"% kharashka bishan"}
   else{$("sTop").textContent="—";$("sTopNote").textContent="Bishan weli kharash lama qorin."}
+  const byPlace={};outs.filter(t=>t.place).forEach(t=>{const k=t.place.trim();byPlace[k]=(byPlace[k]||0)+Number(t.amount)});
+  const prow=Object.entries(byPlace).sort((a,b)=>b[1]-a[1]);
+  if(prow.length){$("sTopPlace").textContent=prow[0][0];
+    $("sTopPlaceNote").textContent=money(prow[0][1])+" · "+Math.round(prow[0][1]/spent*100)+"% kharashka bishan"+(prow.length>1?" · Ugu yar: "+prow[prow.length-1][0]+" ("+money(prow[prow.length-1][1])+")":"")}
+  else{$("sTopPlace").textContent="—";$("sTopPlaceNote").textContent="Ku qor magaca shirkadda marka aad kharash gelinayso."}
+  const known=[...new Set([...txs.map(t=>t.place).filter(Boolean),...PLACES])];
+  $("placeList").innerHTML=known.map(p=>`<option value="${esc(p)}">`).join("");
   const ex=$("extremes");ex.hidden=!rows.length;
   if(rows.length){const hi=rows[0],lo=rows[rows.length-1];
     ex.innerHTML=`<div class="ext hi"><span class="lbl">Ugu badan</span><b>${esc(hi[0])}</b><span>${money(hi[1])}</span></div>`+
@@ -557,8 +570,8 @@ $("txForm").addEventListener("submit",async e=>{e.preventDefault();
   if(!(amount>0)){$("txErr").textContent="Geli qadar ka weyn eber.";return}
   if(!$("date").value){$("txErr").textContent="Dooro taariikhda.";return}
   $("txErr").textContent="";
-  const doc={id:uid(),kind:"tx",method:payMethod(),type:document.querySelector('input[name=type]:checked').value,amount,cat:$("cat").value,date:$("date").value,note:$("note").value.trim(),created:new Date().toISOString()};
-  try{await put(doc);$("amount").value="";$("note").value="";
+  const doc={id:uid(),kind:"tx",method:payMethod(),type:document.querySelector('input[name=type]:checked').value,amount,cat:$("cat").value,date:$("date").value,note:$("note").value.trim(),place:$("place").value.trim(),created:new Date().toISOString()};
+  try{await put(doc);$("amount").value="";$("note").value="";$("place").value="";
     const d=new Date(doc.date+"T00:00");view=new Date(d.getFullYear(),d.getMonth(),1);render()}
   catch(err){$("txErr").textContent="Lama kaydin karo hadda. Isku day mar kale."}
 });
@@ -597,7 +610,8 @@ async function addSamples(){
   const y=view.getFullYear(),m=String(view.getMonth()+1).padStart(2,"0");const d=n=>`${y}-${m}-${String(n).padStart(2,"0")}`;
   const now=new Date().toISOString();
   const s=[["in",600,"Mushahar",1,"Tusaale"],["in",150,"Xawaalad la helay",5,"Tusaale"],["out",60,"Hilib",3,"Tusaale"],["out",25,"Bariis",4,"Tusaale"],["out",12,"Caano",7,"Tusaale"],["out",8,"Sonkor",6,"Tusaale"],["out",15,"Malaay",8,"Tusaale"],["out",40,"Gaadiid",8,"Tusaale"],["out",10,"Taleefan",9,"Tusaale"],["out",100,"Qoys (xawaalad)",10,"Tusaale"]];
-  for(const [type,amount,cat,day,note] of s)await put({id:uid(),kind:"tx",method:payMethod(),type,amount,cat,date:d(day),note,created:now});
+  const SP={Hilib:"Hilib-dukaan",Bariis:"Suuqa Bakaaraha",Caano:"Suuqa Bakaaraha",Sonkor:"Suuqa Bakaaraha",Malaay:"Suuqa Xamar Weyne",Taleefan:"Hormuud","Qoys (xawaalad)":"Dahabshiil",Gaadiid:"Hass Petroleum"};
+  for(const [type,amount,cat,day,note] of s)await put({id:uid(),kind:"tx",method:payMethod(),type,amount,cat,date:d(day),note,place:type==="out"?(SP[cat]||""):"",created:now});
   await put({id:uid(),kind:"goal",name:"Buffer xaalad degdeg (tusaale)",target:500,saved:0,created:now});
 }
 
