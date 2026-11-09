@@ -1,0 +1,59 @@
+name: Android app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HAS_SIGNING_KEY: ${{ secrets.HANTIGO_KEYSTORE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install and copy web files into the app
+        run: |
+          npm ci
+          npm run sync
+
+      # Test version: install this APK directly on a phone.
+      - name: Build test APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HantiGo-test-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      # Google Play version: built only once the signing key secrets are added.
+      - name: Build signed Play Store bundle
+        if: env.HAS_SIGNING_KEY == 'true'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.HANTIGO_KEYSTORE_BASE64 }}
+          HANTIGO_KEYSTORE_PASSWORD: ${{ secrets.HANTIGO_KEYSTORE_PASSWORD }}
+          HANTIGO_KEY_ALIAS: ${{ secrets.HANTIGO_KEY_ALIAS }}
+          HANTIGO_KEY_PASSWORD: ${{ secrets.HANTIGO_KEY_PASSWORD }}
+        working-directory: android
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          export HANTIGO_KEYSTORE_FILE="$RUNNER_TEMP/upload.jks"
+          ./gradlew bundleRelease --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ hashFiles('android/app/build/outputs/bundle/release/*.aab') != '' }}
+        with:
+          name: HantiGo-play-store-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab

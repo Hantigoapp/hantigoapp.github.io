@@ -144,7 +144,7 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
     </div>
     <form id="authForm" novalidate>
       <label class="field"><span>Email</span><input id="aEmail" type="email" autocomplete="email" required placeholder="tusaale@gmail.com"></label>
-      <label class="field"><span>Furaha sirta (ugu yaraan 6 xaraf)</span><input id="aPass" type="password" autocomplete="current-password" minlength="6" required></label>
+      <label class="field"><span>Erayga sirta ah (ugu yaraan 6 xaraf)</span><input id="aPass" type="password" autocomplete="current-password" minlength="6" required></label>
       <div class="err" id="aErr" role="alert"></div>
       <button class="primary" type="submit" id="aBtn">Gal</button>
       <p class="note" id="aNote" style="margin:0">Akoon cusub wuxuu helayaa 7 maalmood oo bilaash ah.</p>
@@ -155,11 +155,12 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 <section id="payView" class="gate" hidden>
   <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub" id="payWho"></p></div>
   <div class="panel sub-panel">
-    <div class="panel-head"><h2>Muddadaadu way dhammaatay</h2><span class="price">$10 / bishii</span></div>
-    <p style="margin:0">Si aad u sii isticmaasho HantiGo, ku bixi $10 EVC Plus. Marka lacagta la xaqiijiyo, akoonkaaga waa la furayaa 30 maalmood.</p>
-    <div class="evc"><span class="note">Ku garaac taleefankaaga</span><b>*712*613735086*10#</b></div>
-    <div class="evc"><span class="note">Lambarka EVC Plus ee lacagta loo dirayo</span><b>+252 61 373 5086</b></div>
-    <form id="phoneForm" novalidate>
+    <div class="panel-head"><h2>Muddadaadu way dhammaatay</h2><span class="price pay-only">$10 / bishii</span></div>
+    <p id="nativeNote" style="margin:0" hidden>Akoonkaagu hadda ma laha subscription firfircoon. Marka akoonkaaga la furo, riix "Hubi mar kale".</p>
+    <p class="pay-only" style="margin:0">Si aad u sii isticmaasho HantiGo, ku bixi $10 EVC Plus. Marka lacagta la xaqiijiyo, akoonkaaga waxaa loo furayaa 30 maalmood.</p>
+    <div class="evc pay-only"><span class="note">Ku garaac taleefankaaga</span><b>*712*613735086*10#</b></div>
+    <div class="evc pay-only"><span class="note">Lambarka EVC Plus ee lacagta loo dirayo</span><b>+252 61 373 5086</b></div>
+    <form id="phoneForm" class="pay-only" novalidate>
       <label class="field"><span>Lambarka aad lacagta ka soo dirtay</span><input id="pPhone" type="tel" inputmode="tel" placeholder="61xxxxxxx" maxlength="20"></label>
       <div class="err" id="pErr" role="status"></div>
       <button class="primary" type="submit">Waan bixiyay</button>
@@ -172,7 +173,7 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
   <header>
     <div>
       <h1>Hanti<span>Go</span></h1>
-      <p class="sub">Qor lacagta kuu soo gasha iyo tan kaa baxda, kaydsana yoolalkaaga.</p>
+      <p class="sub">Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.</p>
       <div class="account"><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a><button type="button" class="logout del" style="padding:4px 0">Ka bax</button></div>
     </div>
     <div class="month" aria-label="Bisha">
@@ -185,11 +186,11 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
   <div id="banner" class="banner" hidden></div>
 
   <section class="summary" aria-label="Kooban">
-    <div class="stat bal"><span class="lbl">Lacagta akoontiga</span><span class="val" id="sBal">0</span>
+    <div class="stat bal"><span class="lbl">Lacagta akoonkaaga</span><span class="val" id="sBal">0</span>
       <div class="methods" id="sMethods"></div></div>
     <div class="stat in"><span class="lbl">Soo galay</span><span class="val" id="sIn">0</span></div>
     <div class="stat out"><span class="lbl">Ka baxay</span><span class="val" id="sOut">0</span></div>
-    <div class="stat"><span class="lbl">Ka haray bishan</span><span class="val" id="sNet">0</span></div>
+    <div class="stat"><span class="lbl">Haraaga bishan</span><span class="val" id="sNet">0</span></div>
     <div class="stat"><span class="lbl">Kaydka (buffer)</span><span class="val" id="sSaved">0</span></div>
   </section>
 
@@ -197,18 +198,18 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
     <div style="display:grid;gap:20px;min-width:0">
       <section class="panel" aria-labelledby="addH">
         <div class="panel-head"><h2 id="addH">Ku dar dhaqdhaqaaq</h2>
-          <label class="field" style="grid-auto-flow:column;align-items:center;gap:8px"><span>Lacagta</span>
+          <label class="field" style="grid-auto-flow:column;align-items:center;gap:8px"><span>Nooca lacagta</span>
             <select id="currency" style="width:auto">
               <option value="USD">$ Doolar</option><option value="SOS">Sh.So. Shilin Soomaali</option>
             </select></label>
         </div>
         <form id="txForm" novalidate>
           <div class="seg" role="radiogroup" aria-label="Nooca">
-            <input type="radio" name="type" id="tIn" value="in"><label for="tIn" class="l-in">+ Soo gal (dakhli)</label>
-            <input type="radio" name="type" id="tOut" value="out" checked><label for="tOut" class="l-out">− Ka bax (kharash)</label>
+            <input type="radio" name="type" id="tIn" value="in"><label for="tIn" class="l-in">+ Dakhli (soo galay)</label>
+            <input type="radio" name="type" id="tOut" value="out" checked><label for="tOut" class="l-out">− Kharash (ka baxay)</label>
           </div>
-          <div class="field"><span>Habka lacagta</span>
-            <div class="seg3" role="radiogroup" aria-label="Habka lacagta">
+          <div class="field"><span>Habka lacag-bixinta</span>
+            <div class="seg3" role="radiogroup" aria-label="Habka lacag-bixinta">
               <input type="radio" name="method" id="mEvc" value="EVC Plus" checked><label for="mEvc">EVC Plus</label>
               <input type="radio" name="method" id="mBank" value="Bangi"><label for="mBank">Bangi</label>
               <input type="radio" name="method" id="mCash" value="Kaash"><label for="mCash">Kaash</label>
@@ -234,7 +235,7 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
     <div style="display:grid;gap:20px;min-width:0">
       <section class="panel" aria-labelledby="billH">
         <div class="panel-head"><h2 id="billH">Kharashyada joogtada ah</h2><span class="note" id="billMonth"></span></div>
-        <p class="note" style="margin:0">Bil kasta waa isku mid. Geli qadarka mid kasta hal mar, kadibna bisha riix “Bixi”. Waxaa lagu qorayaa habka lacagta ee aad foomka sare ku dooratay.</p>
+        <p class="note" style="margin:0">Kharashyadan bil kasta way soo noqnoqdaan. Geli qadarka mid kasta hal mar, kadibna bil kasta riix “Bixi”. Waxaa lagu diiwaangelinayaa habka lacag-bixinta ee aad ku dooratay foomka sare.</p>
         <div id="bills"></div>
         <div class="bill-total"><span id="billSum"></span><button class="primary" id="payAll" type="button">Bixi dhammaan</button></div>
         <form id="billForm" novalidate>
@@ -248,7 +249,7 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
       </section>
 
       <section class="panel" aria-labelledby="goalH">
-        <h2 id="goalH">Kaydka &amp; buffer-ka</h2>
+        <h2 id="goalH">Kaydka iyo buffer-ka</h2>
         <div id="goals" style="display:grid;gap:10px"></div>
         <form id="goalForm" novalidate>
           <div class="row">
@@ -258,12 +259,12 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
           <div class="err" id="gErr" role="alert"></div>
           <button type="submit">+ Yool cusub</button>
         </form>
-        <p class="note">Lacagta aad buffer ku shubto waa laga dhigayaa akoontiga, “Ka qaado” na way ku celinaysaa. Sidaas ayaad u kala garanaysaa lacagta la isticmaali karo iyo tan la dhigtay.</p>
+        <p class="note">Lacagta aad buffer-ka ku shubto waxaa laga jarayaa akoonkaaga, “Ka qaado”-na dib ayay ugu celinaysaa. Sidaas ayaad ku kala garanaysaa lacagta la isticmaali karo iyo tan la kaydiyay.</p>
       </section>
 
-      <section class="panel sub-panel" aria-labelledby="subH">
-        <div class="panel-head"><h2 id="subH">Cusboonaysii bishii</h2><span class="price">$10 / bishii</span></div>
-        <p style="margin:0">Ku bixi EVC Plus lambarka hoose, kadibna fariinta xaqiijinta (lambarka dhaqdhaqaaqa) u dir isla lambarkaas.</p>
+      <section class="panel sub-panel pay-only" aria-labelledby="subH">
+        <div class="panel-head"><h2 id="subH">Bixinta bishii</h2><span class="price">$10 / bishii</span></div>
+        <p style="margin:0">Ku bixi EVC Plus lambarka hoose, kadibna fariinta xaqiijinta ee EVC u gudbi (forward) isla lambarkaas.</p>
         <div class="evc"><span class="note">Lambarka EVC Plus</span><b id="evcNum">+252 61 373 5086</b></div>
         <div class="evc"><span class="note">Ku garaac taleefankaaga</span><b id="evcCode">*712*613735086*10#</b></div>
         <div class="goal-actions"><button type="button" id="copyCode" class="primary">Koobiyee koodhka</button><span class="note" id="copyMsg" role="status"></span></div>
@@ -288,7 +289,7 @@ const CATS={
   in:["Mushahar","Ganacsi","Xawaalad la helay","Hadiyad","Kale","Kayd"],
   out:[...DAILY,"Cunto kale","Kiro guri","Koronto","Biyo","Gaas","Internet","Gaadiid","Taleefan","Caafimaad","Waxbarasho","Qoys (xawaalad)","Dhar","Kayd","Kale"]
 };
-const MONTHS=["Janaayo","Febraayo","Maarso","Abriil","Maajo","Juun","Luulyo","Ogost","Sebtembar","Oktoobar","Nofembar","Desembar"];
+const MONTHS=["Janaayo","Febraayo","Maarso","Abriil","Maajo","Juun","Luulyo","Agoosto","Sebtembar","Oktoobar","Nofembar","Desembar"];
 const SYM={USD:"$",SOS:"Sh.So. "};
 const LS="dhaqaale.v1";
 const $=id=>document.getElementById(id);
@@ -309,6 +310,9 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 /* ---------- cloud (Supabase) ---------- */
 const SUPABASE_URL="https://izcvgigmcqxkntsvxkhj.supabase.co";
 const SUPABASE_KEY="sb_publishable_Uzpl7gYnsQAvLVwvsyD7nA_ZhJt_XpZ";
+// Inside the Google Play app, payment instructions are hidden (store payment rules).
+const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+if(NATIVE){document.querySelectorAll(".pay-only").forEach(e=>e.hidden=true);$("nativeNote").hidden=false}
 const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
 let me=null,profile=null,syncTimer=null,started=false;
 
@@ -322,7 +326,7 @@ function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,700
 async function syncNow(){
   if(!sb||!me)return;
   const {error}=await sb.from("user_data").upsert({user_id:me.id,items,updated_at:new Date().toISOString()});
-  if(error){showBanner("Lama kaydin karo hadda. Hubi internetka; xogtu taleefankan ayay ku jirtaa, mar kale ayaan isku dayi doonaa.");setTimeout(scheduleSync,15000)}
+  if(error){showBanner("Hadda lama kaydin karo. Hubi internetka. Xogtaadu taleefankan ayay ku jirtaa, waana la isku dayi doonaa mar kale.");setTimeout(scheduleSync,15000)}
   else showBanner("");
 }
 async function put(doc){
@@ -341,7 +345,7 @@ async function loadProfile(){
 async function enter(user){
   me=user;showView("loadingView");
   profile=await loadProfile();
-  if(!profile){showView("authView");$("aErr").textContent="Akoonka lama helin. Fadlan mar kale gal.";return}
+  if(!profile){showView("authView");$("aErr").textContent="Akoonka lama helin. Fadlan mar kale isku day inaad gasho.";return}
   if(!hasAccess(profile)){
     $("payWho").textContent=me.email;$("pPhone").value=profile.phone||"";
     $("pErr").textContent=profile.phone?"Lambarkaaga waa la helay. Marka lacagta la xaqiijiyo, akoonkaaga waa la furayaa.":"";
@@ -350,7 +354,7 @@ async function enter(user){
   $("accEmail").textContent=me.email;
   const d=daysLeft(profile);
   $("accStatus").innerHTML=profile.is_admin?`<span class="pill ok">Maamule</span>`
-    :`<span class="pill ${d<=3?"warn":"ok"}">${profile.paid_until&&new Date(profile.paid_until)>new Date()?"La bixiyay":"Tijaabo"}: ${d} maalmood</span>`;
+    :`<span class="pill ${d<=3?"warn":"ok"}">${profile.paid_until&&new Date(profile.paid_until)>new Date()?"La bixiyay":"Tijaabo"}: ${d} maalmood ayaa haray</span>`;
   $("adminLink").hidden=!profile.is_admin;
   const cached=loadLocal();
   const {data,error}=await sb.from("user_data").select("items").eq("user_id",me.id).maybeSingle();
@@ -363,7 +367,7 @@ async function enter(user){
 }
 
 async function init(){
-  if(!sb){showView("authView");$("aErr").textContent="Lama xiriiri karo server-ka. Hubi internetka kadibna bogga dib u fur.";return}
+  if(!sb){showView("authView");$("aErr").textContent="Server-ka lama gaari karo. Hubi internetka, kadibna bogga dib u fur.";return}
   sb.auth.onAuthStateChange((ev,session)=>{
     if(ev==="SIGNED_OUT"){me=null;items=[];showView("authView");return}
     if(session?.user&&(!me||me.id!==session.user.id)){const u=session.user;me=u;setTimeout(()=>enter(u),0)}
@@ -380,15 +384,15 @@ $("tabIn").onclick=()=>setTab(false);$("tabUp").onclick=()=>setTab(true);
 $("authForm").addEventListener("submit",async e=>{e.preventDefault();
   const email=$("aEmail").value.trim(),password=$("aPass").value;
   if(!email.includes("@")){$("aErr").textContent="Geli email sax ah.";return}
-  if(password.length<6){$("aErr").textContent="Furaha sirta waa inuu ahaadaa ugu yaraan 6 xaraf.";return}
+  if(password.length<6){$("aErr").textContent="Erayga sirta ah waa inuu ka koobnaadaa ugu yaraan 6 xaraf.";return}
   $("aErr").textContent="";$("aBtn").disabled=true;
   try{
     if(signUp){const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
       if(error)throw error;
-      if(!data.session){$("aErr").textContent="Akoonka waa la sameeyay. Fur emailkaaga oo riix xiriirka xaqiijinta, kadibna halkan ku gal.";setTab(false)}}
+      if(!data.session){$("aErr").textContent="Akoonka waa la sameeyay. Fur emailkaaga, riix xiriirka xaqiijinta, kadibna halkan ka gal.";setTab(false)}}
     else{const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error}
   }catch(err){const m=String(err.message||"");
-    $("aErr").textContent=/Invalid login/i.test(m)?"Email-ka ama furaha sirta waa khalad.":/already registered/i.test(m)?"Email-kan akoon ayuu leeyahay. Dooro \"Gal\".":/not confirmed/i.test(m)?"Marka hore xaqiiji emailkaaga (fiiri inbox-ka).":"Khalad ayaa dhacay: "+m}
+    $("aErr").textContent=/Invalid login/i.test(m)?"Email-ka ama erayga sirta ah waa khalad.":/already registered/i.test(m)?"Email-kan horay ayaa akoon loogu sameeyay. Dooro \"Gal\".":/not confirmed/i.test(m)?"Marka hore xaqiiji emailkaaga (eeg sanduuqa fariimaha).":"Khalad ayaa dhacay: "+m}
   $("aBtn").disabled=false;
 });
 document.querySelectorAll(".logout").forEach(b=>b.addEventListener("click",async()=>{clearTimeout(syncTimer);if(me)await syncNow();await sb.auth.signOut()}));
@@ -422,12 +426,12 @@ function render(){
   $("sBal").textContent=money(sum(txs,"in")-sum(txs,"out"));
   $("sMethods").innerHTML=METHODS.map(m=>{const ts=txs.filter(t=>(t.method||"Kaash")===m);return `<span>${m}: <b>${money(sum(ts,"in")-sum(ts,"out"))}</b></span>`}).join("");
   $("sSaved").textContent=money(items.filter(i=>i.kind==="goal").reduce((a,g)=>a+Number(g.saved||0),0));
-  $("count").textContent=month.length?month.length+" qor":"";
+  $("count").textContent=month.length?month.length+" qoraal":"";
 
   const list=$("txList");
-  if(mode==="loading"){list.innerHTML=`<li class="empty">Waa la soo raraya…</li>`}
+  if(mode==="loading"){list.innerHTML=`<li class="empty">Waa la soo dejinayaa…</li>`}
   else if(!month.length){
-    list.innerHTML=`<li class="empty"><span>Bishan wax lama qorin weli. Ku dar mushaharkaaga ama kharashkaagii ugu horreeyay foomka sare.</span>${txs.length?"":`<button id="sample" type="button">Ku dar tusaalooyin</button>`}</li>`;
+    list.innerHTML=`<li class="empty"><span>Bishan weli waxba lama qorin. Foomka sare ku dar mushaharkaaga ama kharashkaaga ugu horreeya.</span>${txs.length?"":`<button id="sample" type="button">Ku dar tusaalooyin</button>`}</li>`;
     $("sample")?.addEventListener("click",addSamples);
   }else{
     list.innerHTML=month.map(t=>`<li class="tx">
@@ -446,7 +450,7 @@ function render(){
     ex.innerHTML=`<div class="ext hi"><span class="lbl">Ugu badan</span><b>${esc(hi[0])}</b><span>${money(hi[1])}</span></div>`+
       (rows.length>1?`<div class="ext lo"><span class="lbl">Ugu yar</span><b>${esc(lo[0])}</b><span>${money(lo[1])}</span></div>`:"")}
   $("cats").innerHTML=rows.length?rows.map(([c,v])=>`<div class="cat"><div class="cat-top"><span>${esc(c)}</span><span>${money(v)} · ${Math.round(v/spent*100)}%</span></div><div class="bar"><i style="width:${v/spent*100}%"></i></div></div>`).join("")
-    :`<p class="empty" style="margin:0">Kharash bishan lama qorin.</p>`;
+    :`<p class="empty" style="margin:0">Bishan weli kharash lama qorin.</p>`;
 
   renderBills(txs);
   const goals=items.filter(i=>i.kind==="goal").sort((a,b)=>a.created.localeCompare(b.created));
@@ -455,7 +459,7 @@ function render(){
       <div class="bar" role="progressbar" aria-valuenow="${Math.round(p)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${p}%"></i></div>
       <div class="goal-actions">${p>=100?`<span class="done">✓ Yoolka waa la gaaray</span><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="Qadar" id="gin-${esc(g.id)}" aria-label="Qadarka">`:`<input type="number" min="0" step="0.01" inputmode="decimal" placeholder="Qadar" id="gin-${esc(g.id)}" aria-label="Qadarka lagu shubayo"><button data-dep="${esc(g.id)}">Ku shub</button>`}${g.saved>0?`<button data-wd="${esc(g.id)}">Ka qaado</button>`:""}
       <button class="del" data-del="${esc(g.id)}">Tirtir</button></div></div>`}).join("")
-    :`<p class="empty" style="margin:0">Weli buffer ama yool ma dejin. Tusaale: lacag degdeg ah, Xajka, ama guri.</p>`;
+    :`<p class="empty" style="margin:0">Weli ma aadan dejin buffer ama yool. Tusaale: lacag xaalad degdeg ah, Xajka, ama guri.</p>`;
 }
 
 const DEFAULT_BILLS=["Kiro guri","Koronto","Biyo","Gaas","Internet","Taleefan bille","Iskuul / waxbarasho","Xawaalad qoys","Gaadiid bille","Qashin qaad","Ilaalada xaafadda","Telefishin","Caymis caafimaad","Deyn bixin"];
@@ -471,7 +475,7 @@ function renderBills(txs){
       <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${esc(b.id)}" aria-label="Qadarka ${esc(b.name)}">
       ${p?`<span class="paid">✓ ${money(p.amount)}</span>`:`<button data-pay="${esc(b.id)}">Bixi</button>`}
       <button class="del" data-del="${esc(b.id)}">Tirtir</button></div>`}).join("")
-    :`<p class="empty" style="margin:0">Kharash joogto ah ma jiro. Ku dar hoos.</p>`;
+    :`<p class="empty" style="margin:0">Weli ma jiro kharash joogto ah. Hoos ka ku dar.</p>`;
   if(keep){const el=document.querySelector(`[data-bamt="${keep.id}"]`);if(el){el.value=keep.v;el.focus()}}
   $("billSum").textContent="Wadarta bishii: "+money(total);
   $("payAll").hidden=!left;
@@ -549,7 +553,7 @@ async function addSamples(){
   const now=new Date().toISOString();
   const s=[["in",600,"Mushahar",1,"Tusaale"],["in",150,"Xawaalad la helay",5,"Tusaale"],["out",60,"Hilib",3,"Tusaale"],["out",25,"Bariis",4,"Tusaale"],["out",12,"Caano",7,"Tusaale"],["out",8,"Sonkor",6,"Tusaale"],["out",15,"Malaay",8,"Tusaale"],["out",40,"Gaadiid",8,"Tusaale"],["out",10,"Taleefan",9,"Tusaale"],["out",100,"Qoys (xawaalad)",10,"Tusaale"]];
   for(const [type,amount,cat,day,note] of s)await put({id:uid(),kind:"tx",method:payMethod(),type,amount,cat,date:d(day),note,created:now});
-  await put({id:uid(),kind:"goal",name:"Buffer degdeg (tusaale)",target:500,saved:0,created:now});
+  await put({id:uid(),kind:"goal",name:"Buffer xaalad degdeg (tusaale)",target:500,saved:0,created:now});
 }
 
 $("cat").addEventListener("change",markChip);
@@ -559,6 +563,6 @@ $("copyCode").addEventListener("click",()=>{const t=$("evcCode").textContent;
   try{navigator.clipboard.writeText(t).then(ok,fail)}catch{fail()}});
 $("date").value=today();renderDaily();fillCats();render();init();
 </script>
-<script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+<script>if(!window.Capacitor&&"serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>

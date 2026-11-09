@@ -1,0 +1,6 @@
+{
+  "appId": "com.hantigo.app",
+  "appName": "HantiGo",
+  "webDir": "www",
+  "android": { "backgroundColor": "#f3f6fa" }
+}

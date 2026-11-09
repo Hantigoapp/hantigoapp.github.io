@@ -43,7 +43,7 @@ input{width:100%;border:1px solid var(--line);background:var(--surface);border-r
 <body>
 <div class="wrap">
   <div class="top"><h1>Hanti<span>Go</span> · Maamul</h1><a href="./">← Ku noqo app-ka</a></div>
-  <p class="msg" id="msg">Waa la soo raraya…</p>
+  <p class="msg" id="msg">Waa la soo dejinayaa…</p>
   <div id="main" hidden style="display:grid;gap:16px">
     <div class="stats">
       <div class="stat"><small>Macaamiisha</small><b id="nAll">0</b></div>
@@ -81,7 +81,7 @@ function render(){
   </div>`}).join(""):`<p class="msg">Macmiil lama helin.</p>`}
 async function load(){
   const {data,error}=await sb.from("profiles").select("*").order("created_at",{ascending:false});
-  if(error){$("msg").textContent="Lama soo saari karo: "+error.message;return}
+  if(error){$("msg").textContent="Xogta lama soo saari karo: "+error.message;return}
   rows=data;$("msg").hidden=true;$("main").hidden=false;render()}
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-id]");if(!b)return;
   const d=Number(b.dataset.d);
