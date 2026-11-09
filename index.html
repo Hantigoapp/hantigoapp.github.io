@@ -115,6 +115,8 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .methods{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:6px;font-size:.88rem}
 .methods span{opacity:.85}.methods b{font-weight:600}
 .seg3{position:relative;display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg3.seg2{grid-template-columns:1fr 1fr}
+.seg3.seg2 label{padding:11px 4px;font-size:1rem}
 .seg3 input{position:absolute;opacity:0;pointer-events:none}
 .seg3 label{text-align:center;padding:8px 4px;cursor:pointer;font-weight:600;color:var(--muted);font-size:.9rem}
 .seg3 input:checked+label{background:var(--accent-soft);color:var(--accent)}
@@ -172,6 +174,11 @@ details summary{cursor:pointer;color:var(--accent);font-weight:600}
       <button type="button" role="tab" id="tabUp" aria-selected="false">Is-diiwaangeli</button>
     </div>
     <form id="authForm" novalidate>
+      <div class="field" id="aTypeRow" hidden><span>Nooca akoonka</span>
+        <div class="seg3 seg2" role="radiogroup" aria-label="Nooca akoonka">
+          <input type="radio" name="atype" id="atP" value="person" checked><label for="atP">👤 Shakhsi</label>
+          <input type="radio" name="atype" id="atB" value="business"><label for="atB">🏢 Shirkad</label>
+        </div></div>
       <label class="field"><span>Email</span><input id="aEmail" type="email" autocomplete="email" required placeholder="tusaale@gmail.com"></label>
       <label class="field"><span>Erayga sirta ah (ugu yaraan 6 xaraf)</span><input id="aPass" type="password" autocomplete="current-password" minlength="6" required></label>
       <div class="err" id="aErr" role="alert"></div>
@@ -455,7 +462,9 @@ async function enter(user){
   else{let legacy=null;try{legacy=JSON.parse(localStorage.getItem(LS)||"null")}catch{}items=legacy||[]}
   if(error&&cached){items=cached;showBanner("Internet la'aan: waxaa la muujinayaa xogtii taleefanka ku kaydsanayd.")}
   saveLocal();mode="cloud";
-  const st=items.find(i=>i.kind==="settings");
+  let st=items.find(i=>i.kind==="settings");
+  const chosen=pendingMode||user?.user_metadata?.mode;
+  if(!st?.mode&&(chosen==="person"||chosen==="business")){st={...(st||{id:"settings",kind:"settings"}),mode:chosen};try{await put(st)}catch{}}
   if(!st?.mode){showView("modeView");return}
   applyMode(st.mode);showView("appView");render();seedBills();
   if(!data&&items.length)scheduleSync();
@@ -473,9 +482,9 @@ async function init(){
 }
 
 /* auth form */
-let signUp=false;
+let signUp=false,pendingMode=null;
 function setTab(up){signUp=up;$("tabIn").setAttribute("aria-selected",!up);$("tabUp").setAttribute("aria-selected",up);
-  $("aBtn").textContent=up?"Samee akoon":"Gal";$("aPass").autocomplete=up?"new-password":"current-password";$("aErr").textContent=""}
+  $("aBtn").textContent=up?"Samee akoon":"Gal";$("aTypeRow").hidden=!up;$("aPass").autocomplete=up?"new-password":"current-password";$("aErr").textContent=""}
 $("tabIn").onclick=()=>setTab(false);$("tabUp").onclick=()=>setTab(true);
 $("authForm").addEventListener("submit",async e=>{e.preventDefault();
   const email=$("aEmail").value.trim(),password=$("aPass").value;
@@ -483,7 +492,8 @@ $("authForm").addEventListener("submit",async e=>{e.preventDefault();
   if(password.length<6){$("aErr").textContent="Erayga sirta ah waa inuu ka koobnaadaa ugu yaraan 6 xaraf.";return}
   $("aErr").textContent="";$("aBtn").disabled=true;
   try{
-    if(signUp){const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+    if(signUp){const am=document.querySelector('input[name=atype]:checked').value;pendingMode=am;
+      const {data,error}=await sb.auth.signUp({email,password,options:{data:{mode:am},emailRedirectTo:location.origin+location.pathname}});
       if(error)throw error;
       if(!data.session){$("aErr").textContent="Akoonka waa la sameeyay. Fur emailkaaga, riix xiriirka xaqiijinta, kadibna halkan ka gal.";setTab(false)}}
     else{const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error}
