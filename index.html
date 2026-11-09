@@ -184,6 +184,10 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
   #printArea h1{font:700 20px var(--display);margin:0 0 4px}#printArea h2{font-size:14px;margin:14px 0 4px}
   #printArea table{border-collapse:collapse;width:100%;margin:4px 0 10px}
   #printArea th,#printArea td{border:1px solid #bbb;padding:4px 6px;text-align:left}#printArea td.n{text-align:right;white-space:nowrap}}
+.install{display:grid;gap:10px}
+.install .dl{display:flex;flex-wrap:wrap;gap:8px}
+.install a.btnlike{text-decoration:none;color:var(--ink);font-weight:600}
+.install ol{margin:6px 0 0;padding-left:20px;display:grid;gap:4px}
 .loading{text-align:center;color:var(--muted);padding:60px 16px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -213,6 +217,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
       <button type="button" id="forgot" class="del" style="justify-self:center">Ma ilowday erayga sirta ah?</button>
     </form>
   </div>
+  <div data-install></div>
 </section>
 
 <section id="resetView" class="gate" hidden>
@@ -441,6 +446,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
       </section>
     </div>
   </div>
+  <div data-install></div>
   <footer class="credit"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b> · <a href="privacy.html">Asturnaanta</a></footer>
 </div>
 
@@ -489,7 +495,11 @@ const EN={
 "Lacagta aad buffer-ka ku shubto waxaa laga jarayaa akoonkaaga, “Ka qaado”-na dib ayay ugu celinaysaa. Sidaas ayaad ku kala garanaysaa lacagta la isticmaali karo iyo tan la kaydiyay.":"Money you put in a buffer is taken from your balance, and “Withdraw” puts it back. That way you can tell spendable money from saved money.",
 "Bixinta bishii":"Monthly payment","Ku bixi EVC Plus lambarka hoose, kadibna fariinta xaqiijinta ee EVC u gudbi (forward) isla lambarkaas.":"Pay with EVC Plus to the number below, then forward the EVC confirmation message to the same number.",
 "Lambarka EVC Plus":"EVC Plus number","Koobiyee koodhka":"Copy the code","Waa la koobiyeeyay":"Copied","Dooro oo koobiyee":"Select and copy",
-"Halkee lacagtu ku baxday?":"Where did the money go?","HantiGo · Waxaa sameeyay":"HantiGo · Made by","Asturnaanta":"Privacy","Aasaasaha HantiGo:":"HantiGo founder:",
+"Halkee lacagtu ku baxday?":"Where did the money go?","HantiGo · Waxaa sameeyay":"HantiGo · Made by","Asturnaanta":"Privacy","Soo deji app-ka":"Get the app","📲 Soo deji app-ka HantiGo":"📲 Get the HantiGo app",
+"Ku rakib HantiGo taleefankaaga si aad ugu furto sida app kale oo kale, adigoon browser furin.":"Install HantiGo on your phone to open it like any other app, without a browser.",
+"➕ Ku rakib hadda":"➕ Install now","🤖 Android: soo deji APK":"🤖 Android: download APK",
+"Android: marka faylku soo dego, fur. Haddii lagu weydiiyo, oggolow “Install unknown apps”, kadibna riix “Install”.":"Android: open the file once it has downloaded. If asked, allow “Install unknown apps”, then tap “Install”.",
+"🍎 iPhone / iPad":"🍎 iPhone / iPad","Bogga ku fur":"Open the page in","Riix badhanka":"Tap the","ee hoose.":"button at the bottom.","Dooro":"Choose",", kadibna riix":", then tap","Aasaasaha HantiGo:":"HantiGo founder:",
 "Akoonka lama helin. Fadlan mar kale isku day inaad gasho.":"Account not found. Please try logging in again.",
 "Server-ka lama gaari karo. Hubi internetka, kadibna bogga dib u fur.":"Cannot reach the server. Check your internet, then reload the page.",
 "Lambarkaaga waa la helay. Marka lacagta la xaqiijiyo, akoonkaaga waa la furayaa.":"We have your number. Your account will be opened once the payment is confirmed.",
@@ -1192,6 +1202,33 @@ $("copyCode").addEventListener("click",()=>{const t=$("evcCode").textContent;
   const ok=()=>{$("copyMsg").textContent="Waa la koobiyeeyay"};
   const fail=()=>{const r=document.createRange();r.selectNodeContents($("evcCode"));const s=getSelection();s.removeAllRanges();s.addRange(r);$("copyMsg").textContent="Dooro oo koobiyee"};
   try{navigator.clipboard.writeText(t).then(ok,fail)}catch{fail()}});
+
+/* ---------- install as an app ---------- */
+const APK_URL="https://github.com/Hantigoapp/hantigoapp.github.io/releases/download/tijaabo/HantiGo.apk";
+const IOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const STANDALONE=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+let installEvt=null;
+function renderInstall(){
+  document.querySelectorAll("[data-install]").forEach(box=>{
+    if(NATIVE||STANDALONE){box.innerHTML="";return}
+    box.innerHTML=`<section class="panel install" aria-label="Soo deji app-ka">
+      <h2>📲 Soo deji app-ka HantiGo</h2>
+      <p class="note" style="margin:0">Ku rakib HantiGo taleefankaaga si aad ugu furto sida app kale oo kale, adigoon browser furin.</p>
+      <div class="dl">
+        ${installEvt?`<button type="button" class="primary" data-pwa>➕ Ku rakib hadda</button>`:""}
+        ${IOS?"":`<a class="btnlike" href="${APK_URL}" download>🤖 Android: soo deji APK</a>`}
+      </div>
+      ${IOS?"":`<p class="note" style="margin:0">Android: marka faylku soo dego, fur. Haddii lagu weydiiyo, oggolow “Install unknown apps”, kadibna riix “Install”.</p>`}
+      <details${IOS?" open":""}><summary>🍎 iPhone / iPad</summary><ol class="note">
+        <li>Bogga ku fur <b>Safari</b>.</li>
+        <li>Riix badhanka <b>Share</b> (⬆️) ee hoose.</li>
+        <li>Dooro <b>“Add to Home Screen”</b>, kadibna riix <b>“Add”</b>.</li></ol></details>
+    </section>`;
+    box.querySelector("[data-pwa]")?.addEventListener("click",async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice}catch{}installEvt=null;renderInstall()});
+  })}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;renderInstall()});
+window.addEventListener("appinstalled",()=>{installEvt=null;document.querySelectorAll("[data-install]").forEach(b=>b.innerHTML="")});
+renderInstall();
 $("date").value=today();renderDaily();fillCats();render();initLang();init();
 </script>
 <div id="printArea"></div>
