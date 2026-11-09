@@ -226,7 +226,7 @@ details summary{cursor:pointer;color:var(--accent);font-weight:600}
     <div class="stat in"><span class="lbl">Soo galay</span><span class="val" id="sIn">0</span></div>
     <div class="stat out"><span class="lbl">Ka baxay</span><span class="val" id="sOut">0</span></div>
     <div class="stat"><span class="lbl">Ku haray bishan</span><span class="val" id="sNet">0</span></div>
-    <div class="stat"><span class="lbl">Kaydka (buffer)</span><span class="val" id="sSaved">0</span></div>
+    <div class="stat"><span class="lbl">Kaydka bishan</span><span class="val" id="sSaved">0</span><span class="note" id="sSavedAll"></span></div>
     <div class="stat top-spend"><span class="lbl">Meesha lacagtu ugu badan ka baxday bishan</span><span class="val" id="sTop">—</span><span class="note" id="sTopNote">Weli kharash lama qorin.</span></div>
     <div class="stat top-spend"><span class="lbl">Shirkadda lacagta ugu badan laga siiyay bishan</span><span class="val" id="sTopPlace">—</span><span class="note" id="sTopPlaceNote">Ku qor magaca shirkadda marka aad kharash gelinayso.</span></div>
   </section>
@@ -498,7 +498,9 @@ function render(){
   $("sIn").textContent=money(mi);$("sOut").textContent=money(mo);$("sNet").textContent=money(mi-mo);
   $("sBal").textContent=money(sum(txs,"in")-sum(txs,"out"));
   $("sMethods").innerHTML=METHODS.map(m=>{const ts=txs.filter(t=>(t.method||"Kaash")===m);return `<span>${m}: <b>${money(sum(ts,"in")-sum(ts,"out"))}</b></span>`}).join("");
-  $("sSaved").textContent=money(items.filter(i=>i.kind==="goal").reduce((a,g)=>a+Number(g.saved||0),0));
+  const kayd=month.filter(t=>t.cat==="Kayd");
+  $("sSaved").textContent=money(kayd.filter(t=>t.type==="out").reduce((a,t)=>a+Number(t.amount),0)-kayd.filter(t=>t.type==="in").reduce((a,t)=>a+Number(t.amount),0));
+  $("sSavedAll").textContent="Wadarta kaydka: "+money(items.filter(i=>i.kind==="goal").reduce((a,g)=>a+Number(g.saved||0),0));
   $("count").textContent=month.length?month.length+" qoraal":"";
 
   const list=$("txList");
