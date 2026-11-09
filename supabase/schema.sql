@@ -98,3 +98,5 @@ grant  execute on function public.admin_extend(uuid, int) to authenticated;
 
 -- 6. Owner account already signed up before this script? Make it admin.
 update public.profiles set is_admin = true where lower(email) = 'asad.moallim@gmail.com';
+
+-- 7. Company staff accounts: also run supabase/team.sql once.
