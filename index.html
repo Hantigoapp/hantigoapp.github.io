@@ -119,15 +119,61 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .seg3 input:focus-visible+label{outline:2px solid var(--accent);outline-offset:-2px}
 .pm{display:inline-block;font-size:.72rem;font-weight:600;padding:0 6px;border-radius:6px;background:var(--accent-soft);color:var(--accent);margin-left:4px}
 @media (prefers-reduced-motion:no-preference){.bar i{transition:width .4s ease}}
+.gate{max-width:440px;margin:0 auto;padding-block:40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+.gate .brand{text-align:center;display:grid;gap:4px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.tabs button{border:0;border-radius:0;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--accent-soft);color:var(--accent)}
+.account{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:.85rem;color:var(--muted)}
+.account a{color:var(--accent);font-weight:600}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:600;font-size:.8rem}
+.pill.ok{background:var(--in-soft);color:var(--in)}.pill.warn{background:var(--out-soft);color:var(--out)}
+.loading{text-align:center;color:var(--muted);padding:60px 16px}
 </style>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
 <body>
-<div class="wrap">
+<div id="loadingView" class="loading">HantiGo waa la furayaa…</div>
+
+<section id="authView" class="gate" hidden>
+  <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub">Maamul lacagtaada meel kasta oo aad joogto.</p></div>
+  <div class="panel">
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" id="tabIn" aria-selected="true">Gal</button>
+      <button type="button" role="tab" id="tabUp" aria-selected="false">Is-diiwaangeli</button>
+    </div>
+    <form id="authForm" novalidate>
+      <label class="field"><span>Email</span><input id="aEmail" type="email" autocomplete="email" required placeholder="tusaale@gmail.com"></label>
+      <label class="field"><span>Furaha sirta (ugu yaraan 6 xaraf)</span><input id="aPass" type="password" autocomplete="current-password" minlength="6" required></label>
+      <div class="err" id="aErr" role="alert"></div>
+      <button class="primary" type="submit" id="aBtn">Gal</button>
+      <p class="note" id="aNote" style="margin:0">Akoon cusub wuxuu helayaa 7 maalmood oo bilaash ah.</p>
+    </form>
+  </div>
+</section>
+
+<section id="payView" class="gate" hidden>
+  <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub" id="payWho"></p></div>
+  <div class="panel sub-panel">
+    <div class="panel-head"><h2>Muddadaadu way dhammaatay</h2><span class="price">$10 / bishii</span></div>
+    <p style="margin:0">Si aad u sii isticmaasho HantiGo, ku bixi $10 EVC Plus. Marka lacagta la xaqiijiyo, akoonkaaga waa la furayaa 30 maalmood.</p>
+    <div class="evc"><span class="note">Ku garaac taleefankaaga</span><b>*712*613735086*10#</b></div>
+    <div class="evc"><span class="note">Lambarka EVC Plus ee lacagta loo dirayo</span><b>+252 61 373 5086</b></div>
+    <form id="phoneForm" novalidate>
+      <label class="field"><span>Lambarka aad lacagta ka soo dirtay</span><input id="pPhone" type="tel" inputmode="tel" placeholder="61xxxxxxx" maxlength="20"></label>
+      <div class="err" id="pErr" role="status"></div>
+      <button class="primary" type="submit">Waan bixiyay</button>
+    </form>
+    <div class="goal-actions"><button type="button" id="recheck">Hubi mar kale</button><button type="button" class="logout">Ka bax</button></div>
+  </div>
+</section>
+
+<div class="wrap" id="appView" hidden>
   <header>
     <div>
       <h1>Hanti<span>Go</span></h1>
       <p class="sub">Qor lacagta kuu soo gasha iyo tan kaa baxda, kaydsana yoolalkaaga.</p>
+      <div class="account"><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a><button type="button" class="logout del" style="padding:4px 0">Ka bax</button></div>
     </div>
     <div class="month" aria-label="Bisha">
       <button class="icon" id="prev" aria-label="Bishii hore">‹</button>
@@ -216,7 +262,7 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
       </section>
 
       <section class="panel sub-panel" aria-labelledby="subH">
-        <div class="panel-head"><h2 id="subH">Is-diiwaangeli</h2><span class="price">$10 / bishii</span></div>
+        <div class="panel-head"><h2 id="subH">Cusboonaysii bishii</h2><span class="price">$10 / bishii</span></div>
         <p style="margin:0">Ku bixi EVC Plus lambarka hoose, kadibna fariinta xaqiijinta (lambarka dhaqdhaqaaqa) u dir isla lambarkaas.</p>
         <div class="evc"><span class="note">Lambarka EVC Plus</span><b id="evcNum">+252 61 373 5086</b></div>
         <div class="evc"><span class="note">Ku garaac taleefankaaga</span><b id="evcCode">*712*613735086*10#</b></div>
@@ -260,35 +306,98 @@ function money(n){const c=currency();const dec=c==="SOS"?0:2;
   return (n<0?"−":"")+SYM[c]+s}
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-/* ---------- storage ---------- */
-function loadLocal(){try{return JSON.parse(localStorage.getItem(LS)||"[]")}catch{return[]}}
-function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(items))}catch{}}
-async function put(doc){
-  if(mode==="db"){const {id,...data}=doc;await col.doc(id).set(data)}
-  else{const i=items.findIndex(x=>x.id===doc.id);if(i>=0)items[i]=doc;else items.push(doc);saveLocal();render()}
-}
-async function remove(id){
-  if(mode==="db")await col.doc(id).delete();
-  else{items=items.filter(x=>x.id!==id);saveLocal();render()}
-}
+/* ---------- cloud (Supabase) ---------- */
+const SUPABASE_URL="https://izcvgigmcqxkntsvxkhj.supabase.co";
+const SUPABASE_KEY="sb_publishable_Uzpl7gYnsQAvLVwvsyD7nA_ZhJt_XpZ";
+const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
+let me=null,profile=null,syncTimer=null,started=false;
+
+function showView(v){["loadingView","authView","payView","appView"].forEach(id=>$(id).hidden=id!==v)}
+const cacheKey=()=>"hantigo.cache."+(me?.id||"x");
+function loadLocal(){try{return JSON.parse(localStorage.getItem(cacheKey())||"null")}catch{return null}}
+function saveLocal(){try{localStorage.setItem(cacheKey(),JSON.stringify(items))}catch{}}
 function showBanner(t){$("banner").textContent=t;$("banner").hidden=!t}
 
-async function init(){
-  let db=null,user=null;
-  try{if(window.claude?.use){[db,user]=await Promise.all([window.claude.use("db"),window.claude.use("user")])}}catch{}
-  let id=null;try{id=user?await user.id():null}catch{}
-  if(db&&id){
-    col=db.collection("data/users/"+id);
-    const t=setTimeout(()=>showBanner("Xogta waa la soo raraya… haddii ay daahdo, hubi internetkaaga."),10000);
-    col.onSnapshot(snap=>{clearTimeout(t);showBanner("");mode="db";
-      items=snap.docs.map(d=>({id:d.id,...d.data()}));render();seedBills()},
-      e=>{clearTimeout(t);showBanner("Xogta lama soo saari karo hadda ("+e.code+"). Isku day mar kale goor dambe.")});
-  }else{
-    mode="local";items=loadLocal();seedBills();
-    showBanner("Xogtaadu waxay ku kaydsan tahay taleefankan/kombiyuutarkan oo keliya. Ha tirtirin xogta browser-ka si aysan u lumin.");
-    render();
-  }
+function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,700)}
+async function syncNow(){
+  if(!sb||!me)return;
+  const {error}=await sb.from("user_data").upsert({user_id:me.id,items,updated_at:new Date().toISOString()});
+  if(error){showBanner("Lama kaydin karo hadda. Hubi internetka; xogtu taleefankan ayay ku jirtaa, mar kale ayaan isku dayi doonaa.");setTimeout(scheduleSync,15000)}
+  else showBanner("");
 }
+async function put(doc){
+  const i=items.findIndex(x=>x.id===doc.id);if(i>=0)items[i]=doc;else items.push(doc);
+  saveLocal();render();scheduleSync();
+}
+async function remove(id){items=items.filter(x=>x.id!==id);saveLocal();render();scheduleSync()}
+
+const hasAccess=p=>!!p&&(p.is_admin||new Date(p.trial_until)>new Date()||(p.paid_until&&new Date(p.paid_until)>new Date()));
+function daysLeft(p){const end=Math.max(new Date(p.trial_until||0),new Date(p.paid_until||0));return Math.ceil((end-Date.now())/864e5)}
+
+async function loadProfile(){
+  for(let k=0;k<3;k++){const {data}=await sb.from("profiles").select("*").eq("id",me.id).maybeSingle();if(data)return data;await new Promise(r=>setTimeout(r,800))}
+  return null;
+}
+async function enter(user){
+  me=user;showView("loadingView");
+  profile=await loadProfile();
+  if(!profile){showView("authView");$("aErr").textContent="Akoonka lama helin. Fadlan mar kale gal.";return}
+  if(!hasAccess(profile)){
+    $("payWho").textContent=me.email;$("pPhone").value=profile.phone||"";
+    $("pErr").textContent=profile.phone?"Lambarkaaga waa la helay. Marka lacagta la xaqiijiyo, akoonkaaga waa la furayaa.":"";
+    showView("payView");return;
+  }
+  $("accEmail").textContent=me.email;
+  const d=daysLeft(profile);
+  $("accStatus").innerHTML=profile.is_admin?`<span class="pill ok">Maamule</span>`
+    :`<span class="pill ${d<=3?"warn":"ok"}">${profile.paid_until&&new Date(profile.paid_until)>new Date()?"La bixiyay":"Tijaabo"}: ${d} maalmood</span>`;
+  $("adminLink").hidden=!profile.is_admin;
+  const cached=loadLocal();
+  const {data,error}=await sb.from("user_data").select("items").eq("user_id",me.id).maybeSingle();
+  if(data)items=data.items||[];
+  else if(cached)items=cached;
+  else{let legacy=null;try{legacy=JSON.parse(localStorage.getItem(LS)||"null")}catch{}items=legacy||[]}
+  if(error&&cached){items=cached;showBanner("Internet la'aan: waxaa la muujinayaa xogtii taleefanka ku kaydsanayd.")}
+  saveLocal();mode="cloud";showView("appView");render();seedBills();
+  if(!data&&items.length)scheduleSync();
+}
+
+async function init(){
+  if(!sb){showView("authView");$("aErr").textContent="Lama xiriiri karo server-ka. Hubi internetka kadibna bogga dib u fur.";return}
+  sb.auth.onAuthStateChange((ev,session)=>{
+    if(ev==="SIGNED_OUT"){me=null;items=[];showView("authView");return}
+    if(session?.user&&(!me||me.id!==session.user.id)){const u=session.user;me=u;setTimeout(()=>enter(u),0)}
+  });
+  const {data}=await sb.auth.getSession();
+  if(data.session?.user){if(!me){me=data.session.user;enter(me)}}else if(!me)showView("authView");
+}
+
+/* auth form */
+let signUp=false;
+function setTab(up){signUp=up;$("tabIn").setAttribute("aria-selected",!up);$("tabUp").setAttribute("aria-selected",up);
+  $("aBtn").textContent=up?"Samee akoon":"Gal";$("aPass").autocomplete=up?"new-password":"current-password";$("aErr").textContent=""}
+$("tabIn").onclick=()=>setTab(false);$("tabUp").onclick=()=>setTab(true);
+$("authForm").addEventListener("submit",async e=>{e.preventDefault();
+  const email=$("aEmail").value.trim(),password=$("aPass").value;
+  if(!email.includes("@")){$("aErr").textContent="Geli email sax ah.";return}
+  if(password.length<6){$("aErr").textContent="Furaha sirta waa inuu ahaadaa ugu yaraan 6 xaraf.";return}
+  $("aErr").textContent="";$("aBtn").disabled=true;
+  try{
+    if(signUp){const {data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});
+      if(error)throw error;
+      if(!data.session){$("aErr").textContent="Akoonka waa la sameeyay. Fur emailkaaga oo riix xiriirka xaqiijinta, kadibna halkan ku gal.";setTab(false)}}
+    else{const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error}
+  }catch(err){const m=String(err.message||"");
+    $("aErr").textContent=/Invalid login/i.test(m)?"Email-ka ama furaha sirta waa khalad.":/already registered/i.test(m)?"Email-kan akoon ayuu leeyahay. Dooro \"Gal\".":/not confirmed/i.test(m)?"Marka hore xaqiiji emailkaaga (fiiri inbox-ka).":"Khalad ayaa dhacay: "+m}
+  $("aBtn").disabled=false;
+});
+document.querySelectorAll(".logout").forEach(b=>b.addEventListener("click",async()=>{clearTimeout(syncTimer);if(me)await syncNow();await sb.auth.signOut()}));
+$("phoneForm").addEventListener("submit",async e=>{e.preventDefault();
+  const p=$("pPhone").value.trim();if(p.replace(/\D/g,"").length<7){$("pErr").textContent="Geli lambarka EVC ee aad ka soo dirtay.";return}
+  const {error}=await sb.rpc("set_my_phone",{p});
+  $("pErr").textContent=error?"Lama kaydin karo hadda. Isku day mar kale.":"Mahadsanid! Marka lacagta la xaqiijiyo (inta badan dhowr saacadood gudahood), riix \"Hubi mar kale\".";
+});
+$("recheck").addEventListener("click",()=>{if(me)enter(me)});
 
 /* ---------- render ---------- */
 function inMonth(t){const d=new Date(t.date+"T00:00");return d.getFullYear()===view.getFullYear()&&d.getMonth()===view.getMonth()}

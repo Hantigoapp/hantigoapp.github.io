@@ -25,4 +25,13 @@ Fiiro gaar ah: GitHub Pages wuxuu u baahan yahay repo **public** ah haddii akoon
 | `sw.js` | Wuxuu app-ka ka dhigaa mid internet la'aan shaqeeya |
 | `icon.svg`, `icon-192.png`, `icon-512.png` | Astaanta app-ka |
 
-Xogta qofka waxay ku kaydsan tahay taleefankiisa (localStorage). Login iyo subscription toos ah waxay u baahan yihiin server, waana tallaabada xigta.
+## Akoonnada iyo subscription-ka ($10 / bishii)
+
+- Macmiil kasta wuxuu ku galaa email + furaha sirta. Akoon cusub wuxuu helaa **7 maalmood oo bilaash ah**.
+- Marka muddadu dhammaato, wuxuu arkaa bogga lacag-bixinta: EVC Plus `*712*613735086*10#`, wuxuuna geliyaa lambarka uu ka soo diray.
+- Maamulaha (asad.moallim@gmail.com) wuxuu galaa `admin.html`, wuxuuna riixaa **"Bixiyay +30 maalmood"** marka lacagta EVC la helo.
+- Xogta waxay ku kaydsan tahay Supabase (`supabase/schema.sql`), nuqul ayaana ku jira taleefanka si uu internet la'aan u shaqeeyo.
+
+### Dejinta Supabase (hal mar)
+1. Supabase → **SQL Editor** → New query → ku dheji `supabase/schema.sql` → **Run**.
+2. **Authentication → URL Configuration** → Site URL: `https://asadmoallim-hash.github.io/HantiGo/` (Redirect URLs-na ku dar isla xiriirka).
