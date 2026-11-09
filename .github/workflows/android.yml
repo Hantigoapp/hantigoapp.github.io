@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,6 +40,15 @@ jobs:
         with:
           name: HantiGo-test-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      # Public download link: https://github.com/<owner>/HantiGo/releases/download/tijaabo/HantiGo.apk
+      - name: Publish test APK download link
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk HantiGo.apk
+          gh release view tijaabo >/dev/null 2>&1 || gh release create tijaabo --target main --prerelease --title "HantiGo (nuqul tijaabo)" --notes "Nuqul tijaabo ah oo Android. Soo deji HantiGo.apk oo taleefanka ku rakib."
+          gh release upload tijaabo HantiGo.apk --clobber
 
       # Google Play version: built only once the signing key secrets are added.
       - name: Build signed Play Store bundle
