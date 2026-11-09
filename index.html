@@ -67,6 +67,7 @@ form{display:grid;gap:10px}
 .field span{font-size:.8rem;color:var(--muted);font-weight:500}
 input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 10px}
 .list{display:grid;gap:0;margin:0;padding:0;list-style:none}
+.txa{display:flex;flex-direction:column;align-items:flex-end}.txa .del{padding:3px 6px}
 .tx{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
 .tx:first-child{border-top:0}
 .dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:1rem}
@@ -102,7 +103,7 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .bill{display:grid;grid-template-columns:minmax(0,1fr) 110px auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
 .bill:first-child{border-top:0}
 .bill .name{font-weight:600;overflow-wrap:anywhere}
-.paid{color:var(--in);font-weight:600;font-size:.85rem;white-space:nowrap}
+.paid{color:var(--in);font-weight:600;font-size:.85rem;white-space:nowrap;display:grid;justify-items:end}.paid .del{padding:2px 0;font-size:.78rem}
 .bill-total{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;font-weight:600}
 @media (max-width:420px){.bill{grid-template-columns:minmax(0,1fr) 76px auto auto;gap:6px}.bill .del{padding:6px 2px}}
 .done{color:var(--in);font-weight:600;font-size:.85rem}
@@ -377,7 +378,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
           </div>
           <datalist id="placeList"></datalist>
           <div class="err" id="txErr" role="alert"></div>
-          <button class="primary" type="submit">Kaydi</button>
+          <div class="goal-actions"><button class="primary" type="submit" id="txSave">Kaydi</button><button type="button" id="txCancel" hidden>Jooji beddelka</button></div>
         </form>
       </section>
 
@@ -522,7 +523,7 @@ const L=(so,en)=>LANG==="en"?en:so;
 const EN={
 "HantiGo waa la furayaa…":"Opening HantiGo…","Luqadda":"Language",
 "Maamul lacagtaada meel kasta oo aad joogto.":"Manage your money wherever you are.","Waxaa sameeyay":"Made by",
-"Gal":"Log in","Guriga":"Home","Ku dar":"Add","Qorshe":"Plan","Akoon":"Account","Akoonkaaga":"Your account","Qaybaha app-ka":"App sections","Magaalada aad joogto":"City you live in","— Dooro —":"— Choose —","Magaalo kale (Soomaaliya)":"Other city (Somalia)","Itoobiya":"Ethiopia","Jabuuti":"Djibouti","Dibadda (Yurub / Ameerika / kale)":"Abroad (Europe / America / other)","Xagee joogtaa?":"Where are you?","Noo sheeg magaaladaada si aan HantiGo ugu hagaajinno.":"Tell us your city so we can improve HantiGo.","Kaydi":"Save","Mar dambe":"Later","Is-diiwaangeli":"Sign up","Nooca akoonka":"Account type","👤 Shakhsi":"👤 Personal","🏢 Shirkad":"🏢 Business",
+"Gal":"Log in","Jooji beddelka":"Cancel edit","✏️ Beddel":"✏️ Edit","Guriga":"Home","Ku dar":"Add","Qorshe":"Plan","Akoon":"Account","Akoonkaaga":"Your account","Qaybaha app-ka":"App sections","Magaalada aad joogto":"City you live in","— Dooro —":"— Choose —","Magaalo kale (Soomaaliya)":"Other city (Somalia)","Itoobiya":"Ethiopia","Jabuuti":"Djibouti","Dibadda (Yurub / Ameerika / kale)":"Abroad (Europe / America / other)","Xagee joogtaa?":"Where are you?","Noo sheeg magaaladaada si aan HantiGo ugu hagaajinno.":"Tell us your city so we can improve HantiGo.","Kaydi":"Save","Mar dambe":"Later","Is-diiwaangeli":"Sign up","Nooca akoonka":"Account type","👤 Shakhsi":"👤 Personal","🏢 Shirkad":"🏢 Business",
 "Erayga sirta ah (ugu yaraan 6 xaraf)":"Password (at least 6 characters)","Akoon cusub wuxuu helayaa 7 maalmood oo bilaash ah.":"New accounts get 7 days free.",
 "Ma ilowday erayga sirta ah?":"Forgot your password?","Samee eray sir ah oo cusub":"Create a new password",
 "Erayga sirta ah ee cusub (ugu yaraan 6 xaraf)":"New password (at least 6 characters)","Ku celi erayga sirta ah":"Repeat the password","Kaydi erayga cusub":"Save new password",
@@ -937,7 +938,7 @@ function render(){
       <span class="dot ${t.type}" aria-hidden="true">${t.type==="in"?"+":"−"}</span>
       <div style="min-width:0"><div class="name">${esc(t.cat)}<span class="pm">${esc(t.method||"Kaash")}</span></div><div class="meta">${esc(t.date)}${t.place?" · "+esc(t.place):""}${t.note?" · "+esc(t.note):""}${t.by&&(TEAM||hasStaff)?" · 👤 "+esc(t.by.split("@")[0]):""}</div></div>
       <span class="amt ${t.type}">${t.type==="in"?"+":"−"}${money(t.amount)}</span>
-      <button class="del" data-del="${esc(t.id)}" aria-label="Tirtir">Tirtir</button></li>`).join("");
+      <span class="txa">${t.billId||t.debtId?"":`<button class="del" data-edit="${esc(t.id)}">✏️ Beddel</button>`}<button class="del" data-del="${esc(t.id)}" aria-label="Tirtir">Tirtir</button></span></li>`).join("");
   }
 
   const outs=month.filter(t=>t.type==="out"&&t.cat!=="Kayd");const byCat={};
@@ -988,7 +989,7 @@ function renderBills(txs){
   $("bills").innerHTML=bs.length?bs.map(b=>{const p=paidTx(b,txs);total+=Number(b.amount||0);if(!p&&b.amount>0)left++;
     return `<div class="bill"><span class="name"><span>${esc(b.name)}</span><label class="due">${L("Maalinta:","Day:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${esc(b.id)}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
       <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${esc(b.id)}" aria-label="${L("Qadarka ","Amount for ")}${esc(b.name)}">
-      ${p?`<span class="paid">✓ ${money(p.amount)}</span>`:`<button data-pay="${esc(b.id)}">Bixi</button>`}
+      ${p?`<span class="paid">✓ ${money(p.amount)} <button class="del" data-unpay="${esc(p.id)}">${L("↩ Ka noqo","↩ Undo")}</button></span>`:`<button data-pay="${esc(b.id)}">Bixi</button>`}
       <button class="del" data-del="${esc(b.id)}">Tirtir</button></div>`}).join("")
     :`<p class="empty" style="margin:0">Weli ma jiro kharash joogto ah. Hoos ka ku dar.</p>`;
   if(keep){const el=document.querySelector(`[data-${keep.a}="${keep.id}"]`);if(el){el.value=keep.v;el.focus()}}
@@ -1047,14 +1048,26 @@ $("newCatBtn").addEventListener("click",addCat);
 $("newCat").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addCat()}});
 $("ownCats").addEventListener("click",async e=>{const b=e.target.closest("[data-delcat]");if(!b)return;
   try{await remove(b.dataset.delcat)}catch{}renderDaily();fillCats();$("newCatRow").hidden=false});
+let editing=null;
+function stopEdit(){editing=null;$("txSave").textContent=L("Kaydi","Save");$("txCancel").hidden=true}
+$("txCancel").addEventListener("click",()=>{stopEdit();$("amount").value="";$("note").value="";$("place").value=""});
+function startEdit(t){editing=t.id;
+  document.querySelector(`input[name=type][value="${t.type}"]`).checked=true;fillCats();
+  const m=document.querySelector(`input[name=method][value="${t.method||"Kaash"}"]`);if(m)m.checked=true;
+  const sel=$("cat");if(![...sel.options].some(o=>o.value===t.cat)){const o=document.createElement("option");o.value=o.textContent=t.cat;sel.insertBefore(o,sel.firstChild)}
+  sel.value=t.cat;if(typeof markChip==="function")markChip();
+  $("amount").value=t.amount;$("date").value=t.date;$("note").value=t.note||"";$("place").value=t.place||"";
+  $("txSave").textContent=L("Kaydi beddelka","Save changes");$("txCancel").hidden=false;$("txErr").textContent="";
+  $("txForm").scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>{$("amount").focus();$("amount").select()},300)}
 $("txForm").addEventListener("submit",async e=>{e.preventDefault();
   if($("cat").value==="__new"){$("txErr").textContent="Marka hore ku dar qaybta cusub, ama dooro mid liiska ku jirta.";$("newCat").focus();return}
   const amount=parseFloat($("amount").value);
   if(!(amount>0)){$("txErr").textContent="Geli qadar ka weyn eber.";return}
   if(!$("date").value){$("txErr").textContent="Dooro taariikhda.";return}
   $("txErr").textContent="";
-  const doc={id:uid(),kind:"tx",method:payMethod(),type:document.querySelector('input[name=type]:checked').value,amount,cat:$("cat").value,date:$("date").value,note:$("note").value.trim(),place:$("place").value.trim(),created:new Date().toISOString()};
-  try{await put(doc);$("amount").value="";$("note").value="";$("place").value="";
+  const old=editing&&items.find(i=>i.id===editing);
+  const doc={...(old||{}),id:old?old.id:uid(),kind:"tx",method:payMethod(),type:document.querySelector('input[name=type]:checked').value,amount,cat:$("cat").value,date:$("date").value,note:$("note").value.trim(),place:$("place").value.trim(),created:new Date().toISOString()};
+  try{await put(doc);$("amount").value="";$("note").value="";$("place").value="";stopEdit();
     const d=new Date(doc.date+"T00:00");view=new Date(d.getFullYear(),d.getMonth(),1);render()}
   catch(err){$("txErr").textContent="Lama kaydin karo hadda. Isku day mar kale."}
 });
@@ -1066,6 +1079,15 @@ $("goalForm").addEventListener("submit",async e=>{e.preventDefault();
   catch{$("gErr").textContent="Lama kaydin karo hadda. Isku day mar kale."}
 });
 document.addEventListener("click",async e=>{
+  const ed=e.target.closest("[data-edit]");
+  if(ed){const t=items.find(i=>i.id===ed.dataset.edit);if(t)startEdit(t);return}
+  const up=e.target.closest("[data-unpay]");
+  if(up){if(!up.classList.contains("arm")){up.classList.add("arm");up.textContent=L("Hubi?","Sure?");setTimeout(()=>{up.classList.remove("arm");up.textContent=L("↩ Ka noqo","↩ Undo")},3000);return}
+    try{await remove(up.dataset.unpay)}catch{}return}
+  const ud=e.target.closest("[data-dundo]");
+  if(ud){if(!ud.classList.contains("arm")){ud.classList.add("arm");ud.textContent=L("Hubi?","Sure?");setTimeout(()=>{ud.classList.remove("arm");ud.textContent=L("↩ Ka noqo lacagtii u dambeysay","↩ Undo last payment")},3000);return}
+    const d=items.find(i=>i.id===ud.dataset.dundo);const t=d&&items.filter(i=>i.kind==="tx"&&i.debtId===d.id).sort((a,b)=>(b.created||"").localeCompare(a.created||""))[0];
+    if(t){try{await put({...d,paid:Math.max(0,Number(d.paid||0)-Number(t.amount))});await remove(t.id)}catch{}}return}
   const del=e.target.closest("[data-del]");
   if(del){if(!del.classList.contains("arm")){del.classList.add("arm");del.textContent="Hubi?";setTimeout(()=>{del.classList.remove("arm");del.textContent="Tirtir"},3000);return}
     try{await remove(del.dataset.del)}catch{}return}
@@ -1189,6 +1211,7 @@ function renderDebts(){
     return `<div class="debt"><div class="goal-top"><b>${esc(d.name)}</b><span class="amt ${d.dir}">${money(r)}</span></div>
       <span class="note">${d.dir==="in"?L("Naloo hayo","Owed to us"):L("Aan u hayno","We owe")} · ${L("Wadarta","Total")}: ${money(d.amount)}${d.due?` · <span class="${late?"late":""}">${L("Taariikhda","Due")}: ${esc(d.due)}${late?L(" (way dhaaftay)"," (overdue)"):""}</span>`:""}</span>
       <div class="goal-actions">${r>0?`<input type="number" min="0" step="0.01" inputmode="decimal" placeholder="${L("Qadar","Amount")}" id="din-${id}" aria-label="${L("Qadarka","Amount")}"><button data-dpay="${id}">${d.dir==="in"?L("Lacag ayaa la helay","Received"):L("Bixi","Pay")}</button>`:`<span class="done">${L("✓ Waa la dhammeeyay","✓ Settled")}</span>`}
+      ${items.some(i=>i.kind==="tx"&&i.debtId===d.id)?`<button class="del" data-dundo="${id}">${L("↩ Ka noqo lacagtii u dambeysay","↩ Undo last payment")}</button>`:""}
       <button class="del" data-del="${id}">Tirtir</button></div></div>`}).join("")
     :`<p class="empty" style="margin:0">${L("Weli deyn lama qorin.","No debts recorded yet.")}</p>`}
 $("debtForm").addEventListener("submit",async e=>{e.preventDefault();
@@ -1202,7 +1225,7 @@ document.addEventListener("click",async e=>{
   if(dp){const d=items.find(i=>i.id===dp.dataset.dpay);if(!d)return;const inp=$("din-"+d.id);let v=parseFloat(inp.value);if(!(v>0)){inp.focus();return}
     v=Math.min(v,debtLeft(d));
     try{await put({...d,paid:Number(d.paid||0)+v});
-      await put({id:uid(),kind:"tx",method:payMethod(),type:d.dir==="in"?"in":"out",amount:v,cat:d.dir==="in"?"Deyn la soo celiyay":"Deyn bixin",date:today(),place:d.name,note:L("Deyn","Debt"),created:new Date().toISOString()})}catch{}
+      await put({id:uid(),kind:"tx",method:payMethod(),type:d.dir==="in"?"in":"out",amount:v,cat:d.dir==="in"?"Deyn la soo celiyay":"Deyn bixin",debtId:d.id,date:today(),place:d.name,note:L("Deyn","Debt"),created:new Date().toISOString()})}catch{}
     return}
   const ds=e.target.closest("[data-delstaff]");
   if(ds){if(!ds.classList.contains("arm")){ds.classList.add("arm");ds.textContent=L("Hubi?","Sure?");setTimeout(()=>{ds.classList.remove("arm");ds.textContent=L("Ka saar","Remove")},3000);return}
