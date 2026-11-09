@@ -437,6 +437,14 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
           <div class="goal-actions"><button type="button" id="bkOut">⬇ Soo deji backup</button><label class="btnlike">⬆ Soo celi backup<input type="file" id="bkIn" accept=".json,application/json" hidden></label></div>
           <span class="note" id="bkMsg" role="status"></span>
         </div>
+        <hr>
+        <button type="button" class="del" id="delAcc" style="justify-self:start;color:var(--out);padding:4px 0">Tirtir akoonkayga</button>
+        <div id="delBox" class="newcat" hidden>
+          <p class="note" style="margin:0">Tani waxay tirtiraysaa akoonkaaga iyo dhammaan xogtaada. Dib looma soo celin karo. Haddii aad rabto, marka hore soo deji backup. Si aad u xaqiijiso, sanduuqa ku qor: TIRTIR</p>
+          <input id="delConfirm" type="text" autocomplete="off" aria-label="Xaqiijin">
+          <button type="button" id="delGo" class="primary" style="background:var(--out);border-color:var(--out)">Haa, tirtir akoonkayga</button>
+          <span class="err" id="delErr" role="alert"></span>
+        </div>
       </section>
 
       <section class="panel" aria-labelledby="catH">
@@ -495,7 +503,8 @@ const EN={
 "Lacagta aad buffer-ka ku shubto waxaa laga jarayaa akoonkaaga, “Ka qaado”-na dib ayay ugu celinaysaa. Sidaas ayaad ku kala garanaysaa lacagta la isticmaali karo iyo tan la kaydiyay.":"Money you put in a buffer is taken from your balance, and “Withdraw” puts it back. That way you can tell spendable money from saved money.",
 "Bixinta bishii":"Monthly payment","Ku bixi EVC Plus lambarka hoose, kadibna fariinta xaqiijinta ee EVC u gudbi (forward) isla lambarkaas.":"Pay with EVC Plus to the number below, then forward the EVC confirmation message to the same number.",
 "Lambarka EVC Plus":"EVC Plus number","Koobiyee koodhka":"Copy the code","Waa la koobiyeeyay":"Copied","Dooro oo koobiyee":"Select and copy",
-"Halkee lacagtu ku baxday?":"Where did the money go?","HantiGo · Waxaa sameeyay":"HantiGo · Made by","Asturnaanta":"Privacy","Soo deji app-ka":"Get the app","📲 Soo deji app-ka HantiGo":"📲 Get the HantiGo app",
+"Halkee lacagtu ku baxday?":"Where did the money go?","HantiGo · Waxaa sameeyay":"HantiGo · Made by","Asturnaanta":"Privacy","Tirtir akoonkayga":"Delete my account","Xaqiijin":"Confirm","Haa, tirtir akoonkayga":"Yes, delete my account",
+"Tani waxay tirtiraysaa akoonkaaga iyo dhammaan xogtaada. Dib looma soo celin karo. Haddii aad rabto, marka hore soo deji backup. Si aad u xaqiijiso, sanduuqa ku qor: TIRTIR":"This deletes your account and all your data. It cannot be undone. Download a backup first if you want. To confirm, type in the box: DELETE","Soo deji app-ka":"Get the app","📲 Soo deji app-ka HantiGo":"📲 Get the HantiGo app",
 "Ku rakib HantiGo taleefankaaga si aad ugu furto sida app kale oo kale, adigoon browser furin.":"Install HantiGo on your phone to open it like any other app, without a browser.",
 "➕ Ku rakib hadda":"➕ Install now","🤖 Android: soo deji APK":"🤖 Android: download APK",
 "Android: marka faylku soo dego, fur. Haddii lagu weydiiyo, oggolow “Install unknown apps”, kadibna riix “Install”.":"Android: open the file once it has downloaded. If asked, allow “Install unknown apps”, then tap “Install”.",
@@ -1202,6 +1211,17 @@ $("copyCode").addEventListener("click",()=>{const t=$("evcCode").textContent;
   const ok=()=>{$("copyMsg").textContent="Waa la koobiyeeyay"};
   const fail=()=>{const r=document.createRange();r.selectNodeContents($("evcCode"));const s=getSelection();s.removeAllRanges();s.addRange(r);$("copyMsg").textContent="Dooro oo koobiyee"};
   try{navigator.clipboard.writeText(t).then(ok,fail)}catch{fail()}});
+
+/* ---------- delete own account (store requirement) ---------- */
+$("delAcc").addEventListener("click",()=>{$("delBox").hidden=!$("delBox").hidden;if(!$("delBox").hidden)$("delConfirm").focus()});
+$("delGo").addEventListener("click",async()=>{const v=$("delConfirm").value.trim().toUpperCase();
+  if(v!=="TIRTIR"&&v!=="DELETE"){$("delErr").textContent=L("Ku qor TIRTIR si aad u xaqiijiso.","Type DELETE to confirm.");return}
+  $("delGo").disabled=true;$("delErr").textContent="";
+  const {error}=await sb.rpc("delete_my_account");
+  if(error){$("delGo").disabled=false;$("delErr").textContent=L("Lama tirtiri karo hadda. Isku day mar kale ama nala soo xiriir.","Could not delete right now. Try again or contact us.");return}
+  try{Object.keys(localStorage).filter(k=>k.startsWith("hantigo.cache."+me.id)).forEach(k=>localStorage.removeItem(k))}catch{}
+  clearTimeout(syncTimer);dirty.clear();gone.clear();await sb.auth.signOut();
+  $("aErr").textContent=L("Akoonkaaga iyo xogtaada waa la tirtiray.","Your account and data have been deleted.")});
 
 /* ---------- install as an app ---------- */
 const APK_URL="https://github.com/Hantigoapp/hantigoapp.github.io/releases/download/tijaabo/HantiGo.apk";
