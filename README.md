@@ -1,5 +1,7 @@
 # HantiGo
 
+Waxaa sameeyay **Asad Moallim**.
+
 App lagu maamulo lacagta qofka: dakhliga (soo gal), kharashka (ka bax), lacagta akoontiga (EVC Plus, Bangi, Kaash), buffer/kayd, kharashyada joogtada ah iyo kuwa maalinlaha.
 
 ## Sida loo daabaco (GitHub Pages, bilaash)
