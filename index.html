@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>HantiGo</title>
+<script>try{document.documentElement.dataset.skin=localStorage.getItem("hantigo.skin")||"1"}catch{document.documentElement.dataset.skin="1"}</script>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap">
@@ -189,6 +190,47 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
 .install a.btnlike{text-decoration:none;color:var(--ink);font-weight:600}
 .install ol{margin:6px 0 0;padding-left:20px;display:grid;gap:4px}
 .loading{text-align:center;color:var(--muted);padding:60px 16px}
+/* ---- new layout: bottom tabs ---- */
+.cols,.cols>div{display:contents!important}
+#appView{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+#appView[data-tab] [data-tab]{display:none!important}
+#appView[data-tab="home"] [data-tab="home"],#appView[data-tab="add"] [data-tab="add"],#appView[data-tab="plan"] [data-tab="plan"],#appView[data-tab="more"] [data-tab="more"]{display:grid!important}
+#appView [data-tab][hidden]{display:none!important}
+html:not([data-mode="business"]) #appView .biz-only{display:none!important}
+#appView.in-team .owner-only,.in-team #appView .owner-only{display:none!important}
+#appView:not([data-tab="home"]) .summary~.panel #chart{}
+header{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;margin-top:-10px}
+.hright{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.acc-panel{font-size:.95rem}
+.bnav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:min(520px,calc(100% - 24px));padding:6px;border-radius:22px;background:var(--nav-bg);box-shadow:0 10px 30px rgba(10,20,40,.18);border:1px solid var(--line)}
+.bnav button{border:0;background:none;display:grid;justify-items:center;gap:1px;padding:7px 2px;border-radius:16px;color:var(--muted);font-size:.74rem;font-weight:600}
+.bnav button i{font-style:normal;font-size:1.2rem;line-height:1.2}
+.bnav button[data-go="add"] i{font-weight:700}
+.bnav button[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+@media (min-width:900px){#appView{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  #appView>header,#appView>.banner,#appView>#cityAsk,#appView>.alerts,#appView>.summary,#appView>footer,#appView>[data-install]{grid-column:1/-1}
+  #appView[data-tab="home"] section[aria-labelledby="chartH"]{grid-column:1/-1}}
+:root{--nav-bg:var(--surface)}
+/* ---- skins ---- */
+html[data-skin="1"]{--bg:#eef3fb;--accent:#2563c9;--accent-soft:#dde8fa}
+html[data-skin="1"] .stat.bal{background:linear-gradient(135deg,#1d4fa8,#3b82f6);border:0;box-shadow:0 12px 28px rgba(37,99,201,.28)}
+html[data-skin="1"] .panel,html[data-skin="1"] .stat:not(.bal):not(.top-spend){border-color:transparent;box-shadow:0 2px 10px rgba(20,40,80,.06)}
+html[data-skin="2"]{--bg:#f2f6f1;--surface:#fff;--ink:#16261c;--muted:#5d6f63;--line:#dce6dc;--accent:#11734b;--accent-soft:#dff1e7;--in:#11734b;--in-soft:#dff1e7;--out:#b0412e;--out-soft:#f9e7e2;--gold:#c79a2b}
+html[data-skin="2"] h1 span{color:var(--gold)}
+html[data-skin="2"] .stat.bal{background:linear-gradient(135deg,#0d5c3c,#15895a);border:0;box-shadow:0 12px 28px rgba(13,92,60,.28)}
+html[data-skin="2"] .stat.bal .val{color:#ffe7a6}
+html[data-skin="2"] .panel{border-radius:20px;border-color:transparent;box-shadow:0 2px 10px rgba(20,60,40,.07)}
+html[data-skin="2"] .stat:not(.bal):not(.top-spend){border:0;border-left:4px solid var(--gold);box-shadow:0 2px 10px rgba(20,60,40,.07)}
+html[data-skin="2"] .primary{background:var(--accent);border-color:var(--accent)}
+html[data-skin="2"] .bnav button[aria-current="page"]{background:#11734b;color:#fff}
+html[data-skin="3"]{--bg:#0b1118;--surface:#141c26;--ink:#eef3f8;--muted:#8fa0b3;--line:#233041;--accent:#3ddc97;--accent-soft:#16352a;--in:#3ddc97;--in-soft:#14322a;--out:#ff7a66;--out-soft:#3a1f1b;--grid:#1f2a37;--ch-in:#3ddc97;--ch-out:#ff7a66;color-scheme:dark}
+html[data-skin="3"] .primary{color:#06281a}
+html[data-skin="3"] .stat.bal{background:linear-gradient(135deg,#123d2e,#0f2a3d);border:1px solid #1f5a44;color:#eef3f8}
+html[data-skin="3"] .stat.bal .val{color:#3ddc97}
+html[data-skin="3"] .panel,html[data-skin="3"] .stat{border-radius:18px}
+html[data-skin="3"] .bnav{background:#141c26e6;backdrop-filter:blur(10px)}
+html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -261,22 +303,23 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
   <header>
     <div>
       <h1>Hanti<span>Go</span></h1>
-      <p class="sub" id="subline">Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.</p>
-      <div class="account"><label class="modesw"><span class="sr">Nooca akoonka</span><select id="modeSel" aria-label="Nooca akoonka"><option value="person">👤 Shakhsi</option><option value="business">🏢 Shirkad</option></select></label><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option></select></label><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a><button type="button" class="logout del" style="padding:4px 0">Ka bax</button></div>
+      <p class="sub" id="subline" hidden>Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.</p>
+
     </div>
+    <div class="hright"><label class="modesw"><span class="sr">Nooca akoonka</span><select id="modeSel" aria-label="Nooca akoonka"><option value="person">👤 Shakhsi</option><option value="business">🏢 Shirkad</option></select></label>
     <div class="month" aria-label="Bisha">
       <button class="icon" id="prev" aria-label="Bishii hore">‹</button>
       <b id="monthLabel">—</b>
       <button class="icon" id="next" aria-label="Bisha xigta">›</button>
-    </div>
+    </div></div>
   </header>
 
   <div id="banner" class="banner" hidden></div>
   <div id="cityAsk" class="banner" hidden><b>Xagee joogtaa?</b> Noo sheeg magaaladaada si aan HantiGo ugu hagaajinno.
     <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><select id="askCity" aria-label="Magaalada aad joogto" style="flex:1;min-width:160px"><option value="">— Dooro —</option><option>Muqdisho</option><option>Hargeysa</option><option>Garoowe</option><option>Kismaayo</option><option>Boosaaso</option><option>Gaalkacyo</option><option>Baydhabo</option><option>Beledweyne</option><option>Burco</option><option>Berbera</option><option>Borama</option><option>Laascaanood</option><option>Ceerigaabo</option><option>Jowhar</option><option>Marka</option><option>Afgooye</option><option>Dhuusamareeb</option><option>Cadaado</option><option>Magaalo kale (Soomaaliya)</option><option>Kenya</option><option>Itoobiya</option><option>Jabuuti</option><option>Dibadda (Yurub / Ameerika / kale)</option></select><button type="button" class="primary" id="askSave">Kaydi</button><button type="button" class="del" id="askLater">Mar dambe</button></div></div>
-  <div id="alerts" class="alerts" role="status" hidden></div>
+  <div id="alerts" class="alerts" role="status" data-tab="home" hidden></div>
 
-  <section class="summary" aria-label="Kooban">
+  <section class="summary" aria-label="Kooban" data-tab="home">
     <div class="stat bal"><span class="lbl">Lacagta akoonkaaga</span><span class="val" id="sBal">0</span>
       <div class="methods" id="sMethods"></div></div>
     <div class="stat in"><span class="lbl">Soo galay</span><span class="val" id="sIn">0</span></div>
@@ -287,7 +330,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
     <div class="stat top-spend"><span class="lbl" id="topPlaceLbl">Shirkadda lacagta ugu badan laga siiyay bishan</span><span class="val" id="sTopPlace">—</span><span class="note" id="sTopPlaceNote">Ku qor magaca shirkadda marka aad kharash gelinayso.</span></div>
   </section>
 
-  <section class="panel" aria-labelledby="chartH">
+  <section class="panel" aria-labelledby="chartH" data-tab="home">
     <div class="panel-head"><h2 id="chartH">Soo galay iyo ka baxay: 6-dii bilood ee u dambeeyay</h2>
       <div class="legend" aria-hidden="true"><span><i class="sw in"></i>Soo galay</span><span><i class="sw out"></i>Ka baxay</span></div></div>
     <div id="chart" class="chart" role="img" aria-label="Garaafka lacagta soo gashay iyo tan baxday"></div>
@@ -297,7 +340,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
 
   <div class="cols">
     <div style="display:grid;gap:20px;min-width:0">
-      <section class="panel" aria-labelledby="addH">
+      <section class="panel" aria-labelledby="addH" data-tab="add">
         <div class="panel-head"><h2 id="addH">Ku dar dhaqdhaqaaq</h2>
           <label class="field" style="grid-auto-flow:column;align-items:center;gap:8px"><span>Nooca lacagta</span>
             <select id="currency" style="width:auto">
@@ -338,14 +381,14 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
         </form>
       </section>
 
-      <section class="panel" aria-labelledby="listH">
+      <section class="panel" aria-labelledby="listH" data-tab="add">
         <div class="panel-head"><h2 id="listH">Dhaqdhaqaaqa bishan</h2><span class="note" id="count"></span></div>
         <ul class="list" id="txList"></ul>
       </section>
     </div>
 
     <div style="display:grid;gap:20px;min-width:0">
-      <section class="panel" aria-labelledby="budH">
+      <section class="panel" aria-labelledby="budH" data-tab="plan">
         <div class="panel-head"><h2 id="budH">Miisaaniyadda bishii</h2><span class="note" id="budMonth"></span></div>
         <div id="budView"></div>
         <form id="budForm" class="owner-only" novalidate>
@@ -357,7 +400,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
         <p class="note" style="margin:0">Marka aad gaarto 80% xadka waxaad helaysaa digniin. Marka aad dhaafto, digniin cas ayaa soo baxaysa.</p>
       </section>
 
-      <section class="panel" aria-labelledby="billH">
+      <section class="panel" aria-labelledby="billH" data-tab="plan">
         <div class="panel-head"><h2 id="billH">Kharashyada joogtada ah</h2><span class="note" id="billMonth"></span></div>
         <p class="note" style="margin:0">Kharashyadan bil kasta way soo noqnoqdaan. Geli qadarka mid kasta hal mar, kadibna bil kasta riix “Bixi”. Waxaa lagu diiwaangelinayaa habka lacag-bixinta ee aad ku dooratay foomka sare.</p>
         <p class="note" style="margin:0">Ku qor maalinta bisha ee la bixiyo (1 ilaa 31), si aad xusuusin u hesho 3 maalmood ka hor.</p>
@@ -374,7 +417,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
         <div class="goal-actions" id="notifyRow" hidden><button type="button" id="notifyBtn">🔔 Shid ogeysiisyada xusuusinta</button><span class="note" id="notifyMsg" role="status"></span></div>
       </section>
 
-      <section class="panel biz-only" aria-labelledby="debtH">
+      <section class="panel biz-only" aria-labelledby="debtH" data-tab="plan">
         <div class="panel-head"><h2 id="debtH">Deymaha</h2></div>
         <div class="extremes" id="debtSum"></div>
         <div id="debts"></div>
@@ -394,7 +437,12 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
         <p class="note" style="margin:0">“Lacag naloo hayo” waa lacag macaamiishu ama dad kale idinku leeyihiin oo aydaan weli helin. “Lacag aan u hayno dad kale” waa deyn aad bixin doontaan, tusaale alaab-qeybiye.</p>
       </section>
 
-      <section class="panel biz-only owner-only" aria-labelledby="teamH">
+      <section class="panel" aria-labelledby="accH" data-tab="more">
+        <h2 id="accH">Akoonkaaga</h2>
+      <div class="account acc-panel"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option></select></label><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a><button type="button" class="logout del" style="padding:4px 0">Ka bax</button></div>
+      </section>
+
+      <section class="panel biz-only owner-only" aria-labelledby="teamH" data-tab="more">
         <h2 id="teamH">Shaqaalaha akoonka shirkadda</h2>
         <p class="note" style="margin:0">Ku dar email-ka shaqaale kasta. Waa inay HantiGo isku diiwaangeliyaan isla email-kaas. Waxay arkayaan oo wax ku qori karaan qaybta Shirkadda oo keliya. Xogtaada shakhsiga ah ma arkayaan.</p>
         <div id="team"></div>
@@ -407,7 +455,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
         </form>
       </section>
 
-      <section class="panel" aria-labelledby="goalH">
+      <section class="panel" aria-labelledby="goalH" data-tab="plan">
         <h2 id="goalH">Kaydka iyo buffer-ka</h2>
         <div id="goals" style="display:grid;gap:10px"></div>
         <form id="goalForm" novalidate>
@@ -421,7 +469,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
         <p class="note">Lacagta aad buffer-ka ku shubto waxaa laga jarayaa akoonkaaga, “Ka qaado”-na dib ayay ugu celinaysaa. Sidaas ayaad ku kala garanaysaa lacagta la isticmaali karo iyo tan la kaydiyay.</p>
       </section>
 
-      <section class="panel sub-panel pay-only" aria-labelledby="subH">
+      <section class="panel sub-panel pay-only" aria-labelledby="subH" data-tab="more">
         <div class="panel-head"><h2 id="subH">Bixinta bishii</h2><span class="price">$10 / bishii</span></div>
         <p style="margin:0">Ku bixi EVC Plus lambarka hoose, kadibna fariinta xaqiijinta ee EVC u gudbi (forward) isla lambarkaas.</p>
         <div class="evc"><span class="note">Lambarka EVC Plus</span><b id="evcNum">+252 61 373 5086</b></div>
@@ -429,7 +477,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
         <div class="goal-actions"><button type="button" id="copyCode" class="primary">Koobiyee koodhka</button><span class="note" id="copyMsg" role="status"></span></div>
       </section>
 
-      <section class="panel" aria-labelledby="repH">
+      <section class="panel" aria-labelledby="repH" data-tab="more">
         <h2 id="repH">Warbixin iyo backup</h2>
         <label class="field"><span>Muddada warbixinta</span><select id="repPeriod"><option value="month">Bisha hadda la muujiyay</option><option value="year">Sannadka oo dhan</option></select></label>
         <div class="goal-actions"><button type="button" id="repCsv">⬇ Excel (CSV)</button><button type="button" id="repPdf">🖨 PDF / Daabac</button></div>
@@ -450,15 +498,21 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
         </div>
       </section>
 
-      <section class="panel" aria-labelledby="catH">
+      <section class="panel" aria-labelledby="catH" data-tab="home">
         <h2 id="catH">Halkee lacagtu ku baxday?</h2>
         <div id="extremes" class="extremes"></div>
         <div id="cats" style="display:grid;gap:10px"></div>
       </section>
     </div>
   </div>
-  <div data-install></div>
-  <footer class="credit"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b> · <a href="privacy.html">Asturnaanta</a></footer>
+  <div data-install data-tab="more"></div>
+  <footer class="credit" data-tab="more"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b> · <a href="privacy.html">Asturnaanta</a></footer>
+  <nav class="bnav" aria-label="Qaybaha app-ka">
+    <button type="button" data-go="home" aria-current="page"><i aria-hidden="true">🏠</i><span>Guriga</span></button>
+    <button type="button" data-go="add"><i aria-hidden="true">＋</i><span>Ku dar</span></button>
+    <button type="button" data-go="plan"><i aria-hidden="true">📅</i><span>Qorshe</span></button>
+    <button type="button" data-go="more"><i aria-hidden="true">👤</i><span>Akoon</span></button>
+  </nav>
 </div>
 
 <script>
@@ -468,7 +522,7 @@ const L=(so,en)=>LANG==="en"?en:so;
 const EN={
 "HantiGo waa la furayaa…":"Opening HantiGo…","Luqadda":"Language",
 "Maamul lacagtaada meel kasta oo aad joogto.":"Manage your money wherever you are.","Waxaa sameeyay":"Made by",
-"Gal":"Log in","Magaalada aad joogto":"City you live in","— Dooro —":"— Choose —","Magaalo kale (Soomaaliya)":"Other city (Somalia)","Itoobiya":"Ethiopia","Jabuuti":"Djibouti","Dibadda (Yurub / Ameerika / kale)":"Abroad (Europe / America / other)","Xagee joogtaa?":"Where are you?","Noo sheeg magaaladaada si aan HantiGo ugu hagaajinno.":"Tell us your city so we can improve HantiGo.","Kaydi":"Save","Mar dambe":"Later","Is-diiwaangeli":"Sign up","Nooca akoonka":"Account type","👤 Shakhsi":"👤 Personal","🏢 Shirkad":"🏢 Business",
+"Gal":"Log in","Guriga":"Home","Ku dar":"Add","Qorshe":"Plan","Akoon":"Account","Akoonkaaga":"Your account","Qaybaha app-ka":"App sections","Magaalada aad joogto":"City you live in","— Dooro —":"— Choose —","Magaalo kale (Soomaaliya)":"Other city (Somalia)","Itoobiya":"Ethiopia","Jabuuti":"Djibouti","Dibadda (Yurub / Ameerika / kale)":"Abroad (Europe / America / other)","Xagee joogtaa?":"Where are you?","Noo sheeg magaaladaada si aan HantiGo ugu hagaajinno.":"Tell us your city so we can improve HantiGo.","Kaydi":"Save","Mar dambe":"Later","Is-diiwaangeli":"Sign up","Nooca akoonka":"Account type","👤 Shakhsi":"👤 Personal","🏢 Shirkad":"🏢 Business",
 "Erayga sirta ah (ugu yaraan 6 xaraf)":"Password (at least 6 characters)","Akoon cusub wuxuu helayaa 7 maalmood oo bilaash ah.":"New accounts get 7 days free.",
 "Ma ilowday erayga sirta ah?":"Forgot your password?","Samee eray sir ah oo cusub":"Create a new password",
 "Erayga sirta ah ee cusub (ugu yaraan 6 xaraf)":"New password (at least 6 characters)","Ku celi erayga sirta ah":"Repeat the password","Kaydi erayga cusub":"Save new password",
@@ -788,6 +842,12 @@ $("askSave").addEventListener("click",async()=>{const c=$("askCity").value;if(!c
   $("askSave").disabled=true;const ok=await saveLocation(c);$("askSave").disabled=false;
   if(ok)$("cityAsk").hidden=true;else showBanner(L("Lama kaydin. Mar kale isku day.","Not saved. Please try again."))});
 $("askLater").addEventListener("click",()=>{$("cityAsk").hidden=true;try{sessionStorage.setItem("hantigo.cityLater","1")}catch{}});
+
+/* bottom tabs */
+function markTab(t){document.querySelectorAll(".bnav [data-go]").forEach(x=>{if(x.dataset.go===t)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")})}
+function goTab(t){$("appView").dataset.tab=t;markTab(t);try{sessionStorage.setItem("hantigo.tab",t)}catch{}window.scrollTo(0,0);if(t==="home"&&me)render()}
+document.querySelectorAll(".bnav [data-go]").forEach(x=>x.addEventListener("click",()=>goTab(x.dataset.go)));
+(()=>{let t="home";try{t=sessionStorage.getItem("hantigo.tab")||"home"}catch{}$("appView").dataset.tab=t;markTab(t)})();
 /* auth form */
 let signUp=false,pendingMode=null,pendingCity="";
 function setTab(up){signUp=up;$("tabIn").setAttribute("aria-selected",!up);$("tabUp").setAttribute("aria-selected",up);
