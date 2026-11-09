@@ -150,6 +150,19 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
       <div class="err" id="aErr" role="alert"></div>
       <button class="primary" type="submit" id="aBtn">Gal</button>
       <p class="note" id="aNote" style="margin:0">Akoon cusub wuxuu helayaa 7 maalmood oo bilaash ah.</p>
+      <button type="button" id="forgot" class="del" style="justify-self:center">Ma ilowday erayga sirta ah?</button>
+    </form>
+  </div>
+</section>
+
+<section id="resetView" class="gate" hidden>
+  <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub">Samee eray sir ah oo cusub</p></div>
+  <div class="panel">
+    <form id="resetForm" novalidate>
+      <label class="field"><span>Erayga sirta ah ee cusub (ugu yaraan 6 xaraf)</span><input id="rPass" type="password" autocomplete="new-password" minlength="6"></label>
+      <label class="field"><span>Ku celi erayga sirta ah</span><input id="rPass2" type="password" autocomplete="new-password" minlength="6"></label>
+      <div class="err" id="rErr" role="alert"></div>
+      <button class="primary" type="submit">Kaydi erayga cusub</button>
     </form>
   </div>
 </section>
@@ -319,7 +332,8 @@ if(NATIVE){document.querySelectorAll(".pay-only").forEach(e=>e.hidden=true);$("n
 const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
 let me=null,profile=null,syncTimer=null,started=false;
 
-function showView(v){["loadingView","authView","payView","appView"].forEach(id=>$(id).hidden=id!==v)}
+function showView(v){["loadingView","authView","resetView","payView","appView"].forEach(id=>$(id).hidden=id!==v)}
+let recovering=/type=recovery/.test(location.hash);
 const cacheKey=()=>"hantigo.cache."+(me?.id||"x");
 function loadLocal(){try{return JSON.parse(localStorage.getItem(cacheKey())||"null")}catch{return null}}
 function saveLocal(){try{localStorage.setItem(cacheKey(),JSON.stringify(items))}catch{}}
@@ -346,7 +360,9 @@ async function loadProfile(){
   return null;
 }
 async function enter(user){
-  me=user;showView("loadingView");
+  me=user;
+  if(recovering){showView("resetView");return}
+  showView("loadingView");
   profile=await loadProfile();
   if(!profile){showView("authView");$("aErr").textContent="Akoonka lama helin. Fadlan mar kale isku day inaad gasho.";return}
   if(!hasAccess(profile)){
@@ -373,6 +389,7 @@ async function init(){
   if(!sb){showView("authView");$("aErr").textContent="Server-ka lama gaari karo. Hubi internetka, kadibna bogga dib u fur.";return}
   sb.auth.onAuthStateChange((ev,session)=>{
     if(ev==="SIGNED_OUT"){me=null;items=[];showView("authView");return}
+    if(ev==="PASSWORD_RECOVERY"){recovering=true;me=session?.user||me;showView("resetView");return}
     if(session?.user&&(!me||me.id!==session.user.id)){const u=session.user;me=u;setTimeout(()=>enter(u),0)}
   });
   const {data}=await sb.auth.getSession();
@@ -397,6 +414,24 @@ $("authForm").addEventListener("submit",async e=>{e.preventDefault();
   }catch(err){const m=String(err.message||"");
     $("aErr").textContent=/Invalid login/i.test(m)?"Email-ka ama erayga sirta ah waa khalad.":/already registered/i.test(m)?"Email-kan horay ayaa akoon loogu sameeyay. Dooro \"Gal\".":/not confirmed/i.test(m)?"Marka hore xaqiiji emailkaaga (eeg sanduuqa fariimaha).":"Khalad ayaa dhacay: "+m}
   $("aBtn").disabled=false;
+});
+$("forgot").addEventListener("click",async()=>{
+  const email=$("aEmail").value.trim();
+  if(!email.includes("@")){$("aErr").textContent="Marka hore sanduuqa Email ku qor emailkaaga, kadibna mar kale riix “Ma ilowday erayga sirta ah?”.";$("aEmail").focus();return}
+  $("forgot").disabled=true;
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:"https://asadmoallim-hash.github.io/HantiGo/"});
+  $("aErr").textContent=error?(/rate|seconds/i.test(error.message)?"Fariimo badan ayaa la diray. Sug in yar kadibna mar kale isku day.":"Khalad ayaa dhacay: "+error.message)
+    :"Waxaan kuu dirnay email leh xiriir lagu beddelo erayga sirta ah. Fur emailkaaga (eeg sidoo kale Spam).";
+  $("forgot").disabled=false;
+});
+$("resetForm").addEventListener("submit",async e=>{e.preventDefault();
+  const a=$("rPass").value,b=$("rPass2").value;
+  if(a.length<6){$("rErr").textContent="Erayga sirta ah waa inuu ka koobnaadaa ugu yaraan 6 xaraf.";return}
+  if(a!==b){$("rErr").textContent="Labada eray isma laha. Mar kale qor.";return}
+  const {error}=await sb.auth.updateUser({password:a});
+  if(error){$("rErr").textContent="Lama beddeli karo: "+error.message+". Codso xiriir cusub.";return}
+  recovering=false;history.replaceState(null,"",location.pathname);
+  const {data}=await sb.auth.getUser();if(data?.user)enter(data.user);else showView("authView");
 });
 document.querySelectorAll(".logout").forEach(b=>b.addEventListener("click",async()=>{clearTimeout(syncTimer);if(me)await syncNow();await sb.auth.signOut()}));
 $("phoneForm").addEventListener("submit",async e=>{e.preventDefault();
