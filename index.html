@@ -355,7 +355,7 @@ const P_CATS={
 const B_DAILY=["Alaab (stock)","Rar & gaadiid","Shidaal","Shaqaale maalinle","Cunto shaqaale","Baakad & bac","Kaarka taleefanka","Nadaafad","Dayactir yar","Qalab yar"];
 const B_CATS={
   in:["Iib (sales)","Adeeg","Deyn la soo celiyay","Maalgelin","Kale","Kayd"],
-  out:[...B_DAILY,"Mushaharka shaqaalaha","Kiro dukaan / xafiis","Koronto","Biyo","Internet","Taleefan","Canshuur & liisan","Xayeysiis","Caymis","Deyn bixin","Kale","Kayd"]
+  out:[...B_DAILY,"Mushahar: Macallin","Mushahar: Maamulaha iskuulka","Mushahar: Maamulaha jaamacadda","Mushahar: Maamulaha dugsiga","Mushahar: Dhakhtar","Mushahar: Kalkaaliso","Mushahar: Xisaabiye","Mushahar: Waardiye","Mushahar: Xoghaye / karraani","Mushahar: Darawal","Mushahar: Nadiifiye","Mushahar: Kariye","Mushahar: Farsamayaqaan / IT","Mushahar: Iibiye","Mushahar: Shaqaale kale","Kiro guri","Kiro dukaan / xafiis","Koronto","Biyo caafimaad (cabitaan)","Biyo caadi","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin","Kiro gaari / gaadiid","Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Dawooyin & qalab caafimaad","Tababar shaqaale","Xayeysiis","Kale","Kayd"]
 };
 let MODE="person",DAILY=P_DAILY,CATS=P_CATS;
 const mine=k=>items.filter(i=>i.kind===k&&(i.mode||"person")===MODE);
@@ -579,7 +579,8 @@ function render(){
 }
 
 const DEFAULT_BILLS=["Kiro guri","Koronto","Biyo","Gaas","Internet","Taleefan bille","Iskuul / waxbarasho","Xawaalad qoys","Gaadiid bille","Qashin qaad","Ilaalada xaafadda","Telefishin","Caymis caafimaad","Deyn bixin"];
-const B_BILLS=["Kiro dukaan / xafiis","Mushaharka shaqaalaha","Koronto","Biyo","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin"];
+const B_BILLS=["Mushahar: Macallin","Mushahar: Maamulaha iskuulka","Mushahar: Maamulaha jaamacadda","Mushahar: Maamulaha dugsiga","Mushahar: Dhakhtar","Mushahar: Kalkaaliso","Mushahar: Xisaabiye","Mushahar: Waardiye","Mushahar: Xoghaye / karraani","Mushahar: Darawal","Mushahar: Nadiifiye","Mushahar: Kariye","Mushahar: Farsamayaqaan / IT","Mushahar: Iibiye","Mushahar: Shaqaale kale","Kiro guri","Kiro dukaan / xafiis","Koronto","Biyo caafimaad (cabitaan)","Biyo caadi","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin","Kiro gaari / gaadiid","Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Dawooyin & qalab caafimaad","Tababar shaqaale"];
+const BIZ_BILLS_VERSION=2;
 const BILLS_VERSION=2;
 const bills=()=>mine("bill").sort((a,b)=>a.created.localeCompare(b.created));
 const paidTx=(b,txs)=>txs.find(t=>t.billId===b.id&&inMonth(t));
@@ -604,10 +605,10 @@ let seeding=false;
 async function seedBills(){
   const st=items.find(i=>i.kind==="settings");
   if(MODE==="business"){
-    if(seeding||st?.bizBillsSeeded)return;seeding=true;
+    if(seeding||(st?.bizBillsVersion||0)>=BIZ_BILLS_VERSION)return;seeding=true;
     try{const now=Date.now();const have=new Set(bills().map(b=>b.name));
       for(let k=0;k<B_BILLS.length;k++)if(!have.has(B_BILLS[k]))await put({id:uid(),kind:"bill",name:B_BILLS[k],amount:0,created:new Date(now+k).toISOString()});
-      await put({...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),bizBillsSeeded:true});
+      await put({...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),bizBillsSeeded:true,bizBillsVersion:BIZ_BILLS_VERSION});
     }catch{}seeding=false;return}
   if(seeding||(st?.billsVersion||0)>=BILLS_VERSION)return;seeding=true;
   try{const now=Date.now();const have=new Set(bills().map(b=>b.name));
