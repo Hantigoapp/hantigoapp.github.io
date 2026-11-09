@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#2f6fc4">
+<meta name="theme-color" content="#0b1118">
 <meta name="robots" content="noindex">
 <title>HantiGo Maamul</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -54,6 +54,10 @@ input{width:100%;border:1px solid var(--line);background:var(--surface);border-r
 .bar{display:grid;grid-template-columns:minmax(80px,30%) 1fr auto;gap:10px;align-items:center;padding:5px 0;font-size:.92rem}
 .bar i{display:block;height:10px;border-radius:0 4px 4px 0;background:var(--accent);min-width:4px}
 .bar b{min-width:2ch;text-align:right}
+html:root{--bg:#0b1118;--surface:#141c26;--ink:#eef3f8;--muted:#8fa0b3;--line:#233041;--accent:#3ddc97;--accent-soft:#16352a;--in:#3ddc97;--in-soft:#14322a;--out:#ff7a66;--out-soft:#3a1f1b;color-scheme:dark}
+.primary,.tabs button[aria-selected=true]{color:#06281a}
+.stat,.row,.locbox{border-radius:16px}
+.stat:first-child{background:linear-gradient(135deg,#123d2e,#0f2a3d);border-color:#1f5a44}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
