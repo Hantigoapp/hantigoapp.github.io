@@ -95,6 +95,8 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .chip{padding:5px 11px;border-radius:99px;font-size:.85rem}
 .chip.more{border-style:dashed;color:var(--accent);font-weight:600}
+.newcat{display:grid;gap:8px;padding:12px;border:1px dashed var(--line);border-radius:12px}
+.chip.own{border-style:dashed}
 .chip.on{background:var(--out-soft);border-color:var(--out);color:var(--out);font-weight:600}
 .bill{display:grid;grid-template-columns:minmax(0,1fr) 110px auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
 .bill:first-child{border-top:0}
@@ -277,6 +279,13 @@ details summary{cursor:pointer;color:var(--accent);font-weight:600}
             <label class="field"><span>Qaybta</span><select id="cat"></select></label>
             <label class="field"><span>Taariikhda</span><input id="date" type="date" required></label>
           </div>
+          <div class="newcat" id="newCatRow" hidden>
+            <div class="row">
+              <label class="field"><span>Ku qor waxa liiska ka maqan</span><input id="newCat" type="text" maxlength="30" placeholder="Tusaale: Kirada mashiinka"></label>
+              <div class="field" style="align-self:end"><button type="button" id="newCatBtn">+ Ku dar liiska</button></div>
+            </div>
+            <div class="chips" id="ownCats"></div>
+          </div>
           <div class="row">
             <label class="field"><span id="placeLbl">Shirkadda ama meesha (ikhtiyaari)</span><input id="place" type="text" maxlength="40" list="placeList" placeholder="Tusaale: Hormuud, suuqa Bakaaraha"></label>
             <label class="field"><span>Faahfaahin (ikhtiyaari)</span><input id="note" type="text" maxlength="80" placeholder="Tusaale: bilka Nofembar"></label>
@@ -355,16 +364,18 @@ const P_CATS={
 const B_DAILY=["Alaab (stock)","Rar & gaadiid","Shidaal","Shaqaale maalinle","Cunto shaqaale","Baakad & bac","Kaarka taleefanka","Nadaafad","Dayactir yar","Qalab yar"];
 const B_CATS={
   in:["Iib (sales)","Adeeg","Deyn la soo celiyay","Maalgelin","Kale","Kayd"],
-  out:[...B_DAILY,"Mushahar: Macallin","Mushahar: Maamulaha iskuulka","Mushahar: Maamulaha jaamacadda","Mushahar: Maamulaha dugsiga","Mushahar: Dhakhtar","Mushahar: Kalkaaliso","Mushahar: Xisaabiye","Mushahar: Waardiye","Mushahar: Xoghaye / karraani","Mushahar: Darawal","Mushahar: Nadiifiye","Mushahar: Kariye","Mushahar: Farsamayaqaan / IT","Mushahar: Iibiye","Mushahar: Shaqaale kale","Kiro guri","Kiro dukaan / xafiis","Koronto","Biyo caafimaad (cabitaan)","Biyo caadi","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin","Kiro gaari / gaadiid","Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Dawooyin & qalab caafimaad","Tababar shaqaale","Xayeysiis","Kale","Kayd"]
+  out:[...B_DAILY,"Mushahar: Macallin","Mushahar: Maamulaha iskuulka","Mushahar: Maamulaha jaamacadda","Mushahar: Maamulaha dugsiga","Mushahar: Dhakhtar","Mushahar: Kalkaaliso","Mushahar: Xisaabiye","Mushahar: Waardiye","Mushahar: Xoghaye / karraani","Mushahar: Darawal","Mushahar: Nadiifiye","Mushahar: Kariye","Mushahar: Farsamayaqaan / IT","Mushahar: Iibiye","Mushahar: Shaqaale kale","Kiro guri","Kiro dukaan / xafiis","Koronto","Biyo caafimaad (cabitaan)","Biyo caadi","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin","Kiro gaari / gaadiid","Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Dawooyin & qalab caafimaad","Tababar shaqaale","Xayeysiis & suuqgeyn","Alaab ceyriin","Kastam & dekedda","Rarid & dhoofin","Bakhaar / kayd alaab","Dayactir gaari","Dayactir qalab & mashiin","Qalab elektaroonig (kombiyuutar, printer)","Software & barnaamij","Daabacaad & warqado","Lebis / dirays shaqaale","Gunno shaqaale (bonus)","Caafimaadka shaqaalaha","Safar shaqo","Martisoor & shir","Hadiyado macaamiil","Khidmadda bangiga & EVC","Qareen & sharci","Xisaab-hubin (audit)","Diiwaangelin & ruqsad","Lacag-celin macmiil","Khasaare / alaab lumay","Sadaqo & zakaad","Qalab & dhismo cusub","Kale","Kayd"]
 };
 let MODE="person",DAILY=P_DAILY,CATS=P_CATS;
 const mine=k=>items.filter(i=>i.kind===k&&(i.mode||"person")===MODE);
+const ownCats=t=>mine("cat").filter(c=>c.type===t&&!CATS[t].includes(c.name));
 function applyMode(m){MODE=m==="business"?"business":"person";DAILY=MODE==="business"?B_DAILY:P_DAILY;CATS=MODE==="business"?B_CATS:P_CATS;
   document.documentElement.dataset.mode=MODE;
   if($("modeSel"))$("modeSel").value=MODE;
   $("placeLbl").textContent=MODE==="business"?"Macmiil ama alaab-qeybiye (ikhtiyaari)":"Shirkadda ama meesha (ikhtiyaari)";
   $("topPlaceLbl").textContent=MODE==="business"?"Alaab-qeybiyaha lacagta ugu badan la siiyay bishan":"Shirkadda lacagta ugu badan laga siiyay bishan";
   $("subline").textContent=MODE==="business"?"Ganacsigaaga: qor iibka iyo kharashyada, ogowna faa'iidada bishii.":"Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.";
+  $("bName").placeholder=MODE==="business"?"Tusaale: Mushahar: Darawal":"Tusaale: Iskuul";
   showAll=false;renderDaily();fillCats()}
 const MONTHS=["Janaayo","Febraayo","Maarso","Abriil","Maajo","Juun","Luulyo","Agoosto","Sebtembar","Oktoobar","Nofembar","Desembar"];
 const SYM={USD:"$",SOS:"Sh.So. "};
@@ -408,7 +419,7 @@ async function syncNow(){
   else showBanner("");
 }
 async function put(doc){
-  if(["tx","goal","bill"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
+  if(["tx","goal","bill","cat"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
   const i=items.findIndex(x=>x.id===doc.id);if(i>=0)items[i]=doc;else items.push(doc);
   saveLocal();render();scheduleSync();
 }
@@ -510,12 +521,17 @@ $("recheck").addEventListener("click",()=>{if(me)enter(me)});
 function inMonth(t){const d=new Date(t.date+"T00:00");return d.getFullYear()===view.getFullYear()&&d.getMonth()===view.getMonth()}
 function fillCats(){const type=document.querySelector('input[name=type]:checked').value;const sel=$("cat");const cur=sel.value;
   const opts=a=>a.filter(c=>c!=="Kayd").map(c=>`<option>${c}</option>`).join("");
-  sel.innerHTML=type==="out"?`<optgroup label="Maalinle">${opts(DAILY)}</optgroup><optgroup label="Kale">${opts(CATS.out.filter(c=>!DAILY.includes(c)))}</optgroup>`:opts(CATS.in);
-  if(CATS[type].includes(cur))sel.value=cur;$("daily").hidden=type!=="out";markChip()}
+  const own=ownCats(type).map(c=>c.name);
+  sel.innerHTML=(type==="out"?`<optgroup label="Maalinle">${opts(DAILY)}</optgroup><optgroup label="Kale">${opts(CATS.out.filter(c=>!DAILY.includes(c)))}</optgroup>`:opts(CATS.in))
+    +(own.length?`<optgroup label="Kuwa aad adigu ku dartay">${opts(own)}</optgroup>`:"")+`<option value="__new">➕ Ku dar mid liiska ka maqan…</option>`;
+  if(CATS[type].includes(cur)||own.includes(cur))sel.value=cur;
+  $("ownCats").innerHTML=ownCats(type).map(c=>`<button type="button" class="chip own" data-delcat="${c.id}" aria-label="Ka saar ${c.name}">${c.name} ✕</button>`).join("");
+  if(sel.value!=="__new")$("newCatRow").hidden=true;$("daily").hidden=type!=="out";markChip()}
 let showAll=false;
 function renderDaily(){$("daily").innerHTML=`<span class="note">Maalinle:</span>`+DAILY.map((c,i)=>`<button type="button" class="chip" data-chip="${c}"${i>=12&&!showAll?" hidden":""}>${c}</button>`).join("")
-  +`<button type="button" class="chip more" id="moreChips" aria-expanded="${showAll}">${showAll?"Yaree":"+ "+(DAILY.length-12)+" kale"}</button>`;
-  $("moreChips").onclick=()=>{showAll=!showAll;renderDaily();markChip()}}
+  +ownCats("out").map(c=>`<button type="button" class="chip own" data-chip="${c.name}">${c.name}</button>`).join("")
+  +(DAILY.length>12?`<button type="button" class="chip more" id="moreChips" aria-expanded="${showAll}">${showAll?"Yaree":"+ "+(DAILY.length-12)+" kale"}</button>`:"");
+  if($("moreChips"))$("moreChips").onclick=()=>{showAll=!showAll;renderDaily();markChip()}}
 function markChip(){document.querySelectorAll("[data-chip]").forEach(c=>c.classList.toggle("on",c.dataset.chip===$("cat").value))}
 
 function render(){
@@ -631,7 +647,20 @@ document.addEventListener("change",async e=>{const id=e.target.dataset?.bamt;if(
   const b=items.find(i=>i.id===id);const v=parseFloat(e.target.value)||0;if(b&&v!==Number(b.amount)){try{await put({...b,amount:v})}catch{}}});
 $("payAll").addEventListener("click",async()=>{const txs=mine("tx");
   for(const b of bills())if(!paidTx(b,txs))await payBill(b).catch(()=>{})});
+$("cat").addEventListener("change",()=>{const n=$("cat").value==="__new";$("newCatRow").hidden=!n;if(n)$("newCat").focus()});
+async function addCat(){const name=$("newCat").value.trim();if(!name){$("newCat").focus();return}
+  const type=document.querySelector('input[name=type]:checked').value;
+  if(!CATS[type].includes(name)&&!ownCats(type).some(c=>c.name.toLowerCase()===name.toLowerCase())){
+    try{await put({id:uid(),kind:"cat",type,name,created:new Date().toISOString()})}catch{}}
+  $("newCat").value="";renderDaily();fillCats();
+  const hit=[...$("cat").options].find(o=>o.value.toLowerCase()===name.toLowerCase());if(hit)$("cat").value=hit.value;
+  $("newCatRow").hidden=true;markChip();$("amount").focus()}
+$("newCatBtn").addEventListener("click",addCat);
+$("newCat").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addCat()}});
+$("ownCats").addEventListener("click",async e=>{const b=e.target.closest("[data-delcat]");if(!b)return;
+  try{await remove(b.dataset.delcat)}catch{}renderDaily();fillCats();$("newCatRow").hidden=false});
 $("txForm").addEventListener("submit",async e=>{e.preventDefault();
+  if($("cat").value==="__new"){$("txErr").textContent="Marka hore ku dar qaybta cusub, ama dooro mid liiska ku jirta.";$("newCat").focus();return}
   const amount=parseFloat($("amount").value);
   if(!(amount>0)){$("txErr").textContent="Geli qadar ka weyn eber.";return}
   if(!$("date").value){$("txErr").textContent="Dooro taariikhda.";return}
