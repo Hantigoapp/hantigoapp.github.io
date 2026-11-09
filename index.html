@@ -483,7 +483,7 @@ const EN={
 "Kaydi":"Save","Dhaqdhaqaaqa bishan":"This month's transactions","Kharashyada joogtada ah":"Recurring expenses",
 "Kharashyadan bil kasta way soo noqnoqdaan. Geli qadarka mid kasta hal mar, kadibna bil kasta riix “Bixi”. Waxaa lagu diiwaangelinayaa habka lacag-bixinta ee aad ku dooratay foomka sare.":"These expenses repeat every month. Enter each amount once, then tap “Pay” each month. It is recorded with the payment method chosen in the form above.",
 "Ku qor maalinta bisha ee la bixiyo (1 ilaa 31), si aad xusuusin u hesho 3 maalmood ka hor.":"Enter the day of the month it is due (1 to 31) to get a reminder 3 days before.",
-"Bixi dhammaan":"Pay all","Kharash joogto ah oo cusub":"New recurring expense","Tusaale: Iskuul":"Example: School","Tusaale: Mushahar: Darawal":"Example: Salary: Driver",
+"Bixi dhammaan":"Pay all","Kharash joogto ah oo cusub":"New recurring expense","Tusaale: Iskuul":"Example: School","Tusaale: Darawal":"Example: Driver",
 "Qadarka bishii":"Monthly amount","+ Ku dar":"+ Add","Kaydka iyo buffer-ka":"Savings and buffer","Magaca yoolka":"Goal name","Tusaale: Buffer degdeg":"Example: Emergency buffer",
 "Hadafka":"Target","+ Yool cusub":"+ New goal",
 "Lacagta aad buffer-ka ku shubto waxaa laga jarayaa akoonkaaga, “Ka qaado”-na dib ayay ugu celinaysaa. Sidaas ayaad ku kala garanaysaa lacagta la isticmaali karo iyo tan la kaydiyay.":"Money you put in a buffer is taken from your balance, and “Withdraw” puts it back. That way you can tell spendable money from saved money.",
@@ -540,10 +540,10 @@ const EN={
 /* categories: business */
 "Alaab (stock)":"Stock","Rar & gaadiid":"Freight & transport","Shidaal":"Fuel","Shaqaale maalinle":"Daily workers","Cunto shaqaale":"Staff meals","Baakad & bac":"Packaging & bags",
 "Nadaafad":"Cleaning","Dayactir yar":"Small repairs","Qalab yar":"Small tools","Iib (sales)":"Sales","Adeeg":"Services","Deyn la soo celiyay":"Debt collected","Maalgelin":"Investment",
-"Mushahar: Macallin":"Salary: Teacher","Mushahar: Maamulaha iskuulka":"Salary: School principal","Mushahar: Maamulaha jaamacadda":"Salary: University director",
-"Mushahar: Maamulaha dugsiga":"Salary: Quran school head","Mushahar: Dhakhtar":"Salary: Doctor","Mushahar: Kalkaaliso":"Salary: Nurse","Mushahar: Xisaabiye":"Salary: Accountant",
-"Mushahar: Waardiye":"Salary: Guard","Mushahar: Xoghaye / karraani":"Salary: Secretary / clerk","Mushahar: Darawal":"Salary: Driver","Mushahar: Nadiifiye":"Salary: Cleaner",
-"Mushahar: Kariye":"Salary: Cook","Mushahar: Farsamayaqaan / IT":"Salary: Technician / IT","Mushahar: Iibiye":"Salary: Salesperson","Mushahar: Shaqaale kale":"Salary: Other staff",
+"Macallin":"Teacher","Maamulaha iskuulka":"School principal","Maamulaha jaamacadda":"University director",
+"Maamulaha dugsiga":"Quran school head","Dhakhtar":"Doctor","Kalkaaliso":"Nurse","Xisaabiye":"Accountant",
+"Waardiye":"Guard","Xoghaye / karraani":"Secretary / clerk","Darawal":"Driver","Nadiifiye":"Cleaner",
+"Kariye":"Cook","Farsamayaqaan / IT":"Technician / IT","Iibiye":"Salesperson","Shaqaale kale":"Other staff",
 "Mushaharka shaqaalaha":"Staff salaries","Kiro dukaan / xafiis":"Shop / office rent","Biyo caadi":"Regular water","Ilaalo":"Security","Canshuur & liisan":"Tax & licence","Caymis":"Insurance",
 "Kiro gaari / gaadiid":"Vehicle hire","Dayactir dhisme":"Building repairs","Agab xafiis":"Office supplies","Buugaag & qalab waxbarasho":"Books & school supplies",
 "Dawooyin & qalab caafimaad":"Medicines & medical supplies","Tababar shaqaale":"Staff training","Xayeysiis & suuqgeyn":"Advertising & marketing","Xayeysiis":"Advertising",
@@ -584,8 +584,9 @@ const P_CATS={
 const B_DAILY=["Alaab (stock)","Rar & gaadiid","Shidaal","Shaqaale maalinle","Cunto shaqaale","Baakad & bac","Kaarka taleefanka","Nadaafad","Dayactir yar","Qalab yar"];
 const B_CATS={
   in:["Iib (sales)","Adeeg","Deyn la soo celiyay","Maalgelin","Kale","Kayd"],
-  out:[...B_DAILY,"Mushahar: Macallin","Mushahar: Maamulaha iskuulka","Mushahar: Maamulaha jaamacadda","Mushahar: Maamulaha dugsiga","Mushahar: Dhakhtar","Mushahar: Kalkaaliso","Mushahar: Xisaabiye","Mushahar: Waardiye","Mushahar: Xoghaye / karraani","Mushahar: Darawal","Mushahar: Nadiifiye","Mushahar: Kariye","Mushahar: Farsamayaqaan / IT","Mushahar: Iibiye","Mushahar: Shaqaale kale","Kiro guri","Kiro dukaan / xafiis","Koronto","Biyo-caafi","Biyo caadi","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin","Kiro gaari / gaadiid","Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Dawooyin & qalab caafimaad","Tababar shaqaale","Xayeysiis & suuqgeyn","Alaab ceyriin","Kastam & dekedda","Rarid & dhoofin","Bakhaar / kayd alaab","Dayactir gaari","Dayactir qalab & mashiin","Qalab elektaroonig (kombiyuutar, printer)","Software & barnaamij","Daabacaad & warqado","Lebis / dirays shaqaale","Gunno shaqaale (bonus)","Caafimaadka shaqaalaha","Safar shaqo","Martisoor & shir","Hadiyado macaamiil","Khidmadda bangiga & EVC","Qareen & sharci","Xisaab-hubin (audit)","Diiwaangelin & ruqsad","Lacag-celin macmiil","Khasaare / alaab lumay","Sadaqo & zakaad","Qalab & dhismo cusub","Kale","Kayd"]
+  out:[...B_DAILY,"Macallin","Maamulaha iskuulka","Maamulaha jaamacadda","Maamulaha dugsiga","Dhakhtar","Kalkaaliso","Xisaabiye","Waardiye","Xoghaye / karraani","Darawal","Nadiifiye","Kariye","Farsamayaqaan / IT","Iibiye","Shaqaale kale","Kiro guri","Kiro dukaan / xafiis","Koronto","Biyo-caafi","Biyo caadi","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin","Kiro gaari / gaadiid","Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Dawooyin & qalab caafimaad","Tababar shaqaale","Xayeysiis & suuqgeyn","Alaab ceyriin","Kastam & dekedda","Rarid & dhoofin","Bakhaar / kayd alaab","Dayactir gaari","Dayactir qalab & mashiin","Qalab elektaroonig (kombiyuutar, printer)","Software & barnaamij","Daabacaad & warqado","Lebis / dirays shaqaale","Gunno shaqaale (bonus)","Caafimaadka shaqaalaha","Safar shaqo","Martisoor & shir","Hadiyado macaamiil","Khidmadda bangiga & EVC","Qareen & sharci","Xisaab-hubin (audit)","Diiwaangelin & ruqsad","Lacag-celin macmiil","Khasaare / alaab lumay","Sadaqo & zakaad","Qalab & dhismo cusub","Kale","Kayd"]
 };
+const B_STAFF=["Macallin","Maamulaha iskuulka","Maamulaha jaamacadda","Maamulaha dugsiga","Dhakhtar","Kalkaaliso","Xisaabiye","Waardiye","Xoghaye / karraani","Darawal","Nadiifiye","Kariye","Farsamayaqaan / IT","Iibiye","Shaqaale kale"];
 let MODE="person",DAILY=P_DAILY,CATS=P_CATS;
 const mine=k=>items.filter(i=>i.kind===k&&(i.mode||"person")===MODE);
 const ownCats=t=>mine("cat").filter(c=>c.type===t&&!CATS[t].includes(c.name));
@@ -595,7 +596,7 @@ function applyMode(m){MODE=m==="business"?"business":"person";DAILY=MODE==="busi
   $("placeLbl").textContent=MODE==="business"?"Macmiil ama alaab-qeybiye (ikhtiyaari)":"Shirkadda ama meesha (ikhtiyaari)";
   $("topPlaceLbl").textContent=MODE==="business"?"Alaab-qeybiyaha lacagta ugu badan la siiyay bishan":"Shirkadda lacagta ugu badan laga siiyay bishan";
   $("subline").textContent=MODE==="business"?"Ganacsigaaga: qor iibka iyo kharashyada, ogowna faa'iidada bishii.":"Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.";
-  $("bName").placeholder=MODE==="business"?"Tusaale: Mushahar: Darawal":"Tusaale: Iskuul";
+  $("bName").placeholder=MODE==="business"?"Tusaale: Darawal":"Tusaale: Iskuul";
   showAll=false;renderDaily();fillCats()}
 const MONTHS=LANG==="en"?["January","February","March","April","May","June","July","August","September","October","November","December"]:["Janaayo","Febraayo","Maarso","Abriil","Maajo","Juun","Luulyo","Agoosto","Sebtembar","Oktoobar","Nofembar","Desembar"];
 const SYM={USD:"$",SOS:"Sh.So. "};
@@ -795,7 +796,7 @@ function inMonth(t){const d=new Date(t.date+"T00:00");return d.getFullYear()===v
 function fillCats(){const type=document.querySelector('input[name=type]:checked').value;const sel=$("cat");const cur=sel.value;
   const opts=a=>a.filter(c=>c!=="Kayd").map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   const own=ownCats(type).map(c=>c.name);
-  sel.innerHTML=(type==="out"?`<optgroup label="Maalinle">${opts(DAILY)}</optgroup><optgroup label="Kale">${opts(CATS.out.filter(c=>!DAILY.includes(c)))}</optgroup>`:opts(CATS.in))
+  sel.innerHTML=(type==="out"?`<optgroup label="Maalinle">${opts(DAILY)}</optgroup>${MODE==="business"?`<optgroup label="Mushaharka shaqaalaha">${opts(B_STAFF)}</optgroup>`:""}<optgroup label="Kale">${opts(CATS.out.filter(c=>!DAILY.includes(c)&&!(MODE==="business"&&B_STAFF.includes(c))))}</optgroup>`:opts(CATS.in))
     +(own.length?`<optgroup label="Kuwa aad adigu ku dartay">${opts(own)}</optgroup>`:"")+`<option value="__new">➕ Ku dar mid liiska ka maqan…</option>`;
   if(CATS[type].includes(cur)||own.includes(cur))sel.value=cur;
   $("ownCats").innerHTML=ownCats(type).map(c=>`<button type="button" class="chip own" data-delcat="${c.id}" aria-label="${L("Ka saar ","Remove ")}${esc(c.name)}">${c.name} ✕</button>`).join("");
@@ -871,7 +872,7 @@ function render(){
 }
 
 const DEFAULT_BILLS=["Kiro guri","Koronto","Biyo","Gaas","Internet","Taleefan bille","Iskuul / waxbarasho","Xawaalad qoys","Gaadiid bille","Qashin qaad","Ilaalada xaafadda","Telefishin","Caymis caafimaad","Deyn bixin"];
-const B_BILLS=["Mushahar: Macallin","Mushahar: Maamulaha iskuulka","Mushahar: Maamulaha jaamacadda","Mushahar: Maamulaha dugsiga","Mushahar: Dhakhtar","Mushahar: Kalkaaliso","Mushahar: Xisaabiye","Mushahar: Waardiye","Mushahar: Xoghaye / karraani","Mushahar: Darawal","Mushahar: Nadiifiye","Mushahar: Kariye","Mushahar: Farsamayaqaan / IT","Mushahar: Iibiye","Mushahar: Shaqaale kale","Kiro guri","Kiro dukaan / xafiis","Koronto","Biyo-caafi","Biyo caadi","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin","Kiro gaari / gaadiid","Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Dawooyin & qalab caafimaad","Tababar shaqaale"];
+const B_BILLS=["Macallin","Maamulaha iskuulka","Maamulaha jaamacadda","Maamulaha dugsiga","Dhakhtar","Kalkaaliso","Xisaabiye","Waardiye","Xoghaye / karraani","Darawal","Nadiifiye","Kariye","Farsamayaqaan / IT","Iibiye","Shaqaale kale","Kiro guri","Kiro dukaan / xafiis","Koronto","Biyo-caafi","Biyo caadi","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin","Kiro gaari / gaadiid","Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Dawooyin & qalab caafimaad","Tababar shaqaale"];
 const BIZ_BILLS_VERSION=2;
 const BILLS_VERSION=2;
 const bills=()=>mine("bill").sort((a,b)=>a.created.localeCompare(b.created));
@@ -894,8 +895,9 @@ function billDate(){const t=new Date();return (t.getFullYear()===view.getFullYea
 async function payBill(b){if(!(b.amount>0))return false;
   await put({id:uid(),kind:"tx",method:payMethod(),type:"out",amount:Number(b.amount),cat:b.name,billId:b.id,date:billDate(),note:"Joogto",created:new Date().toISOString()});return true}
 const RENAME={"Biyo caafimaad (cabitaan)":"Biyo-caafi","Biyo caafi":"Biyo-caafi"};
+const newName=n=>RENAME[n]||(typeof n==="string"&&n.startsWith("Mushahar: ")?n.slice(10):null);
 async function migrateNames(){for(const d of [...items]){const k=d.kind==="tx"?"cat":(d.kind==="bill"||d.kind==="cat")?"name":null;
-  if(k&&RENAME[d[k]])try{await put({...d,[k]:RENAME[d[k]]})}catch{}}}
+  const nn=k&&newName(d[k]);if(nn&&nn!==d[k])try{await put({...d,[k]:nn})}catch{}}}
 let seeding=false;
 async function seedBills(){
   if(TEAM)return;
