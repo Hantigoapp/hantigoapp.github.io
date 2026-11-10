@@ -1504,6 +1504,6 @@ renderInstall();
 $("date").value=today();renderDaily();fillCats();render();initLang();init();
 </script>
 <div id="printArea"></div>
-<script>if(!window.Capacitor&&"serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+<script>if(!window.Capacitor&&"serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{r.update();document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update()})}).catch(()=>{}));</script>
 </body>
 </html>
