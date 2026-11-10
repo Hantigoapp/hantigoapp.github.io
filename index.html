@@ -193,6 +193,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
 .install{display:grid;gap:10px}
 .install .dl{display:flex;flex-wrap:wrap;gap:8px}
 .install a.btnlike{text-decoration:none;color:var(--ink);font-weight:600}
+.install details.flash{outline:2px solid var(--accent);border-radius:12px}
 .install ol{margin:6px 0 0;padding-left:20px;display:grid;gap:4px}
 .loading{text-align:center;color:var(--muted);padding:60px 16px}
 /* ---- new layout: bottom tabs ---- */
@@ -1381,7 +1382,7 @@ function installSteps(){
   const li=a=>`<ol class="note">${a.map(x=>`<li>${x}</li>`).join("")}</ol>`;
   if(BROWSER==="inapp")return `<p class="note" style="margin:0"><b>${L("Bogga waxaad ka furtay WhatsApp ama app kale. Halkan lagama rakibi karo.","You opened this page inside WhatsApp or another app. You can't install from here.")}</b></p>`+li([
     L("Riix <b>⋯</b> (sare ama hoose), dooro <b>“Open in Safari”</b> ama <b>“Open in Chrome”</b>.","Tap <b>⋯</b> (top or bottom) and choose <b>“Open in Safari”</b> or <b>“Open in Chrome”</b>."),
-    L("Ama koobiyee link-ga hoose, kuna dheji Safari ama Chrome.","Or copy the link below and paste it into Safari or Chrome.")])+`<button type="button" class="btnlike" data-copylink>🔗 ${L("Koobiyee link-ga","Copy the link")}</button>`;
+    L("Ama riix “Koobiyee link-ga”, kuna dheji Safari ama Chrome.","Or tap “Copy the link” and paste it into Safari or Chrome.")]);
   if(IOS){
     if(BROWSER==="chrome")return li([
       L("Sare midig (meesha link-ga) riix <b>Share ⬆️</b>. Haddii aadan arkin, hoose midig riix <b>⋯</b>.","Tap <b>Share ⬆️</b> at the top right (next to the address). If you don't see it, tap <b>⋯</b> at the bottom right."),
@@ -1407,11 +1408,16 @@ function renderInstall(){
       <div class="dl">
         ${installEvt?`<button type="button" class="primary" data-pwa>➕ ${L("Ku rakib hadda","Install now")}</button>`:""}
         ${IOS?"":`<a class="btnlike" href="${APK_URL}" download>🤖 ${L("Android: soo deji APK","Android: download APK")}</a>`}
+        ${IOS&&BROWSER!=="inapp"&&navigator.share?`<button type="button" class="primary" data-share>⬆️ ${L("Riix: Share → Add to Home Screen","Tap: Share → Add to Home Screen")}</button>`:""}
+        ${!IOS&&!installEvt&&BROWSER!=="inapp"?`<button type="button" class="primary" data-howto>➕ ${L("Ku rakib browser-ka","Install from browser")}</button>`:""}
+        <button type="button" class="btnlike" data-copylink>🔗 ${L("Koobiyee link-ga","Copy the link")}</button>
       </div>
       ${IOS?"":`<p class="note" style="margin:0">${L("APK: marka faylku soo dego, fur. Haddii lagu weydiiyo, oggolow “Install unknown apps”, kadibna riix “Install”.","APK: open the file once downloaded. If asked, allow “Install unknown apps”, then tap “Install”.")}</p>`}
       <details open><summary>${IOS?"🍎 iPhone / iPad":"🌐 "+L("Ka rakib browser-ka","Install from the browser")} · ${bname}</summary>${installSteps()}</details>
     </section>`;
     box.querySelector("[data-pwa]")?.addEventListener("click",async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice}catch{}installEvt=null;renderInstall()});
+    box.querySelector("[data-share]")?.addEventListener("click",async()=>{try{await navigator.share({title:"HantiGo",url:"https://hantigoapp.github.io/"})}catch{}});
+    box.querySelector("[data-howto]")?.addEventListener("click",()=>{const d=box.querySelector("details");d.open=true;d.scrollIntoView({behavior:"smooth",block:"center"});d.classList.add("flash");setTimeout(()=>d.classList.remove("flash"),1600)});
     box.querySelector("[data-copylink]")?.addEventListener("click",async e=>{const u="https://hantigoapp.github.io/";try{await navigator.clipboard.writeText(u);e.target.textContent="✓ "+L("Waa la koobiyeeyay","Copied")}catch{prompt(L("Koobiyee link-ga","Copy the link"),u)}});
   })}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;renderInstall()});
