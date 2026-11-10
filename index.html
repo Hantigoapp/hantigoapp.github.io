@@ -157,12 +157,21 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .stx{margin:4px 0 0;font-size:.85rem}
 .sth{margin:14px 0 4px;font-size:.95rem;color:var(--ink)}
 .chart.stc{min-height:0}
-.sttiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sttiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stin{background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:10px 12px;margin:10px 0 4px;display:grid;gap:6px;font-size:.92rem;line-height:1.4}
+.stin p{margin:0}.stin b{font-variant-numeric:tabular-nums}
+.tile2{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:grid;gap:4px;border-top:3px solid var(--tc,var(--line));min-width:0}
+.tile2 .hd{display:flex;align-items:center;gap:8px;min-width:0}
+.tile2 .ic{flex:none;width:30px;height:30px;font-size:1rem!important;border-radius:50%;display:grid;place-items:center;font-size:1.15rem;background:color-mix(in srgb,var(--tc,#888) 16%,transparent)}
+.tile2 .lb{font-size:.78rem;color:var(--muted)}.tile2 .vl{font-size:clamp(1.05rem,5vw,1.35rem);font-weight:700;font-variant-numeric:tabular-nums;color:var(--tc,var(--ink));overflow-wrap:anywhere;line-height:1.15}
+.tile2 .dl{font-size:.74rem;font-weight:600;color:var(--muted)}.tile2 .dl.good{color:#20a070}.tile2 .dl.bad{color:#e5534b}
+.tile2.wide{grid-column:1/-1}
+.stsec{border-top:1px solid var(--line);margin-top:14px;padding-top:4px}
 .sttile{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:2px}
 .sttile span{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.sttile b{font-size:1.15rem;font-variant-numeric:tabular-nums}
 .hbars{display:grid;gap:8px}
 .hb{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;font-size:.88rem}
-.hb .bar{grid-column:1/-1;height:8px;border-radius:0 4px 4px 0;background:#5a8fe0;min-width:2px}
+.hb .track{grid-column:1/-1;height:10px;border-radius:5px;background:color-mix(in srgb,var(--line) 70%,transparent);overflow:hidden}.hb .bar{height:10px;border-radius:5px;background:#5a8fe0;min-width:3px}
 .hb .v{font-variant-numeric:tabular-nums;color:var(--ink)}.hb .n{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hb small{color:var(--muted)}
 .chart{position:relative;width:100%;min-height:220px}
@@ -411,19 +420,20 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
       <select id="stPer" aria-label="Muddada" style="width:auto"><option value="1">Bishan</option><option value="3">3-dii bilood</option><option value="12">12-kii bilood</option></select></div>
     <div class="goal-actions"><button type="button" id="stCsv">⬇ Excel</button><button type="button" id="stDoc">⬇ Word</button><button type="button" id="stPdf">🖨 PDF</button></div>
     <div class="sttiles" id="stTiles"></div>
-    <h3 class="sth">Lacagta soo gashay iyo kharashka bil kasta</h3>
+    <div class="stin" id="stIn" aria-live="polite"></div>
+    <h3 class="sth stsec">Lacagta soo gashay iyo kharashka bil kasta</h3>
     <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#20a070"></i>Lacagta soo gashay</span><span><i class="sq" style="background:#e5534b"></i>Mushaarka shaqaalaha</span><span><i class="sq" style="background:#d4a017"></i>Kharashka kale</span></div>
     <div id="stMonths" class="chart stc" role="img" aria-label="Kharashka shirkadda bil kasta"></div>
     <p class="note stx">Bil kasta 3 tiir: <b>cagaar</b> = lacagta soo gashay, <b>cas</b> = mushaarka, <b>oranji</b> = kharashka kale. Haddii cagaarku ka dheer yahay labada kale, faa'iido ayaa jirta.</p>
-    <h3 class="sth">Mushaarka shaqaalo kasta</h3>
+    <h3 class="sth stsec">Mushaarka shaqaalo kasta</h3>
     <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#e5534b"></i>Mushaarka shaqaalaha</span></div>
     <div id="stRoles" class="hbars"></div>
     <p class="note stx">Mushaarka la siiyay shaqaalaha, shaqo kasta. Tiirka ugu dheer waa shaqada ugu lacagta badan.</p>
-    <h3 class="sth">Meesha lacagtu ku baxday</h3>
+    <h3 class="sth stsec">Meesha lacagtu ku baxday</h3>
     <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#e5534b"></i>Mushaarka shaqaalaha</span><span><i class="sq" style="background:#d4a017"></i>Kharashka kale</span></div>
     <div id="stCats" class="hbars"></div>
     <p class="note stx">Meelaha lacagta shirkaddu ku baxday, laga bilaabo kan ugu badan. <b>Cas</b> = mushaar, <b>oranji</b> = kharash kale.</p>
-    <h3 class="sth">Xanuunka iyo fasaxa bil kasta (maalmo)</h3>
+    <h3 class="sth stsec">Xanuunka iyo fasaxa bil kasta (maalmo)</h3>
     <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#e8664f"></i>Xanuun (maalmo)</span><span><i class="sq" style="background:#5a8fe0"></i>Fasax (maalmo)</span></div>
     <div id="stLeave" class="chart stc" role="img" aria-label="Maalmaha xanuunka iyo fasaxa bil kasta"></div>
     <p class="note stx">Bil kasta: <b>cas</b> = maalmaha shaqaaluhu xanuunsanaayeen, <b>buluug</b> = maalmaha fasaxa.</p>
@@ -645,15 +655,16 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
       <select id="psPer" aria-label="Muddada" style="width:auto"><option value="1">Bishan</option><option value="3">3-dii bilood</option><option value="12">12-kii bilood</option></select></div>
     <div class="goal-actions"><button type="button" id="psCsv">⬇ Excel</button><button type="button" id="psDoc">⬇ Word</button><button type="button" id="psPdf">🖨 PDF</button></div>
     <div class="sttiles" id="psTiles"></div>
-    <h3 class="sth">Lacagta soo gashay, kharashka iyo kaydka bil kasta</h3>
+    <div class="stin" id="psIn" aria-live="polite"></div>
+    <h3 class="sth stsec">Lacagta soo gashay, kharashka iyo kaydka bil kasta</h3>
     <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#20a070"></i>Lacagta soo gashay</span><span><i class="sq" style="background:#e5534b"></i>Kharashka</span><span><i class="sq" style="background:#5a8fe0"></i>Kaydka</span></div>
     <div id="psMonths" class="chart stc" role="img" aria-label="Lacagta soo gashay, kharashka iyo kaydka bil kasta"></div>
     <p class="note stx">Bil kasta 3 tiir: <b>cagaar</b> = lacagta soo gashay, <b>cas</b> = kharashka, <b>buluug</b> = kaydka. Haddii cagaarku ka dheer yahay casta, lacag ayaa kuu hadhay.</p>
-    <h3 class="sth">Kharashka mowduuc kasta</h3>
+    <h3 class="sth stsec">Kharashka mowduuc kasta</h3>
     <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#e5534b"></i>Kharashka</span></div>
     <div id="psGroups" class="hbars"></div>
     <p class="note stx">Mowduucyada lacagtaadu ku baxday (Cunto, Cabitaan, Hilib…), laga bilaabo kan ugu badan.</p>
-    <h3 class="sth">Waxyaabaha ugu lacagta badan</h3>
+    <h3 class="sth stsec">Waxyaabaha ugu lacagta badan</h3>
     <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#d4a017"></i>Shay kasta</span></div>
     <div id="psItems" class="hbars"></div>
     <p class="note stx">8-da shay ee lacagta ugu badan aad ku bixisay muddadan.</p>
@@ -1596,7 +1607,7 @@ function vbars(box,data,series,fmt,totals){if(!box)return;
     bars+=`<text x="${cx}" y="${H-6}" text-anchor="middle">${esc(r.short)}</text>`});
   box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${g}${bars}</svg>`}
 function rr(x,y,w,h){const r=Math.min(4,w/2,h);return `M${x} ${y+h}V${y+r}Q${x} ${y} ${x+r} ${y}H${x+w-r}Q${x+w} ${y} ${x+w} ${y+r}V${y+h}Z`}
-function hbars(box,list,total,col){box.innerHTML=list.length?list.map(([n,v])=>`<div class="hb"><span class="n">${esc(T(n))}</span><span class="v">${money(v)} <small>${total?Math.round(v/total*100)+"%":""}</small></span><div class="bar" style="width:${(v/list[0][1]*100).toFixed(1)}%;background:${typeof col==="function"?col(n):col||"#5a8fe0"}"></div></div>`).join("")
+function hbars(box,list,total,col){box.innerHTML=list.length?list.map(([n,v])=>`<div class="hb"><span class="n">${esc(T(n))}</span><span class="v">${money(v)} <small>${total?Math.round(v/total*100)+"%":""}</small></span><div class="track"><div class="bar" style="width:${(v/list[0][1]*100).toFixed(1)}%;background:${typeof col==="function"?col(n):col||"#5a8fe0"}"></div></div></div>`).join("")
   :`<p class="empty" style="margin:0">${L("Muddadan wax lama qorin.","Nothing recorded in this period.")}</p>`}
 function renderStats(){
   const cp=document.querySelector(".catpanel");if(cp)cp.hidden=MODE==="business"&&!TEAM;
@@ -1609,8 +1620,17 @@ function renderStats(){
   const sickD=lv.filter(v=>v.type==="buka").reduce((a,v)=>a+leaveDaysIn(v,from,to),0),lvD=lv.filter(v=>v.type!=="buka").reduce((a,v)=>a+leaveDaysIn(v,from,to),0);
   const incT=mine("tx").filter(t=>t.type==="in"&&t.cat!=="Kayd"&&keys.has(t.date.slice(0,7))).reduce((a,t)=>a+Number(t.amount),0);
   ST={n,from,to,incT,allT,salT,sickD,lvD};
-  $("stTiles").innerHTML=[[L("Lacagta soo gashay","Income"),`<i style="font-style:normal;color:${ST_INC}">${money(incT)}</i>`],[L("Kharashka guud","Total spending"),money(allT)],[L("Mushaarka shaqaalaha","Staff salaries"),`<i style="font-style:normal;color:${ST_SAL}">${money(salT)}</i>`+(allT?` <small style="color:var(--muted);font-size:.8rem">${Math.round(salT/allT*100)}%</small>`:"")],[L("Kharashka kale","Other spending"),`<i style="font-style:normal;color:${ST_OTH}">${money(allT-salT)}</i>`],[L("Faa'iido","Profit"),money(incT-allT)],[L("Maalmo xanuun","Sick days"),sickD],[L("Maalmo fasax","Leave days"),lvD]]
-    .map(([a,b])=>`<div class="sttile"><span>${a}</span><b>${b}</b></div>`).join("");
+  const pk=periodKeys(n,n),pInc=sumTx(pk,t=>t.type==="in"&&t.cat!=="Kayd"),pAll=sumTx(pk,t=>t.type==="out"&&t.cat!=="Kayd"),pSal=sumTx(pk,t=>t.type==="out"&&ROLES.has(t.cat)),prof=incT-allT;
+  $("stTiles").innerHTML=tiles2([{ic:"💰",lb:L("Lacagta soo gashay","Income"),v:money(incT),c:ST_INC,cur:incT,prev:pInc,goodUp:1},{ic:"👥",lb:L("Mushaarka shaqaalaha","Staff salaries"),v:money(salT),c:ST_SAL,cur:salT,prev:pSal},
+    {ic:"🧾",lb:L("Kharashka kale","Other spending"),v:money(allT-salT),c:ST_OTH,cur:allT-salT,prev:pAll-pSal},{ic:prof>=0?"📈":"📉",lb:L("Faa'iido","Profit"),v:money(prof),c:prof>=0?"#2f6fc4":ST_SAL,cur:prof,prev:pInc-pAll,goodUp:1},
+    {ic:"🤒",lb:L("Maalmo xanuun","Sick days"),v:sickD,c:ST_SICK},{ic:"🏖️",lb:L("Maalmo fasax","Leave days"),v:lvD,c:ST_LV}]);
+  const perTx=n===1?L("Bishan","This month"):n===3?L("3-dii bilood","In the last 3 months"):L("12-kii bilood","In the last 12 months");const tips=[];
+  if(incT||allT)tips.push(prof>=0?L(`✅ ${perTx} shirkaddu waxay heshay <b>${money(incT)}</b>, waxay bixisay <b>${money(allT)}</b>. Faa'iidada waa <b>${money(prof)}</b>.`,`✅ ${perTx} the company received <b>${money(incT)}</b> and spent <b>${money(allT)}</b>. Profit: <b>${money(prof)}</b>.`)
+    :L(`⚠️ ${perTx} kharashku wuxuu ka badan yahay dakhliga <b>${money(-prof)}</b> (khasaare).`,`⚠️ ${perTx} spending is <b>${money(-prof)}</b> more than income (loss).`));
+  if(allT)tips.push(L(`👥 Mushaarka shaqaaluhu waa <b>${Math.round(salT/allT*100)}%</b> kharashka oo dhan.`,`👥 Staff salaries are <b>${Math.round(salT/allT*100)}%</b> of all spending.`));
+  if(pInc)tips.push(incT>=pInc?L(`📈 Dakhligu wuu kordhay <b>${money(incT-pInc)}</b> marka loo eego muddadii hore.`,`📈 Income grew by <b>${money(incT-pInc)}</b> vs the previous period.`):L(`📉 Dakhligu wuu yaraaday <b>${money(pInc-incT)}</b> marka loo eego muddadii hore.`,`📉 Income fell by <b>${money(pInc-incT)}</b> vs the previous period.`));
+  if(sickD)tips.push(L(`🤒 Shaqaaluhu waxay xanuunsanaayeen <b>${sickD}</b> maalmood.`,`🤒 Staff were sick for <b>${sickD}</b> days.`));
+  $("stIn").innerHTML=tips.map(t=>`<p>${t}</p>`).join("")||`<p>${L("Weli xog kuma filna muddadan.","Not enough data yet.")}</p>`;
   const sum=(arr,f)=>{const m={};arr.forEach(t=>m[f(t)]=(m[f(t)]||0)+Number(t.amount));return Object.entries(m).sort((a,b)=>b[1]-a[1])};
   ST.roles=sum(sal,t=>t.cat);hbars($("stRoles"),ST.roles,salT,ST_SAL);
   let cats=sum(per,t=>ROLES.has(t.cat)?L("Mushaharka shaqaalaha","Staff salaries"):t.cat);if(cats.length>8){const rest=cats.slice(7).reduce((a,c)=>a+c[1],0);cats=cats.slice(0,7).concat([[L("Kale","Other"),rest]])}
@@ -1629,8 +1649,12 @@ $("stPer").addEventListener("change",renderStats);
 window.addEventListener("resize",()=>{clearTimeout(rsz);rsz=setTimeout(()=>{renderChart(mine("tx"));renderStats();renderPStats()},150)});
 
 /* ---------- personal statistics ---------- */
-let PS=null;
-function renderPStats(){if(!$("psPanel")||MODE==="business")return;
+function tiles2(list){return list.map(t=>{let d="";if(t.prev!=null&&(t.prev||t.cur)){const ch=t.prev?Math.round((t.cur-t.prev)/Math.abs(t.prev)*100):100,up=t.cur>=t.prev,good=t.goodUp?up:!up;
+    const same=ch===0;d=`<span class="dl ${same?"":good?"good":"bad"}">${same?"=":up?"▲":"▼"} ${Math.abs(ch)}% ${L("marka loo eego muddadii hore","vs previous period")}</span>`}
+  return `<div class="tile2${t.wide?" wide":""}" style="--tc:${t.c||"var(--line)"}"><div class="hd"><span class="ic" aria-hidden="true">${t.ic}</span><span class="lb">${t.lb}</span></div><span class="vl">${t.v}</span>${d}</div>`}).join("")}
+function periodKeys(n,off){return new Set(monthsBack(n+off).slice(0,n).map(ym))}
+function sumTx(keys,f){return mine("tx").filter(t=>keys.has(t.date.slice(0,7))&&f(t)).reduce((a,t)=>a+Number(t.amount),0)}
+let PS=null;function renderPStats(){if(!$("psPanel")||MODE==="business")return;
   const n=+$("psPer").value,ms=monthsBack(n),keys=new Set(ms.map(ym)),from=ym(ms[0])+"-01",last=ms[ms.length-1],to=ym(last)+"-"+String(new Date(last.getFullYear(),last.getMonth()+1,0).getDate()).padStart(2,"0");
   const txs=mine("tx"),inP=t=>keys.has(t.date.slice(0,7)),amt=a=>a.reduce((x,t)=>x+Number(t.amount),0);
   const out=txs.filter(t=>t.type==="out"&&t.cat!=="Kayd"&&inP(t));
@@ -1641,9 +1665,18 @@ function renderPStats(){if(!$("psPanel")||MODE==="business")return;
   const six=monthsBack(Math.max(6,Math.min(n,12))).map(d=>{const k=ym(d),mt=txs.filter(t=>t.date.slice(0,7)===k);
     return{label:MONTHS[d.getMonth()]+" "+d.getFullYear(),short:MONTHS[d.getMonth()].slice(0,3),inc:amt(mt.filter(t=>t.type==="in"&&t.cat!=="Kayd")),out:amt(mt.filter(t=>t.type==="out"&&t.cat!=="Kayd")),sav:Math.max(0,amt(mt.filter(t=>t.type==="out"&&t.cat==="Kayd"))-amt(mt.filter(t=>t.type==="in"&&t.cat==="Kayd")))}});
   PS={n,from,to,incT,outT,savT,groups,itemsTop,six};
-  const col=(c,v)=>`<i style="font-style:normal;color:${c}">${v}</i>`;
-  $("psTiles").innerHTML=[[L("Lacagta soo gashay","Income"),col(ST_INC,money(incT))],[L("Kharashka","Spending"),col(ST_SAL,money(outT))],[L("Kaydka","Savings"),col(ST_LV,money(savT))],[L("Lacagta hadhay","Left over"),money(incT-outT-savT)],
-    [L("Mowduuca ugu badan","Top topic"),groups[0]?esc(grpLabel(groups[0][0])):"—"]].map(([a,b])=>`<div class="sttile"><span>${a}</span><b>${b}</b></div>`).join("");
+  const pk=periodKeys(n,n),pInc=sumTx(pk,t=>t.type==="in"&&t.cat!=="Kayd"),pOut=sumTx(pk,t=>t.type==="out"&&t.cat!=="Kayd"),pSav=sumTx(pk,t=>t.type==="out"&&t.cat==="Kayd")-sumTx(pk,t=>t.type==="in"&&t.cat==="Kayd");
+  const left=incT-outT-savT,pLeft=pInc-pOut-pSav;
+  $("psTiles").innerHTML=tiles2([{ic:"💰",lb:L("Lacagta soo gashay","Income"),v:money(incT),c:ST_INC,cur:incT,prev:pInc,goodUp:1},{ic:"🛒",lb:L("Kharashka","Spending"),v:money(outT),c:ST_SAL,cur:outT,prev:pOut},
+    {ic:"🏦",lb:L("Kaydka","Savings"),v:money(savT),c:ST_LV,cur:savT,prev:pSav,goodUp:1},{ic:left>=0?"✅":"⚠️",lb:L("Lacagta hadhay","Left over"),v:money(left),c:left>=0?"#2f6fc4":ST_SAL,cur:left,prev:pLeft,goodUp:1}]);
+  const per=n===1?L("Bishan","This month"):n===3?L("3-dii bilood","In the last 3 months"):L("12-kii bilood","In the last 12 months");
+  const tips=[];
+  if(incT||outT)tips.push(left>=0?L(`✅ ${per} waxaa kuu soo galay <b>${money(incT)}</b>, waxaad isticmaashay <b>${money(outT)}</b>. Waxaa kuu hadhay <b>${money(left)}</b>.`,`✅ ${per} you received <b>${money(incT)}</b> and spent <b>${money(outT)}</b>. You have <b>${money(left)}</b> left.`)
+    :L(`⚠️ ${per} kharashkaagu wuxuu ka badan yahay dakhligaaga <b>${money(-left)}</b>.`,`⚠️ ${per} you spent <b>${money(-left)}</b> more than you received.`));
+  if(groups[0])tips.push(L(`🔎 Lacagtaada inta ugu badan waxay ku baxday <b>${esc(grpLabel(groups[0][0]))}</b>: ${money(groups[0][1])} (${outT?Math.round(groups[0][1]/outT*100):0}%).`,`🔎 Most of your money went to <b>${esc(grpLabel(groups[0][0]))}</b>: ${money(groups[0][1])} (${outT?Math.round(groups[0][1]/outT*100):0}%).`));
+  if(pOut)tips.push(outT<=pOut?L(`👏 Kharashkaagu wuu ka yaraaday muddadii hore <b>${money(pOut-outT)}</b>.`,`👏 You spent <b>${money(pOut-outT)}</b> less than the previous period.`):L(`📈 Kharashkaagu wuu ka badan yahay muddadii hore <b>${money(outT-pOut)}</b>.`,`📈 You spent <b>${money(outT-pOut)}</b> more than the previous period.`));
+  if(savT>0)tips.push(L(`🏦 Waxaad kaydisay <b>${money(savT)}</b>. Si fiican!`,`🏦 You saved <b>${money(savT)}</b>. Well done!`));
+  $("psIn").innerHTML=tips.map(t=>`<p>${t}</p>`).join("")||`<p>${L("Weli xog kuma filna muddadan. Ku dar dakhli iyo kharash.","Not enough data yet. Add income and spending.")}</p>`;
   const fm=(v,c)=>c?compact(v):money(v);
   vbars($("psMonths"),six,[{k:"inc",c:ST_INC,name:L("Soo galay","Income"),g:0},{k:"out",c:ST_SAL,name:L("Kharash","Spending"),g:1},{k:"sav",c:ST_LV,name:L("Kayd","Savings"),g:2}],fm);
   hbars($("psGroups"),groups.map(([g,v])=>[grpLabel(g),v]),outT,ST_SAL);
