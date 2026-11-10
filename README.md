@@ -37,3 +37,11 @@ Fiiro gaar ah: GitHub Pages wuxuu u baahan yahay repo **public** ah haddii akoon
 ### Dejinta Supabase (hal mar)
 1. Supabase → **SQL Editor** → New query → ku dheji `supabase/schema.sql` → **Run**.
 2. **Authentication → URL Configuration** → Site URL: `https://hantigoapp.github.io/` (Redirect URLs-na ku dar isla xiriirka).
+
+## Android app
+
+The GitHub Action "Android app" runs on every push to `main`. It publishes `HantiGo.apk` to the
+`tijaabo` release (download: https://github.com/Hantigoapp/hantigoapp.github.io/releases/download/tijaabo/HantiGo.apk).
+When the four `HANTIGO_*` signing secrets are set, that APK is the signed release build (accepted by
+Samsung Galaxy Store, Huawei AppGallery and Uptodown) and a signed `.aab` for Google Play is attached
+to the run as the `HantiGo-play-store-aab` artifact.
