@@ -121,6 +121,8 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .sub-panel{border-color:var(--accent)}
 .price{font:700 1rem var(--display);color:var(--accent)}
 .evc{display:grid;gap:2px;padding:10px 12px;background:var(--accent-soft);border-radius:10px}
+.dial{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;background:#1f9d55;color:#fff;font-weight:700;font-size:1.08rem;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)}.dial small{display:block;font-weight:500;opacity:.9;font-size:.8rem}
+.pway{display:grid;gap:10px}.pway[hidden],.paypick[hidden]{display:none}.paypick{display:grid;grid-template-columns:1fr 1fr;gap:8px}.paypick label{cursor:pointer}.paypick input{position:absolute;opacity:0}.paypick span{display:block;text-align:center;padding:12px 8px;border-radius:12px;border:2px solid var(--line,#2a3440);font-weight:700}.paypick input:checked+span{border-color:#1f9d55;background:rgba(31,157,85,.18)}.paypick input:focus-visible+span{outline:2px solid #1f9d55}
 .evc b{font-size:1.1rem;letter-spacing:.02em;user-select:all;overflow-wrap:anywhere}
 .methods{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:6px;font-size:.88rem}
 .methods span{opacity:.85}.methods b{font-weight:600}
@@ -365,14 +367,24 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
   <div class="panel sub-panel">
     <div class="panel-head"><h2>Muddadaadu way dhammaatay</h2><span class="price pay-only">$10 / bishii</span></div>
     <p id="nativeNote" style="margin:0" hidden>Akoonkaagu hadda ma furna. Marka la furo, riix "Hubi mar kale".</p>
-    <p class="pay-only" style="margin:0">Ku bixi $10 EVC Plus. Marka la xaqiijiyo, akoonkaaga waa la furayaa 30 maalmood.</p>
-    <div class="evc pay-only"><span class="note">Ku garaac taleefankaaga</span><b>*712*613735086*10#</b></div>
-    <div class="evc pay-only"><span class="note">Lambarka EVC Plus ee lacagta loo dirayo</span><b>+252 61 373 5086</b></div>
+    <p class="pay-only" style="margin:0">Ku bixi $10 EVC Plus ama WaafiPay. Marka la xaqiijiyo, akoonkaaga waa la furayaa 30 maalmood.</p>
+    <div class="pay-only paypick" role="radiogroup" aria-label="Habka lacag-bixinta">
+      <label><input type="radio" name="pway" value="evc" checked><span>📱 EVC Plus</span></label>
+      <label><input type="radio" name="pway" value="waafi"><span>💳 WaafiPay</span></label>
+    </div>
+    <div class="pay-only pway" id="pwEvc">
+      <a class="dial" href="tel:*712*613735086*10%23"><span>📞</span><span>Bixi hadda $10<small>Riix, kadib geli PIN-ka EVC</small></span></a>
+      <div class="evc"><span class="note">Ku garaac taleefankaaga</span><b>*712*613735086*10#</b></div>
+    </div>
+    <div class="pay-only pway" id="pwWaafi" hidden>
+      <ol class="note" style="margin:0;padding-left:20px;line-height:1.6"><li>Fur app-ka <b>WaafiPay</b></li><li>Dooro <b>Lacag dir</b> (Send money)</li><li>Geli lambarka hoose iyo <b>$10</b>, kadib PIN-kaaga</li></ol>
+    </div>
+    <div class="evc pay-only"><span class="note">Lambarka lacagta loo dirayo</span><b>+252 61 373 5086</b></div>
     <form id="phoneForm" class="pay-only" novalidate>
       <p class="note" style="margin:0"><b>Kadib markaad bixiso:</b> buuxi foomkan si aan si dhakhso ah u xaqiijinno.</p>
-      <label class="field"><span>1. Lambarka aad lacagta ka soo dirtay</span><input id="pPhone" type="tel" inputmode="tel" placeholder="61xxxxxxx" maxlength="20"></label>
-      <label class="field"><span>2. Lambarka dhaqdhaqaaqa ee fariinta EVC (ikhtiyaari)</span><input id="pRef" type="text" maxlength="60" placeholder="Tusaale: Tix 123456789"></label>
-      <div class="field"><span>3. Sawirka fariinta EVC (ikhtiyaari)</span>
+      <label class="field"><span id="pPhoneLbl">1. Lambarka aad lacagta ka soo dirtay</span><input id="pPhone" type="tel" inputmode="tel" placeholder="61xxxxxxx" maxlength="20"></label>
+      <label class="field"><span>2. Lambarka dhaqdhaqaaqa ee fariinta lacagta (ikhtiyaari)</span><input id="pRef" type="text" maxlength="60" placeholder="Tusaale: Tix 123456789"></label>
+      <div class="field"><span>3. Sawirka fariinta lacagta (ikhtiyaari)</span>
         <label class="pshot" for="pShotFile"><span id="pShotTxt">📷 Ku dar sawirka (screenshot)</span><img id="pShotImg" alt="" hidden></label>
         <input id="pShotFile" type="file" accept="image/*" hidden></div>
       <div class="err" id="pErr" role="status"></div>
@@ -676,7 +688,8 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
         <p style="margin:0">Ku bixi EVC Plus lambarka hoose, kadibna fariinta EVC u gudbi (forward) isla lambarkaas.</p>
         <div class="evc"><span class="note">Lambarka EVC Plus</span><b id="evcNum">+252 61 373 5086</b></div>
         <div class="evc"><span class="note">Ku garaac taleefankaaga</span><b id="evcCode">*712*613735086*10#</b></div>
-        <div class="goal-actions"><button type="button" id="copyCode" class="primary">Koobiyee koodhka</button><span class="note" id="copyMsg" role="status"></span></div>
+        <a class="dial" href="tel:*712*613735086*10%23"><span>📞</span><span>Bixi hadda $10<small>Riix, kadib geli PIN-ka EVC</small></span></a>
+        <div class="goal-actions"><button type="button" id="copyCode">Koobiyee koodhka</button><span class="note" id="copyMsg" role="status"></span></div>
       </section>
 
       <section class="panel" aria-labelledby="repH" data-tab="more">
@@ -743,7 +756,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
 let LANG="so";try{if(localStorage.getItem("hantigo.lang")==="en")LANG="en"}catch{}
 const L=(so,en)=>LANG==="en"?en:so;
 const EN={
-"HantiGo waa la furayaa…":"Opening HantiGo…","Luqadda":"Language",
+"HantiGo waa la furayaa…":"Opening HantiGo…","Bixi hadda $10":"Pay $10 now","Fur app-ka":"Open the app","Dooro":"Choose","Lacag dir":"Send money","Lambarka lacagta loo dirayo":"Number to send the money to","Riix, kadib geli PIN-ka EVC":"Tap, then enter your EVC PIN","Luqadda":"Language",
 "Maamul lacagtaada meel kasta oo aad joogto.":"Manage your money wherever you are.","Waxaa sameeyay":"Made by",
 "Gal":"Log in","WhatsApp: caawimaad":"WhatsApp: help","Wadanka aad joogto":"Country you live in","Dooro wadanka iyo magaalada.":"Choose your country and city.","Beddel":"Change","Soomaaliya":"Somalia","Koonfur Afrika":"South Africa","Masar":"Egypt","Imaaraadka":"UAE","Sacuudiga":"Saudi Arabia","Turkiga":"Turkey","Ingiriiska":"United Kingdom","Iswiidhan":"Sweden","Holland":"Netherlands","Jarmalka":"Germany","Mareykan":"USA","Kanada":"Canada","Wadan kale":"Other country","Tusaale: London":"Example: London","Magaalada":"City","💬 Caawimaad? Nagala soo xiriir WhatsApp":"💬 Need help? Contact us on WhatsApp","Caawimaad":"Help","Su'aal ma qabtaa? Nagu soo qor WhatsApp.":"Have a question? Write to us on WhatsApp.","🚪 Ka bax":"🚪 Log out","🚪 Ka bax akoonka":"🚪 Log out of account","Jooji beddelka":"Cancel edit","✏️ Beddel":"✏️ Edit","Guriga":"Home","Ku dar":"Add","Qorshe":"Plan","Akoon":"Account","Akoonkaaga":"Your account","Qaybaha app-ka":"App sections","Magaalada aad joogto":"City you live in","— Dooro —":"— Choose —","Magaalo kale (Soomaaliya)":"Other city (Somalia)","Itoobiya":"Ethiopia","Jabuuti":"Djibouti","Dibadda (Yurub / Ameerika / kale)":"Abroad (Europe / America / other)","Xagee joogtaa?":"Where are you?","Noo sheeg magaaladaada si aan HantiGo ugu hagaajinno.":"Tell us your city so we can improve HantiGo.","Kaydi":"Save","Mar dambe":"Later","Is-diiwaangeli":"Sign up","Nooca akoonka":"Account type","👤 Shakhsi":"👤 Personal","🏢 Shirkad":"🏢 Business",
 "Erayga sirta ah (ugu yaraan 6 xaraf)":"Password (at least 6 characters)","Akoon cusub wuxuu helayaa 7 maalmood oo bilaash ah.":"New accounts get 7 days free.",
@@ -756,7 +769,7 @@ const EN={
 "Goor kasta waad beddeli kartaa, xogta labaduna way kala gooni yihiin.":"You can switch at any time, and the two keep separate data.",
 "Muddadaadu way dhammaatay":"Your access has ended","$10 / bishii":"$10 / month",
 "Akoonkaagu hadda ma furna. Marka la furo, riix \"Hubi mar kale\".":"Your account is not active yet. When it is opened, tap \"Check again\".",
-"Ku bixi $10 EVC Plus. Marka la xaqiijiyo, akoonkaaga waa la furayaa 30 maalmood.":"Pay $10 with EVC Plus. Once confirmed, your account opens for 30 days.",
+"Ku bixi $10 EVC Plus ama WaafiPay. Marka la xaqiijiyo, akoonkaaga waa la furayaa 30 maalmood.":"Pay $10 with EVC Plus or WaafiPay. Once confirmed, your account opens for 30 days.",
 "Ku garaac taleefankaaga":"Dial on your phone","Lambarka EVC Plus ee lacagta loo dirayo":"EVC Plus number to send the money to",
 "Lambarka aad lacagta ka soo dirtay":"The number you paid from","Waan bixiyay":"I have paid","Hubi mar kale":"Check again","Ka bax":"Log out",
 "Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.":"Record the money coming in and going out, and save for your goals.",
@@ -1179,13 +1192,16 @@ $("pShotFile").addEventListener("change",async e=>{const f=e.target.files?.[0];e
 $("phoneForm").addEventListener("submit",async e=>{e.preventDefault();
   const p=$("pPhone").value.trim(),ref=$("pRef").value.trim();if(p.replace(/\D/g,"").length<7){$("pErr").textContent="Geli lambarka EVC ee aad ka soo dirtay.";$("pPhone").focus();return}
   const btn=e.submitter;if(btn)btn.disabled=true;$("pErr").textContent="";
-  let {error}=await sb.rpc("request_payment",{p,ref,shot:payShot});
+  const way=document.querySelector("input[name=pway]:checked")?.value==="waafi"?"WaafiPay":"EVC Plus";
+  let {error}=await sb.rpc("request_payment",{p,ref:(way==="WaafiPay"?"[WaafiPay] ":"")+ref,shot:payShot});
   if(error)({error}=await sb.rpc("set_my_phone",{p}));   // payment.sql not run yet: keep the old way working
   if(btn)btn.disabled=false;
   if(error){$("pErr").textContent="Lama kaydin karo hadda. Isku day mar kale.";return}
   profile={...profile,phone:p,pay_ref:ref||null,pay_status:"pending"};payStatus(profile);payPoll();
 });
 $("recheck").addEventListener("click",()=>{if(me)enter(me)});
+document.querySelectorAll("input[name=pway]").forEach(r=>r.addEventListener("change",()=>{const w=document.querySelector("input[name=pway]:checked").value==="waafi";$("pwEvc").hidden=w;$("pwWaafi").hidden=!w;
+  $("pPhoneLbl").textContent=w?L("1. Lambarka WaafiPay ee aad ka soo dirtay","1. WaafiPay number you paid from"):L("1. Lambarka aad lacagta ka soo dirtay","1. Number you sent the money from")}));
 
 /* ---------- render ---------- */
 function inMonth(t){const d=new Date(t.date+"T00:00");return d.getFullYear()===view.getFullYear()&&d.getMonth()===view.getMonth()}
