@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="so">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1118">
+<title>Hagaha HantiGo</title>
+<link rel="icon" href="icon-192.png">
+<style>
+html:root{--bg:#0b1118;--surface:#141c26;--ink:#eef3f8;--muted:#8fa0b3;--line:#233041;--accent:#3ddc97;--accent-soft:#16352a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-left,0px)) 110px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-size:1.7rem;font-weight:800;margin:0;letter-spacing:-.02em}.brand span{color:var(--accent)}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{background:none;border:0;color:var(--muted);padding:6px 14px;font:inherit;font-size:.9rem;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--accent);color:#06210f;font-weight:700}
+.intro{color:var(--muted);margin:6px 0 16px}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;padding:0;list-style:none}
+.toc a{display:block;padding:6px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:.9rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin:0 0 14px;scroll-margin-top:12px}
+.card h2{margin:0 0 8px;font-size:1.15rem;display:flex;gap:10px;align-items:center}
+.card h3{margin:14px 0 4px;font-size:1rem;color:var(--accent)}
+.card ol,.card ul{margin:4px 0;padding-left:22px}.card li{margin:4px 0}
+.card p{margin:6px 0}
+.tip{background:var(--accent-soft);border-radius:12px;padding:8px 12px;font-size:.93rem;margin-top:10px}
+b.k{background:#0b1118;border:1px solid var(--line);border-radius:6px;padding:0 6px;font-weight:600;white-space:nowrap}
+.code{font-family:ui-monospace,monospace;font-size:1.05rem;color:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;background:var(--accent);color:#06210f;font-weight:700;text-decoration:none;margin:6px 8px 0 0}
+.btn.wa{background:#25d366;color:#fff}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+footer{color:var(--muted);font-size:.85rem;text-align:center;margin-top:20px}footer a{color:var(--muted)}
+[data-l="en"]{display:none}
+html[lang="en"] [data-l="so"]{display:none}html[lang="en"] [data-l="en"]{display:revert}
+.wafab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;background:#25d366;display:grid;place-items:center;box-shadow:0 8px 22px rgba(0,0,0,.3)}
+@media print{.wafab,.lang,.toc{display:none}}
+</style>
+</head>
+<body>
+<main>
+<div class="top">
+  <h1 class="brand">Hanti<span>Go</span></h1>
+  <div class="lang" role="group" aria-label="Luqadda / Language"><button type="button" data-set="so" aria-pressed="true">Soomaali</button><button type="button" data-set="en" aria-pressed="false">English</button></div>
+</div>
+<p class="intro" data-l="so"><b>Hagaha HantiGo:</b> sida app-ka loo soo dejiyo iyo sida loo isticmaalo, tallaabo tallaabo.</p>
+<p class="intro" data-l="en"><b>HantiGo guide:</b> how to install and use the app, step by step.</p>
+
+<ul class="toc">
+  <li><a href="#rakib"><span data-l="so">📲 Soo dejin</span><span data-l="en">📲 Install</span></a></li>
+  <li><a href="#akoon"><span data-l="so">👤 Akoon</span><span data-l="en">👤 Account</span></a></li>
+  <li><a href="#kudar"><span data-l="so">＋ Ku dar lacag</span><span data-l="en">＋ Add money</span></a></li>
+  <li><a href="#qorshe"><span data-l="so">📅 Qorshe</span><span data-l="en">📅 Plan</span></a></li>
+  <li><a href="#warbixin"><span data-l="so">📄 Warbixin</span><span data-l="en">📄 Reports</span></a></li>
+  <li><a href="#bixin"><span data-l="so">💳 Bixinta</span><span data-l="en">💳 Payment</span></a></li>
+  <li><a href="#caawin"><span data-l="so">💬 Caawimaad</span><span data-l="en">💬 Help</span></a></li>
+</ul>
+
+<section class="card" id="rakib">
+  <h2>📲 <span data-l="so">1. Soo deji app-ka</span><span data-l="en">1. Install the app</span></h2>
+  <div data-l="so">
+    <h3>Android</h3>
+    <ol><li>Riix badhanka hoose <b>"Soo deji Android"</b>.</li><li>Fur faylka <b>HantiGo.apk</b>.</li><li>Haddii uu weydiiyo <b>"Install unknown apps"</b>, u oggolow, kadib riix <b>Install</b>.</li></ol>
+    <a class="btn" href="https://github.com/Hantigoapp/hantigoapp.github.io/releases/download/tijaabo/HantiGo.apk">⬇ Soo deji Android</a>
+    <h3>iPhone</h3>
+    <ol><li>Bogga <b>hantigoapp.github.io</b> ku fur <b>Safari</b>.</li><li>Riix badhanka wadaagista <b class="k">□↑</b>.</li><li>Dooro <b>"Add to Home Screen"</b>, kadib <b>Add</b>.</li></ol>
+    <h3>Kombiyuutar</h3>
+    <p>Fur <b>hantigoapp.github.io</b> browser kasta. Waa isku akoon, xogtuna way is-raacaysaa.</p>
+    <a class="btn ghost" href="./">🌐 Fur HantiGo</a>
+  </div>
+  <div data-l="en">
+    <h3>Android</h3>
+    <ol><li>Tap <b>"Download for Android"</b> below.</li><li>Open the file <b>HantiGo.apk</b>.</li><li>If asked about <b>"Install unknown apps"</b>, allow it, then tap <b>Install</b>.</li></ol>
+    <a class="btn" href="https://github.com/Hantigoapp/hantigoapp.github.io/releases/download/tijaabo/HantiGo.apk">⬇ Download for Android</a>
+    <h3>iPhone</h3>
+    <ol><li>Open <b>hantigoapp.github.io</b> in <b>Safari</b>.</li><li>Tap the share button <b class="k">□↑</b>.</li><li>Choose <b>"Add to Home Screen"</b>, then <b>Add</b>.</li></ol>
+    <h3>Computer</h3>
+    <p>Open <b>hantigoapp.github.io</b> in any browser. Same account, your data syncs.</p>
+    <a class="btn ghost" href="./">🌐 Open HantiGo</a>
+  </div>
+</section>
+
+<section class="card" id="akoon">
+  <h2>👤 <span data-l="so">2. Samee akoon</span><span data-l="en">2. Create an account</span></h2>
+  <div data-l="so">
+    <ol><li>Fur app-ka, riix <b>Is-diiwaangeli</b>.</li><li>Dooro <b>wadanka</b> iyo <b>magaalada</b> aad joogto.</li><li>Geli <b>email-kaaga</b> iyo <b>eray sir ah</b> (ugu yaraan 6 xaraf).</li><li>Dooro <b>👤 Shakhsi</b> (qof caadi ah) ama <b>🏢 Shirkad</b> (ganacsi). Mar dambe waad beddeli kartaa.</li></ol>
+    <div class="tip">🎁 Akoon cusub wuxuu helayaa <b>7 maalmood oo bilaash ah</b>.</div>
+    <h3>Ma ilowday erayga sirta ah?</h3>
+    <p>Bogga gelitaanka riix <b>"Ma ilowday erayga sirta ah?"</b>. Link ayaa email-kaaga ku imanaya, ku samee eray cusub.</p>
+  </div>
+  <div data-l="en">
+    <ol><li>Open the app and tap <b>Sign up</b>.</li><li>Choose your <b>country</b> and <b>city</b>.</li><li>Enter your <b>email</b> and a <b>password</b> (at least 6 characters).</li><li>Choose <b>👤 Personal</b> or <b>🏢 Business</b>. You can switch later.</li></ol>
+    <div class="tip">🎁 New accounts get <b>7 days free</b>.</div>
+    <h3>Forgot your password?</h3>
+    <p>On the sign-in page tap <b>"Forgot your password?"</b>. A link is sent to your email to set a new one.</p>
+  </div>
+</section>
+
+<section class="card" id="kudar">
+  <h2>＋ <span data-l="so">3. Ku dar dakhli ama kharash</span><span data-l="en">3. Add income or expense</span></h2>
+  <div data-l="so">
+    <ol><li>Hoosta riix <b>＋ Ku dar</b>.</li><li>Dooro <b>+ Dakhli</b> (lacag soo gashay) ama <b>− Kharash</b> (lacag baxday).</li><li>Dooro halka lacagtu ku jirto: <b>EVC Plus</b>, <b>Bangi</b> ama <b>Kaash</b>.</li><li>Dooro qaybta (tusaale: Cunto, Kiro, Mushahar), geli lacagta, riix <b>Kaydi</b>.</li></ol>
+    <p>Lacagta waxaad ku qori kartaa <b>Dollar</b> ama <b>Shilin Soomaali</b> (sare: "Nooca lacagta").</p>
+    <div class="tip">✏️ Tiro khaldan ma qortay? Liiska <b>"Dhaqdhaqaaqa bishan"</b> riix <b>✏️ Beddel</b>, sax, kadib <b>Kaydi beddelka</b>.</div>
+    <h3>🏠 Guriga</h3>
+    <p>Halkan waxaad ku arkaysaa haraagaaga (EVC, Bangi, Kaash), kaydka bishan, iyo shaxda 6-dii bilood.</p>
+  </div>
+  <div data-l="en">
+    <ol><li>Tap <b>＋ Add</b> at the bottom.</li><li>Choose <b>+ Income</b> or <b>− Expense</b>.</li><li>Choose where the money is: <b>EVC Plus</b>, <b>Bank</b> or <b>Cash</b>.</li><li>Pick a category (e.g. Food, Rent, Salary), enter the amount, tap <b>Save</b>.</li></ol>
+    <p>Amounts can be in <b>Dollar</b> or <b>Somali shilling</b> (top: "Currency").</p>
+    <div class="tip">✏️ Typed a wrong amount? In <b>"This month's transactions"</b> tap <b>✏️ Edit</b>, fix it, then <b>Save changes</b>.</div>
+    <h3>🏠 Home</h3>
+    <p>See your balance (EVC, Bank, Cash), this month's savings and a 6-month chart.</p>
+  </div>
+</section>
+
+<section class="card" id="qorshe">
+  <h2>📅 <span data-l="so">4. Qorshe: miisaaniyad, biilal, kayd</span><span data-l="en">4. Plan: budget, bills, savings</span></h2>
+  <div data-l="so">
+    <p>Hoosta riix <b>📅 Qorshe</b>:</p>
+    <ul><li><b>Miisaaniyadda bishii:</b> dhig xadka kharashka. Digniin ayaad helaysaa marka aad u dhowaato.</li><li><b>Kharashyada joogtada ah:</b> biilasha (kiro, koronto, biyo). Xusuusin ayaad helaysaa ka hor maalinta. Marka aad bixiso riix <b>Bixi</b>, haddii aad khaldantana <b>↩ Ka noqo</b>.</li><li><b>Kaydka iyo buffer-ka:</b> dhig yool kayd ah oo raac horumarkiisa.</li><li><b>Deymaha</b> (Shirkad): lacagta lagugu leeyahay iyo tan aad ku leedahay.</li></ul>
+  </div>
+  <div data-l="en">
+    <p>Tap <b>📅 Plan</b> at the bottom:</p>
+    <ul><li><b>Monthly budget:</b> set a spending limit and get a warning when you get close.</li><li><b>Recurring bills:</b> rent, electricity, water, with a reminder before the due day. Tap <b>Pay</b> when paid, or <b>↩ Undo</b> if by mistake.</li><li><b>Savings and buffer:</b> set a savings goal and track it.</li><li><b>Debts</b> (Business): money owed to you and money you owe.</li></ul>
+  </div>
+</section>
+
+<section class="card" id="warbixin">
+  <h2>📄 <span data-l="so">5. Warbixin, backup iyo shaqaale</span><span data-l="en">5. Reports, backup and staff</span></h2>
+  <div data-l="so">
+    <p>Hoosta riix <b>👤 Akoon</b>:</p>
+    <ul><li><b>Warbixin:</b> dooro bisha ama sannadka, kadib <b>⬇ Excel (CSV)</b> ama <b>🖨 PDF</b> (dooro "Save as PDF").</li><li><b>Backup:</b> <b>⬇ Soo deji backup</b> si aad xogtaada u kaydiso. <b>⬆ Soo celi backup</b> si aad dib ugu soo celiso.</li><li><b>Shaqaale</b> (Shirkad): ku dar email-ka shaqaalaha si ay isla akoonka shirkadda u isticmaalaan.</li><li><b>Luqadda:</b> Soomaali ama English.</li><li><b>🚪 Ka bax:</b> sare midig ama Akoon hoostiisa.</li></ul>
+  </div>
+  <div data-l="en">
+    <p>Tap <b>👤 Account</b> at the bottom:</p>
+    <ul><li><b>Reports:</b> pick month or year, then <b>⬇ Excel (CSV)</b> or <b>🖨 PDF</b> (choose "Save as PDF").</li><li><b>Backup:</b> <b>⬇ Download backup</b> to keep a copy; <b>⬆ Restore backup</b> to bring it back.</li><li><b>Staff</b> (Business): add staff emails so they share the company account.</li><li><b>Language:</b> Somali or English.</li><li><b>🚪 Sign out:</b> top right, or under Account.</li></ul>
+  </div>
+</section>
+
+<section class="card" id="bixin">
+  <h2>💳 <span data-l="so">6. Bixinta: $10 bishii</span><span data-l="en">6. Payment: $10 a month</span></h2>
+  <div data-l="so">
+    <p>Marka 7-da maalmood dhammaadaan:</p>
+    <ol><li>Taleefankaaga ku garaac: <span class="code">*712*613735086*10#</span></li><li>App-ka ku qor lambarka aad lacagta ka dirtay, riix <b>Waan bixiyay</b>.</li><li>Marka la xaqiijiyo, akoonkaaga waa la furayaa <b>30 maalmood</b>. Riix <b>Hubi mar kale</b>.</li></ol>
+    <p>EVC Plus: <b>+252 61 373 5086</b></p>
+  </div>
+  <div data-l="en">
+    <p>When your 7 free days end:</p>
+    <ol><li>Dial on your phone: <span class="code">*712*613735086*10#</span></li><li>In the app enter the number you paid from and tap <b>I have paid</b>.</li><li>Once confirmed, your account opens for <b>30 days</b>. Tap <b>Check again</b>.</li></ol>
+    <p>EVC Plus: <b>+252 61 373 5086</b></p>
+  </div>
+</section>
+
+<section class="card" id="caawin">
+  <h2>💬 <span data-l="so">7. Caawimaad</span><span data-l="en">7. Help</span></h2>
+  <p data-l="so">Su'aal ma qabtaa? Nagu soo qor WhatsApp: <b>+46 76 715 79 15</b>. Xogtaadu waa ammaan, lama iibiyo.</p>
+  <p data-l="en">Questions? Message us on WhatsApp: <b>+46 76 715 79 15</b>. Your data is private and never sold.</p>
+  <a class="btn wa" data-wa href="https://wa.me/46767157915" target="_blank" rel="noopener">💬 WhatsApp</a>
+</section>
+
+<footer><a href="./"><span data-l="so">← Ku noqo HantiGo</span><span data-l="en">← Back to HantiGo</span></a> · <a href="privacy.html"><span data-l="so">Asturnaanta</span><span data-l="en">Privacy</span></a></footer>
+</main>
+<a class="wafab" data-wa href="https://wa.me/46767157915" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path fill="#fff" d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm0 23.6c-2 0-4-.6-5.7-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1 1 16 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7 0a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.7 3.7 0 0 0-1.1 2.7 6.4 6.4 0 0 0 1.3 3.4 14.7 14.7 0 0 0 5.6 5c2.1.9 2.9 1 4 .8a3.4 3.4 0 0 0 2.2-1.6 2.8 2.8 0 0 0 .2-1.6c-.1-.1-.3-.2-.6-.4z"/></svg></a>
+<script>
+(function(){
+  function get(){try{return localStorage.getItem("hantigo.lang")}catch(e){return null}}
+  function set(l){document.documentElement.lang=l;document.querySelectorAll("[data-set]").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.set===l)});
+    var msg=l==="en"?"Hi, I need help with HantiGo":"Salaan, HantiGo caawimaad ayaan rabaa";
+    document.querySelectorAll("[data-wa]").forEach(function(a){a.href="https://wa.me/46767157915?text="+encodeURIComponent(msg)});
+    document.title=l==="en"?"HantiGo guide":"Hagaha HantiGo"}
+  set(get()==="en"?"en":"so");
+  document.querySelectorAll("[data-set]").forEach(function(b){b.onclick=function(){set(b.dataset.set);try{localStorage.setItem("hantigo.lang",b.dataset.set)}catch(e){}}});
+})();
+</script>
+</body>
+</html>
