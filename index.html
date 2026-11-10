@@ -207,6 +207,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
   body.printing #printArea{display:block!important;color:#000;font:12px/1.45 var(--body)}
   #printArea h1{font:700 20px var(--display);margin:0 0 4px}#printArea h2{font-size:14px;margin:14px 0 4px}
   #printArea table{border-collapse:collapse;width:100%;margin:4px 0 10px}
+  #printArea svg{max-width:100%;height:auto}#printArea svg line{stroke:#ddd!important}#printArea svg text{fill:#333!important}#printArea .pb{height:8px;border-radius:0 4px 4px 0}
   #printArea th,#printArea td{border:1px solid #bbb;padding:4px 6px;text-align:left}#printArea td.n{text-align:right;white-space:nowrap}}
 .install{display:grid;gap:10px}
 .install .dl{display:flex;flex-wrap:wrap;gap:8px}
@@ -387,6 +388,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
   <section class="panel biz-only owner-only" aria-labelledby="stH" data-tab="home" id="stPanel">
     <div class="panel-head"><h2 id="stH">📊 Tirakoobka shirkadda</h2>
       <select id="stPer" aria-label="Muddada" style="width:auto"><option value="1">Bishan</option><option value="3">3-dii bilood</option><option value="12">12-kii bilood</option></select></div>
+    <div class="goal-actions"><button type="button" id="stCsv">⬇ Excel</button><button type="button" id="stDoc">⬇ Word</button><button type="button" id="stPdf">🖨 PDF</button></div>
     <div class="sttiles" id="stTiles"></div>
     <h3 class="sth">Lacagta soo gashay iyo kharashka bil kasta</h3>
     <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#20a070"></i>Lacagta soo gashay</span><span><i class="sq" style="background:#e5534b"></i>Mushaarka shaqaalaha</span><span><i class="sq" style="background:#d4a017"></i>Kharashka kale</span></div>
@@ -655,7 +657,7 @@ const EN={
 "Habka lacag-bixinta":"Payment method","Kharashka maalinlaha":"Daily expenses","Qadarka":"Amount","Qaybta":"Category","Taariikhda":"Date",
 "Ku qor waxa liiska ka maqan":"Type what is missing from the list","Tusaale: Kirada mashiinka":"Example: Machine rent","+ Ku dar liiska":"+ Add to list",
 "Shirkadda ama meesha (ikhtiyaari)":"Company or place (optional)","Macmiil ama alaab-qeybiye (ikhtiyaari)":"Customer or supplier (optional)",
-"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Fasaxa iyo xanuunka shaqaalaha":"Staff leave and sick days","Lacagta soo gashay":"Income","Mushaarka shaqaalaha":"Staff salaries","Kharashka kale":"Other spending","Xanuun (maalmo)":"Sick (days)","Fasax (maalmo)":"Leave (days)","📊 Tirakoobka shirkadda":"📊 Company statistics","Muddada":"Period","3-dii bilood":"Last 3 months","12-kii bilood":"Last 12 months","Kharashka shirkadda bil kasta":"Company spending per month","Lacagta soo gashay iyo kharashka bil kasta":"Income and spending per month","Mushaharka":"Salaries","Kharash kale":"Other spending","Mushaarka shaqaalo kasta":"Salaries by role","Meesha lacagtu ku baxday":"Where the money went","Xanuunka iyo fasaxa bil kasta (maalmo)":"Sick and leave days per month","Xanuun":"Sick","Fasax":"Leave","Maalmaha xanuunka iyo fasaxa bil kasta":"Sick and leave days per month","Muddada warbixinta":"Report period","Toddobaadkan":"This week","Bishan":"This month","Sannadkan":"This year","🤒 Waan xanuunsanahay maanta":"🤒 I am sick today","Nooca fasaxa":"Leave type","🏖️ Fasax":"🏖️ Leave","🤒 Xanuun":"🤒 Sick","Fasax lacag la'aan":"Unpaid leave","Magaca shaqaalaha":"Staff member name","Laga bilaabo":"From","Ilaa":"To","1 maalin":"1 day","3 maalmood":"3 days","1 toddobaad":"1 week","1 bil":"1 month","Tusaale: safar qoys":"Example: family trip","+ Codso fasax":"+ Request leave","Tusaale: bilka Nofembar":"Example: November bill",
+"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Fasaxa iyo xanuunka shaqaalaha":"Staff leave and sick days","Kooban":"Summary","Bil kasta":"Per month","Shaqada":"Role","Lacagta soo gashay":"Income","Mushaarka shaqaalaha":"Staff salaries","Kharashka kale":"Other spending","Xanuun (maalmo)":"Sick (days)","Fasax (maalmo)":"Leave (days)","📊 Tirakoobka shirkadda":"📊 Company statistics","Muddada":"Period","3-dii bilood":"Last 3 months","12-kii bilood":"Last 12 months","Kharashka shirkadda bil kasta":"Company spending per month","Lacagta soo gashay iyo kharashka bil kasta":"Income and spending per month","Mushaharka":"Salaries","Kharash kale":"Other spending","Mushaarka shaqaalo kasta":"Salaries by role","Meesha lacagtu ku baxday":"Where the money went","Xanuunka iyo fasaxa bil kasta (maalmo)":"Sick and leave days per month","Xanuun":"Sick","Fasax":"Leave","Maalmaha xanuunka iyo fasaxa bil kasta":"Sick and leave days per month","Muddada warbixinta":"Report period","Toddobaadkan":"This week","Bishan":"This month","Sannadkan":"This year","🤒 Waan xanuunsanahay maanta":"🤒 I am sick today","Nooca fasaxa":"Leave type","🏖️ Fasax":"🏖️ Leave","🤒 Xanuun":"🤒 Sick","Fasax lacag la'aan":"Unpaid leave","Magaca shaqaalaha":"Staff member name","Laga bilaabo":"From","Ilaa":"To","1 maalin":"1 day","3 maalmood":"3 days","1 toddobaad":"1 week","1 bil":"1 month","Tusaale: safar qoys":"Example: family trip","+ Codso fasax":"+ Request leave","Tusaale: bilka Nofembar":"Example: November bill",
 "Kaydi":"Save","Dhaqdhaqaaqa bishan":"This month's transactions","Kharashyada joogtada ah":"Recurring expenses",
 "Geli qadarka hal mar. Bil kasta riix “Bixi”.":"Enter the amount once. Each month tap “Pay”.",
 "Maalinta: xusuusin ayaad helaysaa 3 maalmood ka hor.":"Day: you get a reminder 3 days before.",
@@ -1469,16 +1471,18 @@ function renderStats(){
   const lv=mine("leave").filter(v=>v.status!=="no"&&v.status!=="wait");
   const sickD=lv.filter(v=>v.type==="buka").reduce((a,v)=>a+leaveDaysIn(v,from,to),0),lvD=lv.filter(v=>v.type!=="buka").reduce((a,v)=>a+leaveDaysIn(v,from,to),0);
   const incT=mine("tx").filter(t=>t.type==="in"&&t.cat!=="Kayd"&&keys.has(t.date.slice(0,7))).reduce((a,t)=>a+Number(t.amount),0);
+  ST={n,from,to,incT,allT,salT,sickD,lvD};
   $("stTiles").innerHTML=[[L("Lacagta soo gashay","Income"),`<i style="font-style:normal;color:${ST_INC}">${money(incT)}</i>`],[L("Kharashka guud","Total spending"),money(allT)],[L("Mushaarka shaqaalaha","Staff salaries"),`<i style="font-style:normal;color:${ST_SAL}">${money(salT)}</i>`+(allT?` <small style="color:var(--muted);font-size:.8rem">${Math.round(salT/allT*100)}%</small>`:"")],[L("Kharashka kale","Other spending"),`<i style="font-style:normal;color:${ST_OTH}">${money(allT-salT)}</i>`],[L("Faa'iido","Profit"),money(incT-allT)],[L("Maalmo xanuun","Sick days"),sickD],[L("Maalmo fasax","Leave days"),lvD]]
     .map(([a,b])=>`<div class="sttile"><span>${a}</span><b>${b}</b></div>`).join("");
   const sum=(arr,f)=>{const m={};arr.forEach(t=>m[f(t)]=(m[f(t)]||0)+Number(t.amount));return Object.entries(m).sort((a,b)=>b[1]-a[1])};
-  hbars($("stRoles"),sum(sal,t=>t.cat),salT,ST_SAL);
+  ST.roles=sum(sal,t=>t.cat);hbars($("stRoles"),ST.roles,salT,ST_SAL);
   let cats=sum(per,t=>ROLES.has(t.cat)?L("Mushaharka shaqaalaha","Staff salaries"):t.cat);if(cats.length>8){const rest=cats.slice(7).reduce((a,c)=>a+c[1],0);cats=cats.slice(0,7).concat([[L("Kale","Other"),rest]])}
-  const salName=L("Mushaharka shaqaalaha","Staff salaries");hbars($("stCats"),cats,allT,n=>n===salName?ST_SAL:ST_OTH);
+  ST.cats=cats;const salName=L("Mushaharka shaqaalaha","Staff salaries");hbars($("stCats"),cats,allT,n=>n===salName?ST_SAL:ST_OTH);
   const six=monthsBack(6).map(d=>{const k=ym(d),mt=out.filter(t=>t.date.slice(0,7)===k),f=k+"-01",e=k+"-"+String(new Date(d.getFullYear(),d.getMonth()+1,0).getDate()).padStart(2,"0");
     const s=mt.filter(t=>ROLES.has(t.cat)).reduce((a,t)=>a+Number(t.amount),0);
     return{inc:mine("tx").filter(t=>t.type==="in"&&t.cat!=="Kayd"&&t.date.slice(0,7)===k).reduce((a,t)=>a+Number(t.amount),0),label:MONTHS[d.getMonth()]+" "+d.getFullYear(),short:MONTHS[d.getMonth()].slice(0,3),sal:s,oth:mt.reduce((a,t)=>a+Number(t.amount),0)-s,
       sick:lv.filter(v=>v.type==="buka").reduce((a,v)=>a+leaveDaysIn(v,f,e),0),lv:lv.filter(v=>v.type!=="buka").reduce((a,v)=>a+leaveDaysIn(v,f,e),0)}});
+  ST.six=six;
   const fm=(v,c)=>c?compact(v):money(v);
   vbars($("stMonths"),six,[{k:"inc",c:ST_INC,name:L("Soo galay","Income"),g:0},{k:"sal",c:ST_SAL,name:L("Mushaharka","Salaries"),g:1},{k:"oth",c:ST_OTH,name:L("Kharash kale","Other spending"),g:2}],fm);
   const fd=v=>String(Math.round(v));fd.days=1;
@@ -1486,6 +1490,40 @@ function renderStats(){
   $("stTable").innerHTML=`<tr><th>${L("Bisha","Month")}</th><th>${L("Soo galay","Income")}</th><th>${L("Mushaharka","Salaries")}</th><th>${L("Kharash kale","Other")}</th><th>${L("Xanuun","Sick")}</th><th>${L("Fasax","Leave")}</th></tr>`+six.map(r=>`<tr><td>${r.label}</td><td>${money(r.inc)}</td><td>${money(r.sal)}</td><td>${money(r.oth)}</td><td>${r.sick}</td><td>${r.lv}</td></tr>`).join("")}
 $("stPer").addEventListener("change",renderStats);
 window.addEventListener("resize",()=>{clearTimeout(rsz);rsz=setTimeout(()=>{renderChart(mine("tx"));renderStats()},150)});
+
+let ST=null;
+const stTitle=()=>({1:L("Bishan","This month"),3:L("3-dii bilood","Last 3 months"),12:L("12-kii bilood","Last 12 months")}[ST.n]+` (${ST.from} → ${ST.to})`);
+function stTables(withBars){const r=ST,pct=(v,t)=>t?Math.round(v/t*100)+"%":"",bar=(v,max,c)=>withBars?`<div class="pb" style="width:${(v/max*100).toFixed(1)}%;background:${c}"></div>`:"";
+  const salName=L("Mushaharka shaqaalaha","Staff salaries");
+  return `<h2>${L("Kooban","Summary")}</h2><table>
+  <tr><th>${L("Lacagta soo gashay","Income")}</th><th>${L("Mushaarka shaqaalaha","Staff salaries")}</th><th>${L("Kharashka kale","Other spending")}</th><th>${L("Kharashka guud","Total spending")}</th><th>${L("Faa'iido","Profit")}</th><th>${L("Maalmo xanuun","Sick days")}</th><th>${L("Maalmo fasax","Leave days")}</th></tr>
+  <tr><td class="n">${money(r.incT)}</td><td class="n">${money(r.salT)}</td><td class="n">${money(r.allT-r.salT)}</td><td class="n">${money(r.allT)}</td><td class="n">${money(r.incT-r.allT)}</td><td class="n">${r.sickD}</td><td class="n">${r.lvD}</td></tr></table>
+  ${withBars?`<h2>${L("Lacagta soo gashay iyo kharashka bil kasta","Income and spending per month")}</h2><p>🟩 ${L("Lacagta soo gashay","Income")} · 🟥 ${L("Mushaarka shaqaalaha","Staff salaries")} · 🟨 ${L("Kharashka kale","Other spending")}</p>${$("stMonths").innerHTML}`:""}
+  <h2>${L("Bil kasta","Per month")}</h2><table><tr><th>${L("Bisha","Month")}</th><th>${L("Lacagta soo gashay","Income")}</th><th>${L("Mushaarka","Salaries")}</th><th>${L("Kharashka kale","Other")}</th><th>${L("Faa'iido","Profit")}</th><th>${L("Maalmo xanuun","Sick days")}</th><th>${L("Maalmo fasax","Leave days")}</th></tr>
+  ${r.six.map(m=>`<tr><td>${m.label}</td><td class="n">${money(m.inc)}</td><td class="n">${money(m.sal)}</td><td class="n">${money(m.oth)}</td><td class="n">${money(m.inc-m.sal-m.oth)}</td><td class="n">${m.sick}</td><td class="n">${m.lv}</td></tr>`).join("")}</table>
+  <h2>${L("Mushaarka shaqaalo kasta","Salaries by role")}</h2><table><tr><th>${L("Shaqada","Role")}</th><th>${L("Qadarka","Amount")}</th><th>%</th>${withBars?"<th></th>":""}</tr>
+  ${r.roles.map(([n,v])=>`<tr><td>${esc(T(n))}</td><td class="n">${money(v)}</td><td class="n">${pct(v,r.salT)}</td>${withBars?`<td style="width:40%">${bar(v,r.roles[0][1],ST_SAL)}</td>`:""}</tr>`).join("")||`<tr><td colspan="4">—</td></tr>`}</table>
+  <h2>${L("Meesha lacagtu ku baxday","Where the money went")}</h2><table><tr><th>${L("Qaybta","Category")}</th><th>${L("Qadarka","Amount")}</th><th>%</th>${withBars?"<th></th>":""}</tr>
+  ${r.cats.map(([n,v])=>`<tr><td>${esc(T(n))}</td><td class="n">${money(v)}</td><td class="n">${pct(v,r.allT)}</td>${withBars?`<td style="width:40%">${bar(v,r.cats[0][1],n===salName?ST_SAL:ST_OTH)}</td>`:""}</tr>`).join("")||`<tr><td colspan="4">—</td></tr>`}</table>
+  ${withBars?`<h2>${L("Xanuunka iyo fasaxa bil kasta (maalmo)","Sick and leave days per month")}</h2><p>🟥 ${L("Xanuun","Sick")} · 🟦 ${L("Fasax","Leave")}</p>${$("stLeave").innerHTML}`:""}`}
+const stHead=()=>`<h1>HantiGo</h1><p>${L("Tirakoobka shirkadda","Company statistics")}: <b>${esc(stTitle())}</b> · ${esc(modeLabel())} · ${esc(me?.email||"")}</p>`;
+const stFoot=()=>`<p>${L("Waxaa la sameeyay","Created")} ${esc(new Date().toLocaleString())} · HantiGo</p>`;
+const stFile=ext=>`HantiGo-tirakoob-${ST.from}-${ST.to}.${ext}`;
+$("stPdf").addEventListener("click",()=>{if(!ST)return;$("printArea").innerHTML=stHead()+stTables(true)+stFoot();
+  document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
+  window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50)});
+$("stDoc").addEventListener("click",()=>{if(!ST)return;
+  const doc=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
+<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b}h2{font-size:13pt;margin-top:14pt}table{border-collapse:collapse;width:100%;margin:6pt 0}th,td{border:1px solid #999;padding:4pt 6pt;text-align:left}th{background:#e8f5ee}.n{text-align:right}</style></head><body>${stHead()+stTables(false)+stFoot()}</body></html>`;
+  saveFile(stFile("doc"),"﻿"+doc,"application/msword")});
+$("stCsv").addEventListener("click",()=>{if(!ST)return;const r=ST,rows=[["HantiGo",L("Tirakoobka shirkadda","Company statistics"),stTitle()],[],
+  [L("Kooban","Summary")],[L("Lacagta soo gashay","Income"),r.incT],[L("Mushaarka shaqaalaha","Staff salaries"),r.salT],[L("Kharashka kale","Other spending"),r.allT-r.salT],[L("Kharashka guud","Total spending"),r.allT],[L("Faa'iido","Profit"),r.incT-r.allT],[L("Maalmo xanuun","Sick days"),r.sickD],[L("Maalmo fasax","Leave days"),r.lvD],[],
+  [L("Bisha","Month"),L("Lacagta soo gashay","Income"),L("Mushaarka","Salaries"),L("Kharashka kale","Other"),L("Faa'iido","Profit"),L("Maalmo xanuun","Sick days"),L("Maalmo fasax","Leave days")],
+  ...r.six.map(m=>[m.label,m.inc,m.sal,m.oth,m.inc-m.sal-m.oth,m.sick,m.lv]),[],
+  [L("Mushaarka shaqaalo kasta","Salaries by role"),L("Qadarka","Amount")],...r.roles.map(([n,v])=>[T(n),v]),[],
+  [L("Meesha lacagtu ku baxday","Where the money went"),L("Qadarka","Amount")],...r.cats.map(([n,v])=>[T(n),v])];
+  saveFile(stFile("csv"),"﻿"+rows.map(x=>x.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8")});
+if(NATIVE)$("stPdf").hidden=true;
 
 /* ---------- company staff ---------- */
 $("teamForm").addEventListener("submit",async e=>{e.preventDefault();
