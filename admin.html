@@ -152,12 +152,56 @@ document.addEventListener("click",async e=>{const z=e.target.closest("[data-zoom
   b.disabled=true;let {error}=await sb.rpc("admin_pay_decide",{target:b.dataset.pay,approve:ok,days:30});
   if(error&&ok)({error}=await sb.rpc("admin_extend",{target:b.dataset.pay,days:30}));
   if(error){alert(ok?"Khalad: "+error.message:"Si aad u diiddo, marka hore ku shub faylka supabase/payment.sql gudaha Supabase.");b.disabled=false;return}
-  await load()});
+  await load();if(ok)sendSubReceipt(b.dataset.pay,30,10)});
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-id]");if(!b)return;
   const d=Number(b.dataset.d);
   if(d===0&&!b.dataset.sure){b.dataset.sure="1";b.textContent="Hubi?";setTimeout(()=>{delete b.dataset.sure;b.textContent="Jooji"},3000);return}
+  let amt=0;if(d===30)amt=10;else if(d>=365){const v=prompt("Imisa ayuu bixiyay sanadkan? ($)\nCancel = rasiid looma dirayo.","120");amt=v===null?0:(parseFloat(v)||0)}
   b.disabled=true;const {error}=await sb.rpc("admin_extend",{target:b.dataset.id,days:d});
-  if(error){alert("Khalad: "+error.message);b.disabled=false;return}await load()});
+  if(error){alert("Khalad: "+error.message);b.disabled=false;return}await load();if(amt>0)sendSubReceipt(b.dataset.id,d,amt)});
+
+/* ---------- subscription receipt: PDF by email to the customer, copy to the admin ---------- */
+let pdfLib=null;
+function loadPdf(){return pdfLib||(pdfLib=new Promise((res,rej)=>{if(window.jspdf)return res(window.jspdf.jsPDF);const sc=document.createElement("script");sc.src="vendor/jspdf.umd.min.js";
+  sc.onload=()=>window.jspdf?res(window.jspdf.jsPDF):rej();sc.onerror=()=>{pdfLib=null;rej()};document.head.appendChild(sc)}))}
+let logoUrl=null;
+async function logo(){if(logoUrl!==null)return logoUrl;try{const b=await (await fetch("icon-192.png")).blob();logoUrl=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}catch{logoUrl=""}return logoUrl}
+const dmy=d=>new Date(d).toLocaleDateString("en-GB");
+async function subPdf(p,r){const J=await loadPdf();const doc=new J({unit:"mm",format:"a4"});const W=210,M=16;let y=18;
+  const lg=await logo();if(lg){try{doc.addImage(lg,"PNG",M,y-6,20,20)}catch{}}
+  doc.setFont("helvetica","bold");doc.setFontSize(20);doc.setTextColor(11,122,75);doc.text("HantiGo",M+25,y+3);
+  doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(110);doc.text("hantigoapp.github.io",M+25,y+9);
+  doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(40);doc.text("RASIID  "+r.no,W-M,y+2,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);doc.text("Taariikhda: "+dmy(r.date),W-M,y+8,{align:"right"});
+  y+=24;doc.setDrawColor(200);doc.line(M,y,W-M,y);y+=8;
+  doc.setTextColor(90);doc.text("Macmiilka",M,y);doc.setTextColor(20);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(p.email||"",M,y+6);
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);
+  const info=[p.phone?"EVC: "+p.phone:"",p.pay_ref?"Tix: "+String(p.pay_ref).replace(/^\s*tix[:\s]*/i,""):""].filter(Boolean).join("   ·   ");if(info)doc.text(info,M,y+11);
+  y+=22;doc.setFillColor(11,122,75);doc.rect(M,y-5,W-2*M,8,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");
+  doc.text("Adeegga",M+2,y);doc.text("Muddada",128,y);doc.text("Qiimaha",W-M-2,y,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setTextColor(20);y+=8;
+  doc.text("HantiGo - rukunka app-ka",M+2,y);doc.text(r.days>=365?"1 sano":r.days+" maalmood",128,y);doc.text("$"+r.amount.toFixed(2),W-M-2,y,{align:"right"});y+=6;
+  doc.setDrawColor(11,122,75);doc.line(M,y,W-M,y);y+=8;doc.setFont("helvetica","bold");doc.setFontSize(13);
+  doc.text("Wadarta",128,y);doc.text("$"+r.amount.toFixed(2),W-M-2,y,{align:"right"});y+=12;
+  doc.setFontSize(11);doc.setTextColor(11,122,75);doc.text("Waa la bixiyay (EVC Plus). Mahadsanid!",M,y);y+=8;
+  doc.setFont("helvetica","normal");doc.setTextColor(60);doc.setFontSize(10);
+  doc.text("Akoonkaagu wuu furan yahay ilaa: "+dmy(r.until),M,y);y+=6;
+  doc.text("Caawimaad: WhatsApp +46 76 715 79 15",M,y);
+  doc.setTextColor(140);doc.setFontSize(8);doc.text("HantiGo · Maamul lacagtaada meel kasta oo aad joogto.",W/2,287,{align:"center"});
+  return doc.output("blob")}
+function b64(blob){return new Promise((res,rej)=>{const f=new FileReader();f.onload=()=>res(String(f.result).split(",")[1]);f.onerror=rej;f.readAsDataURL(blob)})}
+function toast(t,bad){let el=$("toast");if(!el){el=document.createElement("div");el.id="toast";el.style.cssText="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:92vw;padding:12px 16px;border-radius:12px;color:#fff;font-weight:600;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.3)";document.body.appendChild(el)}
+  el.style.background=bad?"#b3402a":"#16794a";el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,bad?15000:7000)}
+async function sendSubReceipt(id,days,amount){const p=rows.find(x=>x.id===id);if(!p?.email||!(amount>0))return;
+  const now=new Date(),z=n=>String(n).padStart(2,"0");
+  const r={no:"HG-"+String(now.getFullYear()).slice(2)+z(now.getMonth()+1)+z(now.getDate())+"-"+String(id).replace(/-/g,"").slice(0,4).toUpperCase(),date:now,days,amount,until:p.paid_until||new Date(Date.now()+days*864e5)};
+  toast("🧾 Rasiidka waa la dirayaa…");
+  try{const blob=await subPdf(p,r);
+    const text=`Salaan,\n\nMahadsanid inaad iibsatay HantiGo.\n\nRasiid: ${r.no}\nTaariikhda: ${dmy(r.date)}\nAdeegga: HantiGo (${days>=365?"1 sano":days+" maalmood"})\nLacagta: $${amount.toFixed(2)} (EVC Plus)\nAkoonkaagu wuu furan yahay ilaa: ${dmy(r.until)}\n\nRasiidka PDF-ka ah waa lifaaqan.\nCaawimaad: WhatsApp +46 76 715 79 15\n\nHantiGo`;
+    const {data,error}=await sb.functions.invoke("send-receipt",{body:{to:p.email,subject:"HantiGo · Rasiidka lacag-bixinta "+r.no,text,company:"HantiGo",filename:"HantiGo-Rasiid-"+r.no+".pdf",pdf:await b64(blob)}});
+    if(error||!data?.ok){let w=data?.error||error?.message||"";try{if(error?.context?.text)w=error.context.status+" "+await error.context.clone().text()}catch{}throw new Error(w)}
+    toast("🧾 Rasiidka waa loo diray "+p.email+", nuqulna waa laguu soo diray.")}
+  catch(e){toast("🧾 Rasiidka lama diri karin: "+String(e?.message||e).slice(0,160),true)}}
 $("q").addEventListener("input",render);
 (async()=>{const {data}=await sb.auth.getSession();
   if(!data.session){$("msg").innerHTML='Marka hore app-ka ku gal: <a href="./">Gal</a>';return}
