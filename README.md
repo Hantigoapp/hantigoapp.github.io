@@ -27,10 +27,12 @@ Fiiro gaar ah: GitHub Pages wuxuu u baahan yahay repo **public** ah haddii akoon
 | `sw.js` | Wuxuu app-ka ka dhigaa mid internet la'aan shaqeeya |
 | `icon.svg`, `icon-192.png`, `icon-512.png` | Astaanta app-ka |
 
-## Akoonnada iyo subscription-ka ($10 / bishii)
+## Akoonnada iyo subscription-ka (Shakhsi $3 · Shirkad $7 / bishii)
 
 - Macmiil kasta wuxuu ku galaa email + furaha sirta. Akoon cusub wuxuu helaa **7 maalmood oo bilaash ah**.
-- Marka muddadu dhammaato, wuxuu arkaa bogga lacag-bixinta: EVC Plus `*712*613735086*10#`, wuxuuna geliyaa lambarka uu ka soo diray.
+- Qiimaha waxaa go'aamiya nooca akoonka (laga doorto is-diiwaangelinta): **Shakhsi $3/bishii**, **Shirkad $7/bishii**. Qof leh labadaba wuxuu bixiyaa $7 (Shirkaddu waxay ku jirtaa Shakhsi). Shakhsi u beddela Shirkad wuxuu helaa digniin ah $7.
+- Marka muddadu dhammaato, wuxuu arkaa bogga lacag-bixinta: EVC Plus `*712*613735086*3#` (Shakhsi) ama `*712*613735086*7#` (Shirkad), wuxuuna geliyaa lambarka uu ka soo diray.
+- `supabase/pricing.sql` wuxuu ku daraa `profiles.plan` (person/business).
 - Maamulaha (asad.moallim@gmail.com) wuxuu galaa `admin.html`, wuxuuna riixaa **"Bixiyay +30 maalmood"** marka lacagta EVC la helo.
 - Xogta waxay ku kaydsan tahay Supabase (`supabase/schema.sql`), nuqul ayaana ku jira taleefanka si uu internet la'aan u shaqeeyo.
 
