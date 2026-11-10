@@ -78,7 +78,7 @@ begin
   if not public.owner_active(owner) then raise exception 'owner inactive'; end if;
   select coalesce(jsonb_agg(u || '{"mode":"business"}'::jsonb), '[]'::jsonb) into clean
     from jsonb_array_elements(coalesce(upserts, '[]'::jsonb)) u
-   where u ->> 'kind' in ('tx', 'goal', 'bill', 'cat', 'debt')
+   where u ->> 'kind' in ('tx', 'goal', 'bill', 'cat', 'debt', 'leave')
      and not exists (select 1 from user_data d, jsonb_array_elements(d.items) e
                       where d.user_id = owner and e ->> 'id' = u ->> 'id'
                         and coalesce(e ->> 'mode', 'person') <> 'business');

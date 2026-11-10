@@ -177,6 +177,11 @@ html:not([data-mode="business"]) .biz-only{display:none!important}
 .bill .name{display:grid;gap:2px}
 .due{display:flex;align-items:center;gap:4px;font-size:.75rem;color:var(--muted);font-weight:500}
 .due input{width:56px;padding:2px 6px;font-size:.8rem}
+.sickbtn{background:var(--out)!important;border-color:var(--out)!important;color:#fff!important;font-size:1.05rem;padding:14px}
+.lv{display:grid;gap:4px;padding:10px 0;border-top:1px solid var(--line)}.lv:first-child{border-top:0}
+.lvst{font-size:.78rem;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.lvst.wait{background:#3a2f12;color:#ffcc66}.lvst.ok{background:var(--in-soft);color:var(--in)}.lvst.no{background:var(--out-soft);color:var(--out)}.lvst.now{background:#1d2c4a;color:#8fb8ff}.lvst.sick{background:var(--out-soft);color:var(--out)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips button{border-radius:999px;padding:6px 12px;font-size:.88rem}
 .debt{display:grid;gap:6px;padding:10px 0;border-top:1px solid var(--line)}
 .debt:first-child{border-top:0}
 .late{color:var(--out);font-weight:600}
@@ -465,6 +470,29 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
         <p class="note" style="margin:0">“Naloo hayo” = lacag dad kale nagu leeyihiin. “Aan u hayno” = lacag aan dad kale ku leenahay.</p>
       </section>
 
+      <section class="panel biz-only" aria-labelledby="lvH" data-tab="plan">
+        <div class="panel-head"><h2 id="lvH">Fasaxa iyo xanuunka shaqaalaha</h2></div>
+        <div class="extremes" id="lvSum"></div>
+        <button type="button" class="primary sickbtn" id="sickBtn">🤒 Waan xanuunsanahay maanta</button>
+        <div id="leaves"></div>
+        <form id="lvForm" novalidate>
+          <div class="seg3" role="radiogroup" aria-label="Nooca fasaxa">
+            <input type="radio" name="lvtype" id="lvA" value="fasax" checked><label for="lvA">🏖️ Fasax</label>
+            <input type="radio" name="lvtype" id="lvS" value="buka"><label for="lvS">🤒 Xanuun</label>
+            <input type="radio" name="lvtype" id="lvU" value="lacagla"><label for="lvU">Fasax lacag la'aan</label>
+          </div>
+          <label class="field" id="lvWhoRow"><span>Magaca shaqaalaha</span><input id="lvWho" type="text" maxlength="60" list="lvStaff" placeholder="Tusaale: Cali Xasan"><datalist id="lvStaff"></datalist></label>
+          <div class="row">
+            <label class="field"><span>Laga bilaabo</span><input id="lvFrom" type="date"></label>
+            <label class="field"><span>Ilaa</span><input id="lvTo" type="date"></label>
+          </div>
+          <div class="chips" id="lvQuick"><button type="button" data-lvd="1">1 maalin</button><button type="button" data-lvd="3">3 maalmood</button><button type="button" data-lvd="7">1 toddobaad</button><button type="button" data-lvd="30">1 bil</button></div>
+          <label class="field"><span>Faahfaahin (ikhtiyaari)</span><input id="lvNote" type="text" maxlength="80" placeholder="Tusaale: safar qoys"></label>
+          <div class="err" id="lvErr" role="alert"></div>
+          <button type="submit" id="lvBtn">+ Codso fasax</button>
+        </form>
+      </section>
+
       <section class="panel" aria-labelledby="accH" data-tab="more">
         <h2 id="accH">Akoonkaaga</h2>
       <div class="account acc-panel"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option></select></label><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a></div>
@@ -586,7 +614,7 @@ const EN={
 "Habka lacag-bixinta":"Payment method","Kharashka maalinlaha":"Daily expenses","Qadarka":"Amount","Qaybta":"Category","Taariikhda":"Date",
 "Ku qor waxa liiska ka maqan":"Type what is missing from the list","Tusaale: Kirada mashiinka":"Example: Machine rent","+ Ku dar liiska":"+ Add to list",
 "Shirkadda ama meesha (ikhtiyaari)":"Company or place (optional)","Macmiil ama alaab-qeybiye (ikhtiyaari)":"Customer or supplier (optional)",
-"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Tusaale: bilka Nofembar":"Example: November bill",
+"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Fasaxa iyo xanuunka shaqaalaha":"Staff leave and sick days","🤒 Waan xanuunsanahay maanta":"🤒 I am sick today","Nooca fasaxa":"Leave type","🏖️ Fasax":"🏖️ Leave","🤒 Xanuun":"🤒 Sick","Fasax lacag la'aan":"Unpaid leave","Magaca shaqaalaha":"Staff member name","Laga bilaabo":"From","Ilaa":"To","1 maalin":"1 day","3 maalmood":"3 days","1 toddobaad":"1 week","1 bil":"1 month","Tusaale: safar qoys":"Example: family trip","+ Codso fasax":"+ Request leave","Tusaale: bilka Nofembar":"Example: November bill",
 "Kaydi":"Save","Dhaqdhaqaaqa bishan":"This month's transactions","Kharashyada joogtada ah":"Recurring expenses",
 "Geli qadarka hal mar. Bil kasta riix “Bixi”.":"Enter the amount once. Each month tap “Pay”.",
 "Maalinta: xusuusin ayaad helaysaa 3 maalmood ka hor.":"Day: you get a reminder 3 days before.",
@@ -762,7 +790,7 @@ async function syncNow(){
 }
 async function flush(){clearTimeout(syncTimer);if(dirty.size||gone.size)await syncNow()}
 async function put(doc){
-  if(["tx","goal","bill","cat","debt"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
+  if(["tx","goal","bill","cat","debt","leave"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
   if(doc.kind==="tx"&&!doc.by&&(TEAM||hasStaff)&&me)doc={...doc,by:me.email};
   const i=items.findIndex(x=>x.id===doc.id);if(i>=0)items[i]=doc;else items.push(doc);
   dirty.add(doc.id);gone.delete(doc.id);
@@ -1012,7 +1040,7 @@ function render(){
   renderBills(txs);
   renderChart(txs);
   const bud=renderBudget(spent);
-  renderDebts();
+  renderDebts();renderLeaves();
   renderAlerts(bud);
   const goals=mine("goal").sort((a,b)=>a.created.localeCompare(b.created));
   $("goals").innerHTML=goals.length?goals.map(g=>{const p=Math.min(100,g.saved/g.target*100||0);return `<div class="goal">
@@ -1234,6 +1262,9 @@ function renderAlerts(bud){
     const who=d.dir==="in"?L("waa inuu bixiyaa","should pay you"):L("waa in la siiyaa","must be paid");
     if(k<0)out.push(["bad",L("💳 "+d.name+" "+who+" "+money(r)+". Taariikhdii way dhaaftay ("+d.due+").","💳 "+d.name+" "+who+" "+money(r)+". Overdue since "+d.due+".")]);
     else if(k<=3)out.push(["warn",L("💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".")])}
+  if(MODE==="business"&&!TEAM)for(const v of mine("leave")){
+    if(v.type==="buka"&&v.to>=today()&&!v.seen)out.push(["bad",L("🤒 "+v.who+" wuu xanuunsan yahay ("+lvRange(v)+").","🤒 "+v.who+" is sick ("+lvRange(v)+").")]);
+    else if(v.status==="wait")out.push(["warn",L("🏖️ "+v.who+" wuxuu codsaday fasax ("+lvRange(v)+"). Eeg Qorshe.","🏖️ "+v.who+" asked for leave ("+lvRange(v)+"). See Plan.")])}
   $("alerts").innerHTML=out.map(([c,t])=>`<p class="al ${c}">${esc(t)}</p>`).join("");$("alerts").hidden=!out.length;
   maybeNotify(out)}
 function maybeNotify(list){try{
@@ -1280,6 +1311,56 @@ document.addEventListener("click",async e=>{
     if(error)$("tErr").textContent=L("Lama saari karo hadda. Isku day mar kale.","Could not remove right now. Try again.");
     await loadStaff()}
 });
+
+/* ---------- staff leave & sick reports (company) ---------- */
+const LVT={fasax:["🏖️ Fasax","🏖️ Leave"],buka:["🤒 Xanuun","🤒 Sick"],lacagla:["Fasax lacag la'aan","Unpaid leave"]};
+const lvDays=v=>Math.round((new Date(v.to+"T00:00")-new Date(v.from+"T00:00"))/864e5)+1;
+const lvRange=v=>v.from===v.to?v.from:v.from+" → "+v.to;
+function addDays(iso,n){const d=new Date(iso+"T00:00");d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function lvState(v){const t=today();
+  if(v.status==="no")return["no",L("La diiday","Declined")];
+  if(v.status==="wait")return["wait",L("Sugaya oggolaansho","Waiting for approval")];
+  if(v.from<=t&&v.to>=t)return[v.type==="buka"?"sick":"now",v.type==="buka"?L("Xanuunsan hadda","Sick now"):L("Fasax ku jira hadda","On leave now")];
+  if(v.to<t)return["ok",L("Wuu dhammaaday","Finished")];
+  return["ok",L("La oggolaaday","Approved")]}
+function renderLeaves(){
+  const owner=!TEAM,t=today(),myMail=String(me?.email||"").toLowerCase();
+  $("lvWhoRow").hidden=!owner;$("sickBtn").hidden=owner;
+  $("lvBtn").textContent=owner?L("+ Ku dar fasax","+ Add leave"):L("+ Codso fasax","+ Request leave");
+  $("lvStaff").innerHTML=staff.map(e=>`<option value="${esc(e)}">`).join("");
+  let vs=mine("leave");if(!owner)vs=vs.filter(v=>String(v.by||"").toLowerCase()===myMail);
+  const rk=v=>v.status==="wait"?0:v.status==="no"?4:v.from<=t&&v.to>=t?1:v.from>t?2:3;vs.sort((a,b)=>rk(a)-rk(b)||(rk(a)===3?b.from.localeCompare(a.from):a.from.localeCompare(b.from)));
+  const now=vs.filter(v=>v.status!=="no"&&v.status!=="wait"&&v.from<=t&&v.to>=t);
+  $("lvSum").innerHTML=`<div class="ext lo"><span class="lbl">${L("Fasax hadda","On leave now")}</span><b>${now.filter(v=>v.type!=="buka").length}</b></div><div class="ext hi"><span class="lbl">${L("Xanuunsan hadda","Sick now")}</span><b>${now.filter(v=>v.type==="buka").length}</b></div>`;
+  $("leaves").innerHTML=vs.length?vs.slice(0,30).map(v=>{const [c,txt]=lvState(v),id=esc(v.id),d=lvDays(v);
+    return `<div class="lv"><div class="goal-top"><b>${esc(v.who)}</b><span class="lvst ${c}">${txt}</span></div>
+      <span class="note">${L(...LVT[v.type]||LVT.fasax)} · ${esc(lvRange(v))} · ${d} ${d===1?L("maalin","day"):L("maalmood","days")}${v.note?" · "+esc(v.note):""}</span>
+      <div class="goal-actions">${owner&&v.status==="wait"?`<button data-lvok="${id}">✓ ${L("Oggolow","Approve")}</button><button class="del" data-lvno="${id}">✕ ${L("Diid","Decline")}</button>`:""}
+      ${owner&&v.type==="buka"&&!v.seen&&v.to>=t?`<button data-lvseen="${id}">👍 ${L("Waan arkay","Seen")}</button>`:""}
+      ${owner||v.status==="wait"||v.type==="buka"?`<button class="del" data-del="${id}">Tirtir</button>`:""}</div></div>`}).join("")
+    :`<p class="empty" style="margin:0">${owner?L("Weli fasax ama xanuun lama qorin.","No leave or sick days recorded yet."):L("Weli fasax ma aadan codsan.","You have not requested leave yet.")}</p>`}
+function lvSetDays(n){const f=$("lvFrom").value||today();$("lvFrom").value=f;$("lvTo").value=addDays(f,n-1)}
+$("lvQuick").addEventListener("click",e=>{const b=e.target.closest("[data-lvd]");if(b)lvSetDays(+b.dataset.lvd)});
+$("lvForm").addEventListener("submit",async e=>{e.preventDefault();
+  const owner=!TEAM,type=document.querySelector('input[name=lvtype]:checked').value;
+  const who=owner?$("lvWho").value.trim():String(me?.email||"");
+  const from=$("lvFrom").value,to=$("lvTo").value||from,note=$("lvNote").value.trim();
+  if(!who){$("lvErr").textContent=L("Geli magaca shaqaalaha.","Enter the staff member's name.");return}
+  if(!from||to<from){$("lvErr").textContent=L("Dooro taariikhda bilowga iyo dhammaadka.","Choose the start and end dates.");return}
+  $("lvErr").textContent="";
+  const status=owner||type==="buka"?"ok":"wait";
+  try{await put({id:uid(),kind:"leave",who,type,from,to,note,status,by:me?.email||"",created:new Date().toISOString()});
+    $("lvWho").value="";$("lvFrom").value="";$("lvTo").value="";$("lvNote").value="";
+    $("lvErr").textContent=owner?"":type==="buka"?L("Shaqo-bixiyaha waa la ogeysiiyay. Caafimaad!","Your employer has been told. Get well!"):L("Codsigaaga waa la diray. Shaqo-bixiyaha ayaa oggolaanaya.","Request sent. Your employer will approve it.")}
+  catch{$("lvErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Cannot save right now. Try again.")}});
+$("sickBtn").addEventListener("click",async()=>{const t=today();
+  if(mine("leave").some(v=>v.type==="buka"&&v.by===me?.email&&v.from<=t&&v.to>=t)){$("lvErr").textContent=L("Maanta horay ayaad u sheegtay.","You already reported today.");return}
+  await put({id:uid(),kind:"leave",who:me?.email||"",type:"buka",from:t,to:t,note:"",status:"ok",by:me?.email||"",created:new Date().toISOString()});
+  $("lvErr").textContent=L("Shaqo-bixiyaha waa la ogeysiiyay. Caafimaad!","Your employer has been told. Get well!")});
+document.addEventListener("click",async e=>{
+  const ok=e.target.closest("[data-lvok],[data-lvno],[data-lvseen]");if(!ok)return;
+  const id=ok.dataset.lvok||ok.dataset.lvno||ok.dataset.lvseen,v=items.find(i=>i.id===id);if(!v)return;
+  if(ok.dataset.lvseen)await put({...v,seen:true});else await put({...v,status:ok.dataset.lvok?"ok":"no"})});
 
 /* ---------- company staff ---------- */
 $("teamForm").addEventListener("submit",async e=>{e.preventDefault();
@@ -1331,7 +1412,7 @@ $("repPdf").addEventListener("click",()=>{$("printArea").innerHTML=buildReport()
 if(NATIVE){$("repPdf").hidden=true;$("repNote").hidden=true}
 
 /* ---------- backup ---------- */
-const BK_KINDS=["tx","goal","bill","cat","debt","settings"];
+const BK_KINDS=["tx","goal","bill","cat","debt","leave","settings"];
 $("bkOut").addEventListener("click",async()=>{await flush();
   saveFile(`HantiGo-backup-${today()}.json`,JSON.stringify({app:"HantiGo",version:1,exported:new Date().toISOString(),email:me?.email||"",items},null,1),"application/json");
   $("bkMsg").textContent=L("Backup-ka waa la soo dejiyay. Meel ammaan ah ku kaydi.","Backup downloaded. Keep it somewhere safe.")});
