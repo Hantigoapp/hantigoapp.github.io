@@ -605,8 +605,8 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
         </div>
       </section>
 
-      <section class="panel" aria-labelledby="catH" data-tab="home">
-        <h2 id="catH">Halkee lacagtu ku baxday?</h2>
+      <section class="panel catpanel" aria-labelledby="catH" data-tab="home">
+        <h2 id="catH">Meesha lacagtu ku baxday</h2>
         <div id="extremes" class="extremes"></div>
         <div id="cats" style="display:grid;gap:10px"></div>
       </section>
@@ -667,7 +667,7 @@ const EN={
 "Lacagta aad kaydka ku shubto akoonka ayaa laga jarayaa. “Ka qaado” ayaa dib u celinaysa.":"Money you put in savings leaves your balance. “Take out” puts it back.",
 "Bixinta bishii":"Monthly payment","Ku bixi EVC Plus lambarka hoose, kadibna fariinta EVC u gudbi (forward) isla lambarkaas.":"Pay with EVC Plus to the number below, then forward the EVC message to the same number.",
 "Lambarka EVC Plus":"EVC Plus number","Koobiyee koodhka":"Copy the code","Waa la koobiyeeyay":"Copied","Dooro oo koobiyee":"Select and copy",
-"Halkee lacagtu ku baxday?":"Where did the money go?","HantiGo · Waxaa sameeyay":"HantiGo · Made by","Asturnaanta":"Privacy","Tirtir akoonkayga":"Delete my account","Xaqiijin":"Confirm","Haa, tirtir akoonkayga":"Yes, delete my account",
+"Meesha lacagtu ku baxday":"Where the money went","HantiGo · Waxaa sameeyay":"HantiGo · Made by","Asturnaanta":"Privacy","Tirtir akoonkayga":"Delete my account","Xaqiijin":"Confirm","Haa, tirtir akoonkayga":"Yes, delete my account",
 "Akoonka iyo xogta oo dhan waa la tirtirayaa, dib looma soo celin karo. Si aad u xaqiijiso, qor: TIRTIR":"Your account and all data will be deleted for good. To confirm, type: DELETE","Soo deji app-ka":"Get the app","📲 Soo deji app-ka HantiGo":"📲 Get the HantiGo app",
 "Ku rakib HantiGo taleefankaaga si aad ugu furto sida app kale oo kale, adigoon browser furin.":"Install HantiGo on your phone to open it like any other app, without a browser.",
 "➕ Ku rakib hadda":"➕ Install now","🤖 Android: soo deji APK":"🤖 Android: download APK",
@@ -1463,6 +1463,7 @@ function rr(x,y,w,h){const r=Math.min(4,w/2,h);return `M${x} ${y+h}V${y+r}Q${x} 
 function hbars(box,list,total,col){box.innerHTML=list.length?list.map(([n,v])=>`<div class="hb"><span class="n">${esc(T(n))}</span><span class="v">${money(v)} <small>${total?Math.round(v/total*100)+"%":""}</small></span><div class="bar" style="width:${(v/list[0][1]*100).toFixed(1)}%;background:${typeof col==="function"?col(n):col||"#5a8fe0"}"></div></div>`).join("")
   :`<p class="empty" style="margin:0">${L("Muddadan wax lama qorin.","Nothing recorded in this period.")}</p>`}
 function renderStats(){
+  const cp=document.querySelector(".catpanel");if(cp)cp.hidden=MODE==="business"&&!TEAM;
   const panel=$("stPanel");if(!panel||MODE!=="business"||TEAM)return;
   const n=+$("stPer").value,ms=monthsBack(n),keys=new Set(ms.map(ym)),from=ym(ms[0])+"-01",last=ms[ms.length-1],to=ym(last)+"-"+String(new Date(last.getFullYear(),last.getMonth()+1,0).getDate()).padStart(2,"0");
   const out=mine("tx").filter(t=>t.type==="out"&&t.cat!=="Kayd");
