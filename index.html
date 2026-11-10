@@ -439,7 +439,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
               <input type="radio" name="method" id="mBank" value="Bangi"><label for="mBank">Bangi</label>
               <input type="radio" name="method" id="mCash" value="Kaash"><label for="mCash">Kaash</label>
             </div></div>
-          <div class="chips" id="daily" aria-label="Kharashka maalinlaha"></div>
+          <div class="chips" id="daily" aria-label="Kharashka maalinlaha" hidden></div>
           <div class="row">
             <label class="field"><span>Qadarka</span><input id="amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" required></label>
             <label class="field" id="grpRow" hidden><span>Mowduuca</span><select id="grp"></select></label>
@@ -1078,13 +1078,13 @@ function fillCats(){const type=document.querySelector('input[name=type]:checked'
     sel.innerHTML=opts(G[2])+(mineG.length?`<optgroup label="Kuwa aad adigu ku dartay">${opts(mineG)}</optgroup>`:"")+`<option value="__new">➕ Ku dar mid liiska ka maqan…</option>`;
     if(G[2].includes(cur)||mineG.includes(cur))sel.value=cur;
     $("ownCats").innerHTML=ownCats(type).map(c=>`<button type="button" class="chip own" data-delcat="${c.id}" aria-label="${L("Ka saar ","Remove ")}${esc(c.name)}">${c.name} ✕</button>`).join("");
-    if(sel.value!=="__new")$("newCatRow").hidden=true;$("daily").hidden=false;markChip();renderMulti(G[2].filter(c=>c!=="Kayd").concat(mineG));return}
+    if(sel.value!=="__new")$("newCatRow").hidden=true;$("daily").hidden=true;markChip();renderMulti(G[2].filter(c=>c!=="Kayd").concat(mineG));return}
   renderMulti([]);
   sel.innerHTML=(type==="out"?`<optgroup label="Maalinle">${opts(DAILY)}</optgroup>${MODE==="business"?`<optgroup label="Mushaharka shaqaalaha">${opts(B_STAFF)}</optgroup><optgroup label="💳 Deyn">${opts(DEBT_CATS)}</optgroup>`:""}<optgroup label="Kale">${opts(CATS.out.filter(c=>!DAILY.includes(c)&&!(MODE==="business"&&(B_STAFF.includes(c)||DEBT_CATS.includes(c)))))}</optgroup>`:opts(CATS.in))
     +(own.length?`<optgroup label="Kuwa aad adigu ku dartay">${opts(own)}</optgroup>`:"")+`<option value="__new">➕ Ku dar mid liiska ka maqan…</option>`;
   if(CATS[type].includes(cur)||own.includes(cur))sel.value=cur;
   $("ownCats").innerHTML=ownCats(type).map(c=>`<button type="button" class="chip own" data-delcat="${c.id}" aria-label="${L("Ka saar ","Remove ")}${esc(c.name)}">${c.name} ✕</button>`).join("");
-  if(sel.value!=="__new")$("newCatRow").hidden=true;$("daily").hidden=type!=="out";markChip()}
+  if(sel.value!=="__new")$("newCatRow").hidden=true;$("daily").hidden=true;markChip()}
 let MULTI_ON=true,MULTI_V={};
 function renderMulti(list){const on=MULTI_ON&&useGroups()&&!editing;$("multiRow").hidden=!useGroups()||!!editing;
   $("multiBtn").textContent=on?L("↩ Hal shay keliya","↩ Just one item"):L("☑ Dooro dhowr isla mar (qiimo kasta gooni)","☑ Pick several at once (each with its own price)");$("multiBtn").setAttribute("aria-expanded",on);$("multiList").hidden=!on;
