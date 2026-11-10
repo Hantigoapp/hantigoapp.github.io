@@ -2216,7 +2216,17 @@ const ownerEmail=()=>me?.email||"";
 async function mailPdf(d,p,to){
   const {data,error}=await sb.functions.invoke("send-receipt",{body:{to:to||"",copy:ownerEmail(),subject:`${invLabel(d.k)} ${invNoTxt(d)} · ${coName()||"HantiGo"}`,
     text:invText(d).replace(/\*/g,""),company:coName()||"HantiGo",filename:p.name,pdf:await b64(p.blob)}});
-  if(error||!data?.ok)throw error||new Error("send");return data}
+  if(!error&&data?.ok)return data;
+  let why=data?.error||"";
+  if(error){why=error.message||String(error);try{const r=error.context;if(r&&typeof r.text==="function"){const t=await r.clone().text();why=(r.status?r.status+" ":"")+t}}catch{}}
+  const e=new Error(String(why).slice(0,220));e.why=String(why);throw e}
+function mailWhy(w){w=String(w||"");
+  if(/535|Invalid login|Username and Password|BadCredentials/i.test(w))return L("Gmail-ka wuu diiday: SMTP_USER ama SMTP_PASS ayaa khalad ah.","Gmail refused: SMTP_USER or SMTP_PASS is wrong.");
+  if(/Missing credentials|PLAIN|EAUTH/i.test(w))return L("Secret-yada SMTP_USER / SMTP_PASS lama helin.","The SMTP_USER / SMTP_PASS secrets are missing.");
+  if(/Invalid JWT|JWT|401|"auth"/i.test(w))return L("Supabase ayaa diiday gelitaanka (JWT). Dami \"Verify JWT\" ee send-receipt.","Supabase rejected the login (JWT). Turn off \"Verify JWT\" on send-receipt.");
+  if(/404|not found/i.test(w))return L("send-receipt lama helin (lama gelin).","send-receipt was not found (not deployed).");
+  if(/Failed to send a request|Failed to fetch|NetworkError|FunctionsFetchError/i.test(w))return L("Adeegga lama gaari karo. Hubi internetka.","Could not reach the service. Check the internet.");
+  return ""}
 function invBusy(on,msg){["invSend","invShare","invDl"].forEach(id=>$(id).disabled=on);if(msg!=null){$("invMsg").textContent=msg}}
 $("invDl").addEventListener("click",async()=>{const d=await invSave();if(!d)return;invBusy(true,L("PDF-ka waa la diyaarinayaa…","Preparing PDF…"));
   try{const p=await invPdf(d);dlBlob(p.blob,p.name);invBusy(false,"✓ "+L(`${p.name} waa la soo dejiyay.`,`${p.name} downloaded.`))}
@@ -2227,7 +2237,7 @@ $("invSend").addEventListener("click",async()=>{const d=await invSave();if(!d)re
   try{p=await invPdf(d)}catch{invBusy(false,"");$("invErr").textContent=L("PDF-ka lama samayn karo hadda. Hubi internetka.","Could not make the PDF. Check the internet.");return}
   try{await mailPdf(d,p,to);await put({...items.find(i=>i.id===d.id)||d,sentTo:to,sentAt:new Date().toISOString()});
     invBusy(false,"✓ "+L(`Waa loo diray ${to}. Nuqul ayaa laguu diray ${ownerEmail()}.`,`Sent to ${to}. A copy was sent to ${ownerEmail()}.`))}
-  catch(e){console.warn("send-receipt",e);invBusy(false,"");$("invErr").textContent=L("Email-ka si toos ah looma diri karo hadda. PDF-ka waa la soo dejiyay, adiguna u dir.","The email could not be sent automatically right now. The PDF was downloaded, send it yourself.");
+  catch(e){console.warn("send-receipt",e);invBusy(false,"");const w=e?.why||e?.message||"";$("invErr").textContent=L("Email-ka looma diri karo hadda.","The email could not be sent right now.")+" "+mailWhy(w)+" ("+L("Khalad","Error")+": "+String(w).slice(0,160)+") "+L("PDF-ka waa la soo dejiyay.","The PDF was downloaded.");
     dlBlob(p.blob,p.name);location.href=`mailto:${encodeURIComponent(to)}?cc=${encodeURIComponent(ownerEmail())}&subject=${encodeURIComponent(invLabel(d.k)+" "+invNoTxt(d))}&body=${encodeURIComponent(invText(d).replace(/\*/g,""))}`}});
 $("invShare").addEventListener("click",async()=>{const d=await invSave();if(!d)return;invBusy(true,L("PDF-ka waa la diyaarinayaa…","Preparing PDF…"));let p;
   try{p=await invPdf(d)}catch{invBusy(false,"");$("invErr").textContent=L("PDF-ka lama samayn karo hadda. Hubi internetka.","Could not make the PDF. Check the internet.");return}
