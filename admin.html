@@ -58,6 +58,11 @@ html:root{--bg:#0b1118;--surface:#141c26;--ink:#eef3f8;--muted:#8fa0b3;--line:#2
 .primary,.tabs button[aria-selected=true]{color:#06281a}
 .stat,.row,.locbox{border-radius:16px}
 .stat:first-child{background:linear-gradient(135deg,#123d2e,#0f2a3d);border-color:#1f5a44}
+.reqs{background:var(--surface);border:2px solid #d4a017;border-radius:16px;padding:12px 14px;display:grid;gap:10px}
+.reqs h2{margin:0;font-size:1.05rem}.req{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center;border-top:1px solid var(--line);padding-top:10px}
+.req .meta{font-size:.9rem;opacity:.85;display:grid;gap:2px}.req img{max-width:100%;max-height:260px;border-radius:8px;margin-top:6px;cursor:zoom-in}
+.req .ok-b{background:#1e8e5a;color:#fff;border-color:#1e8e5a}.req .no-b{color:#e5534b}
+@media (max-width:560px){.req{grid-template-columns:1fr}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -66,6 +71,7 @@ html:root{--bg:#0b1118;--surface:#141c26;--ink:#eef3f8;--muted:#8fa0b3;--line:#2
   <div class="top"><h1>Hanti<span>Go</span> · Maamul</h1><a href="./">← Ku noqo app-ka</a></div>
   <p class="msg" id="msg">Waa la soo dejinayaa…</p>
   <div id="main" hidden style="display:grid;gap:14px">
+    <section id="reqs" class="reqs" hidden></section>
     <div class="stats">
       <div class="stat"><small>Macaamiisha</small><b id="nAll">0</b><em id="nNew"></em></div>
       <div class="stat"><small>Bixiyay</small><b id="nPaid" class="cin">0</b></div>
@@ -108,13 +114,24 @@ function renderLocs(cust){
     const list=Object.entries(m).sort((a,b)=>b[1]-a[1]);const max=Math.max(1,...list.map(x=>x[1]));
     return `<div class="locbox"><h3>${title}</h3>${list.map(([k,n])=>`<div class="bar"><span>${esc(k)}</span><i style="width:${n/max*100}%"></i><b>${n}</b></div>`).join("")||'<p class="msg">Weli qofna</p>'}</div>`};
   $("locs").innerHTML=box("📍 Magaalooyinka","city")+box("🌍 Wadamada","country")}
+function renderReqs(cust){
+  const hasCol=cust.length&&("pay_status" in cust[0]);
+  const reqs=cust.filter(p=>hasCol?p.pay_status==="pending":(p.phone&&!isPaid(p)));
+  document.title=(reqs.length?"("+reqs.length+") ":"")+"HantiGo · Maamul";
+  $("reqs").hidden=!reqs.length;
+  $("reqs").innerHTML=`<h2>⏳ Codsiyada lacagta · ${reqs.length}</h2><p class="msg" style="margin:0">Hubi in $10 ay ka timid lambarkan EVC-gaaga, kadib riix <b>Ansixi</b>. Akoonka 30 maalmood ayuu u furmayaa.</p>`+
+    reqs.sort((a,b)=>String(b.pay_requested_at||"").localeCompare(String(a.pay_requested_at||""))).map(p=>`<div class="req"><div class="meta"><b>${esc(p.email)}</b>
+      <span>📞 EVC: <b>${esc(p.phone||"—")}</b>${p.pay_ref?` · 🧾 ${esc(p.pay_ref)}`:""}</span>
+      <span>🕒 ${p.pay_requested_at?new Date(p.pay_requested_at).toLocaleString("en-GB",{dateStyle:"short",timeStyle:"short"}):"—"}</span>
+      ${p.pay_shot?`<img src="${esc(p.pay_shot)}" alt="Sawirka fariinta EVC" data-zoom>`:""}</div>
+      <div class="acts"><button class="ok-b" data-pay="${p.id}" data-ok="1">✓ Ansixi (30 maalmood)</button><button class="no-b" data-pay="${p.id}" data-ok="0">✕ Diid</button></div></div>`).join("")}
 function render(){
   const q=$("q").value.trim().toLowerCase();
   const cust=rows.filter(p=>!p.is_admin);
   const paid=cust.filter(isPaid).length,trial=cust.filter(isTrial).length,nw=cust.filter(isNew).length;
   $("nAll").textContent=cust.length;$("nNew").textContent=nw?`+${nw} toddobaadkan`:"";$("nPaid").textContent=paid;$("nTrial").textContent=trial;$("nExp").textContent=cust.length-paid-trial;$("mrr").textContent="$"+paid*10;
   $("chips").innerHTML=FILTERS.map(([k,t,f])=>`<button type="button" data-f="${k}" aria-pressed="${filt===k}">${t} · ${cust.filter(f).length}</button>`).join("");
-  renderLocs(cust);
+  renderLocs(cust);renderReqs(cust);
   const fn=FILTERS.find(x=>x[0]===filt)[2];const qd=q.replace(/\D/g,"");
   const list=cust.filter(fn).filter(p=>!q||(p.email||"").toLowerCase().includes(q)||(p.city||"").toLowerCase().includes(q)||(qd&&(p.phone||"").replace(/\D/g,"").includes(qd)));
   $("list").innerHTML=list.length?list.map(p=>{const [t,c]=status(p);return `<div class="row">
@@ -129,6 +146,13 @@ async function load(){
   const {data,error}=await sb.from("profiles").select("*").order("created_at",{ascending:false});
   if(error){$("msg").textContent="Xogta lama soo saari karo: "+error.message;return}
   rows=data;$("msg").hidden=true;$("main").hidden=false;render()}
+document.addEventListener("click",async e=>{const z=e.target.closest("[data-zoom]");if(z){window.open().document.write(`<img src="${z.src}" style="max-width:100%">`);return}
+  const b=e.target.closest("[data-pay]");if(!b)return;const ok=b.dataset.ok==="1";
+  if(!ok&&!b.dataset.sure){b.dataset.sure="1";b.textContent="Hubi? Diid";setTimeout(()=>{delete b.dataset.sure;b.textContent="✕ Diid"},3000);return}
+  b.disabled=true;let {error}=await sb.rpc("admin_pay_decide",{target:b.dataset.pay,approve:ok,days:30});
+  if(error&&ok)({error}=await sb.rpc("admin_extend",{target:b.dataset.pay,days:30}));
+  if(error){alert(ok?"Khalad: "+error.message:"Si aad u diiddo, marka hore ku shub faylka supabase/payment.sql gudaha Supabase.");b.disabled=false;return}
+  await load()});
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-id]");if(!b)return;
   const d=Number(b.dataset.d);
   if(d===0&&!b.dataset.sure){b.dataset.sure="1";b.textContent="Hubi?";setTimeout(()=>{delete b.dataset.sure;b.textContent="Jooji"},3000);return}

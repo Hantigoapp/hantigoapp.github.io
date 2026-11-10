@@ -68,6 +68,8 @@ form{display:grid;gap:10px}
 .seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:-2px}
 .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 .field{display:grid;gap:4px;min-width:0}
+#adminLink.hot{background:#d4a017;color:#111;border-radius:99px;padding:2px 10px;font-weight:700;text-decoration:none}
+.pshot{display:grid;gap:8px;place-items:center;border:1.5px dashed rgba(127,127,127,.45);border-radius:12px;padding:12px;cursor:pointer;text-align:center}.pshot img{max-width:100%;max-height:220px;border-radius:8px}.pstat{border-radius:10px;padding:10px 12px;font-size:.92em}.pstat.pending{background:rgba(212,160,23,.15)}.pstat.no{background:rgba(229,83,75,.15)}
 #multiRow{display:grid;gap:8px;margin:4px 0 8px}#multiBtn{justify-self:start}#multiBtn.on{border-color:var(--accent,#20a070)}.mrow{display:grid;grid-template-columns:1fr 130px;align-items:center;gap:10px;padding:4px 0;border-bottom:1px solid rgba(127,127,127,.15)}.mtot{font-weight:700;text-align:right;padding-top:4px}
 .cat.grp summary{list-style:none;cursor:pointer}.cat.grp summary::-webkit-details-marker{display:none}.cat.grp .gn{font-size:.8em;opacity:.6}.cat.grp[open] .gn{opacity:.9}.cat-top.sub{padding:4px 0 4px 14px;font-size:.92em;opacity:.85;border-left:2px solid currentColor;margin-left:4px}
 .field span{font-size:.8rem;color:var(--muted);font-weight:500}
@@ -344,9 +346,16 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
     <div class="evc pay-only"><span class="note">Ku garaac taleefankaaga</span><b>*712*613735086*10#</b></div>
     <div class="evc pay-only"><span class="note">Lambarka EVC Plus ee lacagta loo dirayo</span><b>+252 61 373 5086</b></div>
     <form id="phoneForm" class="pay-only" novalidate>
-      <label class="field"><span>Lambarka aad lacagta ka soo dirtay</span><input id="pPhone" type="tel" inputmode="tel" placeholder="61xxxxxxx" maxlength="20"></label>
+      <p class="note" style="margin:0"><b>Kadib markaad bixiso:</b> buuxi foomkan si aan si dhakhso ah u xaqiijinno.</p>
+      <label class="field"><span>1. Lambarka aad lacagta ka soo dirtay</span><input id="pPhone" type="tel" inputmode="tel" placeholder="61xxxxxxx" maxlength="20"></label>
+      <label class="field"><span>2. Lambarka dhaqdhaqaaqa ee fariinta EVC (ikhtiyaari)</span><input id="pRef" type="text" maxlength="60" placeholder="Tusaale: Tix 123456789"></label>
+      <div class="field"><span>3. Sawirka fariinta EVC (ikhtiyaari)</span>
+        <label class="pshot" for="pShotFile"><span id="pShotTxt">📷 Ku dar sawirka (screenshot)</span><img id="pShotImg" alt="" hidden></label>
+        <input id="pShotFile" type="file" accept="image/*" hidden></div>
       <div class="err" id="pErr" role="status"></div>
-      <button class="primary" type="submit">Waan bixiyay</button>
+      <div class="pstat" id="pStat" hidden></div>
+      <button class="primary" type="submit">✓ Waan bixiyay, dir</button>
+      <a class="wa" id="pWa" href="#" target="_blank" rel="noopener" hidden>📲 U sheeg WhatsApp inaad bixisay</a>
     </form>
     <a class="wa" data-wa href="#" target="_blank" rel="noopener">💬 Caawimaad? Nagala soo xiriir WhatsApp</a>
     <div class="goal-actions"><button type="button" id="recheck">Hubi mar kale</button><button type="button" class="logout">Ka bax</button></div>
@@ -940,14 +949,15 @@ async function enter(user){
   }
   if(!hasAccess(profile)){
     $("payWho").textContent=me.email;$("pPhone").value=profile.phone||"";
-    $("pErr").textContent=profile.phone?"Lambarkaaga waa la helay. Marka lacagta la xaqiijiyo, akoonkaaga waa la furayaa.":"";
-    showView("payView");return;
+    $("pRef").value=profile.pay_ref||"";$("pErr").textContent="";payStatus(profile);
+    showView("payView");payPoll();return;
   }
   $("accEmail").textContent=me.email;
   const d=daysLeft(profile);
   $("accStatus").innerHTML=profile.is_admin?`<span class="pill ok">Maamule</span>`
     :`<span class="pill ${d<=3?"warn":"ok"}">${profile.paid_until&&new Date(profile.paid_until)>new Date()?L("La bixiyay: "+d+" maalmood ayaa haray","Paid: "+d+" days left"):L("Tijaabo: "+d+" maalmood ayaa haray","Trial: "+d+" days left")}</span>`;
   $("adminLink").hidden=!profile.is_admin;
+  if(profile.is_admin)sb.from("profiles").select("id").eq("pay_status","pending").then(({data})=>{const n=data?.length||0;$("adminLink").textContent=n?L(`Maamul · ⏳ ${n} codsi lacag`,`Admin · ⏳ ${n} payment requests`):L("Maamul","Admin");$("adminLink").classList.toggle("hot",!!n)}).catch(()=>{});
   const cached=loadLocal();
   const {data,error}=await sb.from("user_data").select("items").eq("user_id",me.id).maybeSingle();
   if(data)items=data.items||[];
@@ -1063,10 +1073,25 @@ $("resetForm").addEventListener("submit",async e=>{e.preventDefault();
   const {data}=await sb.auth.getUser();if(data?.user)enter(data.user);else showView("authView");
 });
 document.querySelectorAll(".logout").forEach(b=>b.addEventListener("click",async()=>{clearTimeout(syncTimer);if(me)await syncNow();await sb.auth.signOut()}));
+let payShot=null,payTimer=null;
+function payStatus(pr){const st=pr?.pay_status||(pr?.phone?"pending":"");const el=$("pStat");el.hidden=!st;el.className="pstat "+st;
+  el.innerHTML=st==="no"?L("❌ Lacagta lama helin. Hubi lambarka, ama nagala soo xiriir WhatsApp.","❌ Payment not found. Check the number, or contact us on WhatsApp.")
+    :st==="pending"?L("⏳ Codsigaaga waa la helay. Waxaan hubinaynaa lacagta. Marka la ansixiyo, app-ku si toos ah ayuu kuu furmayaa.","⏳ Your request was received. We are checking the payment. Once approved, the app opens by itself."):"";
+  if(st==="pending"&&me){$("pWa").hidden=false;$("pWa").href="https://wa.me/"+WA_NUM+"?text="+encodeURIComponent(`Salaan, waxaan ku bixiyay HantiGo $10 EVC.\nEmail: ${me.email}\nLambarka: ${pr.phone||$("pPhone").value}${pr.pay_ref?"\nTix: "+pr.pay_ref:""}`)}else $("pWa").hidden=true}
+function payPoll(){clearTimeout(payTimer);payTimer=setTimeout(async()=>{if($("payView").hidden||!me)return;
+  const {data}=await sb.from("profiles").select("*").eq("id",me.id).maybeSingle();
+  if(data&&hasAccess(data)){enter(me);return}if(data){profile=data;payStatus(data)}payPoll()},20000)}
+$("pShotFile").addEventListener("change",async e=>{const f=e.target.files?.[0];e.target.value="";if(!f)return;
+  try{payShot=await shrinkImage(f,900,true);$("pShotImg").src=payShot;$("pShotImg").hidden=false;$("pShotTxt").textContent=L("📷 Beddel sawirka","📷 Change picture")}
+  catch{$("pErr").textContent=L("Sawirkan lama furi karo. Isku day mid kale.","Could not open this picture. Try another.")}});
 $("phoneForm").addEventListener("submit",async e=>{e.preventDefault();
-  const p=$("pPhone").value.trim();if(p.replace(/\D/g,"").length<7){$("pErr").textContent="Geli lambarka EVC ee aad ka soo dirtay.";return}
-  const {error}=await sb.rpc("set_my_phone",{p});
-  $("pErr").textContent=error?"Lama kaydin karo hadda. Isku day mar kale.":"Mahadsanid! Marka lacagta la xaqiijiyo (inta badan dhowr saacadood gudahood), riix \"Hubi mar kale\".";
+  const p=$("pPhone").value.trim(),ref=$("pRef").value.trim();if(p.replace(/\D/g,"").length<7){$("pErr").textContent="Geli lambarka EVC ee aad ka soo dirtay.";$("pPhone").focus();return}
+  const btn=e.submitter;if(btn)btn.disabled=true;$("pErr").textContent="";
+  let {error}=await sb.rpc("request_payment",{p,ref,shot:payShot});
+  if(error)({error}=await sb.rpc("set_my_phone",{p}));   // payment.sql not run yet: keep the old way working
+  if(btn)btn.disabled=false;
+  if(error){$("pErr").textContent="Lama kaydin karo hadda. Isku day mar kale.";return}
+  profile={...profile,phone:p,pay_ref:ref||null,pay_status:"pending"};payStatus(profile);payPoll();
 });
 $("recheck").addEventListener("click",()=>{if(me)enter(me)});
 
@@ -1629,9 +1654,9 @@ function renderCo(){const n=coName(),lg=coLogo();
   if(document.activeElement!==$("coName"))$("coName").value=n;
   $("coImg").hidden=!lg;if(lg)$("coImg").src=lg;$("coPh").hidden=!!lg;$("coDelLogo").hidden=!lg;
   $("coAsk").hidden=!(MODE==="business"&&!TEAM&&(!n||!lg)&&!settings().coAskNo)}
-function shrinkImage(file){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);
-  img.onload=()=>{const m=256,k=Math.min(1,m/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
-    c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=c.toDataURL("image/png");if(d.length>120000)d=c.toDataURL("image/jpeg",.85);res(d)};
+function shrinkImage(file,m=256,jpg=false){return new Promise((res,rej)=>{const img=new Image(),u=URL.createObjectURL(file);
+  img.onload=()=>{k=Math.min(1,m/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=jpg?c.toDataURL("image/jpeg",.7):c.toDataURL("image/png");if(d.length>120000)d=c.toDataURL("image/jpeg",jpg?.6:.85);res(d)};
   img.onerror=()=>{URL.revokeObjectURL(u);rej()};img.src=u})}
 $("coFile").addEventListener("change",async e=>{const f=e.target.files?.[0];e.target.value="";if(!f)return;
   try{const d=await shrinkImage(f);await put({...settings(),coLogo:d});$("coMsg").textContent=L("✓ Astaanta waa la kaydiyay.","✓ Logo saved.")}
