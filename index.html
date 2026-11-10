@@ -195,7 +195,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
 .install a.btnlike{text-decoration:none;color:var(--ink);font-weight:600}
 .install .big{display:block;width:100%;text-align:center;font-size:1.15rem;padding:16px;border-radius:14px;text-decoration:none;font-weight:700}
 .iosg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:16px 16px calc(8px + env(safe-area-inset-bottom,0px));gap:6px}
-.iosg.top{flex-direction:column-reverse;justify-content:flex-start;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+.iosg.top{justify-content:flex-start;padding-top:calc(4px + env(safe-area-inset-top,0px))}.iosg.top .iosg-arrow{order:-1;align-self:flex-end;margin-right:2px}
 .iosg-card{position:relative;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:18px 36px 14px 18px;max-width:420px;width:100%;display:grid;gap:8px}
 .iosg-card ol{margin:0;padding-left:22px;display:grid;gap:8px;font-size:1.05rem}
 .iosg-x{position:absolute;top:8px;right:8px;background:none;border:0;color:var(--muted);font-size:1.1rem;padding:6px}
@@ -1392,7 +1392,7 @@ function showIosGuide(){
   const d=document.createElement("div");d.id="iosGuide";d.className="iosg"+(chrome?" top":"");
   d.innerHTML=`<div class="iosg-card" role="dialog" aria-label="${L("Rakib HantiGo","Install HantiGo")}">
     <button type="button" class="iosg-x" aria-label="${L("Xir","Close")}">✕</button>
-    <ol><li>${chrome?L("Riix <b>⬆️</b> sare midig","Tap <b>⬆️</b> at the top right"):L("Riix <b>⬆️ Share</b> ee Safari (hoose). Haddii aadan arkin, riix <b>⋯</b> marka hore.","Tap Safari's <b>⬆️ Share</b> (bottom). If you don't see it, tap <b>⋯</b> first.")}</li>
+    <ol><li>${chrome?L("Riix <b>⬆️</b> sare midig, meesha link-ga","Tap <b>⬆️</b> at the top right, next to the address"):L("Riix <b>⬆️ Share</b> ee Safari (hoose). Haddii aadan arkin, riix <b>⋯</b> marka hore.","Tap Safari's <b>⬆️ Share</b> (bottom). If you don't see it, tap <b>⋯</b> first.")}</li>
     <li>${L("Hoos u dhaadhac, riix <b>➕ Add to Home Screen</b>","Scroll down, tap <b>➕ Add to Home Screen</b>")}</li>
     <li>${L("Riix <b>Add</b>","Tap <b>Add</b>")}</li></ol>
     <p class="note" style="margin:0">${L("Haddii “Add to Home Screen” cawlan yahay: ka bax <b>Private</b> mode.","If “Add to Home Screen” is grey: leave <b>Private</b> mode.")}</p></div>
