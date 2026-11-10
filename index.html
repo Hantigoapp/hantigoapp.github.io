@@ -605,7 +605,8 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
       <section class="panel" aria-labelledby="repH" data-tab="more">
         <h2 id="repH">Warbixin iyo backup</h2>
         <label class="field"><span>Muddada warbixinta</span><select id="repPeriod"><option value="month">Bisha hadda la muujiyay</option><option value="year">Sannadka oo dhan</option></select></label>
-        <div class="goal-actions"><button type="button" id="repCsv">⬇ Excel (CSV)</button><button type="button" id="repPdf">🖨 PDF / Daabac</button></div>
+        <label class="field" id="myNameRow"><span>Magacaaga (wuxuu ka soo baxayaa warbixinta)</span><input id="myName" type="text" maxlength="60" placeholder="Tusaale: Amina Cali"></label>
+        <div class="goal-actions"><button type="button" id="repCsv">⬇ Excel</button><button type="button" id="repDoc">⬇ Word</button><button type="button" id="repPdf">🖨 PDF</button></div>
         <p class="note" style="margin:0" id="repNote">PDF: marka daabacaaddu furanto, dooro “Save as PDF”.</p>
         <div class="owner-only" style="display:grid;gap:10px">
           <hr>
@@ -675,7 +676,7 @@ const EN={
 "Habka lacag-bixinta":"Payment method","Kharashka maalinlaha":"Daily expenses","Qadarka":"Amount","Qaybta":"Category","Taariikhda":"Date",
 "Ku qor waxa liiska ka maqan":"Type what is missing from the list","Tusaale: Kirada mashiinka":"Example: Machine rent","+ Ku dar liiska":"+ Add to list",
 "Shirkadda ama meesha (ikhtiyaari)":"Company or place (optional)","Macmiil ama alaab-qeybiye (ikhtiyaari)":"Customer or supplier (optional)",
-"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Fasaxa iyo xanuunka shaqaalaha":"Staff leave and sick days","Magaca shirkadda":"Company name","Tusaale: Iskuulka Horseed":"Example: Horseed School","🏢 Shirkaddaada":"🏢 Your company","🖼️ Soo geli astaanta (logo)":"🖼️ Upload logo","Ka saar astaanta":"Remove logo","Magaca iyo astaanta ayaa ka soo baxaya warbixinnada PDF, Word iyo Excel.":"The name and logo appear on PDF, Word and Excel reports.","🏢 Ku dar astaanta shirkaddaada":"🏢 Add your company logo","Magaca iyo astaanta (logo) shirkadda ayaa ka muuqanaya warbixinnada aad soo dejiso.":"Your company name and logo will show on the reports you download.","Ku dar hadda":"Add now","Mar dambe":"Later","Kooban":"Summary","Bil kasta":"Per month","Shaqada":"Role","Lacagta soo gashay":"Income","Mushaarka shaqaalaha":"Staff salaries","Kharashka kale":"Other spending","Xanuun (maalmo)":"Sick (days)","Fasax (maalmo)":"Leave (days)","📊 Tirakoobka shirkadda":"📊 Company statistics","Muddada":"Period","3-dii bilood":"Last 3 months","12-kii bilood":"Last 12 months","Kharashka shirkadda bil kasta":"Company spending per month","Lacagta soo gashay iyo kharashka bil kasta":"Income and spending per month","Mushaharka":"Salaries","Kharash kale":"Other spending","Mushaarka shaqaalo kasta":"Salaries by role","Meesha lacagtu ku baxday":"Where the money went","Xanuunka iyo fasaxa bil kasta (maalmo)":"Sick and leave days per month","Xanuun":"Sick","Fasax":"Leave","Maalmaha xanuunka iyo fasaxa bil kasta":"Sick and leave days per month","Muddada warbixinta":"Report period","Toddobaadkan":"This week","Bishan":"This month","Sannadkan":"This year","🤒 Waan xanuunsanahay maanta":"🤒 I am sick today","Nooca fasaxa":"Leave type","🏖️ Fasax":"🏖️ Leave","🤒 Xanuun":"🤒 Sick","Fasax lacag la'aan":"Unpaid leave","Magaca shaqaalaha":"Staff member name","Laga bilaabo":"From","Ilaa":"To","1 maalin":"1 day","3 maalmood":"3 days","1 toddobaad":"1 week","1 bil":"1 month","Tusaale: safar qoys":"Example: family trip","+ Codso fasax":"+ Request leave","Tusaale: bilka Nofembar":"Example: November bill",
+"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Fasaxa iyo xanuunka shaqaalaha":"Staff leave and sick days","Magacaaga (wuxuu ka soo baxayaa warbixinta)":"Your name (shown on the report)","Tusaale: Amina Cali":"Example: Amina Ali","Magaca shirkadda":"Company name","Tusaale: Iskuulka Horseed":"Example: Horseed School","🏢 Shirkaddaada":"🏢 Your company","🖼️ Soo geli astaanta (logo)":"🖼️ Upload logo","Ka saar astaanta":"Remove logo","Magaca iyo astaanta ayaa ka soo baxaya warbixinnada PDF, Word iyo Excel.":"The name and logo appear on PDF, Word and Excel reports.","🏢 Ku dar astaanta shirkaddaada":"🏢 Add your company logo","Magaca iyo astaanta (logo) shirkadda ayaa ka muuqanaya warbixinnada aad soo dejiso.":"Your company name and logo will show on the reports you download.","Ku dar hadda":"Add now","Mar dambe":"Later","Kooban":"Summary","Bil kasta":"Per month","Shaqada":"Role","Lacagta soo gashay":"Income","Mushaarka shaqaalaha":"Staff salaries","Kharashka kale":"Other spending","Xanuun (maalmo)":"Sick (days)","Fasax (maalmo)":"Leave (days)","📊 Tirakoobka shirkadda":"📊 Company statistics","Muddada":"Period","3-dii bilood":"Last 3 months","12-kii bilood":"Last 12 months","Kharashka shirkadda bil kasta":"Company spending per month","Lacagta soo gashay iyo kharashka bil kasta":"Income and spending per month","Mushaharka":"Salaries","Kharash kale":"Other spending","Mushaarka shaqaalo kasta":"Salaries by role","Meesha lacagtu ku baxday":"Where the money went","Xanuunka iyo fasaxa bil kasta (maalmo)":"Sick and leave days per month","Xanuun":"Sick","Fasax":"Leave","Maalmaha xanuunka iyo fasaxa bil kasta":"Sick and leave days per month","Muddada warbixinta":"Report period","Toddobaadkan":"This week","Bishan":"This month","Sannadkan":"This year","🤒 Waan xanuunsanahay maanta":"🤒 I am sick today","Nooca fasaxa":"Leave type","🏖️ Fasax":"🏖️ Leave","🤒 Xanuun":"🤒 Sick","Fasax lacag la'aan":"Unpaid leave","Magaca shaqaalaha":"Staff member name","Laga bilaabo":"From","Ilaa":"To","1 maalin":"1 day","3 maalmood":"3 days","1 toddobaad":"1 week","1 bil":"1 month","Tusaale: safar qoys":"Example: family trip","+ Codso fasax":"+ Request leave","Tusaale: bilka Nofembar":"Example: November bill",
 "Kaydi":"Save","Dhaqdhaqaaqa bishan":"This month's transactions","Kharashyada joogtada ah":"Recurring expenses",
 "Geli qadarka hal mar. Bil kasta riix “Bixi”.":"Enter the amount once. Each month tap “Pay”.",
 "Maalinta: xusuusin ayaad helaysaa 3 maalmood ka hor.":"Day: you get a reminder 3 days before.",
@@ -1110,7 +1111,7 @@ function render(){
   renderBills(txs);
   renderChart(txs);
   const bud=renderBudget(spent);
-  renderDebts();renderLeaves();lvRepSummary();renderStats();renderCo();
+  renderDebts();renderLeaves();lvRepSummary();renderStats();renderCo();renderMyName();
   renderAlerts(bud);
   const goals=mine("goal").sort((a,b)=>a.created.localeCompare(b.created));
   $("goals").innerHTML=goals.length?goals.map(g=>{const p=Math.min(100,g.saved/g.target*100||0);return `<div class="goal">
@@ -1463,7 +1464,7 @@ function lvHtml(){const r=lvReport();return `${coHead()}<p>${L("Warbixinta fasax
   <h2>${L("Liiska","List")} (${r.rows.length})</h2>
   <table><tr><th>${L("Shaqaalaha","Staff")}</th><th>${L("Nooca","Type")}</th><th>${L("Laga bilaabo","From")}</th><th>${L("Ilaa","To")}</th><th>${L("Maalmo","Days")}</th><th>${L("Xaaladda","Status")}</th><th>${L("Faahfaahin","Details")}</th></tr>
   ${r.rows.map(v=>`<tr><td>${esc(v.who)}</td><td>${esc(L(...LVT[v.type]||LVT.fasax))}</td><td>${esc(v.from)}</td><td>${esc(v.to)}</td><td class="n">${v.inDays}</td><td>${lvStatusTxt(v)}</td><td>${esc(v.note||"")}</td></tr>`).join("")||`<tr><td colspan="7">—</td></tr>`}</table>
-  <p>${L("Waxaa la sameeyay","Created")} ${esc(new Date().toLocaleString())} · HantiGo</p>`}
+  <p>${L("Waxaa la sameeyay","Created")} ${dlStamp()} · HantiGo</p>`}
 $("lvPdf").addEventListener("click",()=>{$("printArea").innerHTML=lvHtml();
   document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
   window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50)});
@@ -1536,7 +1537,7 @@ function stTables(withBars){const r=ST,pct=(v,t)=>t?Math.round(v/t*100)+"%":"",b
   ${r.cats.map(([n,v])=>`<tr><td>${esc(T(n))}</td><td class="n">${money(v)}</td><td class="n">${pct(v,r.allT)}</td>${withBars?`<td style="width:40%">${bar(v,r.cats[0][1],n===salName?ST_SAL:ST_OTH)}</td>`:""}</tr>`).join("")||`<tr><td colspan="4">—</td></tr>`}</table>
   ${withBars?`<h2>${L("Xanuunka iyo fasaxa bil kasta (maalmo)","Sick and leave days per month")}</h2><p>🟥 ${L("Xanuun","Sick")} · 🟦 ${L("Fasax","Leave")}</p>${$("stLeave").innerHTML}`:""}`}
 const stHead=()=>`${coHead()}<p>${L("Tirakoobka shirkadda","Company statistics")}: <b>${esc(stTitle())}</b> · ${esc(modeLabel())} · ${esc(me?.email||"")}</p>`;
-const stFoot=()=>`<p>${L("Waxaa la sameeyay","Created")} ${esc(new Date().toLocaleString())} · HantiGo</p>`;
+const stFoot=()=>`<p>${L("Waxaa la sameeyay","Created")} ${dlStamp()} · HantiGo</p>`;
 const stFile=ext=>`HantiGo-tirakoob-${ST.from}-${ST.to}.${ext}`;
 $("stPdf").addEventListener("click",()=>{if(!ST)return;$("printArea").innerHTML=stHead()+stTables(true)+stFoot();
   document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
@@ -1558,8 +1559,11 @@ if(NATIVE)$("stPdf").hidden=true;
 
 /* ---------- company name & logo (owner) ---------- */
 const coName=()=>settings().coName||"";const coLogo=()=>settings().coLogo||"";
-function coHead(title){const n=coName(),lg=coLogo();
-  return `<div class="rhead">${lg?`<img src="${lg}" alt="" width="56" height="56" style="max-height:56px">`:""}<div><h1 style="margin:0">${esc(n||"HantiGo")}</h1>${n?`<small style="color:#666">HantiGo</small>`:""}</div></div>`}
+const myName=()=>settings().myName||"";
+const dlStamp=()=>{const d=new Date(),z=n=>String(n).padStart(2,"0");return `${z(d.getDate())}/${z(d.getMonth()+1)}/${d.getFullYear()} ${z(d.getHours())}:${z(d.getMinutes())}`};
+const brandName=()=>MODE==="business"?(coName()||"HantiGo"):(myName()||me?.email||"HantiGo");
+function coHead(){const n=brandName(),lg=MODE==="business"?coLogo():"";
+  return `<div class="rhead">${lg?`<img src="${lg}" alt="" width="56" height="56" style="max-height:56px">`:""}<div><h1 style="margin:0">${esc(n)}</h1><small style="color:#666">${L("La soo dejiyay","Downloaded")}: ${dlStamp()} · HantiGo</small></div></div>`}
 function renderCo(){const n=coName(),lg=coLogo();
   if(document.activeElement!==$("coName"))$("coName").value=n;
   $("coImg").hidden=!lg;if(lg)$("coImg").src=lg;$("coPh").hidden=!!lg;$("coDelLogo").hidden=!lg;
@@ -1613,14 +1617,14 @@ function xlColor(h){h=String(h).toLowerCase();
   return"FF34495E"}
 const xlDays=h=>/maalm|days|dad\)|people/i.test(String(h));
 async function exportSheet(title,sections,base){base=base.replace(/[^\w.@ -]+/g,"_");
-  const brand=MODE==="business"&&coName()?coName():"HantiGo",logo=MODE==="business"?coLogo():"";
+  const brand=brandName(),logo=MODE==="business"?coLogo():"";
   try{const X=await loadExcel(),wb=new X.Workbook(),ws=wb.addWorksheet("HantiGo",{views:[{showGridLines:false}]});wb.creator="HantiGo";
     const nc=Math.max(...sections.map(s=>s.head.length));
     let c0=1;
     if(logo){const m=logo.match(/^data:image\/(png|jpeg);base64,(.*)$/);if(m){const id=wb.addImage({base64:m[2],extension:m[1]==="jpeg"?"jpeg":"png"});ws.addImage(id,{tl:{col:0,row:0},ext:{width:56,height:56}});c0=2}}
     ws.getRow(1).height=26;ws.getRow(2).height=20;
     const a=ws.getRow(1).getCell(c0);a.value=brand;a.font={bold:true,size:16,color:{argb:"FF0B7A4B"}};a.alignment={vertical:"middle"};
-    const b=ws.getRow(2).getCell(c0);b.value=(brand!=="HantiGo"?"HantiGo · ":"")+title;b.font={size:10,color:{argb:"FF666666"}};
+    const b=ws.getRow(2).getCell(c0);b.value=title+" · "+L("La soo dejiyay","Downloaded")+": "+dlStamp()+" · HantiGo";b.font={size:10,color:{argb:"FF666666"}};
     let r=logo?5:4;const thin={style:"thin",color:{argb:"FFD0D7DE"}},border={top:thin,left:thin,bottom:thin,right:thin};
     const w=new Array(nc).fill(10);
     for(const sec of sections){
@@ -1647,12 +1651,12 @@ $("repCsv").addEventListener("click",()=>{const {txs,title}=reportData();
   const si=txs.filter(t=>t.type==="in").reduce((a,t)=>a+Number(t.amount),0),so=txs.filter(t=>t.type==="out").reduce((a,t)=>a+Number(t.amount),0);
   exportSheet(L("Warbixin","Report")+": "+title+" · "+modeLabel(),[
     {title:L("Kooban","Summary"),colorFirst:1,head:[L("Soo galay","Income"),L("Ka baxay","Expenses"),L("Farqiga","Difference")],rows:[[si,-so,si-so]]},
-    {title:L("Dhaqdhaqaaqa","Transactions"),head,rows}],`HantiGo-${modeLabel()}-${title}`)});
+    {title:L("Dhaqdhaqaaqa","Transactions"),head,rows}],`HantiGo-${brandName()}-${title}`)});
 function buildReport(){const {txs,title}=reportData();
   const sum=t=>txs.filter(x=>x.type===t).reduce((a,x)=>a+Number(x.amount),0);
   const by={};txs.filter(t=>t.type==="out"&&t.cat!=="Kayd").forEach(t=>by[t.cat]=(by[t.cat]||0)+Number(t.amount));
   const cats=Object.entries(by).sort((a,b)=>b[1]-a[1]);
-  return `${MODE==="business"?coHead():"<h1>HantiGo</h1>"}<p>${L("Warbixin","Report")}: <b>${esc(title)}</b> · ${esc(modeLabel())} · ${esc(me?.email||"")}</p>
+  return `${coHead()}<p>${L("Warbixin","Report")}: <b>${esc(title)}</b> · ${esc(modeLabel())} · ${esc(me?.email||"")}</p>
   <table><tr><th>${L("Soo galay","Income")}</th><th>${L("Ka baxay","Expenses")}</th><th>${L("Farqiga","Difference")}</th></tr>
   <tr><td class="n">${money(sum("in"))}</td><td class="n">${money(sum("out"))}</td><td class="n">${money(sum("in")-sum("out"))}</td></tr></table>
   <h2>${L("Kharashka qayb kasta","Spending by category")}</h2>
@@ -1660,10 +1664,16 @@ function buildReport(){const {txs,title}=reportData();
   <h2>${L("Dhaqdhaqaaqa","Transactions")} (${txs.length})</h2>
   <table><tr><th>${L("Taariikhda","Date")}</th><th>${L("Nooca","Type")}</th><th>${L("Qaybta","Category")}</th><th>${L("Habka","Method")}</th><th>${L("Meesha / faahfaahin","Place / details")}</th><th>${L("Qadarka","Amount")}</th></tr>
   ${txs.map(t=>`<tr><td>${esc(t.date)}</td><td>${typeLabel(t.type)}</td><td>${esc(T(t.cat))}</td><td>${esc(T(t.method||"Kaash"))}</td><td>${esc([t.place,t.note].filter(Boolean).join(" · "))}</td><td class="n">${t.type==="in"?"+":"−"}${money(t.amount)}</td></tr>`).join("")}</table>
-  <p>${L("Waxaa la sameeyay","Created")} ${esc(new Date().toLocaleString())} · HantiGo · ${L("Aasaasaha HantiGo:","HantiGo founder:")} Asad Moallim</p>`}
+  <p>${L("Waxaa la sameeyay","Created")} ${dlStamp()} · HantiGo · ${L("Aasaasaha HantiGo:","HantiGo founder:")} Asad Moallim</p>`}
 $("repPdf").addEventListener("click",()=>{$("printArea").innerHTML=buildReport();document.body.classList.add("printing");
   const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
   window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50)});
+$("myName").addEventListener("change",async()=>{await put({...settings(),myName:$("myName").value.trim().slice(0,60)})});
+function renderMyName(){$("myNameRow").hidden=MODE==="business";if(document.activeElement!==$("myName"))$("myName").value=myName()}
+$("repDoc").addEventListener("click",()=>{const {title}=reportData();
+  const doc=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
+<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b;margin:0}h2{font-size:13pt;margin-top:14pt}table{border-collapse:collapse;width:100%;margin:6pt 0}th{background:#34495e;color:#fff}th,td{border:1px solid #999;padding:4pt 6pt;text-align:left}.n{text-align:right}</style></head><body>${buildReport()}</body></html>`;
+  saveFile(`HantiGo-${brandName()}-${title}.doc`.replace(/[^\w.@ -]+/g,"_"),"﻿"+doc,"application/msword")});
 if(NATIVE){$("repPdf").hidden=true;$("repNote").hidden=true;$("lvPdf").hidden=true}
 
 /* ---------- backup ---------- */
