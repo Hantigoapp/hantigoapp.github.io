@@ -68,6 +68,7 @@ form{display:grid;gap:10px}
 .seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:-2px}
 .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 .field{display:grid;gap:4px;min-width:0}
+.cat.grp summary{list-style:none;cursor:pointer}.cat.grp summary::-webkit-details-marker{display:none}.cat.grp .gn{font-size:.8em;opacity:.6}.cat.grp[open] .gn{opacity:.9}.cat-top.sub{padding:4px 0 4px 14px;font-size:.92em;opacity:.85;border-left:2px solid currentColor;margin-left:4px}
 .field span{font-size:.8rem;color:var(--muted);font-weight:500}
 input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 10px}
 .list{display:grid;gap:0;margin:0;padding:0;list-style:none}
@@ -440,6 +441,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
           <div class="chips" id="daily" aria-label="Kharashka maalinlaha"></div>
           <div class="row">
             <label class="field"><span>Qadarka</span><input id="amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" required></label>
+            <label class="field" id="grpRow" hidden><span>Mowduuca</span><select id="grp"></select></label>
             <label class="field"><span>Qaybta</span><select id="cat"></select></label>
             <label class="field"><span>Taariikhda</span><input id="date" type="date" required></label>
           </div>
@@ -676,7 +678,7 @@ const EN={
 "Habka lacag-bixinta":"Payment method","Kharashka maalinlaha":"Daily expenses","Qadarka":"Amount","Qaybta":"Category","Taariikhda":"Date",
 "Ku qor waxa liiska ka maqan":"Type what is missing from the list","Tusaale: Kirada mashiinka":"Example: Machine rent","+ Ku dar liiska":"+ Add to list",
 "Shirkadda ama meesha (ikhtiyaari)":"Company or place (optional)","Macmiil ama alaab-qeybiye (ikhtiyaari)":"Customer or supplier (optional)",
-"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Fasaxa iyo xanuunka shaqaalaha":"Staff leave and sick days","Jiim":"Gym","Shoobin":"Shopping","Magacaaga (wuxuu ka soo baxayaa warbixinta)":"Your name (shown on the report)","Tusaale: Amina Cali":"Example: Amina Ali","Magaca shirkadda":"Company name","Tusaale: Iskuulka Horseed":"Example: Horseed School","🏢 Shirkaddaada":"🏢 Your company","🖼️ Soo geli astaanta (logo)":"🖼️ Upload logo","Ka saar astaanta":"Remove logo","Magaca iyo astaanta ayaa ka soo baxaya warbixinnada PDF, Word iyo Excel.":"The name and logo appear on PDF, Word and Excel reports.","🏢 Ku dar astaanta shirkaddaada":"🏢 Add your company logo","Magaca iyo astaanta (logo) shirkadda ayaa ka muuqanaya warbixinnada aad soo dejiso.":"Your company name and logo will show on the reports you download.","Ku dar hadda":"Add now","Mar dambe":"Later","Kooban":"Summary","Bil kasta":"Per month","Shaqada":"Role","Lacagta soo gashay":"Income","Mushaarka shaqaalaha":"Staff salaries","Kharashka kale":"Other spending","Xanuun (maalmo)":"Sick (days)","Fasax (maalmo)":"Leave (days)","📊 Tirakoobka shirkadda":"📊 Company statistics","Muddada":"Period","3-dii bilood":"Last 3 months","12-kii bilood":"Last 12 months","Kharashka shirkadda bil kasta":"Company spending per month","Lacagta soo gashay iyo kharashka bil kasta":"Income and spending per month","Mushaharka":"Salaries","Kharash kale":"Other spending","Mushaarka shaqaalo kasta":"Salaries by role","Meesha lacagtu ku baxday":"Where the money went","Xanuunka iyo fasaxa bil kasta (maalmo)":"Sick and leave days per month","Xanuun":"Sick","Fasax":"Leave","Maalmaha xanuunka iyo fasaxa bil kasta":"Sick and leave days per month","Muddada warbixinta":"Report period","Toddobaadkan":"This week","Bishan":"This month","Sannadkan":"This year","🤒 Waan xanuunsanahay maanta":"🤒 I am sick today","Nooca fasaxa":"Leave type","🏖️ Fasax":"🏖️ Leave","🤒 Xanuun":"🤒 Sick","Fasax lacag la'aan":"Unpaid leave","Magaca shaqaalaha":"Staff member name","Laga bilaabo":"From","Ilaa":"To","1 maalin":"1 day","3 maalmood":"3 days","1 toddobaad":"1 week","1 bil":"1 month","Tusaale: safar qoys":"Example: family trip","+ Codso fasax":"+ Request leave","Tusaale: bilka Nofembar":"Example: November bill",
+"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Fasaxa iyo xanuunka shaqaalaha":"Staff leave and sick days","Jiim":"Gym","Shoobin":"Shopping","Mowduuca":"Topic","Cunto":"Food","Hilib":"Meat","Activity":"Activity","Dhar & shoobin":"Clothes & shopping","Guriga & biilal":"Home & bills","Caafimaad & waxbarasho":"Health & education","Qoys":"Family","Casiir":"Juice","Hilib ari":"Goat meat","Hilib lo'":"Beef","Hilib geel":"Camel meat","Kalluun":"Fish","Ciyaar & madadaalo":"Sports & fun","Safar & dalxiis":"Travel","Kharashka mowduuc kasta":"Spending by topic","Wadarta":"Total","Deyn":"Debt","Deyn qof la siiyay":"Money lent","Deyn la bixiyay":"Debt paid","Magacaaga (wuxuu ka soo baxayaa warbixinta)":"Your name (shown on the report)","Tusaale: Amina Cali":"Example: Amina Ali","Magaca shirkadda":"Company name","Tusaale: Iskuulka Horseed":"Example: Horseed School","🏢 Shirkaddaada":"🏢 Your company","🖼️ Soo geli astaanta (logo)":"🖼️ Upload logo","Ka saar astaanta":"Remove logo","Magaca iyo astaanta ayaa ka soo baxaya warbixinnada PDF, Word iyo Excel.":"The name and logo appear on PDF, Word and Excel reports.","🏢 Ku dar astaanta shirkaddaada":"🏢 Add your company logo","Magaca iyo astaanta (logo) shirkadda ayaa ka muuqanaya warbixinnada aad soo dejiso.":"Your company name and logo will show on the reports you download.","Ku dar hadda":"Add now","Mar dambe":"Later","Kooban":"Summary","Bil kasta":"Per month","Shaqada":"Role","Lacagta soo gashay":"Income","Mushaarka shaqaalaha":"Staff salaries","Kharashka kale":"Other spending","Xanuun (maalmo)":"Sick (days)","Fasax (maalmo)":"Leave (days)","📊 Tirakoobka shirkadda":"📊 Company statistics","Muddada":"Period","3-dii bilood":"Last 3 months","12-kii bilood":"Last 12 months","Kharashka shirkadda bil kasta":"Company spending per month","Lacagta soo gashay iyo kharashka bil kasta":"Income and spending per month","Mushaharka":"Salaries","Kharash kale":"Other spending","Mushaarka shaqaalo kasta":"Salaries by role","Meesha lacagtu ku baxday":"Where the money went","Xanuunka iyo fasaxa bil kasta (maalmo)":"Sick and leave days per month","Xanuun":"Sick","Fasax":"Leave","Maalmaha xanuunka iyo fasaxa bil kasta":"Sick and leave days per month","Muddada warbixinta":"Report period","Toddobaadkan":"This week","Bishan":"This month","Sannadkan":"This year","🤒 Waan xanuunsanahay maanta":"🤒 I am sick today","Nooca fasaxa":"Leave type","🏖️ Fasax":"🏖️ Leave","🤒 Xanuun":"🤒 Sick","Fasax lacag la'aan":"Unpaid leave","Magaca shaqaalaha":"Staff member name","Laga bilaabo":"From","Ilaa":"To","1 maalin":"1 day","3 maalmood":"3 days","1 toddobaad":"1 week","1 bil":"1 month","Tusaale: safar qoys":"Example: family trip","+ Codso fasax":"+ Request leave","Tusaale: bilka Nofembar":"Example: November bill",
 "Kaydi":"Save","Dhaqdhaqaaqa bishan":"This month's transactions","Kharashyada joogtada ah":"Recurring expenses",
 "Geli qadarka hal mar. Bil kasta riix “Bixi”.":"Enter the amount once. Each month tap “Pay”.",
 "Maalinta: xusuusin ayaad helaysaa 3 maalmood ka hor.":"Day: you get a reminder 3 days before.",
@@ -781,12 +783,29 @@ const P_DAILY=["Hilib","Bariis","Baasto","Caano","Cabitaan","Sonkor","Bur","Mala
   "Cusbo","Xawaash","Caano boodhe","Malab","Cunto diyaarsan","Saabuun","Dhuxul","Gaas yar","Gaadiid maalinle","Kaarka taleefanka"];
 const P_CATS={
   in:["Mushahar","Ganacsi","Xawaalad la helay","Hadiyad","Kale","Kayd"],
-  out:[...P_DAILY,"Cunto kale","Kiro guri","Koronto","Biyo","Gaas","Internet","Gaadiid","Taleefan","Caafimaad","Waxbarasho","Qoys (xawaalad)","Dhar","Shoobin","Jiim","Kayd","Kale"]
+  out:[...P_DAILY,"Cunto kale","Kiro guri","Koronto","Biyo","Gaas","Internet","Gaadiid","Taleefan","Caafimaad","Waxbarasho","Qoys (xawaalad)","Dhar","Shoobin","Jiim","Casiir","Hilib ari","Hilib lo'","Hilib geel","Kalluun","Ciyaar & madadaalo","Safar & dalxiis","Deyn bixin","Deyn qof la siiyay","Kayd","Kale"]
 };
+const P_GROUPS=[
+  ["Cunto","🍲",["Bariis","Baasto","Caano","Sonkor","Bur","Rooti","Canjeero","Ukun","Saliid","Subag","Khudaar","Basal","Yaanyo","Baradho","Toon","Miro","Muus","Timir","Digir","Galley","Cusbo","Xawaash","Caano boodhe","Malab","Cunto diyaarsan","Cunto kale"]],
+  ["Cabitaan","🥤",["Biyo-caafi","Cabitaan","Casiir","Caleen shaah","Qaxwo"]],
+  ["Hilib","🥩",["Hilib","Hilib ari","Hilib lo'","Hilib geel","Digaag","Malaay","Kalluun"]],
+  ["Activity","🏃",["Jiim","Ciyaar & madadaalo","Safar & dalxiis"]],
+  ["Dhar & shoobin","🛍️",["Shoobin","Dhar"]],
+  ["Guriga & biilal","🏠",["Kiro guri","Koronto","Biyo","Gaas","Gaas yar","Dhuxul","Saabuun","Internet","Taleefan","Kaarka taleefanka"]],
+  ["Gaadiid","🚗",["Gaadiid","Gaadiid maalinle"]],
+  ["Caafimaad & waxbarasho","❤️",["Caafimaad","Waxbarasho"]],
+  ["Qoys","👪",["Qoys (xawaalad)"]],
+  ["Deyn","💳",["Deyn bixin","Deyn qof la siiyay"]],
+  ["Kale","📦",["Kale"]]];
+const DEBT_CATS=["Deyn bixin","Deyn qof la siiyay"];
+const grpOf=c=>{const g=P_GROUPS.find(g=>g[2].includes(c));if(g)return g[0];const o=items.find(x=>x.kind==="cat"&&x.type==="out"&&x.name===c&&(x.mode||"person")==="person");return o&&P_GROUPS.some(g=>g[0]===o.grp)?o.grp:"Kale"};
+const grpLabel=g=>{const x=P_GROUPS.find(y=>y[0]===g);return (x?x[1]+" ":"")+T(g)};
+const useGroups=()=>MODE==="person"&&document.querySelector('input[name=type]:checked')?.value==="out";
+function setCat(name){if(useGroups()&&$("grp").value!==grpOf(name)){$("grp").value=grpOf(name);fillCats()}$("cat").value=name;markChip()}
 const B_DAILY=["Alaab (stock)","Rar & gaadiid","Shidaal","Shaqaale maalinle","Cunto shaqaale","Baakad & bac","Kaarka taleefanka","Nadaafad","Dayactir yar","Qalab yar"];
 const B_CATS={
   in:["Iib (sales)","Adeeg","Deyn la soo celiyay","Maalgelin","Kale","Kayd"],
-  out:[...B_DAILY,"Macallin","Maamulaha iskuulka","Maamulaha jaamacadda","Maamulaha dugsiga","Dhakhtar","Kalkaaliso","Xisaabiye","Waardiye","Xoghaye / karraani","Darawal","Nadiifiye","Kariye","Farsamayaqaan / IT","Iibiye","Shaqaale kale","Kiro guri","Kiro dukaan / xafiis","Koronto","Biyo-caafi","Biyo caadi","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin","Kiro gaari / gaadiid","Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Dawooyin & qalab caafimaad","Tababar shaqaale","Xayeysiis & suuqgeyn","Alaab ceyriin","Kastam & dekedda","Rarid & dhoofin","Bakhaar / kayd alaab","Dayactir gaari","Dayactir qalab & mashiin","Qalab elektaroonig (kombiyuutar, printer)","Software & barnaamij","Daabacaad & warqado","Lebis / dirays shaqaale","Gunno shaqaale (bonus)","Caafimaadka shaqaalaha","Safar shaqo","Martisoor & shir","Hadiyado macaamiil","Khidmadda bangiga & EVC","Qareen & sharci","Xisaab-hubin (audit)","Diiwaangelin & ruqsad","Lacag-celin macmiil","Khasaare / alaab lumay","Sadaqo & zakaad","Qalab & dhismo cusub","Kale","Kayd"]
+  out:[...B_DAILY,"Macallin","Maamulaha iskuulka","Maamulaha jaamacadda","Maamulaha dugsiga","Dhakhtar","Kalkaaliso","Xisaabiye","Waardiye","Xoghaye / karraani","Darawal","Nadiifiye","Kariye","Farsamayaqaan / IT","Iibiye","Shaqaale kale","Kiro guri","Kiro dukaan / xafiis","Koronto","Biyo-caafi","Biyo caadi","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin","Deyn qof la siiyay","Kiro gaari / gaadiid","Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Dawooyin & qalab caafimaad","Tababar shaqaale","Xayeysiis & suuqgeyn","Alaab ceyriin","Kastam & dekedda","Rarid & dhoofin","Bakhaar / kayd alaab","Dayactir gaari","Dayactir qalab & mashiin","Qalab elektaroonig (kombiyuutar, printer)","Software & barnaamij","Daabacaad & warqado","Lebis / dirays shaqaale","Gunno shaqaale (bonus)","Caafimaadka shaqaalaha","Safar shaqo","Martisoor & shir","Hadiyado macaamiil","Khidmadda bangiga & EVC","Qareen & sharci","Xisaab-hubin (audit)","Diiwaangelin & ruqsad","Lacag-celin macmiil","Khasaare / alaab lumay","Sadaqo & zakaad","Qalab & dhismo cusub","Kale","Kayd"]
 };
 const B_STAFF=["Macallin","Maamulaha iskuulka","Maamulaha jaamacadda","Maamulaha dugsiga","Dhakhtar","Kalkaaliso","Xisaabiye","Waardiye","Xoghaye / karraani","Darawal","Nadiifiye","Kariye","Farsamayaqaan / IT","Iibiye","Shaqaale kale"];
 let MODE="person",DAILY=P_DAILY,CATS=P_CATS;
@@ -1047,7 +1066,15 @@ function inMonth(t){const d=new Date(t.date+"T00:00");return d.getFullYear()===v
 function fillCats(){const type=document.querySelector('input[name=type]:checked').value;const sel=$("cat");const cur=sel.value;
   const opts=a=>a.filter(c=>c!=="Kayd").map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   const own=ownCats(type).map(c=>c.name);
-  sel.innerHTML=(type==="out"?`<optgroup label="Maalinle">${opts(DAILY)}</optgroup>${MODE==="business"?`<optgroup label="Mushaharka shaqaalaha">${opts(B_STAFF)}</optgroup>`:""}<optgroup label="Kale">${opts(CATS.out.filter(c=>!DAILY.includes(c)&&!(MODE==="business"&&B_STAFF.includes(c))))}</optgroup>`:opts(CATS.in))
+  $("grpRow").hidden=!useGroups();
+  if(useGroups()){const gs=$("grp"),g0=gs.value||grpOf(cur&&cur!=="__new"?cur:"Bariis");
+    gs.innerHTML=P_GROUPS.map(([g])=>`<option value="${esc(g)}">${esc(grpLabel(g))}</option>`).join("");gs.value=P_GROUPS.some(x=>x[0]===g0)?g0:"Cunto";
+    const G=P_GROUPS.find(x=>x[0]===gs.value),mineG=own.filter(c=>grpOf(c)===G[0]);
+    sel.innerHTML=opts(G[2])+(mineG.length?`<optgroup label="Kuwa aad adigu ku dartay">${opts(mineG)}</optgroup>`:"")+`<option value="__new">➕ Ku dar mid liiska ka maqan…</option>`;
+    if(G[2].includes(cur)||mineG.includes(cur))sel.value=cur;
+    $("ownCats").innerHTML=ownCats(type).map(c=>`<button type="button" class="chip own" data-delcat="${c.id}" aria-label="${L("Ka saar ","Remove ")}${esc(c.name)}">${c.name} ✕</button>`).join("");
+    if(sel.value!=="__new")$("newCatRow").hidden=true;$("daily").hidden=false;markChip();return}
+  sel.innerHTML=(type==="out"?`<optgroup label="Maalinle">${opts(DAILY)}</optgroup>${MODE==="business"?`<optgroup label="Mushaharka shaqaalaha">${opts(B_STAFF)}</optgroup><optgroup label="💳 Deyn">${opts(DEBT_CATS)}</optgroup>`:""}<optgroup label="Kale">${opts(CATS.out.filter(c=>!DAILY.includes(c)&&!(MODE==="business"&&(B_STAFF.includes(c)||DEBT_CATS.includes(c)))))}</optgroup>`:opts(CATS.in))
     +(own.length?`<optgroup label="Kuwa aad adigu ku dartay">${opts(own)}</optgroup>`:"")+`<option value="__new">➕ Ku dar mid liiska ka maqan…</option>`;
   if(CATS[type].includes(cur)||own.includes(cur))sel.value=cur;
   $("ownCats").innerHTML=ownCats(type).map(c=>`<button type="button" class="chip own" data-delcat="${c.id}" aria-label="${L("Ka saar ","Remove ")}${esc(c.name)}">${c.name} ✕</button>`).join("");
@@ -1105,7 +1132,10 @@ function render(){
   if(rows.length){const hi=rows[0],lo=rows[rows.length-1];
     ex.innerHTML=`<div class="ext hi"><span class="lbl">Ugu badan</span><b>${esc(hi[0])}</b><span>${money(hi[1])}</span></div>`+
       (rows.length>1?`<div class="ext lo"><span class="lbl">Ugu yar</span><b>${esc(lo[0])}</b><span>${money(lo[1])}</span></div>`:"")}
-  $("cats").innerHTML=rows.length?rows.map(([c,v])=>`<div class="cat"><div class="cat-top"><span>${esc(c)}</span><span>${money(v)} · ${Math.round(v/spent*100)}%</span></div><div class="bar"><i style="width:${v/spent*100}%"></i></div></div>`).join("")
+  if(MODE==="person"&&rows.length){const gt={};rows.forEach(([c,v])=>{const g=grpOf(c);(gt[g]=gt[g]||{v:0,l:[]}).v+=v;gt[g].l.push([c,v])});
+    $("cats").innerHTML=Object.entries(gt).sort((a,b)=>b[1].v-a[1].v).map(([g,o])=>`<details class="cat grp"><summary><div class="cat-top"><span><b>${esc(grpLabel(g))}</b> <span class="gn">▾ ${o.l.length}</span></span><span>${money(o.v)} · ${Math.round(o.v/spent*100)}%</span></div><div class="bar"><i style="width:${o.v/spent*100}%"></i></div></summary>`
+      +o.l.map(([c,v])=>`<div class="cat-top sub"><span>${esc(T(c))}</span><span>${money(v)} · ${Math.round(v/spent*100)}%</span></div>`).join("")+`</details>`).join("")}
+  else $("cats").innerHTML=rows.length?rows.map(([c,v])=>`<div class="cat"><div class="cat-top"><span>${esc(c)}</span><span>${money(v)} · ${Math.round(v/spent*100)}%</span></div><div class="bar"><i style="width:${v/spent*100}%"></i></div></div>`).join("")
     :`<p class="empty" style="margin:0">Bishan weli kharash lama qorin.</p>`;
 
   renderBills(txs);
@@ -1186,11 +1216,12 @@ $("cat").addEventListener("change",()=>{const n=$("cat").value==="__new";$("newC
 async function addCat(){const name=$("newCat").value.trim();if(!name){$("newCat").focus();return}
   const type=document.querySelector('input[name=type]:checked').value;
   if(!CATS[type].includes(name)&&!ownCats(type).some(c=>c.name.toLowerCase()===name.toLowerCase())){
-    try{await put({id:uid(),kind:"cat",type,name,created:new Date().toISOString()})}catch{}}
+    try{await put({id:uid(),kind:"cat",type,name,...(useGroups()?{grp:$("grp").value}:{}),created:new Date().toISOString()})}catch{}}
   $("newCat").value="";renderDaily();fillCats();
   const hit=[...$("cat").options].find(o=>o.value.toLowerCase()===name.toLowerCase());if(hit)$("cat").value=hit.value;
   $("newCatRow").hidden=true;markChip();$("amount").focus()}
 $("newCatBtn").addEventListener("click",addCat);
+$("grp").addEventListener("change",()=>{$("cat").value="";fillCats();$("newCatRow").hidden=$("cat").value!=="__new"});
 $("newCat").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addCat()}});
 $("ownCats").addEventListener("click",async e=>{const b=e.target.closest("[data-delcat]");if(!b)return;
   try{await remove(b.dataset.delcat)}catch{}renderDaily();fillCats();$("newCatRow").hidden=false});
@@ -1198,7 +1229,7 @@ let editing=null;
 function stopEdit(){editing=null;$("txSave").textContent=L("Kaydi","Save");$("txCancel").hidden=true}
 $("txCancel").addEventListener("click",()=>{stopEdit();$("amount").value="";$("note").value="";$("place").value=""});
 function startEdit(t){editing=t.id;
-  document.querySelector(`input[name=type][value="${t.type}"]`).checked=true;fillCats();
+  document.querySelector(`input[name=type][value="${t.type}"]`).checked=true;fillCats();if(useGroups()){$("grp").value=grpOf(t.cat);fillCats()}
   const m=document.querySelector(`input[name=method][value="${t.method||"Kaash"}"]`);if(m)m.checked=true;
   const sel=$("cat");if(![...sel.options].some(o=>o.value===t.cat)){const o=document.createElement("option");o.value=o.textContent=t.cat;sel.insertBefore(o,sel.firstChild)}
   sel.value=t.cat;if(typeof markChip==="function")markChip();
@@ -1238,7 +1269,7 @@ document.addEventListener("click",async e=>{
   if(del){if(!del.classList.contains("arm")){del.classList.add("arm");del.textContent="Hubi?";setTimeout(()=>{del.classList.remove("arm");del.textContent="Tirtir"},3000);return}
     try{await remove(del.dataset.del)}catch{}return}
   const chip=e.target.closest("[data-chip]");
-  if(chip&&chip.dataset.chip){$("cat").value=chip.dataset.chip;markChip();$("amount").focus();return}
+  if(chip&&chip.dataset.chip){setCat(chip.dataset.chip);$("amount").focus();return}
   const pay=e.target.closest("[data-pay]");
   if(pay){const b=items.find(i=>i.id===pay.dataset.pay);if(!(b.amount>0)){document.querySelector(`[data-bamt="${b.id}"]`)?.focus();return}
     try{await payBill(b)}catch{}return}
@@ -1608,6 +1639,7 @@ let xlLib=null;
 function loadExcel(){return xlLib||(xlLib=new Promise((res,rej)=>{if(window.ExcelJS)return res(window.ExcelJS);const sc=document.createElement("script");sc.src="vendor/exceljs.min.js";sc.onload=()=>res(window.ExcelJS);sc.onerror=()=>{xlLib=null;rej()};document.head.appendChild(sc)}))}
 function xlColor(h){h=String(h).toLowerCase();
   if(/faa'iido|profit|farqiga|difference/.test(h))return"FF2F6FC4";
+  if(/deyn|debt/.test(h))return"FF7B4FB0";
   if(/xanuun|sick/.test(h))return"FFE8664F";
   if(/fasax|leave/.test(h))return"FF5A8FE0";
   if(/mushaar|salar/.test(h))return"FFD9443C";
@@ -1647,20 +1679,25 @@ async function exportSheet(title,sections,base){base=base.replace(/[^\w.@ -]+/g,
 const csvCell=v=>{v=String(v??"");return /[",;\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
 $("repCsv").addEventListener("click",()=>{const {txs,title}=reportData();
   const head=[L("Taariikhda","Date"),L("Nooca","Type"),L("Qaybta","Category"),L("Qadarka","Amount"),L("Lacagta","Currency"),L("Habka","Method"),L("Meesha","Place"),L("Faahfaahin","Details"),L("Qoray","Entered by")];
-  const rows=txs.map(t=>[t.date,typeLabel(t.type),T(t.cat),(t.type==="in"?1:-1)*Number(t.amount),currency(),T(t.method||"Kaash"),t.place||"",t.note||"",t.by||""]);
+  if(MODE==="person")head.splice(2,0,L("Mowduuca","Topic"));
+  const rows=txs.map(t=>[t.date,typeLabel(t.type),...(MODE==="person"?[t.type==="out"?grpLabel(grpOf(t.cat)):""]:[]),T(t.cat),(t.type==="in"?1:-1)*Number(t.amount),currency(),T(t.method||"Kaash"),t.place||"",t.note||"",t.by||""]);
   const si=txs.filter(t=>t.type==="in").reduce((a,t)=>a+Number(t.amount),0),so=txs.filter(t=>t.type==="out").reduce((a,t)=>a+Number(t.amount),0);
   exportSheet(L("Warbixin","Report")+": "+title+" · "+modeLabel(),[
-    {title:L("Kooban","Summary"),colorFirst:1,head:[L("Soo galay","Income"),L("Ka baxay","Expenses"),L("Farqiga","Difference")],rows:[[si,-so,si-so]]},
+    {title:L("Kooban","Summary"),colorFirst:1,head:[L("Soo galay","Income"),L("Ka baxay","Expenses"),L("Deyn la bixiyay","Debt paid"),L("Farqiga","Difference")],rows:[[si,-so,-txs.filter(t=>t.type==="out"&&DEBT_CATS.includes(t.cat)).reduce((a,t)=>a+Number(t.amount),0),si-so]]},
+    ...(MODE==="person"?[{title:L("Kharashka mowduuc kasta","Spending by topic"),head:[L("Mowduuca","Topic"),L("Qaybta","Category"),L("Qadarka","Amount")],rows:(()=>{const gt={};txs.filter(t=>t.type==="out"&&t.cat!=="Kayd").forEach(t=>{const g=grpOf(t.cat);(gt[g]=gt[g]||{v:0,c:{}}).v+=Number(t.amount);gt[g].c[t.cat]=(gt[g].c[t.cat]||0)+Number(t.amount)});
+      return Object.entries(gt).sort((a,b)=>b[1].v-a[1].v).flatMap(([g,o])=>[[grpLabel(g),L("Wadarta","Total"),o.v],...Object.entries(o.c).sort((a,b)=>b[1]-a[1]).map(([c,v])=>["",T(c),v])])})()}]:[]),
     {title:L("Dhaqdhaqaaqa","Transactions"),head,rows}],`HantiGo-${brandName()}-${title}`)});
 function buildReport(){const {txs,title}=reportData();
   const sum=t=>txs.filter(x=>x.type===t).reduce((a,x)=>a+Number(x.amount),0);
   const by={};txs.filter(t=>t.type==="out"&&t.cat!=="Kayd").forEach(t=>by[t.cat]=(by[t.cat]||0)+Number(t.amount));
   const cats=Object.entries(by).sort((a,b)=>b[1]-a[1]);
+  const gt={};if(MODE==="person")cats.forEach(([c,v])=>{const g=grpOf(c);(gt[g]=gt[g]||{v:0,l:[]}).v+=v;gt[g].l.push([c,v])});
+  const catTable=MODE==="person"&&cats.length?`<table><tr><th>${L("Mowduuca","Topic")}</th><th>${L("Qaybta","Category")}</th><th>${L("Qadarka","Amount")}</th></tr>${Object.entries(gt).sort((a,b)=>b[1].v-a[1].v).map(([g,o])=>`<tr><td><b>${esc(grpLabel(g))}</b></td><td></td><td class="n"><b>${money(o.v)}</b></td></tr>`+o.l.map(([c,v])=>`<tr><td></td><td>${esc(T(c))}</td><td class="n">${money(v)}</td></tr>`).join("")).join("")}</table>`:null;
   return `${coHead()}<p>${L("Warbixin","Report")}: <b>${esc(title)}</b> · ${esc(modeLabel())} · ${esc(me?.email||"")}</p>
-  <table><tr><th>${L("Soo galay","Income")}</th><th>${L("Ka baxay","Expenses")}</th><th>${L("Farqiga","Difference")}</th></tr>
-  <tr><td class="n">${money(sum("in"))}</td><td class="n">${money(sum("out"))}</td><td class="n">${money(sum("in")-sum("out"))}</td></tr></table>
+  <table><tr><th>${L("Soo galay","Income")}</th><th>${L("Ka baxay","Expenses")}</th><th>${L("Deyn la bixiyay","Debt paid")}</th><th>${L("Farqiga","Difference")}</th></tr>
+  <tr><td class="n">${money(sum("in"))}</td><td class="n">${money(sum("out"))}</td><td class="n">${money(txs.filter(t=>t.type==="out"&&DEBT_CATS.includes(t.cat)).reduce((a,t)=>a+Number(t.amount),0))}</td><td class="n">${money(sum("in")-sum("out"))}</td></tr></table>
   <h2>${L("Kharashka qayb kasta","Spending by category")}</h2>
-  <table><tr><th>${L("Qaybta","Category")}</th><th>${L("Qadarka","Amount")}</th></tr>${cats.map(([c,v])=>`<tr><td>${esc(T(c))}</td><td class="n">${money(v)}</td></tr>`).join("")||`<tr><td colspan="2">—</td></tr>`}</table>
+  ${catTable||`<table><tr><th>${L("Qaybta","Category")}</th><th>${L("Qadarka","Amount")}</th></tr>${cats.map(([c,v])=>`<tr><td>${esc(T(c))}</td><td class="n">${money(v)}</td></tr>`).join("")||`<tr><td colspan="2">—</td></tr>`}</table>`}
   <h2>${L("Dhaqdhaqaaqa","Transactions")} (${txs.length})</h2>
   <table><tr><th>${L("Taariikhda","Date")}</th><th>${L("Nooca","Type")}</th><th>${L("Qaybta","Category")}</th><th>${L("Habka","Method")}</th><th>${L("Meesha / faahfaahin","Place / details")}</th><th>${L("Qadarka","Amount")}</th></tr>
   ${txs.map(t=>`<tr><td>${esc(t.date)}</td><td>${typeLabel(t.type)}</td><td>${esc(T(t.cat))}</td><td>${esc(T(t.method||"Kaash"))}</td><td>${esc([t.place,t.note].filter(Boolean).join(" · "))}</td><td class="n">${t.type==="in"?"+":"−"}${money(t.amount)}</td></tr>`).join("")}</table>
