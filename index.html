@@ -68,6 +68,7 @@ form{display:grid;gap:10px}
 .seg input:focus-visible+label{outline:2px solid var(--accent);outline-offset:-2px}
 .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 .field{display:grid;gap:4px;min-width:0}
+#multiRow{display:grid;gap:8px;margin:4px 0 8px}#multiBtn{justify-self:start}#multiBtn.on{border-color:var(--accent,#20a070)}.mrow{display:grid;grid-template-columns:1fr 130px;align-items:center;gap:10px;padding:4px 0;border-bottom:1px solid rgba(127,127,127,.15)}.mtot{font-weight:700;text-align:right;padding-top:4px}
 .cat.grp summary{list-style:none;cursor:pointer}.cat.grp summary::-webkit-details-marker{display:none}.cat.grp .gn{font-size:.8em;opacity:.6}.cat.grp[open] .gn{opacity:.9}.cat-top.sub{padding:4px 0 4px 14px;font-size:.92em;opacity:.85;border-left:2px solid currentColor;margin-left:4px}
 .field span{font-size:.8rem;color:var(--muted);font-weight:500}
 input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 10px}
@@ -452,6 +453,8 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
             </div>
             <div class="chips" id="ownCats"></div>
           </div>
+          <div id="multiRow" hidden><button type="button" class="chip" id="multiBtn" aria-expanded="false">☑ Dooro dhowr isla mar (qiimo kasta gooni)</button>
+            <div id="multiList" hidden></div></div>
           <div class="row">
             <label class="field"><span id="placeLbl">Shirkadda ama meesha (ikhtiyaari)</span><input id="place" type="text" maxlength="40" list="placeList" placeholder="Tusaale: Hormuud, suuqa Bakaaraha"></label>
             <label class="field"><span>Faahfaahin (ikhtiyaari)</span><input id="note" type="text" maxlength="80" placeholder="Tusaale: bilka Nofembar"></label>
@@ -678,7 +681,7 @@ const EN={
 "Habka lacag-bixinta":"Payment method","Kharashka maalinlaha":"Daily expenses","Qadarka":"Amount","Qaybta":"Category","Taariikhda":"Date",
 "Ku qor waxa liiska ka maqan":"Type what is missing from the list","Tusaale: Kirada mashiinka":"Example: Machine rent","+ Ku dar liiska":"+ Add to list",
 "Shirkadda ama meesha (ikhtiyaari)":"Company or place (optional)","Macmiil ama alaab-qeybiye (ikhtiyaari)":"Customer or supplier (optional)",
-"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Fasaxa iyo xanuunka shaqaalaha":"Staff leave and sick days","Jiim":"Gym","Shoobin":"Shopping","Mowduuca":"Topic","Cunto":"Food","Hilib":"Meat","Activity":"Activity","Dhar & shoobin":"Clothes & shopping","Guriga & biilal":"Home & bills","Caafimaad & waxbarasho":"Health & education","Qoys":"Family","Casiir":"Juice","Hilib ari":"Goat meat","Hilib lo'":"Beef","Hilib geel":"Camel meat","Kalluun":"Fish","Ciyaar & madadaalo":"Sports & fun","Safar & dalxiis":"Travel","Kharashka mowduuc kasta":"Spending by topic","Wadarta":"Total","Gaari-raac":"Ride / taxi","Deyn":"Debt","Deyn qof la siiyay":"Money lent","Deyn la bixiyay":"Debt paid","Magacaaga (wuxuu ka soo baxayaa warbixinta)":"Your name (shown on the report)","Tusaale: Amina Cali":"Example: Amina Ali","Magaca shirkadda":"Company name","Tusaale: Iskuulka Horseed":"Example: Horseed School","🏢 Shirkaddaada":"🏢 Your company","🖼️ Soo geli astaanta (logo)":"🖼️ Upload logo","Ka saar astaanta":"Remove logo","Magaca iyo astaanta ayaa ka soo baxaya warbixinnada PDF, Word iyo Excel.":"The name and logo appear on PDF, Word and Excel reports.","🏢 Ku dar astaanta shirkaddaada":"🏢 Add your company logo","Magaca iyo astaanta (logo) shirkadda ayaa ka muuqanaya warbixinnada aad soo dejiso.":"Your company name and logo will show on the reports you download.","Ku dar hadda":"Add now","Mar dambe":"Later","Kooban":"Summary","Bil kasta":"Per month","Shaqada":"Role","Lacagta soo gashay":"Income","Mushaarka shaqaalaha":"Staff salaries","Kharashka kale":"Other spending","Xanuun (maalmo)":"Sick (days)","Fasax (maalmo)":"Leave (days)","📊 Tirakoobka shirkadda":"📊 Company statistics","Muddada":"Period","3-dii bilood":"Last 3 months","12-kii bilood":"Last 12 months","Kharashka shirkadda bil kasta":"Company spending per month","Lacagta soo gashay iyo kharashka bil kasta":"Income and spending per month","Mushaharka":"Salaries","Kharash kale":"Other spending","Mushaarka shaqaalo kasta":"Salaries by role","Meesha lacagtu ku baxday":"Where the money went","Xanuunka iyo fasaxa bil kasta (maalmo)":"Sick and leave days per month","Xanuun":"Sick","Fasax":"Leave","Maalmaha xanuunka iyo fasaxa bil kasta":"Sick and leave days per month","Muddada warbixinta":"Report period","Toddobaadkan":"This week","Bishan":"This month","Sannadkan":"This year","🤒 Waan xanuunsanahay maanta":"🤒 I am sick today","Nooca fasaxa":"Leave type","🏖️ Fasax":"🏖️ Leave","🤒 Xanuun":"🤒 Sick","Fasax lacag la'aan":"Unpaid leave","Magaca shaqaalaha":"Staff member name","Laga bilaabo":"From","Ilaa":"To","1 maalin":"1 day","3 maalmood":"3 days","1 toddobaad":"1 week","1 bil":"1 month","Tusaale: safar qoys":"Example: family trip","+ Codso fasax":"+ Request leave","Tusaale: bilka Nofembar":"Example: November bill",
+"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Fasaxa iyo xanuunka shaqaalaha":"Staff leave and sick days","Jiim":"Gym","Shoobin":"Shopping","Mowduuca":"Topic","Cunto":"Food","Hilib":"Meat","Activity":"Activity","Dhar & shoobin":"Clothes & shopping","Guriga & biilal":"Home & bills","Caafimaad & waxbarasho":"Health & education","Qoys":"Family","Casiir":"Juice","Hilib ari":"Goat meat","Hilib lo'":"Beef","Hilib geel":"Camel meat","Kalluun":"Fish","Ciyaar & madadaalo":"Sports & fun","Safar & dalxiis":"Travel","Kharashka mowduuc kasta":"Spending by topic","Wadarta":"Total","☑ Dooro dhowr isla mar (qiimo kasta gooni)":"☑ Pick several at once (each with its own price)","Gaari-raac":"Ride / taxi","Deyn":"Debt","Deyn qof la siiyay":"Money lent","Deyn la bixiyay":"Debt paid","Magacaaga (wuxuu ka soo baxayaa warbixinta)":"Your name (shown on the report)","Tusaale: Amina Cali":"Example: Amina Ali","Magaca shirkadda":"Company name","Tusaale: Iskuulka Horseed":"Example: Horseed School","🏢 Shirkaddaada":"🏢 Your company","🖼️ Soo geli astaanta (logo)":"🖼️ Upload logo","Ka saar astaanta":"Remove logo","Magaca iyo astaanta ayaa ka soo baxaya warbixinnada PDF, Word iyo Excel.":"The name and logo appear on PDF, Word and Excel reports.","🏢 Ku dar astaanta shirkaddaada":"🏢 Add your company logo","Magaca iyo astaanta (logo) shirkadda ayaa ka muuqanaya warbixinnada aad soo dejiso.":"Your company name and logo will show on the reports you download.","Ku dar hadda":"Add now","Mar dambe":"Later","Kooban":"Summary","Bil kasta":"Per month","Shaqada":"Role","Lacagta soo gashay":"Income","Mushaarka shaqaalaha":"Staff salaries","Kharashka kale":"Other spending","Xanuun (maalmo)":"Sick (days)","Fasax (maalmo)":"Leave (days)","📊 Tirakoobka shirkadda":"📊 Company statistics","Muddada":"Period","3-dii bilood":"Last 3 months","12-kii bilood":"Last 12 months","Kharashka shirkadda bil kasta":"Company spending per month","Lacagta soo gashay iyo kharashka bil kasta":"Income and spending per month","Mushaharka":"Salaries","Kharash kale":"Other spending","Mushaarka shaqaalo kasta":"Salaries by role","Meesha lacagtu ku baxday":"Where the money went","Xanuunka iyo fasaxa bil kasta (maalmo)":"Sick and leave days per month","Xanuun":"Sick","Fasax":"Leave","Maalmaha xanuunka iyo fasaxa bil kasta":"Sick and leave days per month","Muddada warbixinta":"Report period","Toddobaadkan":"This week","Bishan":"This month","Sannadkan":"This year","🤒 Waan xanuunsanahay maanta":"🤒 I am sick today","Nooca fasaxa":"Leave type","🏖️ Fasax":"🏖️ Leave","🤒 Xanuun":"🤒 Sick","Fasax lacag la'aan":"Unpaid leave","Magaca shaqaalaha":"Staff member name","Laga bilaabo":"From","Ilaa":"To","1 maalin":"1 day","3 maalmood":"3 days","1 toddobaad":"1 week","1 bil":"1 month","Tusaale: safar qoys":"Example: family trip","+ Codso fasax":"+ Request leave","Tusaale: bilka Nofembar":"Example: November bill",
 "Kaydi":"Save","Dhaqdhaqaaqa bishan":"This month's transactions","Kharashyada joogtada ah":"Recurring expenses",
 "Geli qadarka hal mar. Bil kasta riix “Bixi”.":"Enter the amount once. Each month tap “Pay”.",
 "Maalinta: xusuusin ayaad helaysaa 3 maalmood ka hor.":"Day: you get a reminder 3 days before.",
@@ -802,7 +805,8 @@ const BILL_GRP={"Taleefan bille":"Guriga & biilal","Qashin qaad":"Guriga & biila
 const grpOf=c=>{if(BILL_GRP[c])return BILL_GRP[c];const g=P_GROUPS.find(g=>g[2].includes(c));if(g)return g[0];const o=items.find(x=>x.kind==="cat"&&x.type==="out"&&x.name===c&&(x.mode||"person")==="person");return o&&P_GROUPS.some(g=>g[0]===o.grp)?o.grp:"Kale"};
 const grpLabel=g=>{const x=P_GROUPS.find(y=>y[0]===g);return (x?x[1]+" ":"")+T(g)};
 const useGroups=()=>MODE==="person"&&document.querySelector('input[name=type]:checked')?.value==="out";
-function setCat(name){if(useGroups()&&$("grp").value!==grpOf(name)){$("grp").value=grpOf(name);fillCats()}$("cat").value=name;markChip()}
+function setCat(name){if(useGroups()&&$("grp").value!==grpOf(name)){$("grp").value=grpOf(name);fillCats()}$("cat").value=name;markChip();
+  if(MULTI_ON&&useGroups()&&!editing){const i=[...document.querySelectorAll("[data-mamt]")].find(x=>x.dataset.mamt===name);if(i){i.focus();return true}}}
 const B_DAILY=["Alaab (stock)","Rar & gaadiid","Shidaal","Shaqaale maalinle","Cunto shaqaale","Baakad & bac","Kaarka taleefanka","Nadaafad","Dayactir yar","Qalab yar"];
 const B_CATS={
   in:["Iib (sales)","Adeeg","Deyn la soo celiyay","Maalgelin","Kale","Kayd"],
@@ -1074,12 +1078,22 @@ function fillCats(){const type=document.querySelector('input[name=type]:checked'
     sel.innerHTML=opts(G[2])+(mineG.length?`<optgroup label="Kuwa aad adigu ku dartay">${opts(mineG)}</optgroup>`:"")+`<option value="__new">➕ Ku dar mid liiska ka maqan…</option>`;
     if(G[2].includes(cur)||mineG.includes(cur))sel.value=cur;
     $("ownCats").innerHTML=ownCats(type).map(c=>`<button type="button" class="chip own" data-delcat="${c.id}" aria-label="${L("Ka saar ","Remove ")}${esc(c.name)}">${c.name} ✕</button>`).join("");
-    if(sel.value!=="__new")$("newCatRow").hidden=true;$("daily").hidden=false;markChip();return}
+    if(sel.value!=="__new")$("newCatRow").hidden=true;$("daily").hidden=false;markChip();renderMulti(G[2].filter(c=>c!=="Kayd").concat(mineG));return}
+  renderMulti([]);
   sel.innerHTML=(type==="out"?`<optgroup label="Maalinle">${opts(DAILY)}</optgroup>${MODE==="business"?`<optgroup label="Mushaharka shaqaalaha">${opts(B_STAFF)}</optgroup><optgroup label="💳 Deyn">${opts(DEBT_CATS)}</optgroup>`:""}<optgroup label="Kale">${opts(CATS.out.filter(c=>!DAILY.includes(c)&&!(MODE==="business"&&(B_STAFF.includes(c)||DEBT_CATS.includes(c)))))}</optgroup>`:opts(CATS.in))
     +(own.length?`<optgroup label="Kuwa aad adigu ku dartay">${opts(own)}</optgroup>`:"")+`<option value="__new">➕ Ku dar mid liiska ka maqan…</option>`;
   if(CATS[type].includes(cur)||own.includes(cur))sel.value=cur;
   $("ownCats").innerHTML=ownCats(type).map(c=>`<button type="button" class="chip own" data-delcat="${c.id}" aria-label="${L("Ka saar ","Remove ")}${esc(c.name)}">${c.name} ✕</button>`).join("");
   if(sel.value!=="__new")$("newCatRow").hidden=true;$("daily").hidden=type!=="out";markChip()}
+let MULTI_ON=true,MULTI_V={};
+function renderMulti(list){const on=MULTI_ON&&useGroups()&&!editing;$("multiRow").hidden=!useGroups()||!!editing;
+  $("multiBtn").textContent=on?L("↩ Hal shay keliya","↩ Just one item"):L("☑ Dooro dhowr isla mar (qiimo kasta gooni)","☑ Pick several at once (each with its own price)");$("multiBtn").setAttribute("aria-expanded",on);$("multiList").hidden=!on;
+  ["amount","cat"].forEach(id=>$(id).closest(".field").style.display=on?"none":"");
+  if(!on)return;
+  $("multiList").innerHTML=`<p class="note" style="margin:6px 0">${L("Ku qor qiimaha shay kasta oo aad iibsatay, kadib riix Kaydi hal mar.","Enter the price of each item you bought, then tap Save once.")}</p>`+list.map(c=>`<label class="mrow"><span>${esc(T(c))}</span><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" data-mamt="${esc(c)}" value="${MULTI_V[c]||""}"></label>`).join("")+`<div class="mtot" id="mTot"></div><button type="button" class="chip" id="multiNew">➕ ${L("Ku dar mid liiska ka maqan","Add one that's missing")}</button>`;
+  $("multiNew").onclick=()=>{$("newCatRow").hidden=false;$("newCat").focus()};
+  mTot()}
+function mTot(){const t=Object.values(MULTI_V).reduce((a,v)=>a+(parseFloat(v)||0),0),n=Object.values(MULTI_V).filter(v=>parseFloat(v)>0).length;if($("mTot"))$("mTot").textContent=n?L(`Wadarta: ${money(t)} · ${n} shay`,`Total: ${money(t)} · ${n} items`):""}
 let showAll=false;
 function renderDaily(){$("daily").innerHTML=`<span class="note">Maalinle:</span>`+DAILY.map((c,i)=>`<button type="button" class="chip" data-chip="${c}"${i>=12&&!showAll?" hidden":""}>${c}</button>`).join("")
   +ownCats("out").map(c=>`<button type="button" class="chip own" data-chip="${c.name}">${c.name}</button>`).join("")
@@ -1222,12 +1236,14 @@ async function addCat(){const name=$("newCat").value.trim();if(!name){$("newCat"
   const hit=[...$("cat").options].find(o=>o.value.toLowerCase()===name.toLowerCase());if(hit)$("cat").value=hit.value;
   $("newCatRow").hidden=true;markChip();$("amount").focus()}
 $("newCatBtn").addEventListener("click",addCat);
+$("multiBtn").addEventListener("click",()=>{MULTI_ON=!MULTI_ON;fillCats();if(MULTI_ON)document.querySelector("[data-mamt]")?.focus()});
+$("multiList").addEventListener("input",e=>{const k=e.target.dataset.mamt;if(k!=null){MULTI_V[k]=e.target.value;mTot()}});
 $("grp").addEventListener("change",()=>{$("cat").value="";fillCats();$("newCatRow").hidden=$("cat").value!=="__new"});
 $("newCat").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();addCat()}});
 $("ownCats").addEventListener("click",async e=>{const b=e.target.closest("[data-delcat]");if(!b)return;
   try{await remove(b.dataset.delcat)}catch{}renderDaily();fillCats();$("newCatRow").hidden=false});
 let editing=null;
-function stopEdit(){editing=null;$("txSave").textContent=L("Kaydi","Save");$("txCancel").hidden=true}
+function stopEdit(){editing=null;$("txSave").textContent=L("Kaydi","Save");$("txCancel").hidden=true;fillCats()}
 $("txCancel").addEventListener("click",()=>{stopEdit();$("amount").value="";$("note").value="";$("place").value=""});
 function startEdit(t){editing=t.id;
   document.querySelector(`input[name=type][value="${t.type}"]`).checked=true;fillCats();if(useGroups()){$("grp").value=grpOf(t.cat);fillCats()}
@@ -1238,6 +1254,15 @@ function startEdit(t){editing=t.id;
   $("txSave").textContent=L("Kaydi beddelka","Save changes");$("txCancel").hidden=false;$("txErr").textContent="";
   $("txForm").scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>{$("amount").focus();$("amount").select()},300)}
 $("txForm").addEventListener("submit",async e=>{e.preventDefault();
+  if(MULTI_ON&&useGroups()&&!editing){const list=[...document.querySelectorAll("[data-mamt]")].map(i=>[i.dataset.mamt,parseFloat(i.value)]).filter(x=>x[1]>0);
+    if(!list.length){$("txErr").textContent=L("Geli qiimaha ugu yaraan hal shay.","Enter a price for at least one item.");document.querySelector("[data-mamt]")?.focus();return}
+    if(!$("date").value){$("txErr").textContent="Dooro taariikhda.";return}
+    $("txErr").textContent="";const base=Date.now();
+    try{for(let k=0;k<list.length;k++)await put({id:uid(),kind:"tx",method:payMethod(),type:"out",amount:list[k][1],cat:list[k][0],date:$("date").value,note:$("note").value.trim(),place:$("place").value.trim(),created:new Date(base+k).toISOString()});
+      MULTI_V={};$("note").value="";$("place").value="";const d=new Date($("date").value+"T00:00");view=new Date(d.getFullYear(),d.getMonth(),1);render();fillCats();
+      $("txErr").textContent="";$("mTot")&&($("mTot").textContent=L("✓ La kaydiyay: ","✓ Saved: ")+list.length)}
+    catch(err){$("txErr").textContent="Lama kaydin karo hadda. Isku day mar kale."}
+    return}
   if($("cat").value==="__new"){$("txErr").textContent="Marka hore ku dar qaybta cusub, ama dooro mid liiska ku jirta.";$("newCat").focus();return}
   const amount=parseFloat($("amount").value);
   if(!(amount>0)){$("txErr").textContent="Geli qadar ka weyn eber.";return}
@@ -1270,7 +1295,7 @@ document.addEventListener("click",async e=>{
   if(del){if(!del.classList.contains("arm")){del.classList.add("arm");del.textContent="Hubi?";setTimeout(()=>{del.classList.remove("arm");del.textContent="Tirtir"},3000);return}
     try{await remove(del.dataset.del)}catch{}return}
   const chip=e.target.closest("[data-chip]");
-  if(chip&&chip.dataset.chip){setCat(chip.dataset.chip);$("amount").focus();return}
+  if(chip&&chip.dataset.chip){if(setCat(chip.dataset.chip))return;$("amount").focus();return}
   const pay=e.target.closest("[data-pay]");
   if(pay){const b=items.find(i=>i.id===pay.dataset.pay);if(!(b.amount>0)){document.querySelector(`[data-bamt="${b.id}"]`)?.focus();return}
     try{await payBill(b)}catch{}return}
