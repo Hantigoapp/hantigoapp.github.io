@@ -1371,26 +1371,48 @@ $("delGo").addEventListener("click",async()=>{const v=$("delConfirm").value.trim
 
 /* ---------- install as an app ---------- */
 const APK_URL="https://github.com/Hantigoapp/hantigoapp.github.io/releases/download/tijaabo/HantiGo.apk";
-const IOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const UA=navigator.userAgent;
+const IOS=/iphone|ipad|ipod/i.test(UA)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const INAPP=/FBAN|FBAV|Instagram|Line\/|WhatsApp|Snapchat|TikTok|musical_ly|Telegram|GSA\//i.test(UA);
+const BROWSER=INAPP?"inapp":/CriOS|Chrome\//.test(UA)&&!/EdgiOS|EdgA|SamsungBrowser|OPR/.test(UA)?"chrome":/SamsungBrowser/.test(UA)?"samsung":/FxiOS|Firefox/.test(UA)?"firefox":/EdgiOS|EdgA|Edg\//.test(UA)?"edge":"safari";
 const STANDALONE=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
 let installEvt=null;
+function installSteps(){
+  const li=a=>`<ol class="note">${a.map(x=>`<li>${x}</li>`).join("")}</ol>`;
+  if(BROWSER==="inapp")return `<p class="note" style="margin:0"><b>${L("Bogga waxaad ka furtay WhatsApp ama app kale. Halkan lagama rakibi karo.","You opened this page inside WhatsApp or another app. You can't install from here.")}</b></p>`+li([
+    L("Riix <b>⋯</b> (sare ama hoose), dooro <b>“Open in Safari”</b> ama <b>“Open in Chrome”</b>.","Tap <b>⋯</b> (top or bottom) and choose <b>“Open in Safari”</b> or <b>“Open in Chrome”</b>."),
+    L("Ama koobiyee link-ga hoose, kuna dheji Safari ama Chrome.","Or copy the link below and paste it into Safari or Chrome.")])+`<button type="button" class="btnlike" data-copylink>🔗 ${L("Koobiyee link-ga","Copy the link")}</button>`;
+  if(IOS){
+    if(BROWSER==="chrome")return li([
+      L("Sare midig (meesha link-ga) riix <b>Share ⬆️</b>. Haddii aadan arkin, hoose midig riix <b>⋯</b>.","Tap <b>Share ⬆️</b> at the top right (next to the address). If you don't see it, tap <b>⋯</b> at the bottom right."),
+      L("Dooro <b>“Add to Home Screen”</b> (haddii aadan arkin, hoos u dhaadhac ama riix <b>“More”</b>).","Choose <b>“Add to Home Screen”</b> (scroll down or tap <b>“More”</b> if you don't see it)."),
+      L("Riix <b>“Add”</b>. HantiGo wuxuu ka soo baxayaa shaashadda hore.","Tap <b>“Add”</b>. HantiGo appears on your home screen.")]);
+    if(BROWSER==="safari")return li([
+      L("Hoose riix <b>Share ⬆️</b>. Haddii aadan arkin, marka hore riix <b>⋯</b>, kadib <b>Share</b>.","Tap <b>Share ⬆️</b> at the bottom. If you don't see it, tap <b>⋯</b> first, then <b>Share</b>."),
+      L("Hoos u dhaadhac, dooro <b>“Add to Home Screen”</b> (ama <b>“View More”</b> kadib).","Scroll down and choose <b>“Add to Home Screen”</b> (or <b>“View More”</b> first)."),
+      L("Riix <b>“Add”</b>. HantiGo wuxuu ka soo baxayaa shaashadda hore.","Tap <b>“Add”</b>. HantiGo appears on your home screen.")]);
+    return li([L("Riix <b>Share ⬆️</b> ama <b>⋯</b>, dooro <b>“Add to Home Screen”</b>, kadib <b>“Add”</b>.","Tap <b>Share ⬆️</b> or <b>⋯</b>, choose <b>“Add to Home Screen”</b>, then <b>“Add”</b>."),
+      L("Haddii aadan arkin, bogga ku fur <b>Safari</b> ama <b>Chrome</b>.","If you don't see it, open the page in <b>Safari</b> or <b>Chrome</b>.")]);
+  }
+  if(BROWSER==="samsung")return li([L("Hoose riix <b>☰</b> (menu).","Tap <b>☰</b> (menu) at the bottom."),L("Dooro <b>“Add page to”</b> → <b>“Home screen”</b>.","Choose <b>“Add page to”</b> → <b>“Home screen”</b>."),L("Riix <b>“Add”</b>.","Tap <b>“Add”</b>.")]);
+  return li([L("Sare midig riix <b>⋮</b> (saddexda dhibcood).","Tap <b>⋮</b> (three dots) at the top right."),L("Dooro <b>“Install app”</b> ama <b>“Add to Home screen”</b>.","Choose <b>“Install app”</b> or <b>“Add to Home screen”</b>."),L("Riix <b>“Install”</b> ama <b>“Add”</b>.","Tap <b>“Install”</b> or <b>“Add”</b>.")]);
+}
 function renderInstall(){
   document.querySelectorAll("[data-install]").forEach(box=>{
     if(NATIVE||STANDALONE){box.innerHTML="";return}
-    box.innerHTML=`<section class="panel install" aria-label="Soo deji app-ka">
-      <h2>📲 Soo deji app-ka HantiGo</h2>
-      <p class="note" style="margin:0">Ku rakib HantiGo taleefankaaga si aad ugu furto sida app kale oo kale, adigoon browser furin.</p>
+    const bname={safari:"Safari",chrome:"Chrome",samsung:"Samsung Internet",firefox:"Firefox",edge:"Edge",inapp:"WhatsApp / app"}[BROWSER];
+    box.innerHTML=`<section class="panel install" aria-label="${L("Soo deji app-ka","Get the app")}">
+      <h2>📲 ${L("Soo deji app-ka HantiGo","Get the HantiGo app")}</h2>
+      <p class="note" style="margin:0">${L("Ku rakib HantiGo taleefankaaga si aad ugu furto sida app kale oo kale.","Install HantiGo on your phone to open it like any other app.")}</p>
       <div class="dl">
-        ${installEvt?`<button type="button" class="primary" data-pwa>➕ Ku rakib hadda</button>`:""}
-        ${IOS?"":`<a class="btnlike" href="${APK_URL}" download>🤖 Android: soo deji APK</a>`}
+        ${installEvt?`<button type="button" class="primary" data-pwa>➕ ${L("Ku rakib hadda","Install now")}</button>`:""}
+        ${IOS?"":`<a class="btnlike" href="${APK_URL}" download>🤖 ${L("Android: soo deji APK","Android: download APK")}</a>`}
       </div>
-      ${IOS?"":`<p class="note" style="margin:0">Android: marka faylku soo dego, fur. Haddii lagu weydiiyo, oggolow “Install unknown apps”, kadibna riix “Install”.</p>`}
-      <details${IOS?" open":""}><summary>🍎 iPhone / iPad</summary><ol class="note">
-        <li>Bogga ku fur <b>Safari</b>.</li>
-        <li>Riix badhanka <b>Share</b> (⬆️) ee hoose.</li>
-        <li>Dooro <b>“Add to Home Screen”</b>, kadibna riix <b>“Add”</b>.</li></ol></details>
+      ${IOS?"":`<p class="note" style="margin:0">${L("APK: marka faylku soo dego, fur. Haddii lagu weydiiyo, oggolow “Install unknown apps”, kadibna riix “Install”.","APK: open the file once downloaded. If asked, allow “Install unknown apps”, then tap “Install”.")}</p>`}
+      <details open><summary>${IOS?"🍎 iPhone / iPad":"🌐 "+L("Ka rakib browser-ka","Install from the browser")} · ${bname}</summary>${installSteps()}</details>
     </section>`;
     box.querySelector("[data-pwa]")?.addEventListener("click",async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice}catch{}installEvt=null;renderInstall()});
+    box.querySelector("[data-copylink]")?.addEventListener("click",async e=>{const u="https://hantigoapp.github.io/";try{await navigator.clipboard.writeText(u);e.target.textContent="✓ "+L("Waa la koobiyeeyay","Copied")}catch{prompt(L("Koobiyee link-ga","Copy the link"),u)}});
   })}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;renderInstall()});
 window.addEventListener("appinstalled",()=>{installEvt=null;document.querySelectorAll("[data-install]").forEach(b=>b.innerHTML="")});
