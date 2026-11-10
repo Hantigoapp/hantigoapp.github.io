@@ -1,0 +1,4 @@
+hg-arabic.ttf and hg-arabic-bold.ttf are subsets (Latin + Arabic) of DejaVu Sans / DejaVu Sans Bold.
+DejaVu fonts are free software: Bitstream Vera Fonts Copyright (c) 2003 Bitstream, Inc.; DejaVu changes are in the public domain.
+Full licence: https://dejavu-fonts.github.io/License.html
+Used by HantiGo to print Arabic text in PDF receipts.
