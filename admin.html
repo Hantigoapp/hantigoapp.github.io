@@ -65,6 +65,16 @@ html:root{--bg:#0b1118;--surface:#141c26;--ink:#eef3f8;--muted:#8fa0b3;--line:#2
 .req .meta{font-size:.9rem;opacity:.85;display:grid;gap:2px}.req img{max-width:100%;max-height:260px;border-radius:8px;margin-top:6px;cursor:zoom-in}
 .req .ok-b{background:#1e8e5a;color:#fff;border-color:#1e8e5a}.req .no-b{color:#e5534b}
 @media (max-width:560px){.req{grid-template-columns:1fr}}
+.newbox{background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:12px 14px;display:grid;gap:10px}
+.newbox h2{margin:0;font-size:1.05rem;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.ncount{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.ncount div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px 10px;text-align:center}
+.ncount b{display:block;font:700 1.35rem var(--display);color:var(--accent)}.ncount small{color:var(--muted);font-size:.78rem;font-weight:600}
+.nbell{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;background:var(--accent-soft);border-radius:12px;padding:8px 12px;font-weight:600}
+.nrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 12px;align-items:center;border-top:1px solid var(--line);padding-top:10px}
+.nrow .who div{font-size:.85rem}.nrow .acts a{font-size:.85rem;text-decoration:none;border:1px solid var(--line);border-radius:10px;padding:5px 10px}
+.fresh{background:#d4a017;color:#2a1d00}
+@media (max-width:560px){.ncount{grid-template-columns:repeat(2,minmax(0,1fr))}.nrow{grid-template-columns:auto minmax(0,1fr)}.nrow .acts{grid-column:1/-1;justify-content:flex-start}}
 </style>
 <script src="vendor/supabase.js"></script>
 </head>
@@ -74,6 +84,7 @@ html:root{--bg:#0b1118;--surface:#141c26;--ink:#eef3f8;--muted:#8fa0b3;--line:#2
   <p class="msg" id="msg">Waa la soo dejinayaa…</p>
   <div id="main" hidden style="display:grid;gap:14px">
     <section id="reqs" class="reqs" hidden></section>
+    <section id="newbox" class="newbox" aria-live="polite"></section>
     <div class="stats">
       <div class="stat"><small>Macaamiisha</small><b id="nAll">0</b><em id="nNew"></em></div>
       <div class="stat"><small>Bixiyay</small><b id="nPaid" class="cin">0</b></div>
@@ -141,7 +152,7 @@ function render(){
   const paid=cust.filter(isPaid).length,trial=cust.filter(isTrial).length,nw=cust.filter(isNew).length;
   $("nAll").textContent=cust.length;$("nNew").textContent=nw?`+${nw} toddobaadkan`:"";$("nPaid").textContent=paid;$("nTrial").textContent=trial;$("nExp").textContent=cust.length-paid-trial;$("mrr").textContent="$"+cust.filter(isPaid).reduce((a,p)=>a+priceOf(p),0);
   $("chips").innerHTML=FILTERS.map(([k,t,f])=>`<button type="button" data-f="${k}" aria-pressed="${filt===k}">${t} · ${cust.filter(f).length}</button>`).join("");
-  renderLocs(cust);renderReqs(cust);
+  renderLocs(cust);renderReqs(cust);const nf=renderNew(cust);document.title=(nf?"🆕"+nf+" ":"")+document.title;
   const fn=FILTERS.find(x=>x[0]===filt)[2];const qd=q.replace(/\D/g,"");
   const list=cust.filter(fn).filter(p=>!q||(p.email||"").toLowerCase().includes(q)||(p.city||"").toLowerCase().includes(q)||(qd&&(p.phone||"").replace(/\D/g,"").includes(qd)));
   $("list").innerHTML=list.length?list.map(p=>{const [t,c]=status(p);return `<div class="row">
@@ -155,6 +166,10 @@ document.addEventListener("click",e=>{const f=e.target.closest("[data-f]");if(f)
 async function load(){
   const {data,error}=await sb.from("profiles").select("*").order("created_at",{ascending:false});
   if(error){$("msg").textContent="Xogta lama soo saari karo: "+error.message;return}
+  await loadExtra();
+  const cust=data.filter(p=>!p.is_admin);
+  if(known){const add=cust.filter(p=>!known.has(p.id));if(add.length)toast("🆕 Macmiil cusub: "+add.map(p=>p.email).join(", "))}
+  known=new Set(cust.map(p=>p.id));
   rows=data;$("msg").hidden=true;$("main").hidden=false;render()}
 document.addEventListener("click",async e=>{const z=e.target.closest("[data-zoom]");if(z){window.open().document.write(`<img src="${z.src}" style="max-width:100%">`);return}
   const b=e.target.closest("[data-pay]");if(!b)return;const ok=b.dataset.ok==="1";
@@ -216,6 +231,44 @@ async function sendSubReceipt(id,days,amount){const p=rows.find(x=>x.id===id);if
     if(error||!data?.ok){let w=data?.error||error?.message||"";try{if(error?.context?.text)w=error.context.status+" "+await error.context.clone().text()}catch{}throw new Error(w)}
     toast("🧾 Rasiidka waa loo diray "+p.email+", nuqulna waa laguu soo diray.")}
   catch(e){toast("🧾 Rasiidka lama diri karin: "+String(e?.message||e).slice(0,160),true)}}
+
+/* ---------- 🆕 Macaamiil cusub: new sign-ups, newest first ---------- */
+let extra={},hasExtra=false,known=null;
+const SEEN_KEY="hantigo.admin.seen";
+function getSeen(){try{const v=Number(localStorage.getItem(SEEN_KEY));if(v)return v}catch{}return Date.now()-864e5}
+function setSeen(t){try{localStorage.setItem(SEEN_KEY,String(t))}catch{}}
+let seen=getSeen();
+function ago(d){const m=Math.floor((Date.now()-new Date(d))/6e4);if(m<1)return"hadda";if(m<60)return m+" daqiiqo kahor";const h=Math.floor(m/60);if(h<24)return h+" saac kahor";const x=Math.floor(h/24);return x===1?"shalay":x+" maalmood kahor"}
+const when=d=>new Date(d).toLocaleString("en-GB",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
+function trialLeft(p){if(isPaid(p))return`<span class="pill ok">Bixiyay</span>`;const ms=new Date(p.trial_until)-Date.now();
+  if(ms>0){const d=Math.ceil(ms/864e5);return`<span class="pill trial">Tijaabo · ${d} maalmood ka haray</span>`}return`<span class="pill warn">Tijaabadu way dhacday</span>`}
+function renderNew(cust){
+  const t0=new Date();t0.setHours(0,0,0,0);const today=+t0,yday=today-864e5,mon=+new Date(t0.getFullYear(),t0.getMonth(),1);
+  const at=p=>p.created_at?+new Date(p.created_at):0;
+  const nToday=cust.filter(p=>at(p)>=today).length,nY=cust.filter(p=>at(p)>=yday&&at(p)<today).length,
+        n7=cust.filter(isNew).length,nM=cust.filter(p=>at(p)>=mon).length;
+  const fresh=cust.filter(p=>at(p)>seen);
+  const recent=cust.filter(isNew);const show=(recent.length?recent:cust.slice(0,3)).slice(0,10);
+  const months=["Janaayo","Febraayo","Maarso","Abriil","Maajo","Juun","Luulyo","Agoosto","Sebteembar","Oktoobar","Nofeembar","Diseembar"];
+  $("newbox").innerHTML=`<h2><span>🆕 Macaamiil cusub</span>${recent.length>show.length?`<button type="button" data-shownew>Muuji dhammaan (${recent.length}) →</button>`:""}</h2>
+    <div class="ncount"><div><b>${nToday}</b><small>Maanta</small></div><div><b>${nY}</b><small>Shalay</small></div><div><b>${n7}</b><small>7-dii maalmood</small></div><div><b>${nM}</b><small>${months[t0.getMonth()]}</small></div></div>
+    ${fresh.length?`<div class="nbell"><span>🔔 ${fresh.length} macmiil cusub ayaa is-diiwaangeliyay tan iyo markii u dambaysay ee aad eegtay</span><button type="button" data-seen>✓ Waan arkay</button></div>`:""}
+    ${recent.length?"":`<p class="msg" style="margin:0">Toddobaadkan weli qof cusub ma jiro.${show.length?" Kuwii ugu dambeeyay:":""}</p>`}
+    ${show.map(p=>{const x=extra[p.id]||{};const wa=String(p.phone||"").replace(/\D/g,"");return`<div class="nrow">
+      <div class="av" aria-hidden="true">${esc((p.email||"?")[0].toUpperCase())}</div>
+      <div class="who"><b>${esc(p.email)}</b>${at(p)>seen?'<span class="pill fresh">CUSUB</span>':""}${planPill(p)}${trialLeft(p)}
+        <div>🕒 ${p.created_at?`${ago(p.created_at)} · ${when(p.created_at)}`:"—"}</div>
+        <div>${x.company?`🏢 ${esc(x.company)} · `:""}📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")}${p.phone?` · 📞 ${esc(p.phone)}`:""}</div>
+        ${hasExtra?`<div>${x.items>0?`✅ Wuu bilaabay isticmaalka (${x.items} xog)`:"⏳ Weli wax ma gelin"}${x.last_seen?` · Galay ${ago(x.last_seen)}`:""}</div>`:""}</div>
+      <div class="acts">${wa?`<a href="https://wa.me/${wa}?text=${encodeURIComponent("Salaan, ku soo dhawoow HantiGo! Haddii aad caawimaad u baahato, halkan nagala soo xiriir.")}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}<a href="mailto:${esc(p.email)}?subject=${encodeURIComponent("Ku soo dhawoow HantiGo")}">✉️ Email</a></div></div>`}).join("")}
+    ${hasExtra?"":`<p class="msg" style="margin:0;font-size:.85rem">Si aad u aragto magaca shirkadda iyo inuu bilaabay isticmaalka, ku shub <b>supabase/signups.sql</b> gudaha Supabase (SQL Editor → Run).</p>`}`;
+  return fresh.length}
+document.addEventListener("click",e=>{if(e.target.closest("[data-seen]")){seen=Date.now();setSeen(seen);render();return}
+  if(e.target.closest("[data-shownew]")){filt="new";$("q").value="";render();$("chips").scrollIntoView({behavior:"smooth",block:"start"})}});
+async function loadExtra(){const {data,error}=await sb.rpc("admin_signups");hasExtra=!error&&Array.isArray(data);extra={};if(hasExtra)data.forEach(r=>extra[r.id]=r)}
+/* check for new sign-ups every minute while the page is open */
+setInterval(()=>{if(!document.hidden&&rows.length)load()},60000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&rows.length)load()});
 $("q").addEventListener("input",render);
 (async()=>{const {data}=await sb.auth.getSession();
   if(!data.session){$("msg").innerHTML='Marka hore app-ka ku gal: <a href="./">Gal</a>';return}
