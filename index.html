@@ -436,6 +436,9 @@ html:not([data-mode="business"]) #appView .summary .stat:has(#sNet){grid-column:
 /* home order: glance, quick numbers, chart and where the money went first; long statistics after */
 #appView>#stPanel,#appView #psPanel{order:1}
 #appView>footer,#appView>[data-install]{order:2}
+.gate-credit{padding-top:14px;border-top:1px solid var(--line);font-size:.88rem}
+#appView>footer[data-tab="home"]{padding:6px 0 4px}
+#appView[data-tab="home"]>footer[data-tab="home"],#appView[data-tab="more"]>footer[data-tab="more"]{display:block!important}
 #appView>header,#appView>#net{order:-2}
 #appView>.summary{order:-1}
 @media (max-width:560px){#appView>header{position:relative}}
@@ -544,6 +547,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
   <div data-install></div>
   </div>
   </div>
+  <footer class="credit gate-credit"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b> · <a href="privacy.html">Asturnaanta</a></footer>
 </section>
 
 <section id="resetView" class="gate" hidden>
@@ -959,6 +963,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
   </div>
   <div data-install data-tab="more"></div>
   <footer class="credit" data-tab="more"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b> · <a href="privacy.html">Asturnaanta</a></footer>
+  <footer class="credit" data-tab="home"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b></footer>
   <nav class="bnav" aria-label="Qaybaha app-ka">
     <button type="button" data-go="home" aria-current="page"><i aria-hidden="true">🏠</i><span>Guriga</span></button>
     <button type="button" data-go="add"><i aria-hidden="true">＋</i><span>Ku dar</span></button>
