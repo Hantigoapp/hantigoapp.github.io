@@ -367,6 +367,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
   </header>
 
   <div id="banner" class="banner" hidden></div>
+  <div id="spaceNote" class="banner" hidden></div>
   <div id="cityAsk" class="banner" hidden><b>Xagee joogtaa?</b> Dooro wadanka iyo magaalada.
     <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><select id="askCountry" data-loc="ask" aria-label="Wadanka aad joogto" style="flex:1;min-width:140px"><option value="">— Dooro —</option><option value="Soomaaliya">Soomaaliya</option><option value="Kenya">Kenya</option><option value="Itoobiya">Itoobiya</option><option value="Jabuuti">Jabuuti</option><option value="Uganda">Uganda</option><option value="Koonfur Afrika">Koonfur Afrika</option><option value="Masar">Masar</option><option value="Imaaraadka">Imaaraadka</option><option value="Sacuudiga">Sacuudiga</option><option value="Qatar">Qatar</option><option value="Turkiga">Turkiga</option><option value="Ingiriiska">Ingiriiska</option><option value="Iswiidhan">Iswiidhan</option><option value="Norway">Norway</option><option value="Denmark">Denmark</option><option value="Finland">Finland</option><option value="Holland">Holland</option><option value="Jarmalka">Jarmalka</option><option value="Mareykan">Mareykan</option><option value="Kanada">Kanada</option><option value="Australia">Australia</option><option value="Wadan kale">Wadan kale</option></select><input id="askCityTxt" type="text" maxlength="40" placeholder="Magaalada" aria-label="Magaalada aad joogto" style="flex:1;min-width:140px" hidden><select id="askCity" aria-label="Magaalada aad joogto" style="flex:1;min-width:140px"><option value="">— Dooro —</option><option>Muqdisho</option><option>Hargeysa</option><option>Garoowe</option><option>Kismaayo</option><option>Boosaaso</option><option>Gaalkacyo</option><option>Baydhabo</option><option>Beledweyne</option><option>Burco</option><option>Berbera</option><option>Borama</option><option>Laascaanood</option><option>Ceerigaabo</option><option>Jowhar</option><option>Marka</option><option>Afgooye</option><option>Dhuusamareeb</option><option>Cadaado</option><option value="Magaalo kale (Soomaaliya)">Magaalo kale (Soomaaliya)</option></select><button type="button" class="primary" id="askSave">Kaydi</button><button type="button" class="del" id="askLater">Mar dambe</button></div></div>
   <div id="coAsk" class="banner" data-tab="home" hidden><b>🏢 Ku dar astaanta shirkaddaada</b> Magaca iyo astaanta (logo) shirkadda ayaa ka muuqanaya warbixinnada aad soo dejiso.
@@ -926,6 +927,8 @@ async function enter(user){
   if(error&&cached){items=cached;showBanner("Internet la'aan: waxaa la muujinayaa xogtii taleefanka ku kaydsanayd.")}
   saveLocal();mode="cloud";
   let st=items.find(i=>i.kind==="settings");
+  if(addSpace&&pendingMode&&(pendingMode==="person"||pendingMode==="business")){st={...(st||{id:"settings",kind:"settings"}),mode:pendingMode};try{await put(st)}catch{}
+    const sm=pendingMode;setTimeout(()=>{$("spaceNote").textContent=(sm==="business"?L("✓ Shirkad ayaa lagu daray akoonkaaga. Sare bidix ka dooro 👤 Shakhsi ama 🏢 Shirkad.","✓ Business added to your account. Switch between 👤 Personal and 🏢 Business at the top left."):L("✓ Shakhsi ayaa lagu daray akoonkaaga. Sare bidix ka dooro 👤 Shakhsi ama 🏢 Shirkad.","✓ Personal added to your account. Switch at the top left."));$("spaceNote").hidden=false;setTimeout(()=>$("spaceNote").hidden=true,20000)},300);addSpace=false}
   const chosen=pendingMode||user?.user_metadata?.mode;
   if(!st?.mode&&(chosen==="person"||chosen==="business")){st={...(st||{id:"settings",kind:"settings"}),mode:chosen};try{await put(st)}catch{}}
   const co=pendingCo||user?.user_metadata?.company||"";if(co&&!st?.coName){st={...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),coName:co};pendingCo="";try{await put(st)}catch{}}
@@ -985,7 +988,7 @@ const WA_NUM="46767157915";
 document.querySelectorAll("[data-wa]").forEach(a=>{a.href="https://wa.me/"+WA_NUM+"?text="+encodeURIComponent(L("Salaan, HantiGo caawimaad ayaan rabaa","Hi, I need help with HantiGo"))});
 document.querySelectorAll("[data-wanum]").forEach(e=>e.textContent="+46 76 715 79 15");
 /* auth form */
-let signUp=false,pendingMode=null,pendingCity="",pendingCountry="",pendingCo="";
+let addSpace=false,signUp=false,pendingMode=null,pendingCity="",pendingCountry="",pendingCo="";
 function coRowSync(){$("aCoRow").hidden=$("aTypeRow").hidden||!$("atB").checked}
 document.querySelectorAll("input[name=atype]").forEach(r=>r.addEventListener("change",coRowSync));
 function setTab(up){signUp=up;$("tabIn").setAttribute("aria-selected",!up);$("tabUp").setAttribute("aria-selected",up);
@@ -1001,6 +1004,10 @@ $("authForm").addEventListener("submit",async e=>{e.preventDefault();
       if(!pendingCountry){$("aErr").textContent=L("Dooro wadanka aad joogto.","Choose the country you live in.");$("aBtn").disabled=false;return}
       if(!pendingCity){$("aErr").textContent=L("Dooro magaalada aad joogto.","Choose the city you live in.");$("aBtn").disabled=false;return}
       const {data,error}=await sb.auth.signUp({email,password,options:{data:{mode:am,city:pendingCity,country:pendingCountry,company:pendingCo},emailRedirectTo:location.origin+location.pathname}});
+      if(error&&/already registered|already exists/i.test(String(error.message||""))){
+        addSpace=true;const r=await sb.auth.signInWithPassword({email,password});
+        if(r.error){addSpace=false;$("aErr").textContent=L("Email-kan horay ayaa loo diiwaangeliyay. Si aad "+(am==="business"?"Shirkad":"Shakhsi")+" ugu darto isla akoonka, geli erayga sirta ah ee akoonkaagii hore.","This email is already registered. To add "+(am==="business"?"a Business":"Personal")+" to the same account, enter your existing password.");$("aBtn").disabled=false;return}
+        $("aBtn").disabled=false;return}
       if(error)throw error;
       if(!data.session){$("aErr").textContent="Akoonka waa la sameeyay. Fur email-kaaga, riix xiriirka, kadibna gal.";setTab(false)}}
     else{const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error}
