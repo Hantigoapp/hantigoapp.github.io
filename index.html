@@ -178,6 +178,7 @@ html:not([data-mode="business"]) .biz-only{display:none!important}
 .due{display:flex;align-items:center;gap:4px;font-size:.75rem;color:var(--muted);font-weight:500}
 .due input{width:56px;padding:2px 6px;font-size:.8rem}
 .sickbtn{background:var(--out)!important;border-color:var(--out)!important;color:#fff!important;font-size:1.05rem;padding:14px}
+.lvrep{display:grid;gap:6px;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
 .lv{display:grid;gap:4px;padding:10px 0;border-top:1px solid var(--line)}.lv:first-child{border-top:0}
 .lvst{font-size:.78rem;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
 .lvst.wait{background:#3a2f12;color:#ffcc66}.lvst.ok{background:var(--in-soft);color:var(--in)}.lvst.no{background:var(--out-soft);color:var(--out)}.lvst.now{background:#1d2c4a;color:#8fb8ff}.lvst.sick{background:var(--out-soft);color:var(--out)}
@@ -474,6 +475,11 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
         <div class="panel-head"><h2 id="lvH">Fasaxa iyo xanuunka shaqaalaha</h2></div>
         <div class="extremes" id="lvSum"></div>
         <button type="button" class="primary sickbtn" id="sickBtn">🤒 Waan xanuunsanahay maanta</button>
+        <div class="lvrep owner-only" id="lvRep">
+          <div class="goal-actions"><select id="lvPer" aria-label="Muddada warbixinta"><option value="week">Toddobaadkan</option><option value="month">Bishan</option><option value="prev">Bishii hore</option><option value="year">Sannadkan</option></select>
+          <button type="button" id="lvCsv">⬇ Excel</button><button type="button" id="lvDoc">⬇ Word</button><button type="button" id="lvPdf">🖨 PDF</button></div>
+          <p class="note" id="lvRepSum" style="margin:0"></p>
+        </div>
         <div id="leaves"></div>
         <form id="lvForm" novalidate>
           <div class="seg3" role="radiogroup" aria-label="Nooca fasaxa">
@@ -614,7 +620,7 @@ const EN={
 "Habka lacag-bixinta":"Payment method","Kharashka maalinlaha":"Daily expenses","Qadarka":"Amount","Qaybta":"Category","Taariikhda":"Date",
 "Ku qor waxa liiska ka maqan":"Type what is missing from the list","Tusaale: Kirada mashiinka":"Example: Machine rent","+ Ku dar liiska":"+ Add to list",
 "Shirkadda ama meesha (ikhtiyaari)":"Company or place (optional)","Macmiil ama alaab-qeybiye (ikhtiyaari)":"Customer or supplier (optional)",
-"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Fasaxa iyo xanuunka shaqaalaha":"Staff leave and sick days","🤒 Waan xanuunsanahay maanta":"🤒 I am sick today","Nooca fasaxa":"Leave type","🏖️ Fasax":"🏖️ Leave","🤒 Xanuun":"🤒 Sick","Fasax lacag la'aan":"Unpaid leave","Magaca shaqaalaha":"Staff member name","Laga bilaabo":"From","Ilaa":"To","1 maalin":"1 day","3 maalmood":"3 days","1 toddobaad":"1 week","1 bil":"1 month","Tusaale: safar qoys":"Example: family trip","+ Codso fasax":"+ Request leave","Tusaale: bilka Nofembar":"Example: November bill",
+"Tusaale: Hormuud, suuqa Bakaaraha":"Example: Hormuud, Bakaara market","Faahfaahin (ikhtiyaari)":"Details (optional)","Fasaxa iyo xanuunka shaqaalaha":"Staff leave and sick days","Muddada warbixinta":"Report period","Toddobaadkan":"This week","Bishan":"This month","Sannadkan":"This year","🤒 Waan xanuunsanahay maanta":"🤒 I am sick today","Nooca fasaxa":"Leave type","🏖️ Fasax":"🏖️ Leave","🤒 Xanuun":"🤒 Sick","Fasax lacag la'aan":"Unpaid leave","Magaca shaqaalaha":"Staff member name","Laga bilaabo":"From","Ilaa":"To","1 maalin":"1 day","3 maalmood":"3 days","1 toddobaad":"1 week","1 bil":"1 month","Tusaale: safar qoys":"Example: family trip","+ Codso fasax":"+ Request leave","Tusaale: bilka Nofembar":"Example: November bill",
 "Kaydi":"Save","Dhaqdhaqaaqa bishan":"This month's transactions","Kharashyada joogtada ah":"Recurring expenses",
 "Geli qadarka hal mar. Bil kasta riix “Bixi”.":"Enter the amount once. Each month tap “Pay”.",
 "Maalinta: xusuusin ayaad helaysaa 3 maalmood ka hor.":"Day: you get a reminder 3 days before.",
@@ -1040,7 +1046,7 @@ function render(){
   renderBills(txs);
   renderChart(txs);
   const bud=renderBudget(spent);
-  renderDebts();renderLeaves();
+  renderDebts();renderLeaves();lvRepSummary();
   renderAlerts(bud);
   const goals=mine("goal").sort((a,b)=>a.created.localeCompare(b.created));
   $("goals").innerHTML=goals.length?goals.map(g=>{const p=Math.min(100,g.saved/g.target*100||0);return `<div class="goal">
@@ -1362,6 +1368,41 @@ document.addEventListener("click",async e=>{
   const id=ok.dataset.lvok||ok.dataset.lvno||ok.dataset.lvseen,v=items.find(i=>i.id===id);if(!v)return;
   if(ok.dataset.lvseen)await put({...v,seen:true});else await put({...v,status:ok.dataset.lvok?"ok":"no"})});
 
+function lvPeriod(){const per=$("lvPer").value,n=new Date(),iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  if(per==="week"){const d=new Date(n);d.setDate(d.getDate()-((d.getDay()+1)%7));const e=new Date(d);e.setDate(e.getDate()+6);return{from:iso(d),to:iso(e),title:L("Toddobaadka ","Week ")+iso(d)}}
+  if(per==="prev"){const d=new Date(n.getFullYear(),n.getMonth()-1,1),e=new Date(n.getFullYear(),n.getMonth(),0);return{from:iso(d),to:iso(e),title:MONTHS[d.getMonth()]+" "+d.getFullYear()}}
+  if(per==="year")return{from:n.getFullYear()+"-01-01",to:n.getFullYear()+"-12-31",title:String(n.getFullYear())};
+  const d=new Date(n.getFullYear(),n.getMonth(),1),e=new Date(n.getFullYear(),n.getMonth()+1,0);return{from:iso(d),to:iso(e),title:MONTHS[d.getMonth()]+" "+d.getFullYear()}}
+function lvReport(){const P=lvPeriod();
+  const rows=mine("leave").filter(v=>v.status!=="no"&&v.from<=P.to&&v.to>=P.from).map(v=>{const f=v.from>P.from?v.from:P.from,t=v.to<P.to?v.to:P.to;return{...v,inDays:lvDays({from:f,to:t})}})
+    .sort((a,b)=>a.from.localeCompare(b.from));
+  const ok=rows.filter(r=>r.status!=="wait"),sick=ok.filter(r=>r.type==="buka"),lv=ok.filter(r=>r.type!=="buka");
+  const ppl=a=>new Set(a.map(r=>String(r.who).toLowerCase())).size,days=a=>a.reduce((x,r)=>x+r.inDays,0);
+  return{...P,rows,sickP:ppl(sick),sickD:days(sick),lvP:ppl(lv),lvD:days(lv),wait:rows.length-ok.length}}
+function lvRepSummary(){if(TEAM)return;const r=lvReport();
+  $("lvRepSum").innerHTML=L(`🤒 <b>${r.sickP}</b> qof ayaa xanuunsaday (${r.sickD} maalmood) · 🏖️ <b>${r.lvP}</b> qof fasax (${r.lvD} maalmood)`,`🤒 <b>${r.sickP}</b> sick (${r.sickD} days) · 🏖️ <b>${r.lvP}</b> on leave (${r.lvD} days)`)+(r.wait?L(` · ${r.wait} sugaya`,` · ${r.wait} waiting`):"")}
+const lvStatusTxt=v=>v.status==="wait"?L("Sugaya","Waiting"):L("La oggolaaday","Approved");
+$("lvPer").addEventListener("change",lvRepSummary);
+$("lvDoc").addEventListener("click",()=>{const r=lvReport();
+  const doc=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
+<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b}table{border-collapse:collapse;width:100%;margin:8pt 0}th,td{border:1px solid #999;padding:4pt 6pt;text-align:left}th{background:#e8f5ee}.n{text-align:right}</style></head><body>${lvHtml()}</body></html>`;
+  saveFile(`HantiGo-fasax-${r.title}.doc`.replace(/[^\w.@ -]+/g,"_"),"\ufeff"+doc,"application/msword")});
+$("lvCsv").addEventListener("click",()=>{const r=lvReport();
+  const head=[L("Shaqaalaha","Staff"),L("Nooca","Type"),L("Laga bilaabo","From"),L("Ilaa","To"),L("Maalmaha muddadan","Days in period"),L("Xaaladda","Status"),L("Faahfaahin","Details")];
+  const rows=r.rows.map(v=>[v.who,L(...LVT[v.type]||LVT.fasax).replace(/^\S+ /,""),v.from,v.to,v.inDays,lvStatusTxt(v),v.note||""]);
+  rows.push([],[L("Xanuunsaday (dad)","Sick (people)"),r.sickP,"",L("Maalmo","Days"),r.sickD],[L("Fasax (dad)","On leave (people)"),r.lvP,"",L("Maalmo","Days"),r.lvD]);
+  const csv="﻿"+[["HantiGo",L("Fasax iyo xanuun","Leave and sick days"),r.title,r.from+" → "+r.to],head,...rows].map(x=>x.map(csvCell).join(",")).join("\r\n");
+  saveFile(`HantiGo-fasax-${r.title}.csv`.replace(/[^\w.@ -]+/g,"_"),csv,"text/csv;charset=utf-8")});
+function lvHtml(){const r=lvReport();return `<h1>HantiGo</h1><p>${L("Warbixinta fasaxa iyo xanuunka","Leave and sick report")}: <b>${esc(r.title)}</b> (${r.from} → ${r.to}) · ${esc(modeLabel())}</p>
+  <table><tr><th>${L("Xanuunsaday","Sick")}</th><th>${L("Fasax","On leave")}</th></tr><tr><td>${r.sickP} ${L("qof","people")} · ${r.sickD} ${L("maalmood","days")}</td><td>${r.lvP} ${L("qof","people")} · ${r.lvD} ${L("maalmood","days")}</td></tr></table>
+  <h2>${L("Liiska","List")} (${r.rows.length})</h2>
+  <table><tr><th>${L("Shaqaalaha","Staff")}</th><th>${L("Nooca","Type")}</th><th>${L("Laga bilaabo","From")}</th><th>${L("Ilaa","To")}</th><th>${L("Maalmo","Days")}</th><th>${L("Xaaladda","Status")}</th><th>${L("Faahfaahin","Details")}</th></tr>
+  ${r.rows.map(v=>`<tr><td>${esc(v.who)}</td><td>${esc(L(...LVT[v.type]||LVT.fasax))}</td><td>${esc(v.from)}</td><td>${esc(v.to)}</td><td class="n">${v.inDays}</td><td>${lvStatusTxt(v)}</td><td>${esc(v.note||"")}</td></tr>`).join("")||`<tr><td colspan="7">—</td></tr>`}</table>
+  <p>${L("Waxaa la sameeyay","Created")} ${esc(new Date().toLocaleString())} · HantiGo</p>`}
+$("lvPdf").addEventListener("click",()=>{$("printArea").innerHTML=lvHtml();
+  document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
+  window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50)});
+
 /* ---------- company staff ---------- */
 $("teamForm").addEventListener("submit",async e=>{e.preventDefault();
   const email=$("tEmail").value.trim().toLowerCase();
@@ -1409,7 +1450,7 @@ function buildReport(){const {txs,title}=reportData();
 $("repPdf").addEventListener("click",()=>{$("printArea").innerHTML=buildReport();document.body.classList.add("printing");
   const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
   window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50)});
-if(NATIVE){$("repPdf").hidden=true;$("repNote").hidden=true}
+if(NATIVE){$("repPdf").hidden=true;$("repNote").hidden=true;$("lvPdf").hidden=true}
 
 /* ---------- backup ---------- */
 const BK_KINDS=["tx","goal","bill","cat","debt","leave","settings"];
