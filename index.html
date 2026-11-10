@@ -202,6 +202,10 @@ html:not([data-mode="business"]) #appView .biz-only{display:none!important}
 #appView:not([data-tab="home"]) .summary~.panel #chart{}
 header{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;margin-top:-10px}
 .hright{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+.wafab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;width:58px;height:58px;border-radius:50%;background:#25d366;display:grid;place-items:center;box-shadow:0 8px 22px rgba(0,0,0,.3)}
+body:has(#appView:not([hidden])) .wafab{bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+@media print{.wafab{display:none!important}}
 .acc-panel{font-size:.95rem}
 .wa{justify-self:center;color:var(--in);font-weight:600;font-size:.9rem;text-decoration:none}
 .wabtn{justify-self:stretch;display:block;text-align:center;background:#25d366;color:#05301a;border-radius:12px;padding:12px;font-size:1rem}
@@ -242,6 +246,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
 <body>
+<a class="wafab" data-wa href="#" target="_blank" rel="noopener" aria-label="WhatsApp: caawimaad"><svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><path fill="#fff" d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm0 23.6c-2 0-4-.6-5.7-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1 1 16 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7 0a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.7 3.7 0 0 0-1.1 2.7 6.4 6.4 0 0 0 1.3 3.4 14.7 14.7 0 0 0 5.6 5c2.1.9 2.9 1 4 .8a3.4 3.4 0 0 0 2.2-1.6 2.8 2.8 0 0 0 .2-1.6c-.1-.1-.3-.2-.6-.4z"/></svg></a>
 <div id="loadingView" class="loading">HantiGo waa la furayaa…</div>
 
 <section id="authView" class="gate" hidden>
@@ -540,7 +545,7 @@ const L=(so,en)=>LANG==="en"?en:so;
 const EN={
 "HantiGo waa la furayaa…":"Opening HantiGo…","Luqadda":"Language",
 "Maamul lacagtaada meel kasta oo aad joogto.":"Manage your money wherever you are.","Waxaa sameeyay":"Made by",
-"Gal":"Log in","Wadanka aad joogto":"Country you live in","Dooro wadanka iyo magaalada.":"Choose your country and city.","Beddel":"Change","Soomaaliya":"Somalia","Koonfur Afrika":"South Africa","Masar":"Egypt","Imaaraadka":"UAE","Sacuudiga":"Saudi Arabia","Turkiga":"Turkey","Ingiriiska":"United Kingdom","Iswiidhan":"Sweden","Holland":"Netherlands","Jarmalka":"Germany","Mareykan":"USA","Kanada":"Canada","Wadan kale":"Other country","Tusaale: London":"Example: London","Magaalada":"City","💬 Caawimaad? Nagala soo xiriir WhatsApp":"💬 Need help? Contact us on WhatsApp","Caawimaad":"Help","Su'aal ma qabtaa? Nagu soo qor WhatsApp.":"Have a question? Write to us on WhatsApp.","🚪 Ka bax":"🚪 Log out","🚪 Ka bax akoonka":"🚪 Log out of account","Jooji beddelka":"Cancel edit","✏️ Beddel":"✏️ Edit","Guriga":"Home","Ku dar":"Add","Qorshe":"Plan","Akoon":"Account","Akoonkaaga":"Your account","Qaybaha app-ka":"App sections","Magaalada aad joogto":"City you live in","— Dooro —":"— Choose —","Magaalo kale (Soomaaliya)":"Other city (Somalia)","Itoobiya":"Ethiopia","Jabuuti":"Djibouti","Dibadda (Yurub / Ameerika / kale)":"Abroad (Europe / America / other)","Xagee joogtaa?":"Where are you?","Noo sheeg magaaladaada si aan HantiGo ugu hagaajinno.":"Tell us your city so we can improve HantiGo.","Kaydi":"Save","Mar dambe":"Later","Is-diiwaangeli":"Sign up","Nooca akoonka":"Account type","👤 Shakhsi":"👤 Personal","🏢 Shirkad":"🏢 Business",
+"Gal":"Log in","WhatsApp: caawimaad":"WhatsApp: help","Wadanka aad joogto":"Country you live in","Dooro wadanka iyo magaalada.":"Choose your country and city.","Beddel":"Change","Soomaaliya":"Somalia","Koonfur Afrika":"South Africa","Masar":"Egypt","Imaaraadka":"UAE","Sacuudiga":"Saudi Arabia","Turkiga":"Turkey","Ingiriiska":"United Kingdom","Iswiidhan":"Sweden","Holland":"Netherlands","Jarmalka":"Germany","Mareykan":"USA","Kanada":"Canada","Wadan kale":"Other country","Tusaale: London":"Example: London","Magaalada":"City","💬 Caawimaad? Nagala soo xiriir WhatsApp":"💬 Need help? Contact us on WhatsApp","Caawimaad":"Help","Su'aal ma qabtaa? Nagu soo qor WhatsApp.":"Have a question? Write to us on WhatsApp.","🚪 Ka bax":"🚪 Log out","🚪 Ka bax akoonka":"🚪 Log out of account","Jooji beddelka":"Cancel edit","✏️ Beddel":"✏️ Edit","Guriga":"Home","Ku dar":"Add","Qorshe":"Plan","Akoon":"Account","Akoonkaaga":"Your account","Qaybaha app-ka":"App sections","Magaalada aad joogto":"City you live in","— Dooro —":"— Choose —","Magaalo kale (Soomaaliya)":"Other city (Somalia)","Itoobiya":"Ethiopia","Jabuuti":"Djibouti","Dibadda (Yurub / Ameerika / kale)":"Abroad (Europe / America / other)","Xagee joogtaa?":"Where are you?","Noo sheeg magaaladaada si aan HantiGo ugu hagaajinno.":"Tell us your city so we can improve HantiGo.","Kaydi":"Save","Mar dambe":"Later","Is-diiwaangeli":"Sign up","Nooca akoonka":"Account type","👤 Shakhsi":"👤 Personal","🏢 Shirkad":"🏢 Business",
 "Erayga sirta ah (ugu yaraan 6 xaraf)":"Password (at least 6 characters)","Akoon cusub wuxuu helayaa 7 maalmood oo bilaash ah.":"New accounts get 7 days free.",
 "Ma ilowday erayga sirta ah?":"Forgot your password?","Samee eray sir ah oo cusub":"Create a new password",
 "Erayga sirta ah ee cusub (ugu yaraan 6 xaraf)":"New password (at least 6 characters)","Ku celi erayga sirta ah":"Repeat the password","Kaydi erayga cusub":"Save new password",
