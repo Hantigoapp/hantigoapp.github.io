@@ -45,3 +45,8 @@ The GitHub Action "Android app" runs on every push to `main`. It publishes `Hant
 When the four `HANTIGO_*` signing secrets are set, that APK is the signed release build (accepted by
 Samsung Galaxy Store, Huawei AppGallery and Uptodown) and a signed `.aab` for Google Play is attached
 to the run as the `HantiGo-play-store-aab` artifact.
+
+## Updates reach every channel automatically
+The Android app (APK / Uptodown) loads the live site (`server.url` in `capacitor.config.json`),
+so a push to `main` updates the website, home-screen apps and the Android app at the same time.
+A new APK upload is only needed when the native shell itself changes (icon, app id, Capacitor version).
