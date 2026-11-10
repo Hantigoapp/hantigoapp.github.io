@@ -194,6 +194,13 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
 .install .dl{display:flex;flex-wrap:wrap;gap:8px}
 .install a.btnlike{text-decoration:none;color:var(--ink);font-weight:600}
 .install .big{display:block;width:100%;text-align:center;font-size:1.15rem;padding:16px;border-radius:14px;text-decoration:none;font-weight:700}
+.iosg{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:16px 16px calc(8px + env(safe-area-inset-bottom,0px));gap:6px}
+.iosg.top{flex-direction:column-reverse;justify-content:flex-start;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+.iosg-card{position:relative;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:18px 36px 14px 18px;max-width:420px;width:100%;display:grid;gap:8px}
+.iosg-card ol{margin:0;padding-left:22px;display:grid;gap:8px;font-size:1.05rem}
+.iosg-x{position:absolute;top:8px;right:8px;background:none;border:0;color:var(--muted);font-size:1.1rem;padding:6px}
+.iosg-arrow{font-size:2.4rem;animation:iosb 1s ease-in-out infinite}
+@keyframes iosb{50%{transform:translateY(8px)}}.iosg.top .iosg-arrow{animation-direction:reverse}
 .ihint{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;font-size:.92rem;color:var(--muted)}.ihint span{border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--ink)}.ihint i{font-style:normal}.ihint.flash span{border-color:var(--accent)}
 .install ol{margin:6px 0 0;padding-left:20px;display:grid;gap:4px}
 .loading{text-align:center;color:var(--muted);padding:60px 16px}
@@ -1379,6 +1386,19 @@ const INAPP=/FBAN|FBAV|Instagram|Line\/|WhatsApp|Snapchat|TikTok|musical_ly|Tele
 const BROWSER=INAPP?"inapp":/CriOS|Chrome\//.test(UA)&&!/EdgiOS|EdgA|SamsungBrowser|OPR/.test(UA)?"chrome":/SamsungBrowser/.test(UA)?"samsung":/FxiOS|Firefox/.test(UA)?"firefox":/EdgiOS|EdgA|Edg\//.test(UA)?"edge":"safari";
 const STANDALONE=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
 let installEvt=null;
+function showIosGuide(){
+  document.getElementById("iosGuide")?.remove();
+  const chrome=BROWSER==="chrome";
+  const d=document.createElement("div");d.id="iosGuide";d.className="iosg"+(chrome?" top":"");
+  d.innerHTML=`<div class="iosg-card" role="dialog" aria-label="${L("Rakib HantiGo","Install HantiGo")}">
+    <button type="button" class="iosg-x" aria-label="${L("Xir","Close")}">✕</button>
+    <ol><li>${chrome?L("Riix <b>⬆️</b> sare midig","Tap <b>⬆️</b> at the top right"):L("Riix <b>⬆️ Share</b> ee Safari (hoose). Haddii aadan arkin, riix <b>⋯</b> marka hore.","Tap Safari's <b>⬆️ Share</b> (bottom). If you don't see it, tap <b>⋯</b> first.")}</li>
+    <li>${L("Hoos u dhaadhac, riix <b>➕ Add to Home Screen</b>","Scroll down, tap <b>➕ Add to Home Screen</b>")}</li>
+    <li>${L("Riix <b>Add</b>","Tap <b>Add</b>")}</li></ol>
+    <p class="note" style="margin:0">${L("Haddii “Add to Home Screen” cawlan yahay: ka bax <b>Private</b> mode.","If “Add to Home Screen” is grey: leave <b>Private</b> mode.")}</p></div>
+    <div class="iosg-arrow" aria-hidden="true">${chrome?"⬆️":"⬇️"}</div>`;
+  d.addEventListener("click",e=>{if(e.target===d||e.target.closest(".iosg-x"))d.remove()});
+  document.body.appendChild(d)}
 function renderInstall(){
   document.querySelectorAll("[data-install]").forEach(box=>{
     if(NATIVE||STANDALONE){box.innerHTML="";return}
@@ -1394,8 +1414,7 @@ function renderInstall(){
       <h2>📲 ${L("Soo deji app-ka","Get the app")}</h2>${body}</section>`;
     box.querySelector("[data-pwa]")?.addEventListener("click",async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice}catch{}installEvt=null;renderInstall()});
     box.querySelector("[data-share]")?.addEventListener("click",async e=>{
-      if(navigator.share){try{await navigator.share({title:"HantiGo",url:"https://hantigoapp.github.io/"})}catch{}}
-      else box.querySelector(".ihint")?.classList.add("flash")});
+      showIosGuide()});
     box.querySelector("[data-copylink]")?.addEventListener("click",async e=>{const u="https://hantigoapp.github.io/";try{await navigator.clipboard.writeText(u);e.target.textContent="✓ "+L("Waa la koobiyeeyay","Copied")}catch{prompt(L("Koobiyee link-ga","Copy the link"),u)}});
   })}
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;renderInstall()});
