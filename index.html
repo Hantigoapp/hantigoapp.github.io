@@ -221,6 +221,18 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
 .coph{display:grid;place-items:center;font-size:1.8rem;background:var(--bg);border:1px dashed var(--line)}
 #printArea .rhead{display:flex;align-items:center;gap:12px;margin-bottom:6px}#printArea .rhead img{max-height:56px;max-width:140px;object-fit:contain}
 #printArea{display:none}
+.mm{display:grid;gap:6px}.mmbtn{justify-self:start;font-weight:600;color:var(--accent);border-color:var(--accent)}#mmText{width:100%;box-sizing:border-box;font:inherit;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:inherit}
+.note.ok{color:var(--in)}.pinbox{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:12px}
+.lockv{position:fixed;inset:0;z-index:9999;background:var(--bg,#0b1118);display:grid;place-items:center;padding:16px}
+body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;max-width:320px;width:100%}.lkcard h2{margin:0}.lkcard img{border-radius:16px}
+.lkdots{display:flex;gap:14px}.lkdots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent)}.lkdots i.on{background:var(--accent)}
+.lkpad{display:grid;grid-template-columns:repeat(3,72px);gap:12px}.lkpad button{height:64px;border-radius:50%;font-size:1.5rem;font-weight:600}
+.shake{animation:shk .35s}@keyframes shk{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.invlines{display:grid;gap:6px}.invrow{display:grid;grid-template-columns:minmax(0,1fr) 64px 92px 32px;gap:6px;align-items:center}.invrow input{min-width:0;width:100%;box-sizing:border-box}
+.invh{font-size:.8rem;color:var(--muted)}.chk{display:flex!important;gap:8px;align-items:center;font-size:.92rem;justify-content:flex-start}.chk input{width:auto!important;flex:none;margin:0}
+.wa-bg{background:#1faa53!important;border-color:#1faa53!important}.invlist{display:grid;gap:6px}
+.invli{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);font-size:.9rem}
+
 @media print{body.printing{background:#fff}body.printing>*:not(#printArea){display:none!important}
   body.printing #printArea{display:block!important;color:#000;font:12px/1.45 var(--body)}
   #printArea h1{font:700 20px var(--display);margin:0 0 4px}#printArea h2{font-size:14px;margin:14px 0 4px}
@@ -460,6 +472,10 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
               <input type="radio" name="method" id="mBank" value="Bangi"><label for="mBank">Bangi</label>
               <input type="radio" name="method" id="mCash" value="Kaash"><label for="mCash">Kaash</label>
             </div></div>
+          <div class="mm"><button type="button" class="chip mmbtn" id="mmBtn">📋 Ku dheji fariinta EVC</button><span class="note" id="mmMsg" role="status"></span>
+            <div class="newcat" id="mmBox" hidden><span class="note">Koobiyee fariinta EVC Plus (ama ZAAD, Sahal, eDahab), halkan ku dheji, kadib riix “Buuxi”.</span>
+              <textarea id="mmText" rows="3" placeholder="[-EVCPlus-] $10 ayaad u dirtay ..."></textarea>
+              <button type="button" id="mmGo" class="primary" style="justify-self:start">Buuxi</button></div></div>
           <div class="chips" id="daily" aria-label="Kharashka maalinlaha" hidden></div>
           <div class="row">
             <label class="field"><span>Qadarka</span><input id="amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" required></label>
@@ -489,6 +505,32 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
       <section class="panel" aria-labelledby="listH" data-tab="add">
         <div class="panel-head"><h2 id="listH">Dhaqdhaqaaqa bishan</h2><span class="note" id="count"></span></div>
         <ul class="list" id="txList"></ul>
+      </section>
+
+      <section class="panel biz-only owner-only" aria-labelledby="invH" data-tab="add" id="invPanel">
+        <div class="panel-head"><h2 id="invH">🧾 Rasiid / Qaansheeg</h2><button type="button" class="del" id="invNew">+ Mid cusub</button></div>
+        <div class="seg" role="radiogroup" aria-label="Nooca">
+          <input type="radio" name="invk" id="invR" value="r" checked><label for="invR" class="l-in">Rasiid (waa la bixiyay)</label>
+          <input type="radio" name="invk" id="invQ" value="q"><label for="invQ" class="l-out">Qaansheeg (weli lama bixin)</label>
+        </div>
+        <div class="row">
+          <label class="field"><span>Magaca macmiilka</span><input id="invCust" type="text" maxlength="50" placeholder="Tusaale: Cali Xasan"></label>
+          <label class="field"><span>Taleefanka macmiilka (WhatsApp)</span><input id="invPhone" type="tel" maxlength="20" placeholder="Tusaale: 61 5123456"></label>
+          <label class="field"><span>Email-ka macmiilka</span><input id="invEmail" type="email" maxlength="80" placeholder="macmiil@gmail.com"></label>
+        </div>
+        <div class="row">
+          <label class="field"><span>Taariikhda</span><input id="invDate" type="date"></label>
+          <label class="field" id="invDueRow" hidden><span>Ugu dambayn bixinta (ikhtiyaari)</span><input id="invDue" type="date"></label>
+        </div>
+        <div id="invLines" class="invlines"></div>
+        <div class="goal-actions"><button type="button" id="invAdd">+ Ku dar shay</button><span style="margin-left:auto">Wadarta: <b id="invTot">0</b></span></div>
+        <label class="field"><span>Faahfaahin (ikhtiyaari)</span><input id="invNote" type="text" maxlength="120" placeholder="Tusaale: Mahadsanid, mar kale nagu soo noqo"></label>
+        <label class="chk" id="invRecRow"><input type="checkbox" id="invRec" checked> <span id="invRecLbl">Ku dar dakhliga (Soo galay)</span></label>
+        <div class="err" id="invErr" role="alert"></div>
+        <div class="goal-actions"><button type="button" class="primary" id="invSend">📧 Email u dir (PDF)</button><button type="button" class="primary wa-bg" id="invShare">💬 WhatsApp u dir (PDF)</button><button type="button" id="invDl">⬇ PDF</button></div>
+        <span class="note ok" id="invMsg" role="status"></span>
+        <p class="note" style="margin:0">PDF-ka waxaa loo dirayaa macmiilka, nuqulna waxaa laguu soo dirayaa email-kaaga.</p>
+        <div id="invList" class="invlist"></div>
       </section>
     </div>
 
@@ -574,6 +616,15 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
         <h2 id="accH">Akoonkaaga</h2>
       <div class="account acc-panel"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option></select></label><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a></div>
         <div class="goal-actions" style="font-size:.92rem"><span>📍 <span id="accLoc">—</span></span><button type="button" class="del" id="locEdit">Beddel</button></div>
+        <div class="pinbox"><div class="goal-actions"><b>🔒 Qufulka PIN-ka</b><span class="pill" id="pinState">—</span></div>
+          <p class="note" style="margin:0">Marka app-ka la furo, 4 lambar ayaa la weydiinayaa si qof kale uusan u arkin lacagtaada.</p>
+          <div class="goal-actions"><button type="button" id="pinOn" class="primary">Shid qufulka</button><button type="button" id="pinChange" hidden>Beddel PIN-ka</button><button type="button" class="del" id="pinOff" hidden>Dami qufulka</button></div>
+          <div id="pinForm" class="newcat" hidden><div class="row">
+            <label class="field"><span>PIN cusub (4 lambar)</span><input id="pin1" type="password" inputmode="numeric" maxlength="4" autocomplete="new-password"></label>
+            <label class="field"><span>Ku celi PIN-ka</span><input id="pin2" type="password" inputmode="numeric" maxlength="4" autocomplete="new-password"></label></div>
+            <div class="err" id="pinErr" role="alert"></div>
+            <div class="goal-actions"><button type="button" id="pinSave" class="primary">Kaydi PIN-ka</button><button type="button" id="pinCancel">Jooji</button></div></div>
+          <span class="note" id="pinMsg" role="status"></span></div>
         <button type="button" class="logout outbtn">🚪 Ka bax akoonka</button>
       </section>
 
@@ -800,7 +851,8 @@ const EN={
 "Daabacaad & warqado":"Printing & paper","Lebis / dirays shaqaale":"Staff uniforms","Gunno shaqaale (bonus)":"Staff bonus","Caafimaadka shaqaalaha":"Staff health care",
 "Safar shaqo":"Business travel","Martisoor & shir":"Hospitality & meetings","Hadiyado macaamiil":"Customer gifts","Khidmadda bangiga & EVC":"Bank & EVC fees","Qareen & sharci":"Lawyer & legal",
 "Xisaab-hubin (audit)":"Audit","Diiwaangelin & ruqsad":"Registration & permits","Lacag-celin macmiil":"Customer refunds","Khasaare / alaab lumay":"Losses / lost stock",
-"Sadaqo & zakaad":"Charity & zakat","Qalab & dhismo cusub":"New equipment & buildings"
+"Sadaqo & zakaad":"Charity & zakat","Qalab & dhismo cusub":"New equipment & buildings",
+"📋 Ku dheji fariinta EVC":"📋 Paste EVC message","Koobiyee fariinta EVC Plus (ama ZAAD, Sahal, eDahab), halkan ku dheji, kadib riix “Buuxi”.":"Copy the EVC Plus (or ZAAD, Sahal, eDahab) message, paste it here, then tap “Fill in”.","Buuxi":"Fill in","🔒 Qufulka PIN-ka":"🔒 PIN lock","Marka app-ka la furo, 4 lambar ayaa la weydiinayaa si qof kale uusan u arkin lacagtaada.":"The app asks for 4 digits when opened, so nobody else can see your money.","Shid qufulka":"Turn on lock","Beddel PIN-ka":"Change PIN","Dami qufulka":"Turn off lock","PIN cusub (4 lambar)":"New PIN (4 digits)","Ku celi PIN-ka":"Repeat the PIN","Kaydi PIN-ka":"Save PIN","Jooji":"Cancel","Geli PIN-kaaga":"Enter your PIN","Ma illowday PIN-ka? Ka bax oo mar kale gal":"Forgot the PIN? Log out and log in again","🧾 Rasiid / Qaansheeg":"🧾 Receipt / Invoice","+ Mid cusub":"+ New","Rasiid (waa la bixiyay)":"Receipt (paid)","Qaansheeg (weli lama bixin)":"Invoice (not paid yet)","Magaca macmiilka":"Customer name","Taleefanka macmiilka (WhatsApp)":"Customer phone (WhatsApp)","Email-ka macmiilka":"Customer email","Tusaale: 61 5123456":"Example: 61 5123456","macmiil@gmail.com":"customer@gmail.com","Ugu dambayn bixinta (ikhtiyaari)":"Due date (optional)","+ Ku dar shay":"+ Add item","Wadarta:":"Total:","Tusaale: Mahadsanid, mar kale nagu soo noqo":"Example: Thank you, come again","Ku dar dakhliga (Soo galay)":"Add to income","📧 Email u dir (PDF)":"📧 Send by email (PDF)","💬 WhatsApp u dir (PDF)":"💬 Send on WhatsApp (PDF)","⬇ PDF":"⬇ PDF","PDF-ka waxaa loo dirayaa macmiilka, nuqulna waxaa laguu soo dirayaa email-kaaga.":"The PDF goes to the customer, and a copy is sent to your email.","🧾 Rasiid":"🧾 Receipt"
 };
 const T=s=>LANG==="en"&&Object.prototype.hasOwnProperty.call(EN,s)?EN[s]:s;
 function trText(n){const p=n.parentNode;if(!p||p.nodeName==="SCRIPT"||p.nodeName==="STYLE")return;
@@ -921,7 +973,7 @@ async function syncNow(){
 }
 async function flush(){clearTimeout(syncTimer);if(dirty.size||gone.size)await syncNow()}
 async function put(doc){
-  if(["tx","goal","bill","cat","debt","leave"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
+  if(["tx","goal","bill","cat","debt","leave","inv"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
   if(doc.kind==="tx"&&!doc.by&&(TEAM||hasStaff)&&me)doc={...doc,by:me.email};
   const i=items.findIndex(x=>x.id===doc.id);if(i>=0)items[i]=doc;else items.push(doc);
   dirty.add(doc.id);gone.delete(doc.id);
@@ -1187,7 +1239,7 @@ function render(){
       <span class="dot ${t.type}" aria-hidden="true">${t.type==="in"?"+":"−"}</span>
       <div style="min-width:0"><div class="name">${esc(t.cat)}<span class="pm">${esc(t.method||"Kaash")}</span></div><div class="meta">${esc(t.date)}${t.place?" · "+esc(t.place):""}${t.note?" · "+esc(t.note):""}${t.by&&(TEAM||hasStaff)?" · 👤 "+esc(t.by.split("@")[0]):""}</div></div>
       <span class="amt ${t.type}">${t.type==="in"?"+":"−"}${money(t.amount)}</span>
-      <span class="txa">${t.billId||t.debtId?"":`<button class="del" data-edit="${esc(t.id)}">✏️ Beddel</button>`}<button class="del" data-del="${esc(t.id)}" aria-label="Tirtir">Tirtir</button></span></li>`).join("");
+      <span class="txa">${MODE==="business"&&t.type==="in"&&!TEAM&&!t.debtId?`<button class="del" data-rcpt="${esc(t.id)}">🧾 Rasiid</button>`:""}${t.billId||t.debtId?"":`<button class="del" data-edit="${esc(t.id)}">✏️ Beddel</button>`}<button class="del" data-del="${esc(t.id)}" aria-label="Tirtir">Tirtir</button></span></li>`).join("");
   }
 
   const outs=month.filter(t=>t.type==="out"&&t.cat!=="Kayd");const byCat={};
@@ -1966,6 +2018,220 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=
 window.addEventListener("appinstalled",()=>{installEvt=null;document.querySelectorAll("[data-install]").forEach(b=>b.innerHTML="")});
 renderInstall();
 $("date").value=today();renderDaily();fillCats();render();initLang();init();
+</script>
+<div id="lockView" class="lockv" hidden><div class="lkcard" id="lkCard"><img src="icon-192.png" alt="" width="64" height="64"><h2>Geli PIN-kaaga</h2>
+  <div class="lkdots" id="lkDots"></div><div class="err" id="lkMsg" role="alert"></div>
+  <div class="lkpad" id="lkPad"><button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><span></span><button data-k="0">0</button><button data-k="del" aria-label="Tirtir">⌫</button></div>
+  <button type="button" class="del" id="lkForgot">Ma illowday PIN-ka? Ka bax oo mar kale gal</button></div></div>
+<script>
+/* ================= 1. Paste EVC / ZAAD / Sahal / eDahab message ================= */
+function parseMM(raw){
+  const s=String(raw||"").replace(/\s+/g," ").trim();if(!s)return null;
+  let amount=null;
+  const re=/(?:\$|USD\s?|SLSH\.?\s?|SOS\s?|Sh\.?\s?)\s?([\d][\d,]*(?:\.\d+)?)|([\d][\d,]*(?:\.\d+)?)\s?(?:\$|USD|SLSH|SOS)/gi;let m;
+  while((m=re.exec(s))){const pre=s.slice(Math.max(0,m.index-28),m.index).toLowerCase();
+    if(/haraag|hadhaag|balance|baaqi|kharashka adeeg|fee/.test(pre))continue;
+    const v=parseFloat((m[1]||m[2]).replace(/,/g,""));if(v>0){amount=v;break}}
+  if(amount==null)return null;
+  const low=s.toLowerCase();
+  const isIn=/ka heshay|ka helay|waxaad heshay|waxaad heshay|lagu soo dir|lagu soo shubay|kuu soo dir|kuu soo wareej|loo soo dir|you have received|received|credited/.test(low);
+  const type=isIn?"in":"out";
+  let date=null;const d=s.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+  if(d){let a=+d[1],b=+d[2],y=+d[3];if(y<100)y+=2000;let dd=a,mm=b;if(mm>12&&dd<=12){dd=b;mm=a}
+    if(mm>=1&&mm<=12&&dd>=1&&dd<=31&&y>2000&&y<2100)date=y+"-"+String(mm).padStart(2,"0")+"-"+String(dd).padStart(2,"0")}
+  let who="";const nm=s.match(/([A-Za-z][A-Za-z .'\-]{1,40}?)\s*\(\s*(\+?\d{6,15})\s*\)/);
+  if(nm)who=(nm[1].trim()+" ("+nm[2]+")");
+  else{const t=s.match(/(?:u dirtay|u wareejisay|ka heshay|ka helay|ka iibsatay|u bixisay|sent to|paid to|to|from)\s+([^,;\n]{2,40}?)(?:[,;]|\s+Tar|\s+on\s|\s+at\s|$)/i);
+    if(t&&!/^\$|^\d+(\.\d+)?$/.test(t[1].trim()))who=t[1].trim();
+    if(!who){const p=s.match(/\b(\+?252\d{8,9}|0?6\d{8}|[67]\d{7,8})\b/);if(p)who=p[1]}}
+  who=who.replace(/^.*\b(dirtay|wareejisay|heshay|helay|iibsatay|bixisay|sent to|paid to|to|from)\s+/i,"").replace(/\s+(ayaad|waxaad|tar|lacag)\b.*$/i,"").trim().slice(0,40);
+  const ref=s.match(/(?:Tix(?:raac)?|Ref(?:erence)?|TID|Transaction ID|Trans ID)\s*[:#.]?\s*([A-Z0-9]{4,})/i);
+  let net="EVC";if(/zaad/i.test(s))net="ZAAD";else if(/sahal/i.test(s))net="Sahal";else if(/e-?dahab/i.test(s))net="eDahab";else if(/premier|wallet|salaam|amal|bank/i.test(s)&&!/evc/i.test(s))net="Bangi";
+  return {amount,type,date,who,ref:ref?ref[1]:"",net}}
+function fillFromMM(p){
+  if(!p){$("mmMsg").textContent=L("Fariintan lama fahmin. Hubi inaad koobiyeysay fariinta oo dhan.","Could not read this message. Make sure you copied the whole message.");$("mmMsg").className="err";return false}
+  if(MULTI_ON){MULTI_ON=false;fillCats()}
+  const r=document.querySelector(`input[name=type][value="${p.type}"]`);if(r&&!r.checked){r.checked=true;fillCats()}
+  const meth=p.net==="Bangi"?"Bangi":"EVC Plus";const mr=document.querySelector(`input[name=method][value="${meth}"]`);if(mr)mr.checked=true;
+  $("amount").value=p.amount;if(p.date)$("date").value=p.date;
+  if(p.who)$("place").value=p.who;
+  const nt=[p.net!=="EVC"&&p.net!=="Bangi"?p.net:"",p.ref?"Tix "+p.ref:""].filter(Boolean).join(" · ");if(nt&&!$("note").value)$("note").value=nt;
+  $("mmMsg").className="note ok";
+  $("mmMsg").textContent="✓ "+L(`Waa la buuxiyay: ${p.type==="in"?"Soo galay":"Ka baxay"} ${money(p.amount)}${p.who?" · "+p.who:""}. Dooro qaybta, kadib riix Kaydi.`,
+    `Filled in: ${p.type==="in"?"Income":"Expense"} ${money(p.amount)}${p.who?" · "+p.who:""}. Choose the category, then tap Save.`);
+  $("mmBox").hidden=true;$("mmText").value="";setTimeout(()=>$("cat").focus(),100);return true}
+$("mmBtn").addEventListener("click",async()=>{$("mmMsg").textContent="";let t="";
+  try{if(navigator.clipboard?.readText)t=await navigator.clipboard.readText()}catch{}
+  const p=t&&parseMM(t);if(p){fillFromMM(p);return}
+  $("mmBox").hidden=false;$("mmText").focus()});
+$("mmGo").addEventListener("click",()=>fillFromMM(parseMM($("mmText").value)));
+$("mmText").addEventListener("paste",()=>setTimeout(()=>{const p=parseMM($("mmText").value);if(p)fillFromMM(p)},50));
+
+/* ================= 2. PIN lock (per device, per account) ================= */
+const pinKey=()=>"hantigo.pin."+(me?.id||"x");
+const pinGet=()=>{try{return JSON.parse(localStorage.getItem(pinKey())||"null")}catch{return null}};
+async function pinHash(pin,salt){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(salt+":"+pin));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+let pinUnlocked=false,pinBuf="",pinFails=0,pinHiddenAt=0;
+function pinDots(){$("lkDots").innerHTML=[0,1,2,3].map(i=>`<i class="${i<pinBuf.length?"on":""}"></i>`).join("")}
+function pinLock(){if(!me||!pinGet())return;pinUnlocked=false;pinBuf="";pinDots();$("lkMsg").textContent="";$("lockView").hidden=false;document.body.classList.add("locked")}
+function pinOpen(){pinUnlocked=true;$("lockView").hidden=true;document.body.classList.remove("locked")}
+async function pinKey_(k){if(k==="del"){pinBuf=pinBuf.slice(0,-1);pinDots();return}
+  if(pinBuf.length>=4)return;pinBuf+=k;pinDots();if(pinBuf.length<4)return;
+  const p=pinGet();if(!p){pinOpen();return}
+  if(await pinHash(pinBuf,p.s)===p.h){pinFails=0;pinOpen();return}
+  pinFails++;pinBuf="";$("lkCard").classList.remove("shake");void $("lkCard").offsetWidth;$("lkCard").classList.add("shake");
+  if(pinFails>=5){$("lkMsg").textContent=L("Isku day badan. Gal mar kale adigoo isticmaalaya erayga sirta ah.","Too many tries. Log in again with your password.");setTimeout(pinForgot,1500);return}
+  $("lkMsg").textContent=L("PIN-ku waa khalad. Isku day mar kale.","Wrong PIN. Try again.");setTimeout(pinDots,250)}
+async function pinForgot(){try{localStorage.removeItem(pinKey())}catch{}pinFails=0;$("lockView").hidden=true;document.body.classList.remove("locked");
+  clearTimeout(syncTimer);try{if(me)await syncNow()}catch{}await sb.auth.signOut();location.reload()}
+$("lkPad").addEventListener("click",e=>{const b=e.target.closest("[data-k]");if(b)pinKey_(b.dataset.k)});
+document.addEventListener("keydown",e=>{if($("lockView").hidden)return;if(/^\d$/.test(e.key))pinKey_(e.key);else if(e.key==="Backspace")pinKey_("del")});
+$("lkForgot").addEventListener("click",pinForgot);
+document.addEventListener("visibilitychange",()=>{if(document.hidden)pinHiddenAt=Date.now();else if(pinHiddenAt&&Date.now()-pinHiddenAt>60000&&!$("appView").hidden)pinLock()});
+const _showView=showView;
+showView=function(v){_showView(v);if(v==="appView"&&!pinUnlocked)pinLock();if(v==="authView"){pinUnlocked=false;$("lockView").hidden=true;document.body.classList.remove("locked")}};
+function renderPin(){const on=!!pinGet();$("pinState").textContent=on?L("Waa shidan yahay","On"):L("Waa dansan yahay","Off");
+  $("pinOn").hidden=on;$("pinChange").hidden=!on;$("pinOff").hidden=!on}
+function pinForm(show){$("pinForm").hidden=!show;$("pinErr").textContent="";$("pin1").value="";$("pin2").value="";if(show)$("pin1").focus()}
+$("pinOn").addEventListener("click",()=>pinForm(true));$("pinChange").addEventListener("click",()=>pinForm(true));
+$("pinCancel").addEventListener("click",()=>pinForm(false));
+$("pinOff").addEventListener("click",e=>{const b=e.target;if(!b.classList.contains("arm")){b.classList.add("arm");b.textContent=L("Hubi?","Sure?");setTimeout(()=>{b.classList.remove("arm");b.textContent=L("Dami qufulka","Turn off lock")},3000);return}
+  try{localStorage.removeItem(pinKey())}catch{}b.classList.remove("arm");b.textContent=L("Dami qufulka","Turn off lock");renderPin();$("pinMsg").textContent="✓ "+L("Qufulka waa la damiyay.","Lock turned off.")});
+$("pinSave").addEventListener("click",async()=>{const a=$("pin1").value.trim(),b=$("pin2").value.trim();
+  if(!/^\d{4}$/.test(a)){$("pinErr").textContent=L("PIN-ku waa inuu noqdaa 4 lambar.","The PIN must be 4 digits.");return}
+  if(a!==b){$("pinErr").textContent=L("Labada PIN isku mid ma aha.","The two PINs do not match.");return}
+  if(!window.crypto?.subtle){$("pinErr").textContent=L("Taleefankan qufulka ma taageero.","This phone does not support the lock.");return}
+  const s=Math.random().toString(36).slice(2,10);try{localStorage.setItem(pinKey(),JSON.stringify({s,h:await pinHash(a,s)}))}catch{$("pinErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.");return}
+  pinUnlocked=true;pinForm(false);renderPin();$("pinMsg").textContent="✓ "+L("Qufulka waa la shiday. Marka app-ka la furo, PIN-ka ayaa la weydiinayaa.","Lock is on. The app will ask for the PIN when opened.")});
+["pin1","pin2"].forEach(id=>$(id).addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,4)}));
+
+/* ================= 5. Receipt / invoice (Shirkad) ================= */
+let invLines=[],invTx=null;
+function invRow(l,i){return `<div class="invrow"><input data-il="${i}" data-f="n" type="text" maxlength="50" value="${esc(l.n)}" placeholder="${esc(L("Shayga / adeegga","Item / service"))}" aria-label="${esc(L("Shayga","Item"))}"><input data-il="${i}" data-f="q" type="number" inputmode="decimal" min="0" step="any" value="${l.q}" aria-label="${esc(L("Tirada","Qty"))}"><input data-il="${i}" data-f="p" type="number" inputmode="decimal" min="0" step="0.01" value="${l.p||""}" placeholder="0.00" aria-label="${esc(L("Qiimaha","Price"))}"><button type="button" class="del" data-ildel="${i}" aria-label="${esc(L("Ka saar","Remove"))}">✕</button></div>`}
+const invTotal=()=>invLines.reduce((a,l)=>a+(Number(l.q)||0)*(Number(l.p)||0),0);
+function renderInvLines(){if(!invLines.length)invLines=[{n:"",q:1,p:""}];
+  $("invLines").innerHTML=`<div class="invrow invh"><span>${L("Shayga / adeegga","Item / service")}</span><span>${L("Tirada","Qty")}</span><span>${L("Qiimaha","Price")}</span><span></span></div>`+invLines.map(invRow).join("");
+  $("invTot").textContent=money(invTotal())}
+function invKind(){return document.querySelector("input[name=invk]:checked")?.value||"r"}
+function invKindUI(){const r=invKind()==="r";$("invRecLbl").textContent=r?L("Ku dar dakhliga (Soo galay)","Add to income"):L("Ku dar Deymaha (lacag naloo hayo)","Add to Debts (money owed to us)");
+  $("invDueRow").hidden=r;if(invTx){$("invRecRow").hidden=true}else $("invRecRow").hidden=false}
+$("invLines").addEventListener("input",e=>{const i=e.target.dataset.il;if(i==null)return;invLines[i][e.target.dataset.f]=e.target.value;$("invTot").textContent=money(invTotal())});
+$("invLines").addEventListener("click",e=>{const b=e.target.closest("[data-ildel]");if(!b)return;invLines.splice(+b.dataset.ildel,1);renderInvLines()});
+$("invAdd").addEventListener("click",()=>{invLines.push({n:"",q:1,p:""});renderInvLines();document.querySelector(`[data-il="${invLines.length-1}"][data-f="n"]`)?.focus()});
+document.querySelectorAll("input[name=invk]").forEach(r=>r.addEventListener("change",invKindUI));
+function invLoad(d){invReset();invLines=d.lines.map(l=>({...l}));document.querySelector(`input[name=invk][value=${d.k}]`).checked=true;$("invCust").value=d.cust;$("invPhone").value=d.phone||"";$("invEmail").value=d.email||"";$("invDate").value=d.date;$("invDue").value=d.due||"";$("invNote").value=d.note||"";renderInvLines();invKindUI();$("invRecRow").hidden=true;
+  invCur={sig:JSON.stringify([d.k,d.cust,d.phone||"",d.email||"",d.date,d.lines,d.note||"",d.due||""]),doc:d}}
+function invReset(){invCur=null;invLines=[];invTx=null;$("invCust").value="";$("invPhone").value="";$("invEmail").value="";$("invNote").value="";$("invDate").value=today();$("invDue").value="";$("invRec").checked=true;$("invErr").textContent="";$("invMsg").textContent="";renderInvLines();invKindUI()}
+$("invNew").addEventListener("click",invReset);
+function invNextNo(k){const s=settings();const n=Number((s.invNo||{})[k]||0)+1;return [n,{...s,invNo:{...(s.invNo||{}),[k]:n}}]}
+const invLabel=k=>k==="r"?L("Rasiid","Receipt"):L("Qaansheeg","Invoice");
+const invNoTxt=d=>(d.k==="r"?"R-":"Q-")+String(d.no).padStart(4,"0");
+const fmtD=iso=>{const [y,m,d]=String(iso||"").split("-");return d?`${d}/${m}/${y}`:""};
+let invCur=null;
+async function invSave(){const lines=invLines.map(l=>({n:String(l.n||"").trim(),q:Number(l.q)||0,p:Number(l.p)||0})).filter(l=>l.n&&l.q>0&&l.p>0);
+  const cust=$("invCust").value.trim();
+  if(!cust){$("invErr").textContent=L("Geli magaca macmiilka.","Enter the customer's name.");$("invCust").focus();return null}
+  if(!lines.length){$("invErr").textContent=L("Geli ugu yaraan hal shay oo leh qiimo.","Enter at least one item with a price.");return null}
+  $("invErr").textContent="";const k=invKind(),total=lines.reduce((a,l)=>a+l.q*l.p,0),date=$("invDate").value||today();
+  const sig=JSON.stringify([k,cust,$("invPhone").value,$("invEmail").value,date,lines,$("invNote").value,$("invDue").value]);
+  if(invCur&&invCur.sig===sig)return invCur.doc;
+  try{let doc;
+    if(invCur&&invCur.doc&&invCur.doc.k===k){doc={...invCur.doc}}
+    else{const [no,s2]=invNextNo(k);await put(s2);doc={id:uid(),kind:"inv",k,no,created:new Date().toISOString()}}
+    Object.assign(doc,{cust,phone:$("invPhone").value.trim(),email:$("invEmail").value.trim(),date,due:k==="q"?($("invDue").value||null):null,lines,total,note:$("invNote").value.trim()});
+    if(!doc.linked){
+      if(invTx){doc.txId=invTx;doc.linked=1}
+      else if($("invRec").checked){
+        if(k==="r"){const tid=uid();await put({id:tid,kind:"tx",method:payMethod(),type:"in",amount:total,cat:"Iib (sales)",date,place:cust,note:invNoTxt(doc),created:new Date().toISOString()});doc.txId=tid}
+        else{const did=uid();await put({id:did,kind:"debt",name:cust,amount:total,dir:"in",due:doc.due,paid:0,note:invNoTxt(doc),created:new Date().toISOString()});doc.debtId=did}
+        doc.linked=1}}
+    await put(doc);invCur={sig,doc};$("invMsg").textContent="✓ "+L(`${invLabel(k)} ${invNoTxt(doc)} waa la kaydiyay.`,`${invLabel(k)} ${invNoTxt(doc)} saved.`);return doc}
+  catch{$("invErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.");return null}}
+function invHtml(d){const k=d.k,co=coName()||"HantiGo",lg=coLogo();
+  return `<div class="inv"><div class="rhead">${lg?`<img src="${lg}" alt="" width="56" height="56" style="max-height:56px">`:""}<div><h1 style="margin:0">${esc(co)}</h1><small style="color:#666">${esc(invLabel(k))} · ${esc(invNoTxt(d))}</small></div></div>
+  <table><tr><th>${L("Macmiilka","Customer")}</th><td>${esc(d.cust)}${d.phone?" · "+esc(d.phone):""}</td></tr><tr><th>${L("Taariikhda","Date")}</th><td>${fmtD(d.date)}</td></tr>${k==="q"&&d.due?`<tr><th>${L("Ugu dambayn bixinta","Due date")}</th><td>${fmtD(d.due)}</td></tr>`:""}</table>
+  <table><tr><th>${L("Shayga / adeegga","Item / service")}</th><th>${L("Tirada","Qty")}</th><th>${L("Qiimaha","Price")}</th><th>${L("Wadarta","Total")}</th></tr>
+  ${d.lines.map(l=>`<tr><td>${esc(l.n)}</td><td class="n">${l.q}</td><td class="n">${money(l.p)}</td><td class="n">${money(l.q*l.p)}</td></tr>`).join("")}
+  <tr><td colspan="3"><b>${L("Wadarta guud","Grand total")}</b></td><td class="n"><b>${money(d.total)}</b></td></tr></table>
+  <p><b>${k==="r"?L("✓ Waa la bixiyay. Mahadsanid!","✓ Paid. Thank you!"):L("Fadlan bixi lacagtan","Please pay this amount")+(d.due?" "+L("ugu dambayn","by")+" "+fmtD(d.due):"")+"."}</b></p>
+  ${d.note?`<p>${esc(d.note)}</p>`:""}
+  <p style="color:#666;font-size:11px">${L("Waxaa lagu sameeyay","Made with")} HantiGo · ${dlStamp()}</p></div>`}
+function waPhone(p){let n=String(p||"").replace(/[^\d+]/g,"");if(n.startsWith("+"))return n.slice(1);if(n.startsWith("00"))return n.slice(2);
+  if(/^0?6\d{8}$/.test(n)||/^0?7\d{8}$/.test(n))return "252"+n.replace(/^0/,"");return n}
+function invText(d){const k=d.k;return `*${coName()||"HantiGo"}*\n${invLabel(k)} ${invNoTxt(d)} · ${fmtD(d.date)}\n${L("Macmiil","Customer")}: ${d.cust}\n\n`+
+  d.lines.map(l=>`• ${l.n}${l.q!==1?" ×"+l.q:""} = ${money(l.q*l.p)}`).join("\n")+`\n\n*${L("Wadarta","Total")}: ${money(d.total)}*\n`+
+  (k==="r"?L("✓ Waa la bixiyay. Mahadsanid!","✓ Paid. Thank you!"):L("Fadlan bixi","Please pay")+(d.due?" "+L("ugu dambayn","by")+" "+fmtD(d.due):"")+". "+L("Mahadsanid!","Thank you!"))+(d.note?"\n"+d.note:"")}
+function invWa(d){const ph=waPhone(d.phone);window.open("https://wa.me/"+(ph||"")+"?text="+encodeURIComponent(invText(d)),"_blank","noopener")}
+let pdfLib=null;
+function loadPdf(){return pdfLib||(pdfLib=new Promise((res,rej)=>{if(window.jspdf)return res(window.jspdf.jsPDF);const sc=document.createElement("script");sc.src="vendor/jspdf.umd.min.js";
+  sc.onload=()=>window.jspdf?res(window.jspdf.jsPDF):rej();sc.onerror=()=>{pdfLib=null;rej()};document.head.appendChild(sc)}))}
+const pm=n=>money(n).replace("−","-");
+async function invPdf(d){const J=await loadPdf();const doc=new J({unit:"mm",format:"a4"});const W=210,M=16;let y=18;
+  const lg=coLogo();let tx=M;
+  if(lg){try{const f=/^data:image\/png/.test(lg)?"PNG":"JPEG";doc.addImage(lg,f,M,y-6,22,22);tx=M+27}catch{}}
+  doc.setFont("helvetica","bold");doc.setFontSize(18);doc.setTextColor(11,122,75);doc.text(coName()||"HantiGo",tx,y+2);
+  doc.setFontSize(13);doc.setTextColor(40);doc.text(`${invLabel(d.k).toUpperCase()}  ${invNoTxt(d)}`,W-M,y+2,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);doc.text(`${L("Taariikhda","Date")}: ${fmtD(d.date)}`,W-M,y+8,{align:"right"});
+  if(d.k==="q"&&d.due)doc.text(`${L("Ugu dambayn bixinta","Due date")}: ${fmtD(d.due)}`,W-M,y+13,{align:"right"});
+  y+=24;doc.setDrawColor(200);doc.line(M,y,W-M,y);y+=8;
+  doc.setTextColor(90);doc.text(L("Macmiilka","Customer"),M,y);doc.setTextColor(20);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(d.cust,M,y+6);
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);const ct=[d.phone,d.email].filter(Boolean).join("  ·  ");if(ct)doc.text(ct,M,y+11);
+  y+=20;const cx=[M,118,142,W-M];
+  doc.setFillColor(11,122,75);doc.rect(M,y-5,W-2*M,8,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");
+  doc.text(L("Shayga / adeegga","Item / service"),cx[0]+2,y);doc.text(L("Tirada","Qty"),cx[1]+14,y,{align:"right"});doc.text(L("Qiimaha","Price"),cx[2]+22,y,{align:"right"});doc.text(L("Wadarta","Total"),cx[3]-2,y,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setTextColor(20);y+=8;
+  d.lines.forEach((l,i)=>{if(y>265){doc.addPage();y=20}if(i%2){doc.setFillColor(242,246,244);doc.rect(M,y-5,W-2*M,8,"F")}
+    doc.text(doc.splitTextToSize(l.n,95)[0],cx[0]+2,y);doc.text(String(l.q),cx[1]+14,y,{align:"right"});doc.text(pm(l.p),cx[2]+22,y,{align:"right"});doc.text(pm(l.q*l.p),cx[3]-2,y,{align:"right"});y+=8});
+  doc.setDrawColor(11,122,75);doc.line(M,y-3,W-M,y-3);y+=4;doc.setFont("helvetica","bold");doc.setFontSize(13);
+  doc.text(L("Wadarta guud","Grand total"),cx[2]-20,y);doc.text(pm(d.total),cx[3]-2,y,{align:"right"});y+=12;
+  doc.setFontSize(11);if(d.k==="r")doc.setTextColor(11,122,75);else doc.setTextColor(179,64,42);
+  doc.text(d.k==="r"?L("Waa la bixiyay. Mahadsanid!","Paid. Thank you!"):L("Fadlan bixi lacagtan","Please pay this amount")+(d.due?" "+L("ugu dambayn","by")+" "+fmtD(d.due):"")+".",M,y);
+  doc.setFont("helvetica","normal");doc.setTextColor(60);doc.setFontSize(10);if(d.note){y+=8;doc.text(doc.splitTextToSize(d.note,W-2*M),M,y)}
+  doc.setTextColor(140);doc.setFontSize(8);doc.text(`${L("Waxaa lagu sameeyay","Made with")} HantiGo · hantigoapp.github.io`,W/2,287,{align:"center"});
+  const name=`${coName()?coName().replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"-")+"-":""}${invNoTxt(d)}.pdf`;
+  const blob=doc.output("blob");return {blob,name,file:new File([blob],name,{type:"application/pdf"})}}
+function dlBlob(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+function b64(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]);r.onerror=rej;r.readAsDataURL(blob)})}
+const ownerEmail=()=>me?.email||"";
+async function mailPdf(d,p,to){
+  const {data,error}=await sb.functions.invoke("send-receipt",{body:{to:to||"",copy:ownerEmail(),subject:`${invLabel(d.k)} ${invNoTxt(d)} · ${coName()||"HantiGo"}`,
+    text:invText(d).replace(/\*/g,""),company:coName()||"HantiGo",filename:p.name,pdf:await b64(p.blob)}});
+  if(error||!data?.ok)throw error||new Error("send");return data}
+function invBusy(on,msg){["invSend","invShare","invDl"].forEach(id=>$(id).disabled=on);if(msg!=null){$("invMsg").textContent=msg}}
+$("invDl").addEventListener("click",async()=>{const d=await invSave();if(!d)return;invBusy(true,L("PDF-ka waa la diyaarinayaa…","Preparing PDF…"));
+  try{const p=await invPdf(d);dlBlob(p.blob,p.name);invBusy(false,"✓ "+L(`${p.name} waa la soo dejiyay.`,`${p.name} downloaded.`))}
+  catch{invBusy(false,"");$("invErr").textContent=L("PDF-ka lama samayn karo hadda. Hubi internetka.","Could not make the PDF. Check the internet.")}});
+$("invSend").addEventListener("click",async()=>{const d=await invSave();if(!d)return;const to=$("invEmail").value.trim();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){$("invErr").textContent=L("Geli email sax ah oo macmiilka ah.","Enter the customer's correct email.");$("invEmail").focus();return}
+  invBusy(true,L("Waa la dirayaa…","Sending…"));let p;
+  try{p=await invPdf(d)}catch{invBusy(false,"");$("invErr").textContent=L("PDF-ka lama samayn karo hadda. Hubi internetka.","Could not make the PDF. Check the internet.");return}
+  try{await mailPdf(d,p,to);await put({...items.find(i=>i.id===d.id)||d,sentTo:to,sentAt:new Date().toISOString()});
+    invBusy(false,"✓ "+L(`Waa loo diray ${to}. Nuqul ayaa laguu diray ${ownerEmail()}.`,`Sent to ${to}. A copy was sent to ${ownerEmail()}.`))}
+  catch(e){console.warn("send-receipt",e);invBusy(false,"");$("invErr").textContent=L("Email-ka si toos ah looma diri karo hadda. PDF-ka waa la soo dejiyay, adiguna u dir.","The email could not be sent automatically right now. The PDF was downloaded, send it yourself.");
+    dlBlob(p.blob,p.name);location.href=`mailto:${encodeURIComponent(to)}?cc=${encodeURIComponent(ownerEmail())}&subject=${encodeURIComponent(invLabel(d.k)+" "+invNoTxt(d))}&body=${encodeURIComponent(invText(d).replace(/\*/g,""))}`}});
+$("invShare").addEventListener("click",async()=>{const d=await invSave();if(!d)return;invBusy(true,L("PDF-ka waa la diyaarinayaa…","Preparing PDF…"));let p;
+  try{p=await invPdf(d)}catch{invBusy(false,"");$("invErr").textContent=L("PDF-ka lama samayn karo hadda. Hubi internetka.","Could not make the PDF. Check the internet.");return}
+  mailPdf(d,p,"").catch(()=>{});
+  try{if(navigator.canShare&&navigator.canShare({files:[p.file]})){await navigator.share({files:[p.file],title:p.name,text:invText(d).replace(/\*/g,"")});
+      invBusy(false,"✓ "+L("Dooro macmiilka WhatsApp-ka, kadib dir. Nuqul ayaa email-kaaga laguu diray.","Pick the customer in WhatsApp, then send. A copy was emailed to you."));return}}
+  catch(e){if(e&&e.name==="AbortError"){invBusy(false,"");return}}
+  dlBlob(p.blob,p.name);invWa(d);invBusy(false,"✓ "+L("PDF-ka waa la soo dejiyay. WhatsApp-ka ku lifaaq (📎) PDF-ka, kadib dir.","PDF downloaded. Attach it in WhatsApp (📎), then send."))});
+function renderInvList(){const box=$("invList");if(!box)return;const l=mine("inv").sort((a,b)=>(b.created||"").localeCompare(a.created||"")).slice(0,8);
+  box.innerHTML=l.length?`<p class="note" style="margin:0">${L("Kuwii u dambeeyay","Recent")}</p>`+l.map(d=>`<div class="invli"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)} · ${fmtD(d.date)}${d.sentTo?" · ✉️ "+esc(d.sentTo):""}</span><span class="amt in">${money(d.total)}</span><span class="txa"><button type="button" class="del" data-invp="${esc(d.id)}">⬇ PDF</button><button type="button" class="del" data-invw="${esc(d.id)}">📤 ${L("Dir mar kale","Send again")}</button><button type="button" class="del" data-invd="${esc(d.id)}">${L("Tirtir","Delete")}</button></span></div>`).join(""):""}
+document.addEventListener("click",async e=>{
+  const p=e.target.closest("[data-invp]");if(p){const d=items.find(i=>i.id===p.dataset.invp);if(d){try{const f=await invPdf(d);dlBlob(f.blob,f.name)}catch{}}return}
+  const w=e.target.closest("[data-invw]");if(w){const d=items.find(i=>i.id===w.dataset.invw);if(d){invLoad(d);$("invShare").click()}return}
+  const x=e.target.closest("[data-invd]");if(x){if(!x.classList.contains("arm")){x.classList.add("arm");x.textContent=L("Hubi?","Sure?");setTimeout(()=>{x.classList.remove("arm");x.textContent=L("Tirtir","Delete")},3000);return}
+    try{await remove(x.dataset.invd)}catch{}return}
+  const r=e.target.closest("[data-rcpt]");if(r){const t=items.find(i=>i.id===r.dataset.rcpt);if(!t)return;
+    invReset();invTx=t.id;invCur=null;document.querySelector("input[name=invk][value=r]").checked=true;invKindUI();
+    $("invCust").value=t.place||"";$("invDate").value=t.date;invLines=[{n:T(t.cat)+(t.note?" · "+t.note:""),q:1,p:t.amount}];renderInvLines();
+    $("invPanel").scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("invCust").focus(),300)}
+});
+const _render=render;
+render=function(){_render();try{renderInvList()}catch{}try{renderPin()}catch{}};
+invReset();renderPin();
+if(!$("appView").hidden&&!pinUnlocked)pinLock();
 </script>
 <div id="printArea"></div>
 <script>if(!window.Capacitor&&"serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{r.update();document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update()})}).catch(()=>{}));</script>
