@@ -955,7 +955,10 @@ function showView(v){["loadingView","authView","resetView","modeView","payView",
 let recovering=/type=recovery/.test(location.hash);
 const cacheKey=()=>"hantigo.cache."+(me?.id||"x")+(TEAM?".team."+TEAM:"");
 function loadLocal(){try{return JSON.parse(localStorage.getItem(cacheKey())||"null")}catch{return null}}
-function saveLocal(){try{localStorage.setItem(cacheKey(),JSON.stringify(items))}catch{}}
+function saveLocal(){try{localStorage.setItem(cacheKey(),JSON.stringify(items))}catch{}savePending()}
+/* changes not yet on the server survive closing the app and are sent next time */
+function savePending(){try{const k=cacheKey()+".pending";if(dirty.size||gone.size)localStorage.setItem(k,JSON.stringify({d:[...dirty],g:[...gone]}));else localStorage.removeItem(k)}catch{}}
+function loadPending(){try{return JSON.parse(localStorage.getItem(cacheKey()+".pending")||"null")}catch{return null}}
 function showBanner(t){$("banner").textContent=t;$("banner").hidden=!t}
 
 function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,700)}
@@ -964,11 +967,11 @@ async function syncNow(){
   const ups=items.filter(i=>dirty.has(i.id)),del=[...gone];let error;
   try{
     if(TEAM)({error}=await sb.rpc("team_save",{owner:TEAM,upserts:ups.filter(i=>i.kind!=="settings"),deletes:del}));
-    else if(hasStaff)({error}=await sb.rpc("my_save",{upserts:ups,deletes:del}));
-    else ({error}=await sb.from("user_data").upsert({user_id:me.id,items,updated_at:new Date().toISOString()}));
+    else{({error}=await sb.rpc("my_save",{upserts:ups,deletes:del}));   // merge item by item, so phone and website never overwrite each other
+      if(error&&error.code==="PGRST202")({error}=await sb.from("user_data").upsert({user_id:me.id,items,updated_at:new Date().toISOString()}))}
   }catch(e){error=e}
   if(error){showBanner("Hadda lama kaydin karo. Hubi internetka. Xogtaadu taleefankan ayay ku jirtaa, waana la isku dayi doonaa mar kale.");setTimeout(scheduleSync,15000);return}
-  ups.forEach(u=>{if(items.find(i=>i.id===u.id)===u)dirty.delete(u.id)});del.forEach(id=>gone.delete(id));
+  ups.forEach(u=>{if(items.find(i=>i.id===u.id)===u)dirty.delete(u.id)});del.forEach(id=>gone.delete(id));savePending();
   showBanner("");
 }
 async function flush(){clearTimeout(syncTimer);if(dirty.size||gone.size)await syncNow()}
@@ -980,13 +983,14 @@ async function put(doc){
   saveLocal();render();scheduleSync();
 }
 async function remove(id){items=items.filter(x=>x.id!==id);gone.add(id);dirty.delete(id);saveLocal();render();scheduleSync()}
-/* shared company data: refresh from the server so owner and staff see each other's entries */
+/* refresh from the server so phone, website and staff all see the same entries */
 async function pull(){
-  if(!sb||!me||!(TEAM||hasStaff)||dirty.size||gone.size||document.hidden)return;
+  if(!sb||!me||$("appView").hidden||dirty.size||gone.size||document.hidden)return;
   let data=null;
   try{if(TEAM){const r=await sb.rpc("team_load",{owner:TEAM});if(!r.error)data=r.data}
     else{const r=await sb.from("user_data").select("items").eq("user_id",me.id).maybeSingle();if(!r.error)data=r.data?.items}}catch{}
   if(!Array.isArray(data)||dirty.size||gone.size)return;
+  if(JSON.stringify(data)===JSON.stringify(items))return;
   items=data;saveLocal();render();
 }
 setInterval(pull,60000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)pull()});
@@ -1042,12 +1046,15 @@ async function enter(user){
     :`<span class="pill ${d<=3?"warn":"ok"}">${profile.paid_until&&new Date(profile.paid_until)>new Date()?L("La bixiyay: "+d+" maalmood ayaa haray","Paid: "+d+" days left"):L("Tijaabo: "+d+" maalmood ayaa haray","Trial: "+d+" days left")}</span>`;
   $("adminLink").hidden=!profile.is_admin;
   if(profile.is_admin)sb.from("profiles").select("id").eq("pay_status","pending").then(({data})=>{const n=data?.length||0;$("adminLink").textContent=n?L(`Maamul · ⏳ ${n} codsi lacag`,`Admin · ⏳ ${n} payment requests`):L("Maamul","Admin");$("adminLink").classList.toggle("hot",!!n)}).catch(()=>{});
-  const cached=loadLocal();
+  const cached=loadLocal(),pend=loadPending();
   const {data,error}=await sb.from("user_data").select("items").eq("user_id",me.id).maybeSingle();
-  if(data)items=data.items||[];
+  if(data){items=data.items||[];
+    if(pend&&Array.isArray(cached)){for(const id of pend.d||[]){const d=cached.find(x=>x.id===id);if(!d)continue;const i=items.findIndex(x=>x.id===id);if(i>=0)items[i]=d;else items.push(d);dirty.add(id)}
+      for(const id of pend.g||[]){items=items.filter(x=>x.id!==id);gone.add(id)}}}
   else if(cached)items=cached;
   else{let legacy=null;try{legacy=JSON.parse(localStorage.getItem(LS)||"null")}catch{}items=legacy||[]}
   if(error&&cached){items=cached;showBanner("Internet la'aan: waxaa la muujinayaa xogtii taleefanka ku kaydsanayd.")}
+  if(!data&&pend){(pend.d||[]).forEach(id=>dirty.add(id));(pend.g||[]).forEach(id=>gone.add(id))}
   saveLocal();mode="cloud";
   let st=items.find(i=>i.kind==="settings");
   if(addSpace&&pendingMode&&(pendingMode==="person"||pendingMode==="business")){st={...(st||{id:"settings",kind:"settings"}),mode:pendingMode};try{await put(st)}catch{}
@@ -1058,7 +1065,8 @@ async function enter(user){
   if(!st?.mode){showView("modeView");return}
   await migrateNames();
   applyMode(st.mode);teamUI();showView("appView");render();seedBills();loadStaff();checkLocation();
-  if(!data&&items.length)scheduleSync();
+  if(!data&&items.length){items.forEach(i=>dirty.add(i.id));scheduleSync()}
+  else if(dirty.size||gone.size)scheduleSync();
 }
 
 async function init(){
@@ -1220,8 +1228,8 @@ function render(){
   const txs=mine("tx");
   const month=txs.filter(inMonth).sort((a,b)=>(b.date+b.created).localeCompare(a.date+a.created));
   const sum=(arr,t)=>arr.filter(x=>x.type===t).reduce((s,x)=>s+Number(x.amount||0),0);
-  const mi=sum(month,"in"),mo=sum(month,"out");
-  $("sIn").textContent=money(mi);$("sOut").textContent=money(mo);$("sNet").textContent=money(mi-mo);
+  const real=month.filter(t=>t.cat!=="Kayd"),mi=sum(real,"in"),mo=sum(real,"out"),mk=sum(month,"out")-sum(real,"out")-(sum(month,"in")-sum(real,"in"));
+  $("sIn").textContent=money(mi);$("sOut").textContent=money(mo);$("sNet").textContent=money(mi-mo-mk);
   $("sBal").textContent=money(sum(txs,"in")-sum(txs,"out"));
   $("sMethods").innerHTML=METHODS.map(m=>{const ts=txs.filter(t=>(t.method||"Kaash")===m);return `<span>${T(m)}: <b>${money(sum(ts,"in")-sum(ts,"out"))}</b></span>`}).join("");
   const kayd=month.filter(t=>t.cat==="Kayd");
@@ -1239,7 +1247,7 @@ function render(){
       <span class="dot ${t.type}" aria-hidden="true">${t.type==="in"?"+":"−"}</span>
       <div style="min-width:0"><div class="name">${esc(t.cat)}<span class="pm">${esc(t.method||"Kaash")}</span></div><div class="meta">${esc(t.date)}${t.place?" · "+esc(t.place):""}${t.note?" · "+esc(t.note):""}${t.by&&(TEAM||hasStaff)?" · 👤 "+esc(t.by.split("@")[0]):""}</div></div>
       <span class="amt ${t.type}">${t.type==="in"?"+":"−"}${money(t.amount)}</span>
-      <span class="txa">${MODE==="business"&&t.type==="in"&&!TEAM&&!t.debtId?`<button class="del" data-rcpt="${esc(t.id)}">🧾 Rasiid</button>`:""}${t.billId||t.debtId?"":`<button class="del" data-edit="${esc(t.id)}">✏️ Beddel</button>`}<button class="del" data-del="${esc(t.id)}" aria-label="Tirtir">Tirtir</button></span></li>`).join("");
+      <span class="txa">${MODE==="business"&&t.type==="in"&&!TEAM&&!t.debtId?`<button class="del" data-rcpt="${esc(t.id)}">🧾 Rasiid</button>`:""}${t.billId||t.debtId||t.cat==="Kayd"?"":`<button class="del" data-edit="${esc(t.id)}">✏️ Beddel</button>`}<button class="del" data-del="${esc(t.id)}" aria-label="Tirtir">Tirtir</button></span></li>`).join("");
   }
 
   const outs=month.filter(t=>t.type==="out"&&t.cat!=="Kayd");const byCat={};
@@ -1305,8 +1313,10 @@ async function payBill(b){if(!(b.amount>0))return false;
   await put({id:uid(),kind:"tx",method:payMethod(),type:"out",amount:Number(b.amount),cat:b.name,billId:b.id,date:billDate(),note:"Joogto",created:new Date().toISOString()});return true}
 const RENAME={"Biyo caafimaad (cabitaan)":"Biyo-caafi","Biyo caafi":"Biyo-caafi","Fiidmo ardayda":"Fiiga ardayda","Fiidmo iskuul (lacagta bisha)":"Fiiga iskuulka (lacagta bisha)","Caafimaad dhimirka":"Caafimaadka dhimirka","Dawooyin & qalab caafimaad":"Daawooyin & qalab caafimaad","Lacag-celin alaab-qeybiye":"Lacag-celin alaab-qaybiye","Xayeysiis & suuqgeyn":"Xayeysiis & suuq-geyn","Iib (sales)":"Iib","Iib jumlad (wholesale)":"Iib jumlad","Iib tafaariiq (retail)":"Iib tafaariiq","Qandaraas (contract)":"Qandaraas","La-talin (consulting)":"La-talin","Funaanad (T-shirt)":"Funaanad","Dhar dhaqid (laundry)":"Dhar dhaqid","Raajo & sawir (X-ray)":"Raajo & sawir","Cabitaan tamar (energy)":"Cabitaan tamar","Alaab (stock)":"Alaab","Gunno shaqaale (bonus)":"Gunno shaqaale","Xisaab-hubin (audit)":"Xisaab-hubin","Sadaqo & zakaad":"Sadaqo & Zakaad","Fiiga ardayga":"Fiiga ardayda","Fiiga ardayga":"Fiiga ardayda"};
 const newName=n=>RENAME[n]||(typeof n==="string"&&n.startsWith("Mushahar: ")?n.slice(10):null);
+const GRP_RENAME={"Mushaarka shaqaalaha":"Mushaharka shaqaalaha","Fiidmo & ardayda":"Fiiga & ardayda","Fiiga & ardayga":"Fiiga & ardayda","Activity":"Madadaalo"};
 async function migrateNames(){for(const d of [...items]){const k=d.kind==="tx"?"cat":(d.kind==="bill"||d.kind==="cat")?"name":null;
-  const nn=k&&newName(d[k]);if(nn&&nn!==d[k])try{await put({...d,[k]:nn})}catch{}}}
+  const nn=k&&newName(d[k]),ng=d.kind==="cat"&&GRP_RENAME[d.grp];
+  if((nn&&nn!==d[k])||ng)try{await put({...d,...(nn?{[k]:nn}:{}),...(ng?{grp:ng}:{})})}catch{}}}
 let seeding=false;
 async function seedBills(){
   if(TEAM)return;
@@ -1406,7 +1416,7 @@ document.addEventListener("click",async e=>{
     if(t){try{await put({...d,paid:Math.max(0,Number(d.paid||0)-Number(t.amount))});await remove(t.id)}catch{}}return}
   const del=e.target.closest("[data-del]");
   if(del){if(!del.classList.contains("arm")){del.classList.add("arm");del.textContent="Hubi?";setTimeout(()=>{del.classList.remove("arm");del.textContent="Tirtir"},3000);return}
-    try{await remove(del.dataset.del)}catch{}return}
+    try{await unlinkTx(items.find(i=>i.id===del.dataset.del));await remove(del.dataset.del)}catch{}return}
   const chip=e.target.closest("[data-chip]");
   if(chip&&chip.dataset.chip){if(setCat(chip.dataset.chip))return;$("amount").focus();return}
   const pay=e.target.closest("[data-pay]");
@@ -1415,13 +1425,18 @@ document.addEventListener("click",async e=>{
   const dep=e.target.closest("[data-dep]");
   if(dep){const g=items.find(i=>i.id===dep.dataset.dep);const inp=$("gin-"+g.id);const v=parseFloat(inp.value);if(!(v>0)){inp.focus();return}
     try{await put({...g,saved:Number(g.saved)+v});
-      await put({id:uid(),kind:"tx",method:payMethod(),type:"out",amount:v,cat:"Kayd",date:today(),note:"Loo dhigay: "+g.name,created:new Date().toISOString()})}catch{}return}
+      await put({id:uid(),kind:"tx",method:payMethod(),type:"out",amount:v,cat:"Kayd",goalId:g.id,date:today(),note:"Loo dhigay: "+g.name,created:new Date().toISOString()})}catch{}return}
   const wd=e.target.closest("[data-wd]");
   if(wd){const g=items.find(i=>i.id===wd.dataset.wd);const inp=$("gin-"+g.id);let v=parseFloat(inp.value);if(!(v>0)){inp.focus();return}
     v=Math.min(v,Number(g.saved));
     try{await put({...g,saved:Number(g.saved)-v});
-      await put({id:uid(),kind:"tx",method:payMethod(),type:"in",amount:v,cat:"Kayd",date:today(),note:"Laga soo qaaday: "+g.name,created:new Date().toISOString()})}catch{}}
+      await put({id:uid(),kind:"tx",method:payMethod(),type:"in",amount:v,cat:"Kayd",goalId:g.id,date:today(),note:"Laga soo qaaday: "+g.name,created:new Date().toISOString()})}catch{}}
 });
+/* a deleted entry also comes off the savings goal or the debt it belongs to */
+const goalOfTx=t=>t.goalId?items.find(i=>i.id===t.goalId):(()=>{const m=/^(?:Loo dhigay|Laga soo qaaday): (.*)$/.exec(t.note||"");return m&&mine("goal").find(g=>g.name===m[1])})();
+async function unlinkTx(t){if(!t||t.kind!=="tx")return;const v=Number(t.amount)||0;
+  if(t.debtId){const d=items.find(i=>i.id===t.debtId);if(d)await put({...d,paid:Math.max(0,Number(d.paid||0)-v)});return}
+  if(t.cat==="Kayd"){const g=goalOfTx(t);if(g)await put({...g,saved:Math.max(0,Number(g.saved||0)+(t.type==="out"?-v:v))})}}
 document.querySelectorAll('input[name=type]').forEach(r=>r.addEventListener("change",fillCats));
 $("currency").addEventListener("change",async e=>{const s=items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"};try{await put({...s,currency:e.target.value})}catch{}});
 /* ---------- 6-month income vs expense line chart ---------- */
@@ -1733,14 +1748,14 @@ let PS=null;function renderPStats(){if(!$("psPanel")||MODE==="business")return;
   vbars($("psMonths"),six,[{k:"inc",c:ST_INC,name:L("Soo galay","Income"),g:0},{k:"out",c:ST_SAL,name:L("Kharash","Spending"),g:1},{k:"sav",c:ST_LV,name:L("Kayd","Savings"),g:2}],fm);
   hbars($("psGroups"),groups.map(([g,v])=>[grpLabel(g),v]),outT,ST_SAL);
   hbars($("psItems"),itemsTop,outT,ST_OTH);
-  $("psTable").innerHTML=`<tr><th>${L("Bisha","Month")}</th><th>${L("Soo galay","Income")}</th><th>${L("Kharash","Spending")}</th><th>${L("Kayd","Savings")}</th><th>${L("Hadhay","Left")}</th></tr>`+six.map(r=>`<tr><td>${r.label}</td><td>${money(r.inc)}</td><td>${money(r.out)}</td><td>${money(r.sav)}</td><td>${money(r.inc-r.out-r.sav)}</td></tr>`).join("")}
+  $("psTable").innerHTML=`<tr><th>${L("Bisha","Month")}</th><th>${L("Soo galay","Income")}</th><th>${L("Kharash","Spending")}</th><th>${L("Kayd","Savings")}</th><th>${L("Haray","Left")}</th></tr>`+six.map(r=>`<tr><td>${r.label}</td><td>${money(r.inc)}</td><td>${money(r.out)}</td><td>${money(r.sav)}</td><td>${money(r.inc-r.out-r.sav)}</td></tr>`).join("")}
 $("psPer").addEventListener("change",renderPStats);
 const psTitle=()=>({1:L("Bishan","This month"),3:L("3-dii bilood","Last 3 months"),12:L("12-kii bilood","Last 12 months")}[PS.n]+` (${PS.from} → ${PS.to})`);
 function psTables(withBars){const r=PS,pct=(v,t)=>t?Math.round(v/t*100)+"%":"",bar=(v,max,c)=>withBars?`<td style="width:40%"><div class="pb" style="width:${(v/max*100).toFixed(1)}%;background:${c}"></div></td>`:"";
   return `<h2>${L("Kooban","Summary")}</h2><table><tr><th>${L("Lacagta soo gashay","Income")}</th><th>${L("Kharashka","Spending")}</th><th>${L("Kaydka","Savings")}</th><th>${L("Lacagta haray","Left over")}</th></tr>
   <tr><td class="n">${money(r.incT)}</td><td class="n">${money(r.outT)}</td><td class="n">${money(r.savT)}</td><td class="n">${money(r.incT-r.outT-r.savT)}</td></tr></table>
   ${withBars?`<h2>${L("Lacagta soo gashay, kharashka iyo kaydka bil kasta","Income, spending and savings per month")}</h2><p>🟩 ${L("Soo galay","Income")} · 🟥 ${L("Kharash","Spending")} · 🟦 ${L("Kayd","Savings")}</p>${$("psMonths").innerHTML}`:""}
-  <h2>${L("Bil kasta","Per month")}</h2><table><tr><th>${L("Bisha","Month")}</th><th>${L("Soo galay","Income")}</th><th>${L("Kharash","Spending")}</th><th>${L("Kayd","Savings")}</th><th>${L("Hadhay","Left")}</th></tr>
+  <h2>${L("Bil kasta","Per month")}</h2><table><tr><th>${L("Bisha","Month")}</th><th>${L("Soo galay","Income")}</th><th>${L("Kharash","Spending")}</th><th>${L("Kayd","Savings")}</th><th>${L("Haray","Left")}</th></tr>
   ${r.six.map(m=>`<tr><td>${m.label}</td><td class="n">${money(m.inc)}</td><td class="n">${money(m.out)}</td><td class="n">${money(m.sav)}</td><td class="n">${money(m.inc-m.out-m.sav)}</td></tr>`).join("")}</table>
   <h2>${L("Kharashka mowduuc kasta","Spending by topic")}</h2><table><tr><th>${L("Mowduuca","Topic")}</th><th>${L("Qadarka","Amount")}</th><th>%</th>${withBars?"<th></th>":""}</tr>
   ${r.groups.map(([g,v])=>`<tr><td>${esc(grpLabel(g))}</td><td class="n">${money(v)}</td><td class="n">${pct(v,r.outT)}</td>${bar(v,r.groups[0][1],ST_SAL)}</tr>`).join("")||`<tr><td colspan="3">—</td></tr>`}</table>
@@ -1895,21 +1910,23 @@ $("repCsv").addEventListener("click",()=>{const {txs,title}=reportData();
   const head=[L("Taariikhda","Date"),L("Nooca","Type"),L("Qaybta","Category"),L("Qadarka","Amount"),L("Lacagta","Currency"),L("Habka","Method"),L("Meesha","Place"),L("Faahfaahin","Details"),L("Qoray","Entered by")];
   head.splice(2,0,L("Mowduuca","Topic"));
   const rows=txs.map(t=>[t.date,typeLabel(t.type),GROUPS(t.type).length?grpLabel(grpOf(t.cat,t.type)):"",T(t.cat),(t.type==="in"?1:-1)*Number(t.amount),currency(),T(t.method||"Kaash"),t.place||"",t.note||"",t.by||""]);
-  const si=txs.filter(t=>t.type==="in").reduce((a,t)=>a+Number(t.amount),0),so=txs.filter(t=>t.type==="out").reduce((a,t)=>a+Number(t.amount),0);
+  const S=repSums(txs);
   exportSheet(L("Warbixin","Report")+": "+title+" · "+modeLabel(),[
-    {title:L("Kooban","Summary"),colorFirst:1,head:[L("Soo galay","Income"),L("Ka baxay","Expenses"),L("Deyn la bixiyay","Debt paid"),L("Farqiga","Difference")],rows:[[si,-so,-txs.filter(t=>t.type==="out"&&DEBT_CATS.includes(t.cat)).reduce((a,t)=>a+Number(t.amount),0),si-so]]},
+    {title:L("Kooban","Summary"),colorFirst:1,head:[L("Soo galay","Income"),L("Ka baxay","Expenses"),L("Deyn la bixiyay","Debt paid"),L("Kayd","Savings"),L("Lacagta haray","Left over")],rows:[[S.si,-S.so,-S.debt,S.sav,S.left]]},
     ...(true?[{title:L("Kharashka mowduuc kasta","Spending by topic"),head:[L("Mowduuca","Topic"),L("Qaybta","Category"),L("Qadarka","Amount")],rows:(()=>{const gt={};txs.filter(t=>t.type==="out"&&t.cat!=="Kayd").forEach(t=>{const g=grpOf(t.cat);(gt[g]=gt[g]||{v:0,c:{}}).v+=Number(t.amount);gt[g].c[t.cat]=(gt[g].c[t.cat]||0)+Number(t.amount)});
       return Object.entries(gt).sort((a,b)=>b[1].v-a[1].v).flatMap(([g,o])=>[[grpLabel(g),L("Wadarta","Total"),o.v],...Object.entries(o.c).sort((a,b)=>b[1]-a[1]).map(([c,v])=>["",T(c),v])])})()}]:[]),
     {title:L("Dhaqdhaqaaqa","Transactions"),head,rows}],`HantiGo-${brandName()}-${title}`)});
-function buildReport(){const {txs,title}=reportData();
-  const sum=t=>txs.filter(x=>x.type===t).reduce((a,x)=>a+Number(x.amount),0);
+function repSums(txs){const a=f=>txs.filter(f).reduce((s,t)=>s+Number(t.amount),0);
+  const si=a(t=>t.type==="in"&&t.cat!=="Kayd"),so=a(t=>t.type==="out"&&t.cat!=="Kayd"),sav=a(t=>t.type==="out"&&t.cat==="Kayd")-a(t=>t.type==="in"&&t.cat==="Kayd");
+  return {si,so,sav,debt:a(t=>t.type==="out"&&DEBT_CATS.includes(t.cat)),left:si-so-sav}}
+function buildReport(){const {txs,title}=reportData();const S=repSums(txs);
   const by={};txs.filter(t=>t.type==="out"&&t.cat!=="Kayd").forEach(t=>by[t.cat]=(by[t.cat]||0)+Number(t.amount));
   const cats=Object.entries(by).sort((a,b)=>b[1]-a[1]);
   const gt={};cats.forEach(([c,v])=>{const g=grpOf(c);(gt[g]=gt[g]||{v:0,l:[]}).v+=v;gt[g].l.push([c,v])});
   const catTable=cats.length?`<table><tr><th>${L("Mowduuca","Topic")}</th><th>${L("Qaybta","Category")}</th><th>${L("Qadarka","Amount")}</th></tr>${Object.entries(gt).sort((a,b)=>b[1].v-a[1].v).map(([g,o])=>`<tr><td><b>${esc(grpLabel(g))}</b></td><td></td><td class="n"><b>${money(o.v)}</b></td></tr>`+o.l.map(([c,v])=>`<tr><td></td><td>${esc(T(c))}</td><td class="n">${money(v)}</td></tr>`).join("")).join("")}</table>`:null;
   return `${coHead()}<p>${L("Warbixin","Report")}: <b>${esc(title)}</b> · ${esc(modeLabel())} · ${esc(me?.email||"")}</p>
-  <table><tr><th>${L("Soo galay","Income")}</th><th>${L("Ka baxay","Expenses")}</th><th>${L("Deyn la bixiyay","Debt paid")}</th><th>${L("Farqiga","Difference")}</th></tr>
-  <tr><td class="n">${money(sum("in"))}</td><td class="n">${money(sum("out"))}</td><td class="n">${money(txs.filter(t=>t.type==="out"&&DEBT_CATS.includes(t.cat)).reduce((a,t)=>a+Number(t.amount),0))}</td><td class="n">${money(sum("in")-sum("out"))}</td></tr></table>
+  <table><tr><th>${L("Soo galay","Income")}</th><th>${L("Ka baxay","Expenses")}</th><th>${L("Deyn la bixiyay","Debt paid")}</th><th>${L("Kayd","Savings")}</th><th>${L("Lacagta haray","Left over")}</th></tr>
+  <tr><td class="n">${money(S.si)}</td><td class="n">${money(S.so)}</td><td class="n">${money(S.debt)}</td><td class="n">${money(S.sav)}</td><td class="n">${money(S.left)}</td></tr></table>
   <h2>${L("Kharashka qayb kasta","Spending by category")}</h2>
   ${catTable||`<table><tr><th>${L("Qaybta","Category")}</th><th>${L("Qadarka","Amount")}</th></tr>${cats.map(([c,v])=>`<tr><td>${esc(T(c))}</td><td class="n">${money(v)}</td></tr>`).join("")||`<tr><td colspan="2">—</td></tr>`}</table>`}
   <h2>${L("Dhaqdhaqaaqa","Transactions")} (${txs.length})</h2>
@@ -1928,7 +1945,7 @@ $("repDoc").addEventListener("click",()=>{const {title}=reportData();
 if(NATIVE){$("repPdf").hidden=true;$("repNote").hidden=true;$("lvPdf").hidden=true}
 
 /* ---------- backup ---------- */
-const BK_KINDS=["tx","goal","bill","cat","debt","leave","settings"];
+const BK_KINDS=["tx","goal","bill","cat","debt","leave","inv","settings"];
 $("bkOut").addEventListener("click",async()=>{await flush();
   saveFile(`HantiGo-backup-${today()}.json`,JSON.stringify({app:"HantiGo",version:1,exported:new Date().toISOString(),email:me?.email||"",items},null,1),"application/json");
   $("bkMsg").textContent=L("Backup-ka waa la soo dejiyay. Meel ammaan ah ku kaydi.","Backup downloaded. Keep it somewhere safe.")});
@@ -2139,12 +2156,15 @@ async function invSave(){const lines=invLines.map(l=>({n:String(l.n||"").trim(),
     if(invCur&&invCur.doc&&invCur.doc.k===k){doc={...invCur.doc}}
     else{const [no,s2]=invNextNo(k);await put(s2);doc={id:uid(),kind:"inv",k,no,created:new Date().toISOString()}}
     Object.assign(doc,{cust,phone:$("invPhone").value.trim(),email:$("invEmail").value.trim(),date,due:k==="q"?($("invDue").value||null):null,lines,total,note:$("invNote").value.trim()});
+    if(doc.linked&&doc.auto){const t=doc.txId&&items.find(i=>i.id===doc.txId),db=doc.debtId&&items.find(i=>i.id===doc.debtId);
+      if(t&&(t.amount!==total||t.date!==date||t.place!==cust))await put({...t,amount:total,date,place:cust});
+      if(db&&(db.amount!==total||db.name!==cust||db.due!==doc.due))await put({...db,amount:total,name:cust,due:doc.due})}
     if(!doc.linked){
       if(invTx){doc.txId=invTx;doc.linked=1}
       else if($("invRec").checked){
         if(k==="r"){const tid=uid();await put({id:tid,kind:"tx",method:payMethod(),type:"in",amount:total,cat:"Iib",date,place:cust,note:invNoTxt(doc),created:new Date().toISOString()});doc.txId=tid}
         else{const did=uid();await put({id:did,kind:"debt",name:cust,amount:total,dir:"in",due:doc.due,paid:0,note:invNoTxt(doc),created:new Date().toISOString()});doc.debtId=did}
-        doc.linked=1}}
+        doc.linked=1;doc.auto=1}}
     await put(doc);invCur={sig,doc};$("invMsg").textContent="✓ "+L(`${invLabel(k)} ${invNoTxt(doc)} waa la kaydiyay.`,`${invLabel(k)} ${invNoTxt(doc)} saved.`);return doc}
   catch{$("invErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.");return null}}
 function invHtml(d){const k=d.k,co=coName()||"HantiGo",lg=coLogo();
