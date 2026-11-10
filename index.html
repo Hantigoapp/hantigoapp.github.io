@@ -358,7 +358,133 @@ html[data-skin="3"] .stat.bal .val{color:#3ddc97}
 html[data-skin="3"] .panel,html[data-skin="3"] .stat{border-radius:18px}
 html[data-skin="3"] .bnav{background:#141c26e6;backdrop-filter:blur(10px)}
 html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
-
+/* ---- design v80: one look for every page (Shakhsi = green, Shirkad = blue) ---- */
+:root{--r-sm:10px;--r:14px;--r-lg:20px;--per:#3ddc97;--per-ink:#06281a;--biz:#6aa5ff;--biz-ink:#061a33;--warn:#f3b544;--shadow:0 1px 0 rgba(255,255,255,.03) inset,0 8px 24px rgba(0,0,0,.18)}
+html[data-skin="3"][data-mode="business"]{--accent:#6aa5ff;--accent-soft:#15263f}
+html[data-skin="3"][data-mode="business"] .primary{color:var(--biz-ink)}
+html[data-skin="3"][data-mode="business"] .bnav{border-color:#20406b}
+html[data-skin="3"]:not([data-mode="business"]) .bnav{border-color:#1f5a44}
+/* type scale */
+#appView h1{font-size:1.55rem}
+#appView h2{font:700 1.08rem/1.25 var(--display);letter-spacing:-.005em}
+#appView h3,.sth{font:700 .98rem/1.3 var(--display)}
+.note{line-height:1.45}
+.stat .lbl,.ext .lbl{font-size:.7rem;letter-spacing:.07em}
+/* surfaces */
+#appView .panel{border-radius:var(--r-lg);padding:18px;gap:14px;box-shadow:var(--shadow)}
+#appView .stat{border-radius:var(--r);box-shadow:var(--shadow)}
+/* controls: same size, easy to tap, no zoom on iPhone */
+#appView button,.gate button{min-height:42px;border-radius:12px;font-weight:600}
+#appView .del,.gate .del,#appView .foldbtn,.lkpad button,#appView .pm{min-height:0}
+#appView .del{border-radius:8px}
+#appView input:not([type=checkbox]):not([type=radio]):not([type=file]),#appView select,#appView textarea,.gate input:not([type=checkbox]):not([type=radio]):not([type=file]),.gate select{min-height:46px;font-size:16px;border-radius:12px;padding:10px 12px;background:var(--bg);transition:border-color .15s,box-shadow .15s}
+#appView .due input{min-height:0;padding:2px 6px;font-size:.85rem}
+#appView input:focus,#appView select:focus,#appView textarea:focus,.gate input:focus,.gate select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 28%,transparent)}
+.field span{font-size:.8rem;font-weight:600;color:var(--muted)}
+#appView .goal-actions{gap:8px}
+#appView .goal-actions>button:not(.del):not(.primary){background:var(--bg)}
+/* header: logo + Ka bax, then the Personal | Business switch and the month */
+#appView>header{background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-left,0px)) 10px;padding-top:calc(10px + env(safe-area-inset-top,0px));margin-top:-20px}
+#appView .hright{display:flex;flex-wrap:wrap;gap:8px;width:100%;align-items:center}
+.modesw.sr{position:absolute}
+.modetabs{flex:1 1 260px;display:flex;gap:4px;padding:4px;border-radius:16px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.modetabs button{flex:1 1 0;min-width:0;border:0!important;background:none;border-radius:12px!important;color:var(--muted);padding:6px 8px;display:grid;justify-items:center;gap:0;line-height:1.15;transition:background .15s,color .15s}
+.modetabs button span{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.modetabs button small{font-size:.68rem;font-weight:600;opacity:.75;white-space:nowrap}
+.modetabs button[aria-selected="true"][data-m="person"]{background:var(--per);color:var(--per-ink)}
+.modetabs button[aria-selected="true"]:not([data-m="person"]){background:var(--biz);color:var(--biz-ink)}
+.modetabs button:not([aria-selected="true"]):hover{color:var(--ink);background:var(--bg)}
+#appView .month{flex:0 0 auto;margin-inline-start:auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:4px}
+#appView .month b{min-width:8.5em;font-size:.92rem}
+#appView .month .icon{min-height:0;width:38px;height:38px;border:0;background:var(--bg)}
+@media (max-width:560px){#appView .month{flex:1 1 100%;justify-content:space-between}}
+/* at-a-glance card */
+.stat.glance{padding:18px 18px 16px;gap:6px;border-radius:var(--r-lg)!important}
+html[data-skin="3"] .stat.glance{background:radial-gradient(120% 120% at 100% 0%,rgba(61,220,151,.18),transparent 55%),linear-gradient(150deg,#123d2e,#0e2233 75%);border-color:#1f5a44}
+html[data-skin="3"][data-mode="business"] .stat.glance{background:radial-gradient(120% 120% at 100% 0%,rgba(106,165,255,.22),transparent 55%),linear-gradient(150deg,#13305a,#0e1c2e 75%);border-color:#24467a}
+html[data-skin="3"][data-mode="business"] .stat.bal .val{color:#cfe1ff}
+.glance .gl-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.glmode{font-weight:700;font-size:.85rem;opacity:.95;overflow-wrap:anywhere}
+.glst{font-size:.78rem;font-weight:700;border-radius:999px;padding:4px 10px;background:rgba(255,255,255,.1);white-space:nowrap}
+.glst[data-st="ok"]{background:rgba(61,220,151,.18);color:#8ff0c2}.glst[data-st="warn"]{background:rgba(243,181,68,.18);color:#ffd27a}.glst[data-st="bad"]{background:rgba(255,122,102,.2);color:#ffb3a6}
+.glance .lbl{margin-top:6px}
+.glance .val{font-size:clamp(2rem,9vw,2.6rem)!important;letter-spacing:-.02em;line-height:1.05!important}
+.glbar{height:8px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:6px}
+.glbar i{display:block;height:100%;border-radius:99px;background:var(--per);transition:width .5s ease}
+.glbar i[data-st="warn"]{background:var(--warn)}.glbar i[data-st="bad"]{background:#ff7a66}
+.glsum{margin:0;font-size:.88rem;opacity:.9}
+.glance .methods{margin-top:2px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1);gap:6px}
+.glance .methods span{background:rgba(255,255,255,.07);border-radius:999px;padding:3px 10px;font-size:.8rem;opacity:1}
+.glact{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.glact button{border:0!important;font-weight:700;min-height:46px!important;display:flex;align-items:center;justify-content:center;gap:6px}
+.glact button b{font-size:1.2rem;line-height:1}
+.glact [data-quick="in"]{background:var(--per)!important;color:var(--per-ink)!important}
+.glact [data-quick="out"]{background:#ff7a66!important;color:#3a0d06!important}
+.in-team .glact [data-quick]{display:flex}
+/* summary tiles: two per row on phones, four on wide screens */
+#appView .summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#appView .summary .stat:not(.bal):not(.top-spend){padding:12px 14px}
+#appView .summary .stat .val{font-size:clamp(1.1rem,5.2vw,1.45rem)}
+html:not([data-mode="business"]) #appView .summary .stat:has(#sNet){grid-column:1/-1}
+#appView .stat.in{border-top:3px solid var(--in)}#appView .stat.out{border-top:3px solid var(--out)}
+#appView .stat:has(#sNet){border-top:3px solid var(--accent)}
+#appView .stat.top-spend{padding:12px 14px}
+#appView .stat.top-spend .val{font-size:1.2rem}
+@media (min-width:640px){#appView .summary{grid-template-columns:repeat(4,minmax(0,1fr))}
+  html:not([data-mode="business"]) #appView .summary .stat:has(#sNet){grid-column:auto}
+  #appView .stat.top-spend{grid-column:span 2}}
+/* home order: glance, quick numbers, chart and where the money went first; long statistics after */
+#appView>#stPanel,#appView #psPanel{order:1}
+#appView>footer,#appView>[data-install]{order:2}
+.gate-credit{padding-top:14px;border-top:1px solid var(--line);font-size:.88rem}
+#appView>footer[data-tab="home"]{padding:6px 0 4px}
+#appView[data-tab="home"]>footer[data-tab="home"],#appView[data-tab="more"]>footer[data-tab="more"]{display:block!important}
+#appView>header,#appView>#net{order:-2}
+#appView>.summary{order:-1}
+@media (max-width:560px){#appView>header{position:relative}}
+@media (min-width:900px){#appView[data-tab="home"] #stPanel,#appView[data-tab="home"] #psPanel{grid-column:1/-1}}
+/* folding panels */
+.foldbtn{margin-inline-start:auto;border-radius:999px!important;padding:5px 12px;font-size:.8rem;color:var(--accent);border:1px solid var(--line);background:var(--bg)}
+.foldbtn i{font-style:normal}
+#appView .panel.folded>:not(.panel-head){display:none!important}
+#appView .panel.folded .panel-head>:not(h2):not(.foldbtn){display:none!important}
+#appView .panel.folded{padding-block:14px}
+.panel-head h2{flex:1 1 auto;min-width:0}
+/* entry form */
+#txForm .seg label{padding:12px 6px;font-size:.98rem}
+#txForm .seg{border-radius:14px}
+#txForm .row>label:has(#amount){grid-column:1/-1}
+#amount{font:700 1.5rem/1.2 var(--display)!important;min-height:56px!important;letter-spacing:-.01em}
+#txSave{flex:1 1 100%;min-height:52px!important;font-size:1.05rem}
+#appView .seg3 label{padding:10px 4px}
+#appView .seg3,#appView .seg{border-radius:12px;background:var(--bg)}
+/* entry list */
+#appView .tx{padding:12px 2px;gap:10px}
+#appView .tx .dot{width:38px;height:38px;border-radius:12px}
+#appView .txa{gap:0}
+#appView .txa .del{font-size:.74rem;padding:2px 4px}
+#appView .amt{font-variant-numeric:tabular-nums}
+/* tables */
+#appView details.note>div,#appView details>div[style*="overflow"]{border:1px solid var(--line);border-radius:12px;margin-top:8px;-webkit-overflow-scrolling:touch}
+#appView .ctable{margin-top:0;font-size:.86rem}
+#appView .ctable th{position:sticky;top:0;background:var(--surface);color:var(--muted);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;font-weight:700}
+#appView .ctable th,#appView .ctable td{padding:9px 12px}
+#appView .ctable tr:nth-child(even) td{background:color-mix(in srgb,var(--line) 30%,transparent)}
+#appView .ctable td:first-child,#appView .ctable th:first-child{position:sticky;inset-inline-start:0;background:var(--surface);font-weight:600}
+#appView .ctable tr:last-child td{border-bottom:0}
+html[dir="rtl"] #appView .ctable th:first-child,html[dir="rtl"] #appView .ctable td:first-child{text-align:right}
+html[dir="rtl"] #appView .ctable th,html[dir="rtl"] #appView .ctable td{text-align:left}
+#appView details summary{padding:4px 0}
+/* bottom bar: the add button stands out */
+#appView .bnav{padding:6px;border-radius:24px}
+#appView .bnav button{min-height:0;font-size:.72rem}
+#appView .bnav button[data-go="add"] i{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#06281a;font-size:1.3rem;margin-top:-2px;box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 40%,transparent)}
+html[data-mode="business"] #appView .bnav button[data-go="add"] i{color:var(--biz-ink)}
+#appView .bnav button[data-go="add"][aria-current="page"]{background:none}
+/* WhatsApp button smaller inside the app so it does not cover numbers */
+body:has(#appView:not([hidden])) .wafab{width:48px;height:48px}
+body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
+@media (max-width:420px){#appView .panel{padding:16px 14px}#appView{gap:14px}}
 </style>
 <script src="vendor/supabase.js"></script>
 </head>
@@ -421,6 +547,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
   <div data-install></div>
   </div>
   </div>
+  <footer class="credit gate-credit"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b> · <a href="privacy.html">Asturnaanta</a></footer>
 </section>
 
 <section id="resetView" class="gate" hidden>
@@ -485,7 +612,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
       <p class="sub" id="subline" hidden>Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.</p>
 
     </div>
-    <div class="hright"><label class="modesw"><span class="sr">Nooca akoonka</span><select id="modeSel" aria-label="Nooca akoonka"><option value="person">👤 Shakhsi</option><option value="business">🏢 Shirkad</option></select></label>
+    <div class="hright"><div class="modetabs" id="modeTabs" role="tablist" aria-label="Nooca akoonka"></div><label class="modesw sr"><span class="sr">Nooca akoonka</span><select id="modeSel" aria-label="Nooca akoonka"><option value="person">👤 Shakhsi</option><option value="business">🏢 Shirkad</option></select></label>
     <div class="month" aria-label="Bisha">
       <button class="icon" id="prev" aria-label="Bishii hore">‹</button>
       <b id="monthLabel">—</b>
@@ -503,8 +630,12 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
   <div id="alerts" class="alerts" role="status" data-tab="home" hidden></div>
 
   <section class="summary" aria-label="Kooban" data-tab="home">
-    <div class="stat bal"><span class="lbl">Lacagta akoonkaaga</span><span class="val" id="sBal">0</span>
-      <div class="methods" id="sMethods"></div></div>
+    <div class="stat bal glance">
+      <div class="gl-top"><span class="glmode" id="glMode"></span><span class="glst" id="glState"></span></div>
+      <span class="lbl">Lacagta akoonkaaga</span><span class="val" id="sBal">0</span>
+      <div class="glbar" aria-hidden="true"><i id="glBar"></i></div><p class="glsum" id="glSum"></p>
+      <div class="methods" id="sMethods"></div>
+      <div class="glact" id="glAct"></div></div>
     <div class="stat in"><span class="lbl">Soo galay</span><span class="val" id="sIn">0</span></div>
     <div class="stat out"><span class="lbl">Ka baxay</span><span class="val" id="sOut">0</span></div>
     <div class="stat"><span class="lbl">Ku haray bishan</span><span class="val" id="sNet">0</span></div>
@@ -513,12 +644,12 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
     <div class="stat top-spend"><span class="lbl" id="topPlaceLbl">Shirkadda lacagta ugu badan laga siiyay bishan</span><span class="val" id="sTopPlace">—</span><span class="note" id="sTopPlaceNote">Ku qor magaca shirkadda marka aad kharash gelinayso.</span></div>
   </section>
 
-  <section class="panel biz-only owner-only mgpanel" aria-labelledby="mgH" data-tab="home" id="mgPanel">
+  <section class="panel biz-only owner-only mgpanel" aria-labelledby="mgH" data-tab="home" id="mgPanel" data-fold="mg">
     <div class="panel-head"><h2 id="mgH">🏢 Dashboard-ka maamulaha</h2><span class="note" id="mgMonth"></span></div>
     <div id="mgBody"></div>
   </section>
 
-  <section class="panel" aria-labelledby="chartH" data-tab="home">
+  <section class="panel" aria-labelledby="chartH" data-tab="home" data-fold="ch">
     <div class="panel-head"><h2 id="chartH">Soo galay iyo ka baxay: 6-dii bilood ee u dambeeyay</h2>
       <div class="legend" aria-hidden="true"><span><i class="sw in"></i>Soo galay</span><span><i class="sw out"></i>Ka baxay</span></div></div>
     <div id="chart" class="chart" role="img" aria-label="Garaafka lacagta soo gashay iyo tan baxday"></div>
@@ -526,7 +657,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
     <details class="note"><summary>Eeg tirooyinka</summary><div style="overflow-x:auto"><table class="ctable" id="chartTable"></table></div></details>
   </section>
 
-  <section class="panel biz-only owner-only" aria-labelledby="stH" data-tab="home" id="stPanel">
+  <section class="panel biz-only owner-only" aria-labelledby="stH" data-tab="home" id="stPanel" data-fold="st" data-fold-def="1">
     <div class="panel-head"><h2 id="stH">📊 Tirakoobka shirkadda</h2>
       <select id="stPer" aria-label="Muddada" style="width:auto"><option value="1">Bishan</option><option value="3">3-dii bilood</option><option value="12">12-kii bilood</option></select></div>
     <div class="goal-actions"><button type="button" id="stCsv">⬇ Excel</button><button type="button" id="stDoc">⬇ Word</button><button type="button" id="stPdf">🖨 PDF</button></div>
@@ -803,7 +934,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
         </div>
       </section>
 
-  <section class="panel person-only" aria-labelledby="psH" data-tab="home" id="psPanel">
+  <section class="panel person-only" aria-labelledby="psH" data-tab="home" id="psPanel" data-fold="ps">
     <div class="panel-head"><h2 id="psH">📊 Tirakoobkayga</h2>
       <select id="psPer" aria-label="Muddada" style="width:auto"><option value="1">Bishan</option><option value="3">3-dii bilood</option><option value="12">12-kii bilood</option></select></div>
     <div class="goal-actions"><button type="button" id="psCsv">⬇ Excel</button><button type="button" id="psDoc">⬇ Word</button><button type="button" id="psPdf">🖨 PDF</button></div>
@@ -832,6 +963,7 @@ html[data-skin="3"] .al.warn{background:#3a2f12;color:#f3d38a}
   </div>
   <div data-install data-tab="more"></div>
   <footer class="credit" data-tab="more"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b> · <a href="privacy.html">Asturnaanta</a></footer>
+  <footer class="credit" data-tab="home"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b></footer>
   <nav class="bnav" aria-label="Qaybaha app-ka">
     <button type="button" data-go="home" aria-current="page"><i aria-hidden="true">🏠</i><span>Guriga</span></button>
     <button type="button" data-go="add"><i aria-hidden="true">＋</i><span>Ku dar</span></button>
@@ -1024,6 +1156,7 @@ function applyMode(m){MODE=m==="business"?"business":"person";DAILY=MODE==="busi
   document.documentElement.dataset.mode=MODE;
   if(MODE!=="business"&&$("appView").dataset.tab==="plan")goTab("home");
   if($("modeSel"))$("modeSel").value=TEAM?"team:"+TEAM:MODE;
+  renderModeTabs();
   $("placeLbl").textContent=MODE==="business"?"Macmiil ama alaab-qaybiye (ikhtiyaari)":"Shirkadda ama meesha (ikhtiyaari)";
   $("topPlaceLbl").textContent=MODE==="business"?"Alaab-qaybiyaha lacagta ugu badan la siiyay bishan":"Shirkadda lacagta ugu badan laga siiyay bishan";
   $("subline").textContent=MODE==="business"?"Ganacsigaaga: qor iibka iyo kharashyada, ogowna faa'iidada bishii.":"Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.";
@@ -1159,7 +1292,7 @@ async function loadCompanies(){const k="hantigo.cos."+(me?.id||"");try{const {da
 function fillModeSel(){const sel=$("modeSel");const own=hasAccess(profile);
   sel.innerHTML=(own?`<option value="person">👤 Shakhsi</option><option value="business">🏢 Shirkad</option>`:"")
     +companies.filter(c=>c.active).map(c=>`<option value="team:${esc(c.owner_id)}">👥 ${esc(c.owner_email||"Shirkad")}</option>`).join("");
-  sel.value=TEAM?"team:"+TEAM:MODE}
+  sel.value=TEAM?"team:"+TEAM:MODE;renderModeTabs()}
 function teamUI(){document.documentElement.classList.toggle("in-team",!!TEAM);fillModeSel()}
 async function enterTeam(owner){
   await flush();
@@ -1326,6 +1459,41 @@ $("askLater").addEventListener("click",()=>{$("cityAsk").hidden=true;try{session
 function markTab(t){document.querySelectorAll(".bnav [data-go]").forEach(x=>{if(x.dataset.go===t)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")})}
 function goTab(t){if(t==="plan"&&MODE!=="business")t="home";$("appView").dataset.tab=t;markTab(t);try{sessionStorage.setItem("hantigo.tab",t)}catch{}window.scrollTo(0,0);if(t==="home"&&me)render()}
 document.querySelectorAll(".bnav [data-go]").forEach(x=>x.addEventListener("click",()=>goTab(x.dataset.go)));
+/* ---------- design v80: Personal / Business switch, at-a-glance card, folding panels ---------- */
+function renderModeTabs(){const box=$("modeTabs"),sel=$("modeSel");if(!box||!sel)return;
+  const cur=sel.value;
+  box.innerHTML=[...sel.options].map(o=>{const v=o.value,m=v.startsWith("team:")?"team":v;
+    const sub=m==="person"?L("Lacagtaada","My money","أموالي","Pesa yangu"):m==="business"?L("Ganacsiga","My business","عملي","Biashara yangu"):L("Shaqaale","Staff","موظف","Mfanyakazi");
+    return `<button type="button" role="tab" data-m="${m}" data-v="${esc(v)}" aria-selected="${v===cur}"><span>${esc(o.textContent)}</span><small>${sub}</small></button>`}).join("");
+  box.hidden=sel.options.length<2&&!TEAM;
+  box.querySelectorAll("button").forEach(b=>b.onclick=()=>{if(b.dataset.v===sel.value)return;const before=sel.value;sel.value=b.dataset.v;
+    sel.dispatchEvent(new Event("change"));setTimeout(()=>{if(sel.value===before)renderModeTabs()},0);renderModeTabs()})}
+function renderGlance(mi,mo){const g=$("glState");if(!g)return;const biz=MODE==="business",co=settings().coName;
+  $("glMode").textContent=TEAM?"👥 "+L("Shirkadda","Company","الشركة","Kampuni"):biz?"🏢 "+(co||L("Shirkaddaada","Your business","شركتك","Biashara yako")):"👤 "+L("Lacagtaada shakhsiga ah","Your personal money","أموالك الشخصية","Pesa zako binafsi");
+  const net=mi-mo,pct=mi>0?Math.round(mo/mi*100):0;let st,txt;
+  if(!mi&&!mo){st="none";g.textContent=L("Bishan weli waxba lama qorin","Nothing recorded this month","لا شيء مسجل هذا الشهر","Hakuna kilichorekodiwa mwezi huu");txt=""}
+  else if(mo>mi){st="bad";g.textContent=biz?L("🔴 Khasaare","🔴 Loss","🔴 خسارة","🔴 Hasara"):L("🔴 Kharash badan","🔴 Overspending","🔴 إنفاق زائد","🔴 Matumizi makubwa");
+    txt=biz?L(`Kharashku dakhliga ayuu ka badan yahay ${money(-net)} bishan.`,`Spending is ${money(-net)} more than income this month.`,`المصاريف أكثر من الدخل بمقدار ${money(-net)} هذا الشهر.`,`Matumizi yamezidi mapato kwa ${money(-net)} mwezi huu.`)
+      :L(`Waxaad isticmaashay ${money(-net)} ka badan inta kuu soo gashay.`,`You spent ${money(-net)} more than came in.`,`أنفقت ${money(-net)} أكثر مما دخل.`,`Umetumia ${money(-net)} zaidi ya kilichoingia.`)}
+  else if(pct>80){st="warn";g.textContent=L("⚠️ Taxaddar","⚠️ Careful","⚠️ انتبه","⚠️ Kuwa makini");
+    txt=L(`Kharashku wuxuu gaaray ${pct}% dakhliga. Waxaa haray ${money(net)}.`,`Spending reached ${pct}% of income. ${money(net)} left.`,`بلغت المصاريف ${pct}% من الدخل. المتبقي ${money(net)}.`,`Matumizi yamefika ${pct}% ya mapato. Imebaki ${money(net)}.`)}
+  else{st="ok";g.textContent=biz?L("✅ Faa'iido","✅ Profit","✅ ربح","✅ Faida"):L("✅ Xaalad wanaagsan","✅ Looking good","✅ وضع جيد","✅ Hali nzuri");
+    txt=mi&&!mo?L(`Weli kharash lama qorin. Dakhliga: ${money(mi)}.`,`No spending yet. Income: ${money(mi)}.`,`لا مصاريف بعد. الدخل: ${money(mi)}.`,`Hakuna matumizi bado. Mapato: ${money(mi)}.`)
+      :biz?L(`Faa'iidada bishan: ${money(net)} (${100-pct}% dakhliga).`,`Profit this month: ${money(net)} (${100-pct}% of income).`,`ربح هذا الشهر: ${money(net)} (${100-pct}% من الدخل).`,`Faida ya mwezi huu: ${money(net)} (${100-pct}% ya mapato).`)
+      :L(`Waxaa kuu haray ${money(net)}: ${100-pct}% dakhligaaga.`,`You kept ${money(net)}: ${100-pct}% of your income.`,`تبقّى لك ${money(net)}: ${100-pct}% من دخلك.`,`Umebakiwa na ${money(net)}: ${100-pct}% ya mapato yako.`)}
+  g.dataset.st=st;$("glSum").textContent=txt;$("glSum").hidden=!txt;
+  const bar=$("glBar");bar.style.width=(mi>0?Math.min(100,pct):mo>0?100:0)+"%";bar.dataset.st=st;bar.parentNode.hidden=!mi&&!mo;
+  bar.parentNode.title=mi?L(`Kharashka: ${pct}% dakhliga`,`Spending: ${pct}% of income`,`المصاريف: ${pct}% من الدخل`,`Matumizi: ${pct}% ya mapato`):"";
+  const a=$("glAct");if(!a.dataset.on){a.dataset.on=1;a.addEventListener("click",e=>{const b=e.target.closest("[data-quick]");if(!b)return;goTab("add");const r=$(b.dataset.quick==="in"?"tIn":"tOut");if(r&&!r.checked)r.click();setTimeout(()=>{const x=$("amount");(x&&x.offsetParent?x:document.querySelector("#multiList input:not([type=checkbox])"))?.focus()},60)})}
+  a.innerHTML=`<button type="button" data-quick="in"><b>+</b> ${biz?L("Dakhli / iib","Income / sale","دخل / بيع","Mapato / mauzo"):L("Lacag soo gashay","Money in","دخل","Pesa iliyoingia")}</button><button type="button" data-quick="out"><b>−</b> ${L("Kharash","Expense","مصروف","Matumizi")}</button>`}
+function initFold(){document.querySelectorAll("[data-fold]").forEach(p=>{const head=p.querySelector(".panel-head");if(!head||head.querySelector(".foldbtn"))return;
+  const k="hantigo.fold."+p.dataset.fold;let v=null;try{v=localStorage.getItem(k)}catch{}
+  const set=f=>{p.classList.toggle("folded",f);b.setAttribute("aria-expanded",String(!f));b.innerHTML=f?`${L("Muuji","Show","إظهار","Onyesha")} <i>▾</i>`:`${L("Qari","Hide","إخفاء","Ficha")} <i>▴</i>`};
+  const b=document.createElement("button");b.type="button";b.className="foldbtn";head.appendChild(b);
+  set(v===null?p.dataset.foldDef==="1":v==="1");
+  b.onclick=()=>{const f=!p.classList.contains("folded");set(f);try{localStorage.setItem(k,f?"1":"0")}catch{}if(!f&&me)render()}})}
+initFold();
+
 (()=>{let t="home";try{t=sessionStorage.getItem("hantigo.tab")||"home"}catch{}$("appView").dataset.tab=t;markTab(t)})();
 
 /* WhatsApp support */
@@ -1455,7 +1623,7 @@ function render(){
   const sum=(arr,t)=>arr.filter(x=>x.type===t).reduce((s,x)=>s+Number(x.amount||0),0);
   const real=month.filter(t=>t.cat!=="Kayd"),mi=sum(real,"in"),mo=sum(real,"out"),mk=sum(month,"out")-sum(real,"out")-(sum(month,"in")-sum(real,"in"));
   $("sIn").textContent=money(mi);$("sOut").textContent=money(mo);$("sNet").textContent=money(mi-mo-mk);
-  $("sBal").textContent=money(sum(txs,"in")-sum(txs,"out"));
+  $("sBal").textContent=money(sum(txs,"in")-sum(txs,"out"));renderGlance(mi,mo);
   $("sMethods").innerHTML=METHODS.map(m=>{const ts=txs.filter(t=>(t.method||"Kaash")===m);return `<span>${T(m)}: <b>${money(sum(ts,"in")-sum(ts,"out"))}</b></span>`}).join("");
   const kayd=month.filter(t=>t.cat==="Kayd");
   $("sSaved").textContent=money(kayd.filter(t=>t.type==="out").reduce((a,t)=>a+Number(t.amount),0)-kayd.filter(t=>t.type==="in").reduce((a,t)=>a+Number(t.amount),0));
