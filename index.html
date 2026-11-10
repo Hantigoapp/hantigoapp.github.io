@@ -1448,8 +1448,7 @@ $("lvCsv").addEventListener("click",()=>{const r=lvReport();
   const head=[L("Shaqaalaha","Staff"),L("Nooca","Type"),L("Laga bilaabo","From"),L("Ilaa","To"),L("Maalmaha muddadan","Days in period"),L("Xaaladda","Status"),L("Faahfaahin","Details")];
   const rows=r.rows.map(v=>[v.who,L(...LVT[v.type]||LVT.fasax).replace(/^\S+ /,""),v.from,v.to,v.inDays,lvStatusTxt(v),v.note||""]);
   rows.push([],[L("Xanuunsaday (dad)","Sick (people)"),r.sickP,"",L("Maalmo","Days"),r.sickD],[L("Fasax (dad)","On leave (people)"),r.lvP,"",L("Maalmo","Days"),r.lvD]);
-  const csv="﻿"+[[coName()||"HantiGo",L("Fasax iyo xanuun","Leave and sick days"),r.title,r.from+" → "+r.to],head,...rows].map(x=>x.map(csvCell).join(",")).join("\r\n");
-  saveFile(`HantiGo-fasax-${r.title}.csv`.replace(/[^\w.@ -]+/g,"_"),csv,"text/csv;charset=utf-8")});
+  exportSheet([[L("Fasax iyo xanuun","Leave and sick days"),r.title,r.from+" → "+r.to],head,...rows],`HantiGo-fasax-${r.title}`,[0,1])});
 function lvHtml(){const r=lvReport();return `${coHead()}<p>${L("Warbixinta fasaxa iyo xanuunka","Leave and sick report")}: <b>${esc(r.title)}</b> (${r.from} → ${r.to}) · ${esc(modeLabel())}</p>
   <table><tr><th>${L("Xanuunsaday","Sick")}</th><th>${L("Fasax","On leave")}</th></tr><tr><td>${r.sickP} ${L("qof","people")} · ${r.sickD} ${L("maalmood","days")}</td><td>${r.lvP} ${L("qof","people")} · ${r.lvD} ${L("maalmood","days")}</td></tr></table>
   <h2>${L("Liiska","List")} (${r.rows.length})</h2>
@@ -1543,7 +1542,7 @@ $("stCsv").addEventListener("click",()=>{if(!ST)return;const r=ST,rows=[[coName(
   ...r.six.map(m=>[m.label,m.inc,m.sal,m.oth,m.inc-m.sal-m.oth,m.sick,m.lv]),[],
   [L("Mushaarka shaqaalo kasta","Salaries by role"),L("Qadarka","Amount")],...r.roles.map(([n,v])=>[T(n),v]),[],
   [L("Meesha lacagtu ku baxday","Where the money went"),L("Qadarka","Amount")],...r.cats.map(([n,v])=>[T(n),v])];
-  saveFile(stFile("csv"),"﻿"+rows.map(x=>x.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8")});
+  rows[0].shift();exportSheet(rows,stFile("x").slice(0,-2),rows.map((x,i)=>i===0||(i>0&&rows[i-1].length===0)?i:-1).filter(i=>i>=0))});
 if(NATIVE)$("stPdf").hidden=true;
 
 /* ---------- company name & logo (owner) ---------- */
@@ -1589,14 +1588,31 @@ async function saveFile(name,text,type){const blob=new Blob([text],{type});
   try{const f=new File([blob],name,{type});if(NATIVE&&navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch{}
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+/* ---------- Excel (.xlsx) with company name + logo; CSV if the library can't load ---------- */
+let xlLib=null;
+function loadExcel(){return xlLib||(xlLib=new Promise((res,rej)=>{if(window.ExcelJS)return res(window.ExcelJS);const sc=document.createElement("script");sc.src="vendor/exceljs.min.js";sc.onload=()=>res(window.ExcelJS);sc.onerror=()=>{xlLib=null;rej()};document.head.appendChild(sc)}))}
+async function exportSheet(rows,base,bold){base=base.replace(/[^\w.@ -]+/g,"_");
+  const brand=MODE==="business"&&coName()?coName():"HantiGo",logo=MODE==="business"?coLogo():"";
+  try{const X=await loadExcel(),wb=new X.Workbook(),ws=wb.addWorksheet("HantiGo");wb.creator="HantiGo";
+    let start=1;
+    if(logo){const m=logo.match(/^data:image\/(png|jpeg);base64,(.*)$/);if(m){const id=wb.addImage({base64:m[2],extension:m[1]==="jpeg"?"jpeg":"png"});ws.addImage(id,{tl:{col:0,row:0},ext:{width:60,height:60}});}
+      ws.getRow(1).height=24;ws.getRow(2).height=24;ws.getRow(3).height=4;start=4}
+    const top=ws.getCell(logo?"B1":"A1");top.value=brand;top.font={bold:true,size:16,color:{argb:"FF0B7A4B"}};
+    if(brand!=="HantiGo"){const c=ws.getCell(logo?"B2":"A2");c.value="HantiGo";c.font={size:9,color:{argb:"FF888888"}}}
+    if(!logo)start=brand!=="HantiGo"?4:3;
+    rows.forEach((r,i)=>{const row=ws.getRow(start+i);r.forEach((v,j)=>{const c=row.getCell(j+1);c.value=v===""?null:v;if(typeof v==="number")c.numFmt=Number.isInteger(v)?"#,##0":"#,##0.00"});
+      if(bold.includes(i)){row.font={bold:true};if(i>0)row.eachCell(c=>{c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFE8F5EE"}}})}});
+    const w=[];rows.forEach(r=>r.forEach((v,j)=>{w[j]=Math.max(w[j]||8,Math.min(40,String(v??"").length+2))}));w.forEach((x,j)=>ws.getColumn(j+1).width=j===0&&logo?Math.max(x,10):x);
+    const buf=await wb.xlsx.writeBuffer();
+    await saveFile(base+".xlsx",buf,"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+  catch{const csv="﻿"+[[brand],...rows].map(x=>x.map(csvCell).join(",")).join("\r\n");saveFile(base+".csv",csv,"text/csv;charset=utf-8")}}
 const csvCell=v=>{v=String(v??"");return /[",;\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
 $("repCsv").addEventListener("click",()=>{const {txs,title}=reportData();
   const head=[L("Taariikhda","Date"),L("Nooca","Type"),L("Qaybta","Category"),L("Qadarka","Amount"),L("Lacagta","Currency"),L("Habka","Method"),L("Meesha","Place"),L("Faahfaahin","Details"),L("Qoray","Entered by")];
   const rows=txs.map(t=>[t.date,typeLabel(t.type),T(t.cat),(t.type==="in"?1:-1)*Number(t.amount),currency(),T(t.method||"Kaash"),t.place||"",t.note||"",t.by||""]);
   const si=txs.filter(t=>t.type==="in").reduce((a,t)=>a+Number(t.amount),0),so=txs.filter(t=>t.type==="out").reduce((a,t)=>a+Number(t.amount),0);
   rows.push([],[L("Soo galay","Income"),"","",si],[L("Ka baxay","Expenses"),"","",-so],[L("Farqiga","Difference"),"","",si-so]);
-  const csv="﻿"+[["HantiGo",modeLabel(),title],head,...rows].map(r=>r.map(csvCell).join(",")).join("\r\n");
-  saveFile(`HantiGo-${modeLabel()}-${title}.csv`.replace(/[^\w.@ -]+/g,"_"),csv,"text/csv;charset=utf-8")});
+  exportSheet([[modeLabel(),title],head,...rows],`HantiGo-${modeLabel()}-${title}`,[0,1])});
 function buildReport(){const {txs,title}=reportData();
   const sum=t=>txs.filter(x=>x.type===t).reduce((a,x)=>a+Number(x.amount),0);
   const by={};txs.filter(t=>t.type==="out"&&t.cat!=="Kayd").forEach(t=>by[t.cat]=(by[t.cat]||0)+Number(t.amount));
