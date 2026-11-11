@@ -103,3 +103,51 @@ where table_schema = 'public'
   and table_name in ('profiles', 'user_data', 'team_members')
   and grantee in ('anon', 'authenticated')
 order by table_name, grantee, privilege_type;
+
+-- 8. Remaining app/admin RPCs from account/location/payment/sales/signups SQL.
+-- These are SECURITY DEFINER functions with their own auth.uid()/is_admin()
+-- checks; keep them callable by signed-in users only.
+revoke all on function public.delete_my_account() from public, anon;
+grant execute on function public.delete_my_account() to authenticated;
+
+revoke all on function public.set_my_location(text, text) from public, anon;
+grant execute on function public.set_my_location(text, text) to authenticated;
+
+revoke all on function public.request_payment(text, text, text) from public, anon;
+grant execute on function public.request_payment(text, text, text) to authenticated;
+
+revoke all on function public.admin_pay_decide(uuid, boolean, int) from public, anon;
+grant execute on function public.admin_pay_decide(uuid, boolean, int) to authenticated;
+
+revoke all on function public.admin_signups() from public, anon;
+grant execute on function public.admin_signups() to authenticated;
+
+revoke all on function public.admin_record_sale(uuid, numeric, int, text, text, text) from public, anon;
+grant execute on function public.admin_record_sale(uuid, numeric, int, text, text, text) to authenticated;
+
+revoke all on function public.admin_delete_sale(uuid) from public, anon;
+grant execute on function public.admin_delete_sale(uuid) to authenticated;
+
+-- 9. Payment history is read-only through the client. All writes go through
+-- the guarded request_payment/admin_* SECURITY DEFINER RPCs.
+-- Run this script after supabase/sales.sql has created public.payments.
+alter table public.payments enable row level security;
+revoke all on table public.payments from anon, authenticated;
+grant select on table public.payments to authenticated;
+
+-- 10. Full RPC verification list: anon_can_execute should be false.
+select
+  p.oid::regprocedure as function_name,
+  has_function_privilege('anon', p.oid, 'EXECUTE') as anon_can_execute,
+  has_function_privilege('authenticated', p.oid, 'EXECUTE') as signed_in_can_execute
+from pg_proc p
+join pg_namespace n on n.oid = p.pronamespace
+where n.nspname = 'public'
+  and p.proname in (
+    'is_admin', 'has_access', 'is_team_member', 'owner_active', 'team_role',
+    'my_companies', 'team_load', 'team_save', 'my_save',
+    'admin_extend', 'admin_set_plan', 'set_my_plan', 'set_my_phone',
+    'delete_my_account', 'set_my_location', 'request_payment',
+    'admin_pay_decide', 'admin_signups', 'admin_record_sale', 'admin_delete_sale'
+  )
+order by p.proname;
