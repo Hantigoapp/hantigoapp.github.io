@@ -16,6 +16,7 @@ This folder contains the database setup and feature migrations used by HantiGo. 
 10. `sales.sql` — payment history and sales reporting.
 11. `signups.sql` — admin sign-up summary.
 12. `security_hardening.sql` — final table/function grants and verification queries.
+13. `push_notifications.sql` — private, RLS-protected browser push subscriptions and preferences.
 
 Run each file once in this order. If you are updating an existing deployment, review the file comments and take a database backup before applying migrations.
 
@@ -48,3 +49,11 @@ After applying all migrations, run `role_security_audit.sql` in the SQL Editor. 
 ## Background notifications status
 
 The service worker handles incoming Web Push events and notification clicks, including when the HantiGo page is closed. This is only the browser-side receiver. Actual background delivery is **not yet configured**: it also requires VAPID keys, authenticated push-subscription storage, a trusted server-side sender (for example a Supabase Edge Function), and a scheduled job that evaluates each account's reminder preferences. Do not put VAPID private keys or a Supabase service-role key in `index.html` or any other public repository file. The current in-app reminder timer continues to work only while HantiGo is open.
+
+
+## Web Push deployment
+
+After applying `push_notifications.sql`, follow [`push_deployment.md`](push_deployment.md) to configure VAPID secrets, deploy the three Edge Functions, store the scheduler secret in Vault, and enable the cron job. The browser UI can request a subscription and send a test push. The scheduled worker currently sends only the daily check-in reminder; other alert types are not yet delivered in the background. Do not commit secrets or the service-role key.
+
+
+Use [`push_deployment.md`](push_deployment.md) for the VAPID, Edge Function, Vault, and cron setup. Use [`role_acceptance_tests.md`](role_acceptance_tests.md) for the owner/manager/staff isolation test matrix.
