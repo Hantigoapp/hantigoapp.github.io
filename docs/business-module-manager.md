@@ -2,7 +2,7 @@
 
 ## Status
 
-This is an additive design foundation on the `feature/business-module-manager-foundation` branch. It does not change the live application, existing account flows, database, or service worker. No module is enabled for customers by this document alone.
+The additive foundation and first backend migration are committed on `feature/business-module-manager-foundation`. The live `main` branch and live Supabase database have not been changed. No customer-facing module UI or operational module screens are enabled yet.
 
 ## Product decision
 
@@ -19,7 +19,20 @@ A company can enable multiple business modules at the same time. Modules extend 
 7. Disabling a module hides its workflows but does not delete historical data.
 8. Existing offline behavior must remain intact; new offline writes require an explicit sync/conflict design before release.
 
-## Proposed architecture
+## Implemented backend foundation
+
+New file: `supabase/business_modules.sql`.
+
+- Adds a stable module catalog with IDs for Education, Hotel, Restaurant, Retail, Wholesale, Construction, Agriculture, Livestock, Transport, Manufacturing, Services and Fishing.
+- Adds `company_modules`, keyed by the existing company owner account ID plus module ID. Disabled selections remain stored.
+- Adds `business_modules_get(p_owner)`: company owner and authenticated company members can read that company's module selection; unrelated users are rejected.
+- Adds `business_modules_set(p_module_ids)`: only the authenticated account owner can change their selection; unknown, inactive, duplicate and excessive module selections are rejected.
+- Enables RLS and revokes direct client table access; authenticated clients use the guarded RPCs.
+- Includes SQL verification queries.
+
+**Important:** this is a migration file only. It has not been executed against Supabase, and the UI does not call these RPCs yet. Back up/stage and run it manually only after reviewing it.
+
+## Architecture
 
 - **HantiGo Core:** existing finance, income/expense, debt, savings, staff, receipts, reports, and account functions.
 - **Module Catalog:** stable module IDs, localized names, descriptions, categories, and dependency metadata.
@@ -28,18 +41,12 @@ A company can enable multiple business modules at the same time. Modules extend 
 - **Permission layer:** owner controls module selection; manager/staff access is granted only through explicit role permissions.
 - **Module data:** each module owns its tables and company-scoped records.
 
-## Proposed rollout
+## Remaining rollout
 
-### Phase 0 — Foundation (this branch)
-- Define catalog and data contract.
-- Review current company identity, membership, RLS, RPC and offline-sync behavior.
-- No production UI or database changes.
-
-### Phase 1 — Backend foundation
-- Add a company-scoped module-settings table and an RPC to read/update enabled modules.
-- Add RLS and role checks; only company owners may change the module selection.
-- Add migration verification and negative tests using disposable accounts.
-- Preserve all existing tables and RPC signatures.
+### Phase 1 — Backend verification
+- Review and run the migration in staging or after a fresh backup.
+- Verify RLS, grants, RPC execution and cross-company negative tests.
+- Confirm existing app and offline flows are unaffected.
 
 ### Phase 2 — UI integration
 - Add a Module Manager screen as a separate feature entry point.
@@ -64,4 +71,4 @@ A company can enable multiple business modules at the same time. Modules extend 
 
 ## Deployment warning
 
-Repository changes do not apply SQL to Supabase automatically. Any future migration must be reviewed, backed up, run manually in the documented order, and verified in the Supabase project. Do not deploy a migration or merge this branch into `main` until the acceptance tests pass.
+Repository changes do not apply SQL to Supabase automatically. The new migration must be reviewed, backed up, run manually in the Supabase project, and verified. Do not merge this branch into `main` until the acceptance tests pass.
