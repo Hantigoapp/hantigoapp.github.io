@@ -369,7 +369,7 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .cols,.cols>div{display:contents!important}
 #appView{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 #appView[data-tab] [data-tab]{display:none!important}
-#appView[data-tab="home"] [data-tab="home"],#appView[data-tab="add"] [data-tab="add"],#appView[data-tab="plan"] [data-tab="plan"],#appView[data-tab="more"] [data-tab="more"]{display:grid!important}
+#appView[data-tab="home"] [data-tab="home"],#appView[data-tab="add"] [data-tab="add"],#appView[data-tab="plan"] [data-tab="plan"],#appView[data-tab="expenses"] [data-tab="expenses"],#appView[data-tab="more"] [data-tab="more"]{display:grid!important}
 #appView [data-tab][hidden]{display:none!important}
 html:not([data-mode="business"]) #appView .biz-only{display:none!important}
 html[data-mode="business"] #appView .person-only{display:none!important}
@@ -403,7 +403,7 @@ body:has(#appView:not([hidden])) .wafab{bottom:calc(100px + env(safe-area-inset-
 .hlogout{padding:6px 10px;font-size:.82rem;font-weight:600;color:var(--out);border-color:var(--line)}
 header{gap:8px}
 header>div:first-child{flex:1 1 100%}.htop{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.bnav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:min(520px,calc(100% - 24px));padding:6px;border-radius:22px;background:var(--nav-bg);box-shadow:0 10px 30px rgba(10,20,40,.18);border:1px solid var(--line)}
+.bnav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;width:min(560px,calc(100% - 24px));padding:6px;border-radius:22px;background:var(--nav-bg);box-shadow:0 10px 30px rgba(10,20,40,.18);border:1px solid var(--line)}
 .bnav button{border:0;background:none;display:grid;justify-items:center;gap:1px;padding:7px 2px;border-radius:16px;color:var(--muted);font-size:.74rem;font-weight:600}
 .bnav button i{font-style:normal;font-size:1.2rem;line-height:1.2}
 .bnav button[data-go="add"] i{font-weight:700}
@@ -943,7 +943,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
         <p class="note" style="margin:0">Digniin ayaad helaysaa marka aad u dhowaato xadka.</p>
       </section>
 
-      <section class="panel no-staff" aria-labelledby="billH" data-tab="plan">
+      <section class="panel no-staff" aria-labelledby="billH" data-tab="expenses">
         <div class="panel-head"><h2 id="billH">Kharashyada joogtada ah</h2><span class="note" id="billMonth"></span></div>
         <p class="note" style="margin:0">Geli qadarka hal mar. Bil kasta riix “Bixi”.</p>
         <p class="note" style="margin:0">Maalinta: xusuusin ayaad helaysaa 3 maalmood ka hor.</p>
@@ -1196,6 +1196,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
     <button type="button" data-go="home" aria-current="page"><i aria-hidden="true">🏠</i><span>Guriga</span></button>
     <button type="button" data-go="add"><i aria-hidden="true">＋</i><span>Ku dar</span></button>
     <button type="button" data-go="plan"><i aria-hidden="true">📅</i><span>Qorshe</span></button>
+     <button type="button" data-go="expenses"><i aria-hidden="true">🧾</i><span>Kharash</span></button>
     <button type="button" data-go="more"><i aria-hidden="true">👤</i><span>Akoon</span></button>
   </nav>
 </div>
