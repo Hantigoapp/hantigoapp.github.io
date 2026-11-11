@@ -80,6 +80,28 @@ button{min-height:38px;border-radius:12px;font-weight:600}
 input{min-height:44px;font-size:16px;border-radius:12px;background:var(--bg)}
 input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(61,220,151,.25)}
 h2{font-family:var(--display)}
+/* 💰 Iibka: sales by day / month + downloads */
+.tabs{grid-template-columns:repeat(3,1fr)}
+.sbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;display:grid;gap:10px}
+.sbox h2{margin:0;font-size:1.05rem}
+.srange{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.srange label{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:.88rem}
+.srange input{width:auto;min-height:40px}
+.scount{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.scount div{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.scount b{display:block;font:700 1.35rem var(--display)}.scount small{color:var(--muted);font-size:.78rem;font-weight:600}.scount em{display:block;font-style:normal;color:var(--muted);font-size:.8rem}
+.scount div:first-child{background:linear-gradient(135deg,#123d2e,#0f2a3d);border-color:#1f5a44}.scount div:first-child b{color:var(--in)}
+.sdl{display:flex;flex-wrap:wrap;gap:8px}.sdl button{flex:1 1 120px}
+.sdl .xl{border-color:#1e8e5a}.sdl .wd{border-color:#2f6fc4}.sdl .pd{border-color:#d9443c}
+.stw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.stbl{width:100%;border-collapse:collapse;font-size:.9rem;min-width:520px}
+.stbl th{position:sticky;top:0;background:#1b2633;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:8px 10px}
+.stbl td{padding:8px 10px;border-top:1px solid var(--line)}.stbl .n{text-align:right;white-space:nowrap}
+.stbl tr.tot td{font-weight:700;background:var(--accent-soft)}
+.stbl .pill{white-space:nowrap}.stbl td:nth-child(3){min-width:150px}.stbl td:nth-child(6){white-space:nowrap}
+.stbl .del{min-height:30px;padding:2px 8px;color:var(--out);font-size:.8rem}
+.sgrp{display:inline-grid;grid-template-columns:1fr 1fr;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
+.sgrp button{border:0;background:transparent;min-height:34px;color:var(--muted)}.sgrp button[aria-pressed=true]{background:var(--accent);color:#06281a}
+@media (max-width:560px){.scount{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 <script src="vendor/supabase.js"></script>
 </head>
@@ -96,9 +118,11 @@ h2{font-family:var(--display)}
       <div class="stat"><small>Tijaabo</small><b id="nTrial" class="cac">0</b></div>
       <div class="stat"><small>Dhacay</small><b id="nExp" class="cout">0</b></div>
       <div class="stat wide"><small>Dakhliga bishii</small><b id="mrr">$0</b></div>
+      <div class="stat"><small>Iibka bishan</small><b id="sMon" class="cin">—</b><em id="sDay"></em></div>
     </div>
     <div class="tabs" role="tablist">
       <button type="button" role="tab" data-tab="cust" aria-selected="true">👥 Macaamiisha</button>
+      <button type="button" role="tab" data-tab="sales" aria-selected="false">💰 Iibka</button>
       <button type="button" role="tab" data-tab="loc" aria-selected="false">📍 Meelaha</button>
     </div>
     <section id="tabCust" style="display:grid;gap:10px">
@@ -106,6 +130,7 @@ h2{font-family:var(--display)}
       <div class="chips" id="chips"></div>
       <div class="list" id="list"></div>
     </section>
+    <section id="tabSales" hidden style="display:grid;gap:12px"></section>
     <section id="tabLoc" hidden><div class="locs" id="locs"></div></section>
   </div>
 </div>
@@ -167,28 +192,31 @@ function render(){
     <div class="acts"><button class="primary" data-id="${p.id}" data-d="30">+30 maalmood</button><button data-id="${p.id}" data-d="365">+1 sano</button><button class="stop" data-id="${p.id}" data-d="0">Jooji</button>${"plan" in p?`<button data-plan="${p.id}" data-to="${planOf(p)==="business"?"person":"business"}">→ ${planOf(p)==="business"?"👤 Shakhsi $3":"🏢 Shirkad $7"}</button>`:""}</div>
   </div>`}).join(""):`<p class="msg">Macmiil lama helin.</p>`}
 document.addEventListener("click",e=>{const f=e.target.closest("[data-f]");if(f){filt=f.dataset.f;render();return}
-  const t=e.target.closest("[data-tab]");if(t){tab=t.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-selected",x===t));$("tabCust").hidden=tab!=="cust";$("tabLoc").hidden=tab!=="loc"}});
+  const t=e.target.closest("[data-tab]");if(t){tab=t.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-selected",x===t));$("tabCust").hidden=tab!=="cust";$("tabLoc").hidden=tab!=="loc";$("tabSales").hidden=tab!=="sales"}});
 async function load(){
   const {data,error}=await sb.from("profiles").select("*").order("created_at",{ascending:false});
   if(error){$("msg").textContent="Xogta lama soo saari karo: "+error.message;return}
-  await loadExtra();
+  await Promise.all([loadExtra(),loadSales()]);
   const cust=data.filter(p=>!p.is_admin);
   if(known){const add=cust.filter(p=>!known.has(p.id));if(add.length)toast("🆕 Macmiil cusub: "+add.map(p=>p.email).join(", "))}
   known=new Set(cust.map(p=>p.id));
-  rows=data;$("msg").hidden=true;$("main").hidden=false;render()}
+  rows=data;$("msg").hidden=true;$("main").hidden=false;render();renderSales()}
 document.addEventListener("click",async e=>{const z=e.target.closest("[data-zoom]");if(z){window.open().document.write(`<img src="${z.src}" style="max-width:100%">`);return}
   const b=e.target.closest("[data-pay]");if(!b)return;const ok=b.dataset.ok==="1";
   if(!ok&&!b.dataset.sure){b.dataset.sure="1";b.textContent="Hubi? Diid";setTimeout(()=>{delete b.dataset.sure;b.textContent="✕ Diid"},3000);return}
   b.disabled=true;let {error}=await sb.rpc("admin_pay_decide",{target:b.dataset.pay,approve:ok,days:30});
   if(error&&ok)({error}=await sb.rpc("admin_extend",{target:b.dataset.pay,days:30}));
   if(error){alert(ok?"Khalad: "+error.message:"Si aad u diiddo, marka hore ku shub faylka supabase/payment.sql gudaha Supabase.");b.disabled=false;return}
-  await load();if(ok){const p=rows.find(x=>x.id===b.dataset.pay);sendSubReceipt(b.dataset.pay,30,p?priceOf(p):3)}});
+  if(ok){const p=rows.find(x=>x.id===b.dataset.pay)||{},amt=priceOf(p),no=rcNo(b.dataset.pay);await recordSale(p,amt,30,payWay(p),cleanRef(p.pay_ref),no);
+    await load();sendSubReceipt(b.dataset.pay,30,amt,no)}else await load()});
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-id]");if(!b)return;
   const d=Number(b.dataset.d);
   if(d===0&&!b.dataset.sure){b.dataset.sure="1";b.textContent="Hubi?";setTimeout(()=>{delete b.dataset.sure;b.textContent="Jooji"},3000);return}
   const cp=rows.find(x=>x.id===b.dataset.id)||{};let amt=0;if(d===30)amt=priceOf(cp);else if(d>=365){const v=prompt(`Imisa ayuu bixiyay sanadkan? ($)\n${planName(cp)}: $${priceOf(cp)} x 12 = $${priceOf(cp)*12}\nCancel = rasiid looma dirayo.`,String(priceOf(cp)*12));amt=v===null?0:(parseFloat(v)||0)}
   b.disabled=true;const {error}=await sb.rpc("admin_extend",{target:b.dataset.id,days:d});
-  if(error){alert("Khalad: "+error.message);b.disabled=false;return}await load();if(amt>0)sendSubReceipt(b.dataset.id,d,amt)});
+  if(error){alert("Khalad: "+error.message);b.disabled=false;return}
+  const no=amt>0?rcNo(b.dataset.id):null;if(amt>0)await recordSale(cp,amt,d,payWay(cp),cleanRef(cp.pay_ref),no);
+  await load();if(amt>0)sendSubReceipt(b.dataset.id,d,amt,no)});
 
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-plan]");if(!b)return;
   b.disabled=true;const {error}=await sb.rpc("admin_set_plan",{target:b.dataset.plan,p:b.dataset.to});
@@ -226,9 +254,10 @@ async function subPdf(p,r){const J=await loadPdf();const doc=new J({unit:"mm",fo
 function b64(blob){return new Promise((res,rej)=>{const f=new FileReader();f.onload=()=>res(String(f.result).split(",")[1]);f.onerror=rej;f.readAsDataURL(blob)})}
 function toast(t,bad){let el=$("toast");if(!el){el=document.createElement("div");el.id="toast";el.style.cssText="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:92vw;padding:12px 16px;border-radius:12px;color:#fff;font-weight:600;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.3)";document.body.appendChild(el)}
   el.style.background=bad?"#b3402a":"#16794a";el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,bad?15000:7000)}
-async function sendSubReceipt(id,days,amount){const p=rows.find(x=>x.id===id);if(!p?.email||!(amount>0))return;
-  const now=new Date(),z=n=>String(n).padStart(2,"0");
-  const r={no:"HG-"+String(now.getFullYear()).slice(2)+z(now.getMonth()+1)+z(now.getDate())+"-"+String(id).replace(/-/g,"").slice(0,4).toUpperCase(),date:now,days,amount,until:p.paid_until||new Date(Date.now()+days*864e5)};
+function rcNo(id){const now=new Date(),z=n=>String(n).padStart(2,"0");return "HG-"+String(now.getFullYear()).slice(2)+z(now.getMonth()+1)+z(now.getDate())+"-"+String(id).replace(/-/g,"").slice(0,4).toUpperCase()}
+async function sendSubReceipt(id,days,amount,no){const p=rows.find(x=>x.id===id);if(!p?.email||!(amount>0))return;
+  const now=new Date();
+  const r={no:no||rcNo(id),date:now,days,amount,until:p.paid_until||new Date(Date.now()+days*864e5)};
   toast("🧾 Rasiidka waa la dirayaa…");
   try{const blob=await subPdf(p,r);
     const text=`Salaan,\n\nMahadsanid inaad iibsatay HantiGo.\n\nRasiid: ${r.no}\nTaariikhda: ${dmy(r.date)}\nAdeegga: HantiGo ${planName(p)} (${days>=365?"1 sano":days+" maalmood"})\nLacagta: $${amount.toFixed(2)} (${payWay(p)})\nAkoonkaagu wuu furan yahay ilaa: ${dmy(r.until)}\n\nRasiidka PDF-ka ah waa lifaaqan.\nCaawimaad: WhatsApp +46 76 715 79 15\n\nHantiGo`;
@@ -271,6 +300,147 @@ function renderNew(cust){
 document.addEventListener("click",e=>{if(e.target.closest("[data-seen]")){seen=Date.now();setSeen(seen);render();return}
   if(e.target.closest("[data-shownew]")){filt="new";$("q").value="";render();$("chips").scrollIntoView({behavior:"smooth",block:"start"})}});
 async function loadExtra(){const {data,error}=await sb.rpc("admin_signups");hasExtra=!error&&Array.isArray(data);extra={};if(hasExtra)data.forEach(r=>extra[r.id]=r)}
+/* ---------- 💰 Iibka: every payment, by day and by month, download Excel / Word / PDF ---------- */
+let sales=[],salesOk=null,sPer="month",sGrp=null,sFrom="",sTo="";
+const WD=["Axad","Isniin","Talaado","Arbaco","Khamiis","Jimco","Sabti"];
+const MON=["Janaayo","Febraayo","Maarso","Abriil","Maajo","Juun","Luulyo","Agoosto","Sebteembar","Oktoobar","Nofeembar","Diseembar"];
+const z2=n=>String(n).padStart(2,"0");
+const dkey=d=>d.getFullYear()+"-"+z2(d.getMonth()+1)+"-"+z2(d.getDate());
+const mkey=d=>d.getFullYear()+"-"+z2(d.getMonth()+1);
+const dshow=k=>{const [y,m,d]=k.split("-");return d+"/"+m+"/"+y};
+const mshow=k=>{const [y,m]=k.split("-");return MON[m-1]+" "+y};
+const usd=v=>"$"+Number(v||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const sPlan=s=>s.plan==="business"?"business":"person";
+const sPlanName=s=>sPlan(s)==="business"?"Shirkad":"Shakhsi";
+const sWay=s=>(s.method||"EVC Plus")+(s.source==="gacanta"?"":s.source==="hore"?" (xog hore)":" ⚡ toos");
+const sDur=s=>s.days>=365?"1 sano":s.days+" maalmood";
+const sAt=s=>new Date(s.done_at||s.created_at);
+async function loadSales(){const {data,error}=await sb.from("payments").select("*").eq("status","approved").order("created_at",{ascending:false});
+  salesOk=!error;sales=error?[]:data}
+async function recordSale(p,amount,days,method,ref,no){if(!(amount>0))return;
+  const {error}=await sb.rpc("admin_record_sale",{target:p.id,amount,days,method,ref:ref||null,receipt:no||null});
+  if(error&&salesOk!==false)toast("💰 Iibka lama keydin: "+error.message,true)}
+const PERS=[["today","Maanta"],["yday","Shalay"],["7d","7 maalmood"],["month","Bishan"],["lmonth","Bishii hore"],["year","Sanadkan"],["all","Dhammaan"],["custom","📅 Taariikh kale"]];
+function sRange(){const t=new Date();t.setHours(0,0,0,0);const D=864e5,y=t.getFullYear(),m=t.getMonth();
+  const r={today:[+t,+t+D],yday:[+t-D,+t],"7d":[+t-6*D,+t+D],month:[+new Date(y,m,1),+new Date(y,m+1,1)],lmonth:[+new Date(y,m-1,1),+new Date(y,m,1)],year:[+new Date(y,0,1),+new Date(y+1,0,1)]}[sPer];
+  if(r)return r;
+  if(sPer==="custom"){const a=sFrom?+new Date(sFrom+"T00:00"):0,b=sTo?+new Date(sTo+"T00:00")+D:+t+D;return [Math.min(a,b-D),b]}
+  const first=sales.length?Math.min(...sales.map(s=>+sAt(s))):+t;const f=new Date(first);f.setHours(0,0,0,0);return [+f,+t+D]}
+function sLabel(){const [a,b]=sRange(),p=PERS.find(x=>x[0]===sPer)[1].replace("📅 ","");
+  if(sPer==="today"||sPer==="yday")return p+" ("+dshow(dkey(new Date(a)))+")";
+  if(sPer==="month"||sPer==="lmonth")return mshow(mkey(new Date(a)));
+  if(sPer==="year")return "Sanadka "+new Date(a).getFullYear();
+  return (sPer==="all"?"Dhammaan · ":sPer==="7d"?"7 maalmood · ":"")+dshow(dkey(new Date(a)))+" – "+dshow(dkey(new Date(b-864e5)))}
+function sData(){const [a,b]=sRange();const list=sales.filter(s=>{const t=+sAt(s);return t>=a&&t<b}).sort((x,y)=>sAt(y)-sAt(x));
+  const sum=f=>list.filter(f).reduce((v,s)=>v+Number(s.amount||0),0);
+  const per=list.filter(s=>sPlan(s)==="person"),biz=list.filter(s=>sPlan(s)==="business");
+  const tot={n:list.length,all:sum(()=>1),per:sum(s=>sPlan(s)==="person"),biz:sum(s=>sPlan(s)==="business"),nPer:per.length,nBiz:biz.length,cust:new Set(list.map(s=>s.user_id)).size};
+  const ways={};list.forEach(s=>{const k=s.method||"EVC Plus";(ways[k]=ways[k]||{n:0,v:0}).n++;ways[k].v+=Number(s.amount||0)});
+  const bucket=(key)=>{const m={};list.forEach(s=>{const k=key(sAt(s));const o=m[k]=m[k]||{n:0,per:0,biz:0,all:0};o.n++;o[sPlan(s)==="business"?"biz":"per"]+=Number(s.amount||0);o.all+=Number(s.amount||0)});return m};
+  const dm=bucket(dkey),mm=bucket(mkey);
+  /* every day of a short period (also days with no sales), newest first */
+  const today=new Date();today.setHours(0,0,0,0);const end=Math.min(b,+today+864e5);let days;
+  if(end-a<=62*864e5){days=[];const d=new Date(end-1);d.setHours(12,0,0,0);while(+d>=a){const k=dkey(d);days.push([k,dm[k]||{n:0,per:0,biz:0,all:0}]);d.setDate(d.getDate()-1)}}
+  else days=Object.entries(dm).sort((x,y)=>y[0].localeCompare(x[0]));
+  const months=Object.entries(mm).sort((x,y)=>y[0].localeCompare(x[0]));
+  return {list,tot,ways,days,months,label:sLabel()}}
+const sDayHead=["Taariikhda","Maalinta","Iibka","Shakhsi $","Shirkad $","Wadarta $"];
+const sMonHead=["Bisha","Iibka","Shakhsi $","Shirkad $","Wadarta $"];
+const sListHead=["Taariikhda","Saacadda","Macmiilka","Nooca","Habka","Muddada","Rasiid / Tix","Qadarka $"];
+const sDayRows=d=>d.days.map(([k,o])=>[dshow(k),WD[new Date(k+"T12:00").getDay()],o.n,o.per,o.biz,o.all]);
+const sMonRows=d=>d.months.map(([k,o])=>[mshow(k),o.n,o.per,o.biz,o.all]);
+const sListRows=d=>d.list.map(s=>{const t=sAt(s);return [dshow(dkey(t)),z2(t.getHours())+":"+z2(t.getMinutes()),s.email||"",sPlanName(s),sWay(s),sDur(s),[s.receipt_no,s.waafi_ref||s.waafi_tx].filter(Boolean).join(" · "),Number(s.amount||0)]});
+function renderSales(){const box=$("tabSales");if(!box)return;
+  /* top stat: this month + today */
+  const t0=new Date();t0.setHours(0,0,0,0);const mon=+new Date(t0.getFullYear(),t0.getMonth(),1);
+  const sm=sales.filter(s=>+sAt(s)>=mon),sd=sales.filter(s=>+sAt(s)>=+t0);
+  $("sMon").textContent=salesOk?usd(sm.reduce((v,s)=>v+Number(s.amount||0),0)).replace(".00",""):"—";
+  $("sDay").textContent=salesOk?`Maanta ${usd(sd.reduce((v,s)=>v+Number(s.amount||0),0)).replace(".00","")} · ${sd.length} iib`:"";
+  if(tab!=="sales"&&box.dataset.ready)return;box.dataset.ready="1";
+  if(!salesOk){box.innerHTML=`<div class="sbox"><h2>💰 Iibka</h2><p class="msg" style="margin:0">Si iib kasta loo keydiyo oo aad u soo dejiso (Excel, Word, PDF), ku shub faylka <b>supabase/sales.sql</b> gudaha Supabase (SQL Editor → New query → Run). Hal mar oo keliya.</p></div>`;return}
+  const d=sData(),grp=sGrp||(sPer==="year"||sPer==="all"?"month":"day");
+  const tbl=(head,rws,tot,num)=>`<div class="stw"><table class="stbl"><tr>${head.map((h,j)=>`<th${num(j)?' class="n"':""}>${esc(h)}</th>`).join("")}</tr>${rws.map(r=>`<tr>${r.map((v,j)=>`<td${num(j)?' class="n"':""}>${typeof v==="number"&&/\$/.test(head[j])?usd(v):esc(v)}</td>`).join("")}</tr>`).join("")||`<tr><td colspan="${head.length}" class="msg">Iib ma jiro muddadan.</td></tr>`}${tot&&rws.length?`<tr class="tot">${tot.map((v,j)=>`<td${num(j)?' class="n"':""}>${typeof v==="number"&&/\$/.test(head[j])?usd(v):esc(v)}</td>`).join("")}</tr>`:""}</table></div>`;
+  const T=d.tot;
+  box.innerHTML=`<div class="sbox"><h2>💰 Iibka app-ka · ${esc(d.label)}</h2>
+    <div class="chips" id="sPers">${PERS.map(([k,t])=>`<button type="button" data-sper="${k}" aria-pressed="${sPer===k}">${t}</button>`).join("")}</div>
+    ${sPer==="custom"?`<div class="srange"><label>Laga bilaabo <input type="date" id="sFrom" value="${sFrom}"></label><label>Ilaa <input type="date" id="sTo" value="${sTo}"></label></div>`:""}
+    <div class="scount"><div><b>${usd(T.all)}</b><small>Wadarta iibka</small><em>${T.n} iib · ${T.cust} macmiil</em></div>
+      <div><b>${T.n}</b><small>Tirada iibka</small><em>${Object.entries(d.ways).map(([k,o])=>k+" "+o.n).join(" · ")||"—"}</em></div>
+      <div><b>${usd(T.per)}</b><small>👤 Shakhsi ($3)</small><em>${T.nPer} iib</em></div>
+      <div><b>${usd(T.biz)}</b><small>🏢 Shirkad ($7)</small><em>${T.nBiz} iib</em></div></div>
+    <div class="sdl"><button type="button" class="xl" data-sdl="xlsx">📊 Excel</button><button type="button" class="wd" data-sdl="doc">📝 Word</button><button type="button" class="pd" data-sdl="pdf">📄 PDF</button></div>
+  </div>
+  <div class="sbox"><h2 style="display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center"><span>${grp==="day"?"📅 Maalin-maalin":"🗓 Bil-bil"}</span>
+    <span class="sgrp"><button type="button" data-sgrp="day" aria-pressed="${grp==="day"}">Maalin kasta</button><button type="button" data-sgrp="month" aria-pressed="${grp==="month"}">Bil kasta</button></span></h2>
+    ${grp==="day"?tbl(sDayHead,sDayRows(d),["Wadarta","",T.n,T.per,T.biz,T.all],j=>j>=2):tbl(sMonHead,sMonRows(d),["Wadarta",T.n,T.per,T.biz,T.all],j=>j>=1)}</div>
+  <div class="sbox"><h2>🧾 Iib kasta (${d.list.length})</h2>
+    <div class="stw"><table class="stbl"><tr>${sListHead.map((h,j)=>`<th${j===7?' class="n"':""}>${h}</th>`).join("")}<th></th></tr>
+    ${(()=>{const LR=sListRows(d);return d.list.map((s,i)=>{const r=LR[i];return `<tr><td>${r[0]}</td><td>${r[1]}</td><td style="overflow-wrap:anywhere">${esc(r[2])}</td><td><span class="pill ${sPlan(s)==="business"?"biz":"per"}" style="margin:0">${sPlan(s)==="business"?"🏢":"👤"} ${r[3]}</span></td><td>${esc(r[4])}</td><td>${r[5]}</td><td>${esc(r[6])}</td><td class="n"><b>${usd(r[7])}</b></td><td><button type="button" class="del" data-sdel="${s.id}" title="Tirtir (khalad)">🗑</button></td></tr>`}).join("")})()||`<tr><td colspan="9" class="msg">Iib ma jiro muddadan.</td></tr>`}</table></div>
+    <p class="msg" style="margin:0;font-size:.85rem">Iib kasta halkan ayuu ku soo galaa marka aad riixdo <b>Ansixi</b>, <b>+30 maalmood</b> ama <b>+1 sano</b> (iyo lacag-bixinta tooska ah). 🗑 = tirtir iib khalad ah.</p></div>`}
+document.addEventListener("click",async e=>{
+  const p=e.target.closest("[data-sper]");if(p){sPer=p.dataset.sper;sGrp=null;if(sPer==="custom"&&!sFrom){const t=new Date();sTo=dkey(t);sFrom=dkey(new Date(t.getFullYear(),t.getMonth(),1))}renderSales();return}
+  const g=e.target.closest("[data-sgrp]");if(g){sGrp=g.dataset.sgrp;renderSales();return}
+  const x=e.target.closest("[data-sdel]");if(x){if(!x.dataset.sure){x.dataset.sure="1";x.textContent="Hubi?";setTimeout(()=>{delete x.dataset.sure;x.textContent="🗑"},3000);return}
+    x.disabled=true;const {error}=await sb.rpc("admin_delete_sale",{pid:x.dataset.sdel});if(error){alert("Khalad: "+error.message);x.disabled=false;return}await loadSales();renderSales();return}
+  const t=e.target.closest("[data-tab]");if(t)renderSales();
+  const dl=e.target.closest("[data-sdl]");if(dl){dl.disabled=true;try{await salesExport(dl.dataset.sdl)}catch(er){toast("Lama soo dejin karo: "+(er?.message||er),true)}dl.disabled=false}});
+document.addEventListener("change",e=>{if(e.target.id==="sFrom"){sFrom=e.target.value;renderSales()}if(e.target.id==="sTo"){sTo=e.target.value;renderSales()}});
+const sFileBase=()=>("HantiGo-Iibka-"+sLabel()).replace(/[^\w\- ]+/g,"_").replace(/[ _]+/g,"-").replace(/-+$/,"");
+function sSave(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+const stamp=()=>{const d=new Date();return dshow(dkey(d))+" "+z2(d.getHours())+":"+z2(d.getMinutes())};
+let xlLib=null;
+function loadExcel(){return xlLib||(xlLib=new Promise((res,rej)=>{if(window.ExcelJS)return res(window.ExcelJS);const sc=document.createElement("script");sc.src="vendor/exceljs.min.js";sc.onload=()=>res(window.ExcelJS);sc.onerror=()=>{xlLib=null;rej(new Error("Excel"))};document.head.appendChild(sc)}))}
+function sSections(d){const T=d.tot,grpDay=d.days.length&&d.days.length<=62;
+  const out=[{title:"Kooban",head:["Wadarta $","Tirada iibka","Macaamiil","Shakhsi $","Shakhsi (iib)","Shirkad $","Shirkad (iib)"],rows:[[T.all,T.n,T.cust,T.per,T.nPer,T.biz,T.nBiz]]},
+    {title:"Habka lacag-bixinta",head:["Habka","Iibka","Wadarta $"],rows:Object.entries(d.ways).map(([k,o])=>[k,o.n,o.v])}];
+  if(grpDay)out.push({title:"Maalin-maalin",head:sDayHead,rows:sDayRows(d),tot:["Wadarta","",T.n,T.per,T.biz,T.all]});
+  out.push({title:"Bil-bil",head:sMonHead,rows:sMonRows(d),tot:["Wadarta",T.n,T.per,T.biz,T.all]});
+  out.push({title:"Iib kasta",head:sListHead,rows:sListRows(d),tot:["Wadarta","","","","","","",T.all]});
+  return out}
+async function salesExport(kind){const d=sData(),secs=sSections(d),title="Iibka app-ka HantiGo · "+d.label;
+  if(kind==="xlsx"){const X=await loadExcel(),wb=new X.Workbook();wb.creator="HantiGo";const ws=wb.addWorksheet("Iibka",{views:[{showGridLines:false}]});
+    const thin={style:"thin",color:{argb:"FFD0D7DE"}},border={top:thin,left:thin,bottom:thin,right:thin};
+    const lg=await logo();let c0=1;if(lg){const id=wb.addImage({base64:lg.split(",")[1],extension:"png"});ws.addImage(id,{tl:{col:0,row:0},ext:{width:48,height:48}});c0=2}
+    const a=ws.getRow(1).getCell(c0);a.value="HantiGo · Iibka app-ka";a.font={bold:true,size:16,color:{argb:"FF0B7A4B"}};ws.getRow(1).height=26;
+    const b=ws.getRow(2).getCell(c0);b.value=d.label+" · La soo dejiyay: "+stamp();b.font={size:10,color:{argb:"FF666666"}};
+    let r=4;const w=new Array(8).fill(12);
+    for(const s of secs){const t=ws.getRow(r).getCell(1);t.value=s.title;t.font={bold:true,size:12,color:{argb:"FF14202E"}};r++;
+      const hr=ws.getRow(r);hr.height=24;s.head.forEach((h,j)=>{const c=hr.getCell(j+1);c.value=h;c.font={bold:true,color:{argb:"FFFFFFFF"}};
+        c.fill={type:"pattern",pattern:"solid",fgColor:{argb:/Shirkad/.test(h)?"FF2F6FC4":/Shakhsi/.test(h)?"FF1E8E5A":/Wadarta|Qadarka/.test(h)?"FF0B7A4B":"FF34495E"}};c.alignment={horizontal:j?"center":"left",vertical:"middle",wrapText:true};c.border=border;w[j]=Math.max(w[j],h.length+2)});r++;
+      const all=s.tot&&s.rows.length?[...s.rows,s.tot]:s.rows.length?s.rows:[["Iib ma jiro"]];
+      all.forEach((row,k)=>{const rr=ws.getRow(r);row.forEach((v,j)=>{const c=rr.getCell(j+1);c.value=v===""?null:v;c.border=border;if(k%2)c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF5F8FA"}};
+          if(typeof v==="number"){c.numFmt=/\$/.test(s.head[j])?'"$"#,##0.00':"#,##0";c.alignment={horizontal:"right"}}w[j]=Math.max(w[j],Math.min(40,String(v??"").length+3))});
+        if(s.tot&&k===all.length-1&&s.rows.length){rr.font={bold:true};rr.eachCell(c=>c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFDFF5EA"}})}r++});r++}
+    w.forEach((x,j)=>ws.getColumn(j+1).width=x);
+    sSave(new Blob([await wb.xlsx.writeBuffer()],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),sFileBase()+".xlsx");return}
+  if(kind==="doc"){const cell=(v,h)=>typeof v==="number"?`<td class="n">${/\$/.test(h)?usd(v):v}</td>`:`<td>${esc(v)}</td>`;
+    const body=secs.map(s=>`<h2>${esc(s.title)}</h2><table><tr>${s.head.map(h=>`<th>${esc(h)}</th>`).join("")}</tr>${s.rows.map(r=>`<tr>${r.map((v,j)=>cell(v,s.head[j])).join("")}</tr>`).join("")||`<tr><td colspan="${s.head.length}">Iib ma jiro</td></tr>`}${s.tot&&s.rows.length?`<tr class="t">${s.tot.map((v,j)=>cell(v,s.head[j])).join("")}</tr>`:""}</table>`).join("");
+    const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title><style>body{font-family:Calibri,Arial,sans-serif;font-size:10.5pt}h1{color:#0b7a4b;margin:0}h2{font-size:12.5pt;margin:14pt 0 4pt;color:#14202e}table{border-collapse:collapse;width:100%}th{background:#0b7a4b;color:#fff;text-align:left}th,td{border:1px solid #bbb;padding:3pt 5pt}.n{text-align:right}.t td{font-weight:bold;background:#dff5ea}p{color:#555}</style></head><body><h1>HantiGo · Iibka app-ka</h1><p>${esc(d.label)} · La soo dejiyay: ${stamp()}</p>${body}<p>HantiGo · Aasaasaha HantiGo: Asad Moallim</p></body></html>`;
+    sSave(new Blob(["﻿"+html],{type:"application/msword"}),sFileBase()+".doc");return}
+  /* PDF */
+  const J=await loadPdf(),doc=new J({unit:"mm",format:"a4"}),W=210,M=14,H=297;let y=16;
+  const lg=await logo();if(lg){try{doc.addImage(lg,"PNG",M,y-6,16,16)}catch{}}
+  doc.setFont("helvetica","bold");doc.setFontSize(18);doc.setTextColor(11,122,75);doc.text("HantiGo · Iibka app-ka",M+20,y+2);
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);doc.text(d.label+"  ·  La soo dejiyay: "+stamp(),M+20,y+8);y+=18;
+  const foot=()=>{doc.setFontSize(8);doc.setTextColor(140);doc.text("HantiGo · hantigoapp.github.io",W/2,H-8,{align:"center"})};
+  const pdfTxt=v=>String(v).replace(/⚡/g,"").replace(/[^\x20-\x7E -ÿ]/g,"").trim();
+  for(const s of secs){const n=s.head.length,iw=W-2*M;
+    const wt=s.head.map((h,j)=>s===secs[secs.length-1]?[17,11,48,16,26,17,30,17][j]:j===0?2:1);const sum=wt.reduce((a,b)=>a+b,0);const cw=wt.map(x=>x/sum*iw);
+    if(y>H-40){foot();doc.addPage();y=16}
+    doc.setFont("helvetica","bold");doc.setFontSize(12);doc.setTextColor(20,32,46);doc.text(s.title,M,y);y+=4;
+    const row=(cells,head,bold,fill)=>{doc.setFontSize(head?8:8.5);doc.setFont("helvetica",head||bold?"bold":"normal");
+      const lines=cells.map((v,j)=>doc.splitTextToSize(typeof v==="number"&&!head?(/\$/.test(s.head[j])?usd(v):String(v)):pdfTxt(v??""),cw[j]-2));
+      const h=Math.max(...lines.map(l=>l.length))*3.6+2.6;
+      if(y+h>H-14){foot();doc.addPage();y=16;if(!head)row(s.head,true)}
+      if(fill){doc.setFillColor(...fill);doc.rect(M,y,iw,h,"F")}
+      doc.setTextColor(...(head?[255,255,255]:[25,25,25]));let x=M;
+      lines.forEach((l,j)=>{const num=!head&&typeof cells[j]==="number";doc.text(l,num?x+cw[j]-1:x+1,y+3.8,num?{align:"right"}:{});x+=cw[j]});
+      y+=h;doc.setDrawColor(215);doc.line(M,y,M+iw,y)};
+    row(s.head,true,false,[11,122,75]);
+    if(!s.rows.length){row(["Iib ma jiro"].concat(new Array(n-1).fill("")))}
+    s.rows.forEach((r,k)=>row(r,false,false,k%2?[245,248,250]:null));
+    if(s.tot&&s.rows.length)row(s.tot,false,true,[223,245,234]);y+=8}
+  foot();sSave(doc.output("blob"),sFileBase()+".pdf")}
 /* check for new sign-ups every minute while the page is open */
 setInterval(()=>{if(!document.hidden&&rows.length)load()},60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&rows.length)load()});
