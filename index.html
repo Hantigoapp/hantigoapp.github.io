@@ -1041,9 +1041,37 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
         <h2 id="goalH">Kaydka iyo kayd degdeg</h2>
         <div id="goals" style="display:grid;gap:10px"></div>
         <form id="goalForm" novalidate>
+          <label class="field"><span>Dooro fikrad yool kayd ah (ikhtiyaari)</span>
+            <select id="gPreset">
+              <option value="">— Dooro yool ama adigu qor —</option>
+              <optgroup label="Yoolalka qofka / qoyska">
+                <option value="Kayd degdeg">Kayd degdeg (xaalad lama filaan ah)</option>
+                <option value="Guri ama dhul">Guri ama dhul</option>
+                <option value="Waxbarasho">Waxbarasho / jaamacad</option>
+                <option value="Safar ama Xaj">Safar ama Xaj</option>
+                <option value="Gaari">Gaari</option>
+                <option value="Caafimaad">Caafimaad</option>
+                <option value="Aroos ama munaasabad">Aroos ama munaasabad</option>
+                <option value="Qalab guri">Qalab guri</option>
+                <option value="Hawlgab">Hawlgab / mustaqbal</option>
+              </optgroup>
+              <optgroup label="Yoolalka shirkadda / ganacsiga">
+                <option value="Raasamaal ganacsi">Raasamaal ganacsi</option>
+                <option value="Alaab iyo kayd badeeco">Alaab iyo kayd badeeco</option>
+                <option value="Qalab iyo mashiinno">Qalab iyo mashiinno</option>
+                <option value="Kirada iyo biilasha">Kirada iyo biilasha</option>
+                <option value="Mushaharka shaqaalaha">Mushaharka shaqaalaha</option>
+                <option value="Suuq-geyn">Suuq-geyn iyo xayeysiin</option>
+                <option value="Ballaarinta ganacsiga">Ballaarinta ganacsiga</option>
+                <option value="Dayactir iyo gurmad">Dayactir iyo gurmad</option>
+                <option value="Cashuur iyo ruqsado">Cashuur iyo ruqsado</option>
+              </optgroup>
+              <option value="__custom">Yool kale (magac ii qor)</option>
+            </select>
+          </label>
           <div class="row">
             <label class="field"><span>Magaca yoolka</span><input id="gName" type="text" maxlength="40" placeholder="Tusaale: Kayd degdeg"></label>
-            <label class="field"><span>Hadafka</span><input id="gTarget" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></label>
+            <label class="field"><span>Hadafka lacagta</span><input id="gTarget" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></label>
           </div>
           <div class="err" id="gErr" role="alert"></div>
           <button type="submit">+ Yool cusub</button>
@@ -2099,6 +2127,12 @@ $("txForm").addEventListener("submit",async e=>{e.preventDefault();
   try{await put(doc);$("amount").value="";$("note").value="";$("place").value="";stopEdit();
     const d=new Date(doc.date+"T00:00");view=new Date(d.getFullYear(),d.getMonth(),1);render()}
   catch(err){$("txErr").textContent="Lama kaydin karo hadda. Isku day mar kale."}
+});
+$("gPreset").addEventListener("change",e=>{
+  const v=e.target.value;
+  if(v&&v!=="__custom")$("gName").value=v;
+  if(v==="__custom")$("gName").value="";
+  if(v)$("gName").focus();
 });
 $("goalForm").addEventListener("submit",async e=>{e.preventDefault();
   const name=$("gName").value.trim(),target=parseFloat($("gTarget").value);
