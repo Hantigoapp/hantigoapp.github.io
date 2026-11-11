@@ -53,11 +53,15 @@ New file: `supabase/business_modules.sql`.
 - Loads the module catalog and enabled selections through `business_modules_get` and saves through `business_modules_set`.
 - Uses safe text rendering and displays a clear setup error if the RPC migration is missing; it does not block HantiGo Core.
 - Selection is configuration only: module-specific operational screens are not yet implemented.
-- Next: verify on staging, then add a navigation registry and module screens one at a time.
+- The service worker cache was bumped for the updated PWA page.
+- Next: verify both migrations on staging, then add a navigation registry and extend modules one at a time.
 
-### Phase 3 — First business module
-- Start with Education as the first module, then validate the pattern before adding more modules.
-- Add module-specific screens and tables only after the shared foundation passes tests.
+### Phase 3 — First business module (Education initial version committed)
+- Added `supabase/education.sql` with company-scoped classes, students and fee-payment records.
+- Added guarded RPCs for reading data, creating/updating classes and students, recording payments, and deleting records.
+- Authorization checks company membership/manager role and requires the Education module to be enabled. Fee history is protected from accidental deletion when a student has payments; classes with enrolled students cannot be deleted.
+- Added an Education screen under Akoon/More for business accounts: class registration, student registration, fee-payment entry, summary counts and record lists.
+- The current UI is an initial operational foundation. It does not yet include attendance, exams, timetables, automated invoices, EVC/WaafiPay collection, parent portal, student transport, or offline sync for Education records.
 
 ## Required acceptance tests
 
@@ -69,6 +73,7 @@ New file: `supabase/business_modules.sql`.
 - An unavailable module-settings service does not block HantiGo Core.
 - Existing offline/PWA behavior remains functional.
 - SQL migrations are tested on a backup/staging database before production.
+- Education module: verify class/student/payment CRUD, manager/staff permissions, company isolation, and fee-history retention on staging.
 
 ## Deployment warning
 
