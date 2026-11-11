@@ -56,3 +56,17 @@ order by owner_id, member_email;
 -- 5. An unauthenticated/anon client cannot read or write any application table
 --    or execute authenticated RPCs.
 -- Use disposable test accounts and dummy records only.
+
+
+-- F. Review every SECURITY DEFINER function in public. A null/empty search_path
+-- should be treated as a finding and fixed before production.
+select p.oid::regprocedure as function_name,
+       p.proconfig as function_settings,
+       case when coalesce(array_to_string(p.proconfig, ','), '') ilike '%search_path=%'
+            then 'review configured search_path'
+            else 'CHECK: no function-level search_path' end as search_path_review
+from pg_proc p
+join pg_namespace n on n.oid = p.pronamespace
+where n.nspname = 'public' and p.prosecdef
+order by p.proname;
+
