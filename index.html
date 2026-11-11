@@ -1371,9 +1371,27 @@ const P_GROUPS=[
   ["Kale","📦",["Kale"]]];
 const DEBT_CATS=["Deyn bixin","Deyn qof la siiyay"];
 const B_GROUPS=[["Mushaharka shaqaalaha", "👥", ["Macallin", "Maamulaha iskuulka", "Maamulaha jaamacadda", "Maamulaha dugsiga", "Dhakhtar", "Kalkaaliso", "Xisaabiye", "Waardiye", "Xoghaye / karraani", "Darawal", "Nadiifiye", "Kariye", "Farsamayaqaan / IT", "Iibiye", "Shaqaale kale", "Shaqaale maalinle", "Gunno shaqaale", "Cunto shaqaale", "Lebis / dirays shaqaale", "Caafimaadka shaqaalaha", "Tababar shaqaale"]], ["Kiro & xafiis", "🏢", ["Kiro dukaan / xafiis", "Kiro guri", "Agab xafiis", "Daabacaad & warqado", "Nadaafad", "Qashin qaad", "Ilaalo"]], ["Biilal", "💡", ["Koronto", "Biyo caadi", "Biyo-caafi", "Internet", "Taleefan", "Kaarka taleefanka"]], ["Alaab & iibsi", "📦", ["Alaab", "Alaab ceyriin", "Baakad & bac", "Bakhaar / kayd alaab", "Kastam & dekedda", "Rarid & dhoofin"]], ["Gaadiid & shidaal", "🚚", ["Shidaal", "Rar & gaadiid", "Kiro gaari / gaadiid", "Dayactir gaari", "Safar shaqo"]], ["Suuq-geyn & macaamiil", "📣", ["Xayeysiis & suuq-geyn", "Martisoor & shir", "Hadiyado macaamiil", "Lacag-celin macmiil"]], ["Qalab & dayactir", "🔧", ["Qalab yar", "Dayactir yar", "Dayactir dhisme", "Dayactir qalab & mashiin", "Qalab elektaroonig (kombiyuutar, printer)", "Software & barnaamij", "Qalab & dhismo cusub"]], ["Agab waxbarasho & caafimaad", "📚", ["Buugaag & qalab waxbarasho", "Daawooyin & qalab caafimaad"]], ["Canshuur & sharci", "🧾", ["Canshuur & liisan", "Diiwaangelin & ruqsad", "Caymis", "Qareen & sharci", "Xisaab-hubin"]], ["Bangi & khidmad", "🏦", ["Khidmadda bangiga & EVC"]], ["Deyn", "💳", ["Deyn bixin", "Deyn qof la siiyay"]], ["Kale", "📦", ["Khasaare / alaab lumay", "Sadaqo & Zakaad", "Kale"]]];
-const B_IN_GROUPS=[["Iib & alaab", "🛒", ["Iib", "Iib jumlad", "Iib tafaariiq", "Iib online"]], ["Adeeg", "🛠️", ["Adeeg", "Khidmad adeeg", "Qandaraas", "La-talin"]], ["Fiiga & ardayda", "🎓", ["Fiiga ardayda", "Diiwaangelin arday", "Lacag imtixaan", "Lacag buug & dirays", "Gaadiid ardayda"]], ["Kiro la helay", "🏢", ["Kiro la helay", "Kiro qalab"]], ["Deyn la soo celiyay", "💳", ["Deyn la soo celiyay"]], ["Maalgelin & amaah", "💼", ["Maalgelin", "Amaah bangi", "Deeq / kaalmo", "Faa'iido bangi"]], ["Kale", "📦", ["Lacag-celin alaab-qaybiye", "Kale"]]];
+const B_IN_GROUPS=[
+  ["Iib & alaab","🛒",["Iib","Iib jumlad","Iib tafaariiq","Iib online","Iib dhoofin"]],
+  ["Adeeg & mashruuc","🛠️",["Adeeg","Khidmad adeeg","La-talin","Qandaraas","Mashruuc la dhammeeyay"]],
+  ["Fiiga & ardayda","🎓",["Fiiga ardayda","Diiwaangelin arday","Lacag imtixaan","Lacag buug & dirays","Gaadiid ardayda"]],
+  ["Kiro & hanti","🏢",["Kiro la helay","Kiro qalab","Kiro hanti","Iib hanti / qalab"]],
+  ["Beeraha & wax-soo-saar","🌾",["Dalag beeraha","Xoolo iyo wax-soo-saar","Kalluumeysi"]],
+  ["Deyn & celin","💳",["Deyn macmiil oo la bixiyay","Deyn la soo celiyay","Lacag-celin alaab-qaybiye"]],
+  ["Maalgelin & kaalmo","💼",["Maalgelin milkiile","Maalgelin dibadeed","Amaah bangi","Deeq / kaalmo","Faa’iido bangi","Saami faa’iido","Magdhow caymis"]],
+  ["Kale","📦",["Dakhliga kale","Kale"]]
+];
 /* Shakhsi income topics (Mowduuca → Qaybta), old categories kept inside so earlier entries still group correctly */
-const P_IN_GROUPS=[["Mushahar & shaqo","💼",["Mushahar","Saacado dheeri","Gunno / bonus","Shaqo maalinle"]],["Ganacsi","🛒",["Ganacsi","Iib","Kiro la helay"]],["Qoys & hadiyad","🎁",["Xawaalad la helay","Hadiyad","Kaalmo / deeq"]],["Deyn la soo celiyay","💳",["Deyn la soo celiyay"]],["Kale","📦",["Kale"]]];
+const P_IN_GROUPS=[
+  ["Mushahar & shaqo","💼",["Mushahar","Shaqo dheeraad / freelance","Gunno iyo abaalmarin","Komishan iib","Shaqo online","Mashruuc / qandaraas","Saacado dheeri","Gunno / bonus","Shaqo maalinle"]],
+  ["Ganacsi & adeeg","🛒",["Ganacsi / iib","Adeeg iyo la-talin","Ganacsi","Iib"]],
+  ["Kiro & hanti","🏠",["Kirada guri","Kirada dhul","Kirada gaari ama qalab","Iib hanti / alaab","Kiro la helay"]],
+  ["Beeraha & wax-soo-saar","🌾",["Dalag beeraha","Xoolo iyo wax-soo-saar","Kalluumeysi"]],
+  ["Qoys & hadiyad","🎁",["Xawaalad la helay","Taageero qoys","Hadiyad","Deeq / kaalmo","Gunno dowladeed","Hawlgab / pension","Kaalmo / deeq"]],
+  ["Deyn & celin","💳",["Deyn laguu soo celiyay","Lacag-celin / celin","Deyn la soo celiyay"]],
+  ["Maalgelin & faa’iido","📈",["Faa’iido maalgashi","Saami faa’iido","Faa’iido bangi","Magdhow caymis","Maalgelin"]],
+  ["Kale","📦",["Abaalmarin tartan","Dakhliga kale","Kale"]]
+];
 const curType=()=>document.querySelector('input[name=type]:checked')?.value||"out";
 const GROUPS=(t=curType())=>t==="in"?(MODE==="business"?B_IN_GROUPS:P_IN_GROUPS):(MODE==="business"?B_GROUPS:P_GROUPS);
 const BILL_GRP={"Taleefan bille":"Guriga & biilal","Qashin qaad":"Guriga & biilal","Ilaalada xaafadda":"Guriga & biilal","Telefishin":"Guriga & biilal","Gaadiid bille":"Gaadiid","Iskuul / waxbarasho":"Caafimaad & waxbarasho","Caymis caafimaad":"Caafimaad & waxbarasho","Xawaalad qoys":"Qoys"};
