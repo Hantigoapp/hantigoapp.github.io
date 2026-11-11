@@ -14,6 +14,7 @@ This folder contains the database setup and feature migrations used by HantiGo. 
 8. `location.sql` — user-selected city/country.
 9. `payment.sql` — payment request and admin decision RPCs.
 10. `sales.sql` — payment history and sales reporting.
+    - `autopay.sql` — automatic EVC Plus / WaafiPay payment (`autopay_grant`, service role only). Run it with the Edge Function `pay-auto` (Verify JWT off, secrets `WAAFI_MERCHANT_UID`, `WAAFI_API_USER_ID`, `WAAFI_API_KEY`). Same `payments` table as `sales.sql`, either order works.
 11. `signups.sql` — admin sign-up summary.
 12. `security_hardening.sql` — final table/function grants and verification queries.
 13. `push_notifications.sql` — private, RLS-protected browser push subscriptions and preferences.
