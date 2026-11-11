@@ -75,3 +75,8 @@ After applying `push_notifications.sql`, follow [`push_deployment.md`](push_depl
 
 
 Use [`push_deployment.md`](push_deployment.md) for the VAPID, Edge Function, Vault, and cron setup. Use [`role_acceptance_tests.md`](role_acceptance_tests.md) for the owner/manager/staff isolation test matrix.
+## Business Module Manager UI
+
+The `index.html` settings screen includes an owner-only Business Module Manager under **Akoon** for Shirkad accounts. It reads and saves selected module IDs through `business_modules_get` and `business_modules_set`. It fails safely if the migration is not installed; the rest of HantiGo Core remains available.
+
+The current screen stores module selection only. Module-specific workflows (school management, hotel operations, restaurant orders, stock, transport, and other module screens) are not implemented by this settings screen. Apply and verify `business_modules.sql` on staging before testing the UI. The service worker cache was bumped so installed PWAs pick up the updated page.
