@@ -2385,8 +2385,33 @@ function remPrefs(){let o=null;
   else o=items.find(i=>i.kind==="rem")?.[MODE];
   return {...REM_DEF,...(o&&typeof o==="object"?o:{})}}
 async function setRem(patch){const v={...remPrefs(),...patch};
-  if(TEAM){try{localStorage.setItem(remKey(),JSON.stringify(v))}catch{}render();return}
-  const d=items.find(i=>i.kind==="rem")||{id:"rem",kind:"rem"};try{await put({...d,[MODE]:v})}catch{}}
+  if(TEAM){try{localStorage.setItem(remKey(),JSON.stringify(v))}catch{}syncPushPreferences(v).catch(()=>{});render();return}
+  const d=items.find(i=>i.kind==="rem")||{id:"rem",kind:"rem"};try{await put({...d,[MODE]:v})}catch{}syncPushPreferences(v).catch(()=>{})}
+function pushBase64Key(value){const s=String(value||"").replace(/-/g,"+").replace(/_/g,"/");const raw=atob(s+"=".repeat((4-s.length%4)%4));return Uint8Array.from(raw,c=>c.charCodeAt(0))}
+async function syncPushPreferences(prefs=remPrefs()){
+  if(!sb||!me||!("serviceWorker" in navigator)||!window.PushManager)return;
+  const sub=await navigator.serviceWorker.ready.then(r=>r.pushManager.getSubscription());
+  if(!sub)return;
+  const timezone=Intl.DateTimeFormat().resolvedOptions().timeZone||"UTC";
+  const {error}=await sb.from("push_preferences").upsert({user_id:me.id,preferences:prefs,timezone,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+  if(error)throw error;
+}
+async function enableBackgroundPush(){
+  if(!sb||!me)throw new Error("Sign in first");
+  if(!("serviceWorker" in navigator)||!window.PushManager)throw new Error("Web Push is not supported by this browser");
+  const {data:keyData,error:keyError}=await sb.functions.invoke("push-public-key");
+  if(keyError||!keyData?.publicKey)throw keyError||new Error("Push server is not configured");
+  const registration=await navigator.serviceWorker.ready;
+  let subscription=await registration.pushManager.getSubscription();
+  if(!subscription)subscription=await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:pushBase64Key(keyData.publicKey)});
+  const j=subscription.toJSON();
+  if(!j.endpoint||!j.keys?.p256dh||!j.keys?.auth)throw new Error("Browser returned an incomplete push subscription");
+  const {error}=await sb.from("push_subscriptions").upsert({user_id:me.id,endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,updated_at:new Date().toISOString()},{onConflict:"endpoint"});
+  if(error)throw error;
+  await syncPushPreferences();
+  return subscription;
+}
+
 const REM_CHK={remBills:"bills",remBudget:"budget",remGoals:"goals",remDebts:"debts",remLeave:"leave",remDaily:"daily"};
 const REM_SEL={remBillDays:"billDays",remBudPct:"budPct",remGoalDay:"goalDay",remWhen:"when"};
 (()=>{const gd=$("remGoalDay");for(let d=1;d<=28;d++)gd.add(new Option(String(d),String(d)))})();
@@ -2446,12 +2471,20 @@ if(NATIVE||!("Notification" in window)){$("remNote").textContent=L("Taleefankan 
 else{$("notifyRow").hidden=false;
   if(Notification.permission==="granted")$("notifyMsg").textContent=L("Ogeysiisyadu way shidan yihiin.","Notifications are on.");
   $("notifyBtn").addEventListener("click",async()=>{let p="default";try{p=await Notification.requestPermission()}catch{}
-    $("notifyMsg").textContent=p==="granted"?L("Waa la shiday. Xusuusinta waxaad helaysaa saacadda aad dooratay.","Turned on. You get reminders at the time you chose.","تم التفعيل. ستصلك التذكيرات في الوقت الذي اخترته.","Imewashwa. Utapata vikumbusho wakati uliouchagua.")
-      :L("Browser-ka ayaa diiday. Ka oggolow ogeysiisyada settings-ka browser-ka.","The browser blocked it. Allow notifications in the browser settings.");fillRem()});
+    if(p!=="granted"){$("notifyMsg").textContent=L("Browser-ka ayaa diiday. Ka oggolow ogeysiisyada settings-ka browser-ka.","The browser blocked it. Allow notifications in the browser settings.");fillRem();return}
+    $("notifyMsg").textContent=L("Waxaan diyaarinayaa ogeysiisyada...","Setting up background notifications...");
+    try{await enableBackgroundPush();$("notifyMsg").textContent=L("Ogeysiisyada asalka ah waa la diyaariyey.","Background notifications are enabled.");}
+    catch(e){$("notifyMsg").textContent=L("Ogeysiiska gudaha wuu shidan yahay, balse server-ka push-ka weli lama diyaarin: ","Browser permission is on, but push setup is incomplete: ")+(e?.message||"");}
+    fillRem()});
   $("remTest").addEventListener("click",async()=>{let p=Notification.permission;if(p!=="granted"){try{p=await Notification.requestPermission()}catch{}}
-    if(p!=="granted"){$("notifyMsg").textContent=L("Marka hore shid ogeysiisyada.","Turn on notifications first.","فعّل الإشعارات أولاً.","Washa arifa kwanza.");return}
-    const body=lastAlerts.length?lastAlerts.slice(0,3).map(x=>x[1]).join("\n"):L("✓ Xusuusinnadu way shaqaynayaan. Waxaad heli doontaa saacadda ","✓ Reminders work. You will get them at ","✓ التذكيرات تعمل. ستصلك في الساعة ","✓ Vikumbusho vinafanya kazi. Utavipata saa ")+remPrefs().time+".";
-    showNote(body).then(()=>$("notifyMsg").textContent=L("Waa la diray.","Sent.","تم الإرسال.","Imetumwa.")).catch(()=>{$("notifyMsg").textContent=L("Lama dirin karo.","Could not send.","تعذّر الإرسال.","Haikuweza kutumwa.")});fillRem()})}
+    if(p!=="granted"){$("notifyMsg").textContent=L("Marka hore shid ogeysiisyada.","Turn on notifications first.");return}
+    try{
+      const sub=await navigator.serviceWorker.ready.then(r=>r.pushManager.getSubscription());
+      if(sub){const {data,error}=await sb.functions.invoke("send-test-push");if(error)throw error;if(!data?.sent)throw new Error("No push delivered");}
+      else await showNote(L("✓ Ogeysiiska maxalliga ahi wuu shaqaynayaa.","✓ Local notification works."));
+      $("notifyMsg").textContent=L("Tijaabada waa la diray.","Test notification sent.");
+    }catch(e){$("notifyMsg").textContent=L("Tijaabada push-ka way fashilantay: ","Push test failed: ")+(e?.message||"");}
+    fillRem()})}
 
 /* ---------- debts (company) ---------- */
 const debtLeft=d=>Math.max(0,Number(d.amount)-Number(d.paid||0));
