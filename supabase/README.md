@@ -19,8 +19,24 @@ This folder contains the database setup and feature migrations used by HantiGo. 
 12. `security_hardening.sql` — final table/function grants and verification queries.
 13. `push_notifications.sql` — private, RLS-protected browser push subscriptions and preferences.
 14. `activity.sql` — activity history: a trigger on `user_data` records every add / correction / delete (who, when, before/after) in `activity_log`; read through `activity_list` (owner: all, manager: company, staff: own). Until it is run, the app hides the history panel.
+15. `business_modules.sql` — additive Business Module Manager backend foundation: module catalog, company-scoped selections, and owner/member-checked RPCs. Run only after the existing migrations above.
 
 Run each file once in this order. If you are updating an existing deployment, review the file comments and take a database backup before applying migrations.
+
+## Business Module Manager migration
+
+The new `business_modules.sql` migration is **not applied automatically** by a GitHub commit. Before running it on a live Supabase project:
+
+1. Take a fresh database backup, or use a staging project first.
+2. Review `business_modules.sql`.
+3. Run it after the existing migrations listed above.
+4. Confirm both new tables report `rls_enabled = true`.
+5. Confirm anon and authenticated direct table grants are false.
+6. Confirm only authenticated users can execute the two RPCs.
+7. Test with disposable accounts: owner can read/update their own module selection; a member can read only their company's selection; a member cannot update it; a user from another company cannot read it.
+8. Confirm existing Shakhsi/Shirkad, team, finance, export and offline flows still work.
+
+The migration seeds stable IDs for Education, Hotel, Restaurant, Retail, Wholesale, Construction, Agriculture, Livestock, Transport, Manufacturing, Services and Fishing. It does not yet add the app UI or operational screens for those modules. Disabling a module stores `enabled = false`; it does not delete module data.
 
 ## Verification after setup
 
