@@ -1097,7 +1097,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
           <label class="field"><span>Dooro fikrad yool kayd ah (ikhtiyaari)</span>
             <select id="gPreset">
               <option value="">— Dooro yool ama adigu qor —</option>
-              <optgroup label="Yoolalka qofka / qoyska">
+              <optgroup label="Yoolalka qofka / qoyska" data-gm="person">
                 <option value="Kayd degdeg">Kayd degdeg (xaalad lama filaan ah)</option>
                 <option value="Guri ama dhul">Guri ama dhul</option>
                 <option value="Waxbarasho">Waxbarasho / jaamacad</option>
@@ -1108,7 +1108,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
                 <option value="Qalab guri">Qalab guri</option>
                 <option value="Hawlgab">Hawlgab / mustaqbal</option>
               </optgroup>
-              <optgroup label="Yoolalka shirkadda / ganacsiga">
+              <optgroup label="Yoolalka shirkadda / ganacsiga" data-gm="business">
                 <option value="Raasamaal ganacsi">Raasamaal ganacsi</option>
                 <option value="Alaab iyo kayd badeeco">Alaab iyo kayd badeeco</option>
                 <option value="Qalab iyo mashiinno">Qalab iyo mashiinno</option>
@@ -1456,7 +1456,7 @@ function applyMode(m){MODE=m==="business"?"business":"person";DAILY=MODE==="busi
   $("topPlaceLbl").textContent=MODE==="business"?"Alaab-qaybiyaha lacagta ugu badan la siiyay bishan":"Shirkadda lacagta ugu badan laga siiyay bishan";
   $("subline").textContent=MODE==="business"?"Ganacsigaaga: qor iibka iyo kharashyada, ogowna faa'iidada bishii.":"Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.";
   $("bName").placeholder=MODE==="business"?"Tusaale: Darawal":"Tusaale: Iskuul";
-  showAll=false;renderDaily();fillCats()}
+  showAll=false;renderDaily();fillCats();goalPresets()}
 const MONTHS=LANG==="ar"?["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"]:LANG==="sw"?["Januari","Februari","Machi","Aprili","Mei","Juni","Julai","Agosti","Septemba","Oktoba","Novemba","Desemba"]:LANG==="en"?["January","February","March","April","May","June","July","August","September","October","November","December"]:["Janaayo","Febraayo","Maarso","Abriil","Maajo","Juun","Luulyo","Agoosto","Sebteembar","Oktoobar","Nofembar","Desembar"];
 const SYM={USD:"$",SOS:"Sh.So. "};
 const LS="dhaqaale.v1";
@@ -2261,7 +2261,15 @@ function goalPlanHtml(g,p){
     if(p.eta!=null)bits.push(`<span>🎯 ${L("Waxaad gaaraysaa","You reach it","ستصل إليه","Utafikia")}: <b>${esc(ymText(p.eta))}</b></span>`)}
   if(!bits.length)return "";
   return `<div class="gplan">${bits.join("")}${st}</div>`}
-let goalEdit=null;
+let goalEdit=null;var GP;
+// Shakhsi sees only personal / family goal ideas, Shirkad only company / business ones.
+function goalPresets(){const s=$("gPreset");if(!s)return;
+  if(!GP)GP=[...s.querySelectorAll("optgroup[data-gm]")];
+  const keep=GP.find(g=>g.dataset.gm===MODE)||GP[0],cust=s.querySelector('option[value="__custom"]');
+  GP.forEach(g=>{if(g!==keep&&g.isConnected)g.remove()});
+  if(keep&&!keep.isConnected)s.insertBefore(keep,cust);
+  if(!s.selectedOptions[0]?.isConnected)s.value="";
+  $("gName").placeholder=MODE==="business"?L("Tusaale: Raasamaal ganacsi","Example: Business capital","مثال: رأس مال العمل","Mfano: Mtaji wa biashara"):L("Tusaale: Kayd degdeg","Example: Emergency fund","مثال: صندوق الطوارئ","Mfano: Akiba ya dharura")}
 function renderGoals(){
   const goals=mine("goal").sort((a,b)=>a.created.localeCompare(b.created)),tx=mine("tx");
   $("goals").innerHTML=goals.length?goals.map(g=>{const p=Math.min(100,g.saved/g.target*100||0),pl=goalPlan(g,tx),id=esc(g.id);return `<div class="goal">
@@ -2275,7 +2283,7 @@ function renderGoals(){
         <div class="goal-actions"><button type="button" class="primary" data-gpsave="${id}">${L("Kaydi","Save","حفظ","Hifadhi")}</button><button type="button" data-gpclose="1">${L("Jooji","Cancel","إلغاء","Ghairi")}</button></div></div>`:""}
       <div class="goal-actions">${p>=100?`<span class="done">✓ Yoolka waa la gaaray</span><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="Qadar" id="gin-${id}" aria-label="Qadarka">`:`<input type="number" min="0" step="0.01" inputmode="decimal" placeholder="${pl.todo>0?esc(Math.round(pl.todo*100)/100):"Qadar"}" id="gin-${id}" aria-label="Qadarka lagu shubayo"><button data-dep="${id}">Ku shub</button>`}${g.saved>0?`<button data-wd="${id}">Ka qaado</button>`:""}
       ${p<100?`<button type="button" data-gplan="${id}">📅 ${L("Qorshe","Plan","الخطة","Mpango")}</button>`:""}<button class="del" data-del="${id}">Tirtir</button></div></div>`}).join("")
-    :`<p class="empty" style="margin:0">Weli ma aadan dejin kayd degdeg ama yool. Tusaale: lacag xaalad degdeg ah, Xajka, ama guri.</p>`;
+    :`<p class="empty" style="margin:0">${MODE==="business"?L("Shirkaddu weli yool kayd ah ma dejin. Tusaale: raasamaal ganacsi, alaab, ama qalab cusub.","The company has no savings goal yet. Example: business capital, stock, or new equipment.","لم تضع الشركة هدف ادخار بعد. مثال: رأس مال العمل، البضائع، أو معدات جديدة.","Kampuni bado haina lengo la akiba. Mfano: mtaji wa biashara, bidhaa, au vifaa vipya."):"Weli ma aadan dejin kayd degdeg ama yool. Tusaale: lacag xaalad degdeg ah, Xajka, ama guri."}</p>`;
 }
 function goalHint(){
   const target=parseFloat($("gTarget").value)||0,due=$("gDue").value,mo=parseFloat($("gMonthly").value)||0,el=$("gHint");
@@ -2396,6 +2404,7 @@ $("txForm").addEventListener("submit",async e=>{e.preventDefault();
   catch(err){$("txErr").textContent="Lama kaydin karo hadda. Isku day mar kale."}
 });
 if(LANG!=="so")document.querySelectorAll("#gPreset optgroup").forEach(g=>{const e=EN[g.label];if(e)g.label=XL(e)});
+goalPresets();
 $("gPreset").addEventListener("change",e=>{
   const v=e.target.value;
   if(v&&v!=="__custom")$("gName").value=LANG==="so"?v:e.target.selectedOptions[0].textContent.trim();
