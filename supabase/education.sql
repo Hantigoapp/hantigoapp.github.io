@@ -142,7 +142,7 @@ begin
   if not public.education_authorized(p_owner,true) then raise exception 'not authorized'; end if;
   if p_kind='class' then delete from public.education_classes where id=p_id and owner_id=p_owner;
   elsif p_kind='student' then delete from public.education_students where id=p_id and owner_id=p_owner;
-  elsif p_kind='payment' then delete from public.education_fee_payments where id=p_id and owner_id=p_owner;
+  elsif p_kind='payment' then raise exception 'fee payment history cannot be deleted; record a correction instead';
   else raise exception 'invalid record type'; end if;
   get diagnostics n=row_count;
   return n>0;
