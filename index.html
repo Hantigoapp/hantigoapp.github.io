@@ -49,6 +49,12 @@ button:hover{border-color:var(--accent)}
 .icon{width:36px;height:36px;padding:0;display:grid;place-items:center}
 .primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.month-compare .mc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.month-compare .mc-item{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:4px;min-width:0}
+.month-compare .mc-item b{font:700 1.15rem/1.2 var(--display);overflow-wrap:anywhere}
+.month-compare .mc-item .note{font-size:.82rem}
+.month-compare .mc-up{color:var(--in)}.month-compare .mc-down{color:var(--out)}
+
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:2px}
 .stat .lbl{font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .stat .val{font:700 1.45rem/1.2 var(--display);overflow-wrap:anywhere}
@@ -751,6 +757,11 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
     <div class="stat no-person"><span class="lbl">Kaydka bishan</span><span class="val" id="sSaved">0</span><span class="note" id="sSavedAll"></span></div>
     <div class="stat top-spend"><span class="lbl">Meesha lacagta ugu badan ku baxday bishan</span><span class="val" id="sTop">—</span><span class="note" id="sTopNote">Weli kharash lama qorin.</span></div>
     <div class="stat top-spend"><span class="lbl" id="topPlaceLbl">Shirkadda lacagta ugu badan laga siiyay bishan</span><span class="val" id="sTopPlace">—</span><span class="note" id="sTopPlaceNote">Ku qor magaca shirkadda marka aad kharash gelinayso.</span></div>
+  </section>
+
+  <section class="panel month-compare" aria-labelledby="mcH" data-tab="home" data-fold="mc">
+    <div class="panel-head"><h2 id="mcH">Isbarbardhigga bishan iyo tii hore</h2><span class="note" id="mcPeriod"></span></div>
+    <div class="mc-grid" id="monthCompare" aria-live="polite"></div>
   </section>
 
   <section class="panel daypanel" aria-labelledby="dyH" data-tab="home" id="dyPanel" data-fold="dy">
@@ -1849,6 +1860,14 @@ function render(){
   const sum=(arr,t)=>arr.filter(x=>x.type===t).reduce((s,x)=>s+Number(x.amount||0),0);
   const real=month.filter(t=>t.cat!=="Kayd"),mi=sum(real,"in"),mo=sum(real,"out"),mk=sum(month,"out")-sum(real,"out")-(sum(month,"in")-sum(real,"in"));
   $("sIn").textContent=money(mi);$("sOut").textContent=money(mo);$("sNet").textContent=money(mi-mo-mk);
+  const prevStart=new Date(view.getFullYear(),view.getMonth()-1,1),prevTx=txs.filter(t=>{const d=new Date(t.date+"T00:00");return d.getFullYear()===prevStart.getFullYear()&&d.getMonth()===prevStart.getMonth()&&t.cat!=="Kayd"});
+  const prevIn=sum(prevTx,"in"),prevOut=sum(prevTx,"out"),delta=(a,b)=>b===0?(a===0?0:null):Math.round((a-b)/b*100);
+  const trend=(a,b)=>{const d=delta(a,b);return d===null?L("Bilow cusub","New this month"):d===0?L("Isma beddelin","No change"):(d>0?"+":"")+d+"% "+(d>0?L("koror","increase"):L("hoos u dhac","decrease"))};
+  $("mcPeriod").textContent=MONTHS[view.getMonth()]+" · "+MONTHS[prevStart.getMonth()];
+  $("monthCompare").innerHTML=[
+    [L("Dakhliga","Income"),mi,prevIn,trend(mi,prevIn),mi>=prevIn],
+    [L("Kharashka","Expenses"),mo,prevOut,trend(mo,prevOut),mo<=prevOut]
+  ].map(([label,current,previous,change,good])=>`<div class="mc-item"><span class="note">${label}</span><b>${money(current)}</b><span class="note">${L("Bishan","This month")}</span><span class="note">${L("Bishii hore","Last month")}: ${money(previous)}</span><span class="note ${good?"mc-up":"mc-down"}">${change}</span></div>`).join("");
   $("sBal").textContent=money(sum(txs,"in")-sum(txs,"out"));renderGlance(mi,mo);renderPL(txs);
   $("sMethods").innerHTML=METHODS.map(m=>{const ts=txs.filter(t=>(t.method||"Kaash")===m);return `<span>${T(m)}: <b>${money(sum(ts,"in")-sum(ts,"out"))}</b></span>`}).join("");
   const kayd=month.filter(t=>t.cat==="Kayd");
@@ -1903,6 +1922,7 @@ function render(){
   const goals=mine("goal").sort((a,b)=>a.created.localeCompare(b.created));
   $("goals").innerHTML=goals.length?goals.map(g=>{const p=Math.min(100,g.saved/g.target*100||0);return `<div class="goal">
       <div class="goal-top"><b>${esc(g.name)}</b><span>${money(g.saved)} / ${money(g.target)}</span></div>
+      <span class="note">${p>=100?L("Yoolka waa la dhammaystiray","Goal completed"):L("Waxaa ka dhiman","Remaining")+": "+money(Math.max(0,Number(g.target)-Number(g.saved||0)))} · ${Math.round(p)}%</span>
       <div class="bar" role="progressbar" aria-valuenow="${Math.round(p)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${p}%"></i></div>
       <div class="goal-actions">${p>=100?`<span class="done">✓ Yoolka waa la gaaray</span><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="Qadar" id="gin-${esc(g.id)}" aria-label="Qadarka">`:`<input type="number" min="0" step="0.01" inputmode="decimal" placeholder="Qadar" id="gin-${esc(g.id)}" aria-label="Qadarka lagu shubayo"><button data-dep="${esc(g.id)}">Ku shub</button>`}${g.saved>0?`<button data-wd="${esc(g.id)}">Ka qaado</button>`:""}
       <button class="del" data-del="${esc(g.id)}">Tirtir</button></div></div>`}).join("")
