@@ -41,7 +41,7 @@ create table if not exists public.education_fee_payments (
   note text not null default '',
   created_at timestamptz not null default now(),
   constraint education_fee_student_fk
-    foreign key (owner_id, student_id) references public.education_students(owner_id, id) on delete cascade
+    foreign key (owner_id, student_id) references public.education_students(owner_id, id) on delete restrict
 );
 
 create index if not exists education_students_owner_class_idx on public.education_students(owner_id,class_id);
