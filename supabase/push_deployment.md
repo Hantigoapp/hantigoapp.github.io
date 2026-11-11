@@ -20,12 +20,16 @@ The migration creates `push_subscriptions` and `push_preferences`. RLS limits br
 
 ## 3. Configure Edge Function secrets
 
-From a trusted local checkout linked to the correct Supabase project, set these secrets using the Supabase CLI's secret-management command (do not add values to repository files):
+From a trusted local checkout linked to the correct Supabase project, create a temporary environment file **outside the repository** containing:
 
-- `VAPID_PUBLIC_KEY`
-- `VAPID_PRIVATE_KEY`
-- `VAPID_SUBJECT` (a monitored `mailto:` address controlled by the project owner)
-- `CRON_SECRET` (a long random secret)
+```env
+VAPID_PUBLIC_KEY=<generated-public-key>
+VAPID_PRIVATE_KEY=<generated-private-key>
+VAPID_SUBJECT=mailto:<monitored-address>
+CRON_SECRET=<long-random-secret>
+```
+
+Then run `supabase secrets set --env-file /secure/path/hantigo-push.env` and securely delete the temporary file after verifying the secrets are set. Do not commit it or paste secret values into chat or GitHub.
 
 Supabase provides `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` to Edge Functions. Never expose the service-role key to the browser.
 
@@ -41,7 +45,7 @@ supabase functions deploy send-reminders
 
 ## 5. Schedule the daily reminder worker
 
-In Supabase SQL Editor, enable the `pg_cron`, `pg_net`, and Vault extensions if they are not already enabled. Store the same random `CRON_SECRET` value in Supabase Vault under the name `hantigo_cron_secret`. Never put its value in this SQL file or GitHub.
+In Supabase SQL Editor, enable the `pg_cron`, `pg_net`, and Vault extensions if they are not already enabled. Store the same random `CRON_SECRET` value in Supabase Vault under the name `hantigo_cron_secret` (for example, using the Dashboard's Vault → Secrets UI and the name `hantigo_cron_secret`). Never put its value in this SQL file or GitHub.
 
 Replace `<PROJECT_REF>` with the Supabase project reference, then schedule the function every minute. It sends at each user's configured local time and records one send per device per local day.
 
