@@ -28,7 +28,7 @@ create table if not exists public.education_students (
   unique (owner_id, id),
   unique (owner_id, student_no),
   constraint education_students_class_fk
-    foreign key (owner_id, class_id) references public.education_classes(owner_id, id) on delete set null
+    foreign key (owner_id, class_id) references public.education_classes(owner_id, id) on delete restrict
 );
 
 create table if not exists public.education_fee_payments (
