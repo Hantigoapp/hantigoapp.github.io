@@ -627,6 +627,22 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
 }
 @media (max-width:360px){#appView .panel{padding-inline:12px}.yrlab{font-size:.55rem}.gplan{font-size:.84rem}}
 
+/* 🕓 activity history */
+#actPanel .actf{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+#actPanel .actsum{display:flex;gap:14px;font-size:.85rem;font-weight:700;color:var(--muted)}
+#actRe{width:auto;min-height:36px;padding:4px 12px;background:transparent;border:1px solid var(--line);border-radius:10px}
+#actRe .spin{display:inline-block;animation:netspin 1s linear infinite}
+.actlist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.act{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px;border:1px solid var(--line);border-radius:12px;border-inline-start:4px solid var(--line)}
+.act.add{border-inline-start-color:var(--in)}.act.edit{border-inline-start-color:#e0a526}.act.delete{border-inline-start-color:var(--out)}.act.bulk{border-inline-start-color:#6aa5ff}
+.actic{font-size:1.15rem;line-height:1.3}
+.actb{display:grid;gap:3px;min-width:0}.actb b{font-size:.92rem;overflow-wrap:anywhere}.actb small{font-size:.78rem;color:var(--muted)}
+.actmeta{font-weight:600}
+.actchs{display:flex;flex-wrap:wrap;gap:4px}
+.actch{font-size:.76rem;background:rgba(224,165,38,.14);border-radius:8px;padding:2px 7px;overflow-wrap:anywhere}
+.acta{font-weight:800;white-space:nowrap;font-size:.92rem;text-align:end}.acta.in{color:var(--in)}.acta.out{color:var(--out)}.acta.gone{text-decoration:line-through;opacity:.7}.acta s,.actch s{opacity:.65}
+#actMore{width:auto;justify-self:center;background:transparent;border:1px solid var(--line);border-radius:10px;padding:6px 14px}
+@media (max-width:420px){.act{grid-template-columns:auto minmax(0,1fr)}.acta{grid-column:2;text-align:start}}
 </style>
 <script src="vendor/supabase.js"></script>
 
@@ -1150,6 +1166,8 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
         <span class="note" id="remMsg" role="status"></span>
       </section>
 
+      <section class="panel" aria-labelledby="actH" data-tab="more" id="actPanel" hidden></section>
+
       <section class="panel" aria-labelledby="repH" data-tab="more">
         <h2 id="repH">Warbixin iyo backup</h2>
         <label class="field"><span>Muddada warbixinta</span><select id="repPeriod"><option value="month">Bisha hadda la muujiyay</option><option value="year">📆 Warbixin sannadle ah</option></select></label>
@@ -1543,7 +1561,7 @@ async function syncNow(){
   syncing=false;
   if(error){syncFail=true;needCheck=true;savePending();setTimeout(scheduleSync,15000);return}
   syncFail=false;if(!dirty.size&&!gone.size){needCheck=false;lastOk=Date.now();clearTimeout(okTimer);okTimer=setTimeout(netState,4100)}
-  savePending();showBanner("");
+  savePending();showBanner("");if(ACT)actAfterSync();
   if(kept)showBanner(L(`ℹ️ ${kept} shay ayaa laga beddelay meel kale intaad internet la'aan ahayd; nuqulkii ugu dambeeyay ayaa la hayaa.`,`ℹ️ ${kept} items were changed elsewhere while you were offline; the newest version was kept.`,`ℹ️ تم تعديل ${kept} عناصر من مكان آخر أثناء انقطاعك؛ تم الاحتفاظ بأحدث نسخة.`,`ℹ️ Vitu ${kept} vilibadilishwa mahali pengine ulipokuwa nje ya mtandao; toleo jipya zaidi limehifadhiwa.`));
   if(syncAgain||dirty.size||gone.size){syncAgain=false;scheduleSync()}
 }
@@ -1749,7 +1767,7 @@ $("askLater").addEventListener("click",()=>{$("cityAsk").hidden=true;try{session
 
 /* bottom tabs */
 function markTab(t){document.querySelectorAll(".bnav [data-go]").forEach(x=>{if(x.dataset.go===t)x.setAttribute("aria-current","page");else x.removeAttribute("aria-current")})}
-function goTab(t){$("appView").dataset.tab=t;markTab(t);try{sessionStorage.setItem("hantigo.tab",t)}catch{}window.scrollTo(0,0);if(t==="home"&&me)render()}
+function goTab(t){$("appView").dataset.tab=t;markTab(t);try{sessionStorage.setItem("hantigo.tab",t)}catch{}window.scrollTo(0,0);if(t==="home"&&me)render();if(t==="more"&&me&&ACT)actLoad()}
 document.querySelectorAll(".bnav [data-go]").forEach(x=>x.addEventListener("click",()=>goTab(x.dataset.go)));
 /* ---------- staff (Shaqaale) dashboard: only what this person entered ---------- */
 function renderStaffDash(txs){if(!STAFF()||!$("sfPanel"))return;
@@ -2071,6 +2089,7 @@ function renderDays(month){const box=$("dyList");if(!box)return;const ab=$("dyAn
     +(gs.length>7?`<button type="button" class="del dymore" id="dyMore">${DY_ALL?L("Muuji 7 maalmood oo kaliya","Show only 7 days","إظهار 7 أيام فقط","Onyesha siku 7 tu"):L("Eeg dhammaan maalmaha","See all days","عرض كل الأيام","Ona siku zote")+" ("+gs.length+")"}</button>`:"");
   $("dyMore")?.addEventListener("click",()=>{DY_ALL=!DY_ALL;renderDays(month)})}
 function render(){
+  if(ACT)actSoft();
   $("monthLabel").textContent=MONTHS[view.getMonth()]+" "+view.getFullYear();
   $("currency").value=currency();
   const txs=mine("tx");
@@ -3228,6 +3247,109 @@ function renderInstall(){
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installEvt=e;renderInstall()});
 window.addEventListener("appinstalled",()=>{installEvt=null;document.querySelectorAll("[data-install]").forEach(b=>b.innerHTML="")});
 renderInstall();
+/* ---------- 🕓 Taariikhda isbeddelka (activity history): who changed what, when, the amount, added / corrected / deleted ----------
+   The database writes the history itself (supabase/activity.sql), so it covers website, installed app, APK, owner, manager and staff.
+   Owner: everything in the open mode (Shakhsi or Shirkad). Manager: all company changes. Staff: only their own. */
+var ACT={rows:null,key:"",err:"",off:false,busy:false,per:"7",act:"all",who:"all",t:null,at:0};
+const actKey=()=>(me?.id||"")+"|"+(TEAM||"")+"|"+MODE;
+const actCacheK=()=>"hantigo.act."+actKey();
+function actSince(p){const d=new Date();d.setHours(0,0,0,0);
+  if(p==="0")return d;if(p==="7"){d.setDate(d.getDate()-6);return d}if(p==="m"){d.setDate(1);return d}if(p==="90"){d.setDate(d.getDate()-89);return d}return null}
+async function actLoad(){const box=$("actPanel");if(!box||!sb||!me)return;
+  const key=actKey();if(ACT.key!==key){ACT.key=key;ACT.rows=null;ACT.who="all";try{ACT.rows=JSON.parse(localStorage.getItem(actCacheK())||"null")}catch{}}
+  if(!online()){ACT.off=true;actRender();return}
+  ACT.busy=true;actRender();
+  let data=null,error=null;
+  try{({data,error}=await sb.rpc("activity_list",{owner:TEAM||null,since:null,upto:null,lim:2000}))}catch(e){error=e}
+  ACT.busy=false;if(ACT.key!==key)return;
+  if(error){const missing=error.code==="PGRST202"||error.code==="42883"||/activity_list|schema cache/i.test(error.message||"");
+    if(missing){box.hidden=true;return}            // history not switched on in the database yet: nothing to show
+    ACT.off=true;actRender();return}
+  ACT.off=false;ACT.at=Date.now();ACT.rows=(Array.isArray(data)?data:[]).filter(r=>(r.mode||"person")===MODE);
+  try{localStorage.setItem(actCacheK(),JSON.stringify(ACT.rows.slice(0,600)))}catch{}
+  actRender()}
+function actSoft(){if(!me||$("appView").dataset.tab!=="more")return;if(ACT.key!==actKey())actLoad();}
+function actAfterSync(){if(!me||$("appView").dataset.tab!=="more")return;clearTimeout(ACT.t);ACT.t=setTimeout(actLoad,1500)}
+const actWho=e=>!e?L("Nidaamka","System","النظام","Mfumo"):me&&e.toLowerCase()===String(me.email||"").toLowerCase()?L("Adiga","You","أنت","Wewe"):e.split("@")[0];
+const actWhen=iso=>{const d=new Date(iso);if(isNaN(d))return"";const z=n=>String(n).padStart(2,"0");return `${z(d.getDate())}/${z(d.getMonth()+1)}/${d.getFullYear()} ${z(d.getHours())}:${z(d.getMinutes())}`};
+const actVerb=a=>a==="add"?L("La daray","Added","أُضيف","Imeongezwa"):a==="edit"?L("La saxay","Corrected","تم التصحيح","Imesahihishwa"):a==="delete"?L("La tirtiray","Deleted","حُذف","Imefutwa"):L("Mar qura la geliyay","Added at once","أُضيف دفعة واحدة","Imeongezwa kwa pamoja");
+const actIcon=a=>a==="add"?"➕":a==="edit"?"✏️":a==="delete"?"🗑":"📦";
+/* what the entry is, its amount, and (for a correction) what changed */
+function actAmt(x){if(!x)return null;const k=x.kind;const v=k==="goal"?x.target:k==="inv"?x.total:x.amount;return v==null||v===""?null:Number(v)}
+function actWhat(x){if(!x)return"";const k=x.kind;
+  if(k==="tx")return `${x.type==="in"?L("Soo galay","Income","دخل","Mapato"):L("Ka baxay","Expense","مصروف","Matumizi")} · ${T(x.cat||"Kale")}${x.place?" · "+x.place:""}`;
+  if(k==="debt")return `💳 ${L("Deyn","Debt","دين","Deni")} · ${x.name||""}`;
+  if(k==="bill")return `🧾 ${L("Kharash joogto ah","Regular expense","مصروف ثابت","Gharama ya kawaida")} · ${T(x.name||"")}`;
+  if(k==="goal")return `🎯 ${L("Yool / kayd","Goal / savings","هدف / ادخار","Lengo / akiba")} · ${x.name||""}`;
+  if(k==="inv")return `🧾 ${x.k==="q"?L("Qaansheeg","Invoice","فاتورة","Ankara"):L("Rasiid","Receipt","إيصال","Risiti")} ${x.no?"#"+x.no:""} · ${x.cust||""}`;
+  return k||""}
+const ACT_F=[["amount",()=>L("Qadarka","Amount","المبلغ","Kiasi")],["total",()=>L("Wadarta","Total","المجموع","Jumla")],["target",()=>L("Hadafka","Target","الهدف","Lengo")],["saved",()=>L("La kaydiyay","Saved","المدخر","Imehifadhiwa")],["paid",()=>L("La bixiyay","Paid","المدفوع","Imelipwa")],
+  ["type",()=>L("Nooca","Type","النوع","Aina")],["cat",()=>L("Qaybta","Category","الفئة","Aina")],["date",()=>L("Taariikhda","Date","التاريخ","Tarehe")],["method",()=>L("Habka","Method","الطريقة","Njia")],["place",()=>L("Meesha","Place","المكان","Mahali")],["note",()=>L("Faahfaahin","Details","التفاصيل","Maelezo")],["name",()=>L("Magaca","Name","الاسم","Jina")],["due",()=>L("Taariikhda la bixinayo","Due date","تاريخ الاستحقاق","Tarehe ya kulipa")],["cust",()=>L("Macmiilka","Customer","العميل","Mteja")]];
+const ACT_MONEY=new Set(["amount","total","target","saved","paid"]);
+function actFv(f,v){if(v==null||v==="")return"—";if(ACT_MONEY.has(f))return money(Number(v));if(f==="type")return v==="in"?L("Soo galay","Income","دخل","Mapato"):L("Ka baxay","Expense","مصروف","Matumizi");if(f==="date"||f==="due")return fmtD(v)||String(v);if(f==="cat"||f==="method")return T(String(v));return String(v)}
+function actDiff(b,a){if(!b||!a)return[];return ACT_F.filter(([f])=>String(b[f]??"")!==String(a[f]??"")).map(([f,lab])=>({f,lab:lab(),from:actFv(f,b[f]),to:actFv(f,a[f])}))}
+function actRows(){let r=ACT.rows||[];const s=actSince(ACT.per);
+  if(s)r=r.filter(x=>new Date(x.at)>=s);
+  if(ACT.act!=="all")r=r.filter(x=>x.action===ACT.act);
+  if(ACT.who!=="all")r=r.filter(x=>(x.actor_email||"").toLowerCase()===ACT.who);
+  return r}
+function actRender(){const box=$("actPanel");if(!box||!me)return;
+  if(ACT.rows===null&&!ACT.busy&&!ACT.off){box.hidden=true;return}
+  box.hidden=false;
+  const rows=actRows(),all=ACT.rows||[],team=!!TEAM||hasStaff;
+  const people=[...new Set(all.map(x=>(x.actor_email||"").toLowerCase()).filter(Boolean))];
+  const cnt=a=>rows.filter(x=>x.action===a).length;
+  const opt=(v,t,cur)=>`<option value="${v}"${v===cur?" selected":""}>${t}</option>`;
+  const li=x=>{const b=x.before,a=x.after,cur=a||b;
+    if(x.action==="bulk")return `<li class="act bulk"><span class="actic">📦</span><div class="actb"><b>${L(`${x.n} shay ayaa mar qura la geliyay`,`${x.n} entries added at once`,`أُضيف ${x.n} عنصرًا دفعة واحدة`,`Vitu ${x.n} viliongezwa kwa pamoja`)}</b><small>${L("Backup la soo celiyay ama xog hore","Backup restore or earlier data","استعادة نسخة احتياطية أو بيانات سابقة","Kurejesha nakala au data ya awali")}</small><small class="actmeta">👤 ${esc(actWho(x.actor_email))} · 🕓 ${actWhen(x.at)}</small></div></li>`;
+    const amt=actAmt(cur),sign=cur?.kind==="tx"?(cur.type==="in"?"+":"−"):"";
+    const d=x.action==="edit"?actDiff(b,a):[];
+    const am=x.action==="edit"&&d.some(c=>c.f==="amount"||c.f==="total"||c.f==="target")
+      ?`<span class="acta"><s>${money(actAmt(b)||0)}</s> → <b>${money(actAmt(a)||0)}</b></span>`
+      :amt!=null?`<span class="acta ${x.action==="delete"?"gone":cur?.type||""}">${sign}${money(amt)}</span>`:"";
+    const ch=d.filter(c=>!(["amount","total","target"].includes(c.f))).map(c=>`<span class="actch">${esc(c.lab)}: <s>${esc(c.from)}</s> → ${esc(c.to)}</span>`).join("");
+    return `<li class="act ${x.action}"><span class="actic" aria-hidden="true">${actIcon(x.action)}</span><div class="actb"><b>${actVerb(x.action)}: ${esc(actWhat(cur))}</b>${ch?`<div class="actchs">${ch}</div>`:""}${cur?.date&&cur.kind==="tx"?`<small>${L("Taariikhda qoraalka","Entry date","تاريخ القيد","Tarehe ya muamala")}: ${fmtD(cur.date)}</small>`:""}<small class="actmeta">👤 ${esc(actWho(x.actor_email))} · 🕓 ${actWhen(x.at)}</small></div>${am}</li>`};
+  const keepOpen=box.querySelector("details.actmore")?.open;
+  const shown=rows.slice(0,ACT.lim||60);
+  box.innerHTML=`<div class="panel-head"><h2 id="actH">🕓 ${L("Taariikhda isbeddelka","Activity history","سجل التغييرات","Historia ya mabadiliko")}</h2><button type="button" id="actRe" class="ghost" aria-label="${L("Cusboonaysii","Refresh","تحديث","Onyesha upya")}">${ACT.busy?'<span class="spin">🔄</span>':"🔄"}</button></div>
+  <p class="note" style="margin:0">${TEAM&&ROLE==="staff"?L("Waxaad aragtaa isbeddelladaada: wixii aad ku dartay, saxday ama tirtirtay, goorta iyo lacagta.","You see your own changes: what you added, corrected or deleted, when, and the amount.","ترى تغييراتك: ما أضفته أو صححته أو حذفته، ومتى، والمبلغ.","Unaona mabadiliko yako: ulichoongeza, kusahihisha au kufuta, lini, na kiasi.")
+    :team?L("Cidda wax beddeshay, goorta, iyo lacagta: wixii la daray, la saxay ama la tirtiray. Shaqaale iyo maamule midkoodna ma beddeli karo taariikhdan.","Who changed what, when, and the amount: everything added, corrected or deleted. No staff member or manager can change this history.","من غيّر ماذا، ومتى، والمبلغ: كل ما أُضيف أو صُحح أو حُذف. لا يستطيع أي موظف أو مدير تغيير هذا السجل.","Nani alibadilisha nini, lini, na kiasi: kila kilichoongezwa, kusahihishwa au kufutwa. Hakuna mfanyakazi wala meneja anayeweza kubadilisha historia hii.")
+    :L("Wixii aad ku dartay, saxday ama tirtirtay, goorta iyo lacagta. Taariikhdan lama beddeli karo.","Everything you added, corrected or deleted, when, and the amount. This history cannot be changed.","كل ما أضفته أو صححته أو حذفته، ومتى، والمبلغ. لا يمكن تغيير هذا السجل.","Kila ulichoongeza, kusahihisha au kufuta, lini, na kiasi. Historia hii haiwezi kubadilishwa.")}</p>
+  ${ACT.off?`<p class="note actoff" role="status">📴 ${L("Internet la'aan: kani waa nuqulkii ugu dambeeyay ee la keenay.","Offline: this is the last copy that was loaded.","بدون إنترنت: هذه آخر نسخة تم تحميلها.","Nje ya mtandao: hii ni nakala ya mwisho iliyopakiwa.")}</p>`:""}
+  <div class="actf">
+    <select id="actPer" aria-label="${L("Muddada","Period","الفترة","Kipindi")}">${opt("0",L("Maanta","Today","اليوم","Leo"),ACT.per)}${opt("7",L("7-dii maalmood","Last 7 days","آخر 7 أيام","Siku 7 zilizopita"),ACT.per)}${opt("m",L("Bishan","This month","هذا الشهر","Mwezi huu"),ACT.per)}${opt("90",L("3-dii bilood","3 months","3 أشهر","Miezi 3"),ACT.per)}${opt("all",L("Dhammaan","All","الكل","Yote"),ACT.per)}</select>
+    <select id="actAct" aria-label="${L("Nooca isbeddelka","Kind of change","نوع التغيير","Aina ya mabadiliko")}">${opt("all",L("Dhammaan","All","الكل","Yote"),ACT.act)}${opt("add","➕ "+actVerb("add"),ACT.act)}${opt("edit","✏️ "+actVerb("edit"),ACT.act)}${opt("delete","🗑 "+actVerb("delete"),ACT.act)}</select>
+    ${team&&!(TEAM&&ROLE==="staff")&&people.length>1?`<select id="actWho" aria-label="${L("Qofka","Person","الشخص","Mtu")}">${opt("all",L("Qof kasta","Everyone","الجميع","Kila mtu"),ACT.who)}${people.map(p=>opt(esc(p),"👤 "+esc(actWho(p)),ACT.who)).join("")}</select>`:""}
+  </div>
+  <div class="actsum"><span>➕ ${cnt("add")}</span><span>✏️ ${cnt("edit")}</span><span>🗑 ${cnt("delete")}</span></div>
+  ${rows.length?`<ul class="actlist">${shown.map(li).join("")}</ul>${rows.length>shown.length?`<button type="button" id="actMore" class="ghost">${L("Muuji wax badan","Show more","عرض المزيد","Onyesha zaidi")} (${rows.length-shown.length})</button>`:""}`
+    :`<p class="note">${ACT.rows===null?L("Waa la soo raraya…","Loading…","جارٍ التحميل…","Inapakia…"):L("Wax isbeddel ah muddadan lama sameyn.","No changes in this period.","لا توجد تغييرات في هذه الفترة.","Hakuna mabadiliko katika kipindi hiki.")}</p>`}
+  ${rows.length?`<div class="pldl"><span>${L("Soo deji:","Download:","تنزيل:","Pakua:")}</span><button type="button" data-actdl="x">⬇ Excel</button><button type="button" data-actdl="w">⬇ Word</button>${NATIVE?"":`<button type="button" data-actdl="p">🖨 PDF</button>`}</div>`:""}`;
+  $("actRe").onclick=()=>actLoad();
+  $("actPer").onchange=e=>{ACT.per=e.target.value;ACT.lim=60;actRender()};
+  $("actAct").onchange=e=>{ACT.act=e.target.value;ACT.lim=60;actRender()};
+  if($("actWho"))$("actWho").onchange=e=>{ACT.who=e.target.value;ACT.lim=60;actRender()};
+  if($("actMore"))$("actMore").onclick=()=>{ACT.lim=(ACT.lim||60)+100;actRender()};
+  box.querySelectorAll("[data-actdl]").forEach(b=>b.onclick=()=>actExport(b.dataset.actdl))}
+/* downloads: same look as the other reports (company name + logo for Shirkad) */
+function actTable(){const rows=actRows();
+  return rows.map(x=>{const b=x.before,a=x.after,cur=a||b;
+    if(x.action==="bulk")return [actWhen(x.at),actWho(x.actor_email),actVerb("bulk"),L(`${x.n} shay`,`${x.n} entries`,`${x.n} عنصرًا`,`vitu ${x.n}`),"","",""];
+    const d=x.action==="edit"?actDiff(b,a):[],amt=actAmt(cur);
+    return [actWhen(x.at),actWho(x.actor_email),actVerb(x.action),actWhat(cur),cur?.kind==="tx"&&cur.date?fmtD(cur.date):"",
+      x.action==="edit"&&d.some(c=>ACT_MONEY.has(c.f))?money(actAmt(b)||0)+" → "+money(actAmt(a)||0):amt!=null?(cur?.kind==="tx"?(cur.type==="in"?"+":"−"):"")+money(amt):"",
+      d.filter(c=>!["amount","total","target"].includes(c.f)).map(c=>`${c.lab}: ${c.from} → ${c.to}`).join("; ")]})}
+const actHead=()=>[L("Goorta","When","الوقت","Lini"),L("Qofka","Person","الشخص","Mtu"),L("Isbeddelka","Change","التغيير","Mabadiliko"),L("Qoraalka","Entry","القيد","Muamala"),L("Taariikhda qoraalka","Entry date","تاريخ القيد","Tarehe ya muamala"),L("Qadarka","Amount","المبلغ","Kiasi"),L("Waxa la beddelay","What changed","ما الذي تغيّر","Kilichobadilika")];
+const actPerLabel=()=>({"0":L("Maanta","Today","اليوم","Leo"),"7":L("7-dii maalmood","Last 7 days","آخر 7 أيام","Siku 7 zilizopita"),"m":L("Bishan","This month","هذا الشهر","Mwezi huu"),"90":L("3-dii bilood","3 months","3 أشهر","Miezi 3"),all:L("Dhammaan","All","الكل","Yote")})[ACT.per];
+const actFile=ext=>`HantiGo-${brandName()}-taariikh-${today()}.${ext}`.replace(/[^\w.@ -]+/g,"_");
+function actExport(k){const H=actHead(),R=actTable(),title=L("Taariikhda isbeddelka","Activity history","سجل التغييرات","Historia ya mabadiliko")+" · "+actPerLabel()+" · "+modeLabel();
+  if(k==="x"){exportSheet(title,[{title:"",head:H,rows:R}],actFile("x").slice(0,-2));return}
+  const html=`${coHead()}<p><b>${esc(title)}</b></p><table><tr>${H.map(h=>`<th>${esc(h)}</th>`).join("")}</tr>${R.map(r=>`<tr>${r.map((c,j)=>`<td${j===5?' class="n"':""}>${esc(c)}</td>`).join("")}</tr>`).join("")}</table>${stFoot()}`;
+  if(k==="p"){$("printArea").innerHTML=html;document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
+    window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50);return}
+  const doc=`<html${RTL?' dir="rtl"':""} xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
+<style>body{font-family:Calibri,Arial,sans-serif;font-size:10pt}h1{color:#0b7a4b}table{border-collapse:collapse;width:100%;margin:6pt 0}th,td{border:1px solid #999;padding:3pt 5pt;text-align:${RTL?"right":"left"};vertical-align:top}th{background:#e8f5ee}.n{text-align:right;white-space:nowrap}</style></head><body>${html}</body></html>`;
+  saveFile(actFile("doc"),"﻿"+doc,"application/msword")}
 $("date").value=today();renderDaily();fillCats();render();initLang();init();
 </script>
 <div id="lockView" class="lockv" hidden><div class="lkcard" id="lkCard"><img src="icon-192.png" alt="" width="64" height="64"><h2>Geli PIN-kaaga</h2>

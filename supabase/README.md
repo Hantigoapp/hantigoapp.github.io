@@ -17,6 +17,7 @@ This folder contains the database setup and feature migrations used by HantiGo. 
 11. `signups.sql` — admin sign-up summary.
 12. `security_hardening.sql` — final table/function grants and verification queries.
 13. `push_notifications.sql` — private, RLS-protected browser push subscriptions and preferences.
+14. `activity.sql` — activity history: a trigger on `user_data` records every add / correction / delete (who, when, before/after) in `activity_log`; read through `activity_list` (owner: all, manager: company, staff: own). Until it is run, the app hides the history panel.
 
 Run each file once in this order. If you are updating an existing deployment, review the file comments and take a database backup before applying migrations.
 
