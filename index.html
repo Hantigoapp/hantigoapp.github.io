@@ -147,7 +147,13 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .price{font:700 1rem var(--display);color:var(--accent)}
 .evc{display:grid;gap:2px;padding:10px 12px;background:var(--accent-soft);border-radius:10px}
 .dial{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;background:#1f9d55;color:#fff;font-weight:700;font-size:1.08rem;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)}.dial small{display:block;font-weight:500;opacity:.9;font-size:.8rem}
-.pway{display:grid;gap:10px}.pway[hidden],.paypick[hidden]{display:none}.paypick{display:grid;grid-template-columns:1fr 1fr;gap:8px}.paypick label{cursor:pointer}.paypick input{position:absolute;opacity:0}.paypick span{display:block;text-align:center;padding:12px 8px;border-radius:12px;border:2px solid var(--line,#2a3440);font-weight:700}.paypick input:checked+span{border-color:#1f9d55;background:rgba(31,157,85,.18)}.paypick input:focus-visible+span{outline:2px solid #1f9d55}
+.auto-on .manual{display:none!important}
+.autobox{display:grid;gap:10px;padding:14px;border-radius:14px;border:2px solid #1f9d55;background:rgba(31,157,85,.10)}.autobox .ab-h{display:flex;gap:8px;align-items:flex-start;font-weight:700;font-size:1.02rem;line-height:1.35}
+.ab-row{display:flex;align-items:stretch;gap:0}.ab-cc{display:flex;align-items:center;padding:0 10px;border:1px solid var(--line,#2a3440);border-right:0;border-radius:10px 0 0 10px;font-weight:700;opacity:.85}.ab-row input{border-radius:0 10px 10px 0;flex:1;min-width:0}
+.ab-go{font-size:1.08rem;padding:14px}.ab-st{border-radius:10px;padding:12px;font-size:.95em;line-height:1.45}.ab-st[hidden]{display:none}.ab-st.wait{background:rgba(212,160,23,.16)}.ab-st.ok{background:rgba(31,157,85,.2)}.ab-st.bad{background:rgba(229,83,75,.15)}.ab-st a{color:inherit;font-weight:700}
+.ab-spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:abspin .8s linear infinite;vertical-align:-2px;margin-inline-end:6px}@keyframes abspin{to{transform:rotate(360deg)}}
+.ab-man{justify-self:center;background:none;border:0;color:var(--muted,#9aa7b4);text-decoration:underline;font-size:.88rem;cursor:pointer;padding:4px}
+.pway{display:grid;gap:10px}.pway[hidden],.paypick[hidden]{display:none}.paypick{display:grid;grid-template-columns:1fr 1fr;gap:8px}.paypick label{cursor:pointer;position:relative}.paypick input{position:absolute;opacity:0}.paypick span{display:block;text-align:center;padding:12px 8px;border-radius:12px;border:2px solid var(--line,#2a3440);font-weight:700}.paypick input:checked+span{border-color:#1f9d55;background:rgba(31,157,85,.18)}.paypick input:focus-visible+span{outline:2px solid #1f9d55}
 .evc b{font-size:1.1rem;letter-spacing:.02em;user-select:all;overflow-wrap:anywhere}
 .methods{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:6px;font-size:.88rem}
 .methods span{opacity:.85}.methods b{font-weight:600}
@@ -613,19 +619,20 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
     <p class="pay-only planline" id="payPlan"></p>
     <p id="nativeNote" style="margin:0" hidden>Akoonkaagu hadda ma furna. Marka la furo, riix "Hubi mar kale".</p>
     <p class="pay-only pp-lead" style="margin:0"></p>
-    <div class="pay-only paypick" role="radiogroup" aria-label="Habka lacag-bixinta">
+    <div class="pay-only" data-autoslot="pay" hidden></div>
+    <div class="pay-only paypick manual" role="radiogroup" aria-label="Habka lacag-bixinta">
       <label><input type="radio" name="pway" value="evc" checked><span>📱 EVC Plus</span></label>
       <label><input type="radio" name="pway" value="waafi"><span>💳 WaafiPay</span></label>
     </div>
-    <div class="pay-only pway" id="pwEvc">
+    <div class="pay-only pway manual" id="pwEvc">
       <a class="dial" href="tel:*712*613735086*3%23"><span>📞</span><span><span class="pp-now">Bixi hadda $3</span><small>Riix, kadib geli PIN-ka EVC</small></span></a>
       <div class="evc"><span class="note">Ku garaac taleefankaaga</span><b class="pp-code">*712*613735086*3#</b></div>
     </div>
-    <div class="pay-only pway" id="pwWaafi" hidden>
+    <div class="pay-only pway manual" id="pwWaafi" hidden>
       <ol class="note" style="margin:0;padding-left:20px;line-height:1.6"><li>Fur app-ka <b>WaafiPay</b></li><li>Dooro <b>Lacag dir</b></li><li>Geli lambarka hoose iyo <b class="pp">$3</b>, kadib PIN-kaaga</li></ol>
     </div>
-    <div class="evc pay-only"><span class="note">Lambarka lacagta loo dirayo</span><b>+252 61 373 5086</b></div>
-    <form id="phoneForm" class="pay-only" novalidate>
+    <div class="evc pay-only manual"><span class="note">Lambarka lacagta loo dirayo</span><b>+252 61 373 5086</b></div>
+    <form id="phoneForm" class="pay-only manual" novalidate>
       <p class="note" style="margin:0"><b>Kadib markaad bixiso:</b> buuxi foomkan si aan si dhakhso ah u xaqiijinno.</p>
       <label class="field"><span id="pPhoneLbl">1. Lambarka aad lacagta ka soo dirtay</span><input id="pPhone" type="tel" inputmode="tel" placeholder="61xxxxxxx" maxlength="20"></label>
       <label class="field"><span>2. Lambarka dhaqdhaqaaqa ee fariinta lacagta (ikhtiyaari)</span><input id="pRef" type="text" maxlength="60" placeholder="Tusaale: Tix 123456789"></label>
@@ -950,12 +957,13 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
       <section class="panel sub-panel pay-only" aria-labelledby="subH" data-tab="more">
         <div class="panel-head"><h2 id="subH">Lacag bixinta bishii</h2><span class="price pp-m">$3 / bishii</span></div>
         <p class="planline" id="accPlan"></p>
-        <p style="margin:0">Ku bixi EVC Plus ama WaafiPay lambarka hoose, kadibna fariinta lacagta u gudbi (forward) isla lambarkaas.</p>
-        <div class="evc"><span class="note">Lambarka EVC Plus</span><b id="evcNum">+252 61 373 5086</b></div>
-        <div class="evc"><span class="note">Ku garaac taleefankaaga</span><b id="evcCode" class="pp-code">*712*613735086*3#</b></div>
-        <a class="dial" href="tel:*712*613735086*3%23"><span>📞</span><span><span class="pp-now">Bixi hadda $3</span><small>Riix, kadib geli PIN-ka EVC</small></span></a>
-        <div class="goal-actions"><button type="button" id="copyCode">Koobiyee koodhka</button><span class="note" id="copyMsg" role="status"></span></div>
-        <div class="evc"><span class="note">💳 WaafiPay</span><span><span>Fur app-ka</span> WaafiPay → <b>Lacag dir</b> → +252 61 373 5086 → <b class="pp">$3</b></span></div>
+        <div data-autoslot="acc" hidden></div>
+        <p class="manual" style="margin:0">Ku bixi EVC Plus ama WaafiPay lambarka hoose, kadibna fariinta lacagta u gudbi (forward) isla lambarkaas.</p>
+        <div class="evc manual"><span class="note">Lambarka EVC Plus</span><b id="evcNum">+252 61 373 5086</b></div>
+        <div class="evc manual"><span class="note">Ku garaac taleefankaaga</span><b id="evcCode" class="pp-code">*712*613735086*3#</b></div>
+        <a class="dial manual" href="tel:*712*613735086*3%23"><span>📞</span><span><span class="pp-now">Bixi hadda $3</span><small>Riix, kadib geli PIN-ka EVC</small></span></a>
+        <div class="goal-actions manual"><button type="button" id="copyCode">Koobiyee koodhka</button><span class="note" id="copyMsg" role="status"></span></div>
+        <div class="evc manual"><span class="note">💳 WaafiPay</span><span><span>Fur app-ka</span> WaafiPay → <b>Lacag dir</b> → +252 61 373 5086 → <b class="pp">$3</b></span></div>
       </section>
 
       <section class="panel" aria-labelledby="repH" data-tab="more">
@@ -1380,7 +1388,7 @@ function fillPrice(){const pl=myPlan(),n=PRICE[pl],code="*712*613735086*"+n+"#";
   document.querySelectorAll(".pp-lead").forEach(e=>e.textContent=L(`Ku bixi $${n} EVC Plus ama WaafiPay. Marka la xaqiijiyo, akoonkaaga waa la furayaa 30 maalmood.`,`Pay $${n} with EVC Plus or WaafiPay. Once confirmed, your account opens for 30 days.`,`ادفع ${n}$ عبر EVC Plus أو WaafiPay. بعد التأكيد يُفتح حسابك لمدة 30 يومًا.`,`Lipa $${n} kwa EVC Plus au WaafiPay. Ikithibitishwa, akaunti yako itafunguliwa kwa siku 30.`));
   const line=pl==="business"?L("Qorshahaaga: <b>🏢 Shirkad</b> · $7 bishii (Shakhsi-na waa ku jiraa)","Your plan: <b>🏢 Business</b> · $7 a month (Personal included)","خطتك: <b>🏢 شركة</b> · 7$ شهريًا (يشمل الحساب الشخصي)","Mpango wako: <b>🏢 Biashara</b> · $7 kwa mwezi (Binafsi imejumuishwa)")
     :L("Qorshahaaga: <b>👤 Shakhsi</b> · $3 bishii","Your plan: <b>👤 Personal</b> · $3 a month","خطتك: <b>👤 شخصي</b> · 3$ شهريًا","Mpango wako: <b>👤 Binafsi</b> · $3 kwa mwezi");
-  ["payPlan","accPlan"].forEach(id=>{const e=$(id);if(e)e.innerHTML=line})}
+  ["payPlan","accPlan"].forEach(id=>{const e=$(id);if(e)e.innerHTML=line});if(me&&profile)showAuto()}
 async function savePlan(p){if(p!=="business")return;if(profile)profile={...profile,plan:"business"};planHint="business";fillPrice();try{await sb.rpc("set_my_plan",{p})}catch{}}
 const hasAccess=p=>!!p&&(p.is_admin||new Date(p.trial_until)>new Date()||(p.paid_until&&new Date(p.paid_until)>new Date()));
 function daysLeft(p){const end=Math.max(new Date(p.trial_until||0),new Date(p.paid_until||0));return Math.ceil((end-Date.now())/864e5)}
@@ -1639,6 +1647,70 @@ $("recheck").addEventListener("click",()=>{if(me)enter(me)});
 document.querySelectorAll("input[name=pway]").forEach(r=>r.addEventListener("change",()=>{const w=document.querySelector("input[name=pway]:checked").value==="waafi";$("pwEvc").hidden=w;$("pwWaafi").hidden=!w;
   $("pPhoneLbl").textContent=w?L("1. Lambarka WaafiPay ee aad ka soo dirtay","1. WaafiPay number you paid from"):L("1. Lambarka aad lacagta ka soo dirtay","1. Number you sent the money from")}));
 
+/* ---------- ⚡ automatic payment (WaafiPay API: EVC Plus / WaafiPay). Shown only when the pay-auto function has its WaafiPay keys. ---------- */
+let autoReadyP=null;
+function autoReady(){if(NATIVE||!online())return Promise.resolve(false);
+  return autoReadyP||(autoReadyP=sb.functions.invoke("pay-auto",{body:{check:true}}).then(({data})=>!!data?.ready).catch(()=>false))}
+const waHelp=()=>`<a href="https://wa.me/${WA_NUM}?text=${encodeURIComponent(L("Salaan, HantiGo caawimaad ayaan rabaa (lacag-bixinta)","Hi, I need help with HantiGo (payment)"))}" target="_blank" rel="noopener">💬 ${L("Caawimaad? WhatsApp","Help? WhatsApp","مساعدة؟ واتساب","Msaada? WhatsApp")} +46 76 715 79 15</a>`;
+function autoBoxHtml(k){const n=myPrice();return `<div class="autobox" data-abox="${k}">
+  <div class="ab-h"><span>⚡</span><span>${L("Bixi hadda: app-ku isla markiiba wuu kuu furmayaa","Pay now: the app opens for you right away","ادفع الآن: يُفتح التطبيق لك فورًا","Lipa sasa: programu inafunguka mara moja")}</span></div>
+  <div class="paypick" role="radiogroup" aria-label="${L("Habka lacag-bixinta","Payment method","طريقة الدفع","Njia ya malipo")}">
+    <label><input type="radio" name="abway-${k}" value="evc" checked><span>📱 EVC Plus</span></label>
+    <label><input type="radio" name="abway-${k}" value="waafi"><span>💳 WaafiPay</span></label></div>
+  <label class="field"><span class="ab-lbl">${L("Lambarka EVC Plus ee lacagta laga jarayo","EVC Plus number to pay from","رقم EVC Plus الذي سيُدفع منه","Namba ya EVC Plus ya kulipa")}</span>
+    <span class="ab-row" dir="ltr"><span class="ab-cc">+252</span><input class="ab-phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="61xxxxxxx" maxlength="16"></span></label>
+  <button type="button" class="primary ab-go">${L(`Bixi $${n}`,`Pay $${n}`,`ادفع ${n}$`,`Lipa $${n}`)}</button>
+  <div class="ab-st" role="status" aria-live="polite" hidden></div>
+  <p class="note" style="margin:0">${L("Taleefankaaga ayaa ku weydiinaya PIN-ka. Geli PIN-ka: akoonkaagu 30 maalmood ayuu furmayaa, rasiidkuna email-kaaga ayuu ku imanayaa.","Your phone will ask for your PIN. Enter it: your account opens for 30 days and the receipt comes to your email.","سيطلب هاتفك الرقم السري. أدخله: يُفتح حسابك لمدة 30 يومًا ويصل الإيصال إلى بريدك.","Simu yako itaomba PIN. Iweke: akaunti yako inafunguka kwa siku 30 na risiti inakuja kwenye barua pepe yako.")}</p>
+  <button type="button" class="ab-man">${L("Si kale u bixi (gacanta: dir lacagta + foom)","Pay another way (manual: send money + form)","ادفع بطريقة أخرى (يدويًا: أرسل المال + نموذج)","Lipa kwa njia nyingine (kwa mkono: tuma pesa + fomu)")}</button>
+</div>`}
+async function showAuto(){const ok=await autoReady();
+  document.querySelectorAll("[data-autoslot]").forEach(slot=>{const k=slot.dataset.autoslot,host=slot.closest(".sub-panel");
+    if(!ok){slot.hidden=true;slot.innerHTML="";host?.classList.remove("auto-on");return}
+    if(!slot.firstElementChild){slot.innerHTML=autoBoxHtml(k);const ph=slot.querySelector(".ab-phone");ph.value=String(profile?.phone||"").replace(/\D/g,"").replace(/^(00)?252/,"")}
+    else slot.querySelector(".ab-go").textContent=L(`Bixi $${myPrice()}`,`Pay $${myPrice()}`,`ادفع ${myPrice()}$`,`Lipa $${myPrice()}`);
+    slot.hidden=false;if(!slot.dataset.manual)host?.classList.add("auto-on")})}
+function abState(box,cls,html){const st=box.querySelector(".ab-st");st.hidden=!cls;st.className="ab-st "+(cls||"");st.innerHTML=html||""}
+const AB_ERR={
+  number:()=>L("Lambarku sax maaha. Geli lambarka EVC Plus ama WaafiPay, tusaale 61xxxxxxx.","That number is not valid. Enter your EVC Plus or WaafiPay number, e.g. 61xxxxxxx.","الرقم غير صحيح. أدخل رقم EVC Plus أو WaafiPay، مثل 61xxxxxxx.","Namba si sahihi. Weka namba ya EVC Plus au WaafiPay, mfano 61xxxxxxx."),
+  cancelled:()=>L("Lacag-bixinta waa la joojiyay (PIN-ka lama gelin ama waa la diiday). Lacag kaama bixin. Isku day mar kale.","The payment was cancelled (PIN not entered or declined). No money was taken. Try again.","أُلغي الدفع (لم يُدخل الرقم السري أو رُفض). لم يُخصم أي مبلغ. حاول مرة أخرى.","Malipo yameghairiwa (PIN haikuwekwa au imekataliwa). Hakuna pesa iliyokatwa. Jaribu tena."),
+  balance:()=>L("Haraaga akoonkaagu kuma filna. Ku shubo lacag, kadib isku day mar kale.","Not enough balance. Top up, then try again.","الرصيد غير كافٍ. اشحن رصيدك ثم حاول مرة أخرى.","Salio halitoshi. Ongeza salio, kisha jaribu tena."),
+  timeout:()=>L("Waqtigii PIN-ka wuu dhammaaday. Lacag kaama bixin. Isku day mar kale.","The PIN time ran out. No money was taken. Try again.","انتهى وقت إدخال الرقم السري. لم يُخصم أي مبلغ. حاول مرة أخرى.","Muda wa PIN umeisha. Hakuna pesa iliyokatwa. Jaribu tena."),
+  busy:()=>L("Lacag-bixin kale ayaa hadda socota. Sug hal daqiiqad.","Another payment is in progress. Wait a minute.","هناك عملية دفع أخرى جارية. انتظر دقيقة.","Malipo mengine yanaendelea. Subiri dakika moja."),
+  limit:()=>L("Isku day badan ayaa la sameeyay. Sug saacad, ama nala soo xiriir.","Too many tries. Wait an hour, or contact us.","محاولات كثيرة. انتظر ساعة أو تواصل معنا.","Majaribio mengi. Subiri saa moja, au wasiliana nasi."),
+  unknown:()=>L("Jawaab lagama helin WaafiPay. Haddii lacagtu kaa baxday, ha welwelin: waan hubin doonnaa oo akoonkaaga waan furi doonnaa. Halkan ka sug ama nala soo xiriir.","No answer from WaafiPay. If money left your account, don't worry: we will check and open your account. Wait here or contact us.","لم يصل رد من WaafiPay. إذا خُصم المبلغ فلا تقلق: سنتحقق ونفتح حسابك. انتظر هنا أو تواصل معنا.","Hakuna jibu kutoka WaafiPay. Kama pesa imekatwa, usijali: tutaangalia na kufungua akaunti yako. Subiri hapa au wasiliana nasi."),
+  failed:()=>L("Lacag-bixintu way fashilantay. Lacag kaama bixin. Isku day mar kale ama si kale u bixi.","The payment failed. No money was taken. Try again or pay another way.","فشل الدفع. لم يُخصم أي مبلغ. حاول مرة أخرى أو ادفع بطريقة أخرى.","Malipo yameshindikana. Hakuna pesa iliyokatwa. Jaribu tena au lipa kwa njia nyingine."),
+  net:()=>L("Internet ma jiro. Hubi internet-ka, kadib isku day.","No internet. Check your connection, then try again.","لا يوجد إنترنت. تحقق من الاتصال ثم حاول مرة أخرى.","Hakuna intaneti. Angalia muunganisho, kisha jaribu tena.")};
+let abBusy=false;
+async function autoPay(box){if(abBusy)return;const k=box.dataset.abox,way=box.querySelector(`input[name=abway-${k}]:checked`)?.value||"evc";
+  const raw=box.querySelector(".ab-phone").value,d=raw.replace(/\D/g,"").replace(/^(00)?252/,"").replace(/^0/,"");
+  if(!/^[1-9]\d{8}$/.test(d)){abState(box,"bad",AB_ERR.number()+"<br>"+waHelp());box.querySelector(".ab-phone").focus();return}
+  if(!online()){abState(box,"bad",AB_ERR.net());return}
+  abBusy=true;const go=box.querySelector(".ab-go");go.disabled=true;
+  const before=+new Date(profile?.paid_until||0),n=myPrice();
+  abState(box,"wait",`<span class="ab-spin"></span><b>${L("Eeg taleefankaaga 📲","Check your phone 📲","تحقّق من هاتفك 📲","Angalia simu yako 📲")}</b><br>${L(`Geli PIN-ka ${way==="waafi"?"WaafiPay":"EVC Plus"} si aad u oggolaato $${n}. Ha xirin boggan.`,`Enter your ${way==="waafi"?"WaafiPay":"EVC Plus"} PIN to approve $${n}. Keep this page open.`,`أدخل الرقم السري لـ ${way==="waafi"?"WaafiPay":"EVC Plus"} للموافقة على ${n}$. أبقِ هذه الصفحة مفتوحة.`,`Weka PIN ya ${way==="waafi"?"WaafiPay":"EVC Plus"} kuidhinisha $${n}. Usifunge ukurasa huu.`)}`);
+  let done=false;
+  const win=until=>{if(done)return;done=true;abBusy=false;go.disabled=false;
+    abState(box,"ok",`✅ <b>${L("Lacagta waa la helay!","Payment received!","تم استلام الدفع!","Malipo yamepokelewa!")}</b><br>${L("Akoonkaagu wuu furan yahay ilaa","Your account is open until","حسابك مفتوح حتى","Akaunti yako iko wazi hadi")} <b>${new Date(until).toLocaleDateString("en-GB")}</b>. ${L("Rasiidka email-kaaga ayaa loo diray.","The receipt was sent to your email.","أُرسل الإيصال إلى بريدك.","Risiti imetumwa kwenye barua pepe yako.")}`);
+    if(!$("payView").hidden)setTimeout(()=>{if(me)enter(me)},2500);
+    else{if(profile)profile={...profile,paid_until:until,pay_status:"ok"};const dl=daysLeft(profile||{paid_until:until});
+      $("accStatus").innerHTML=`<span class="pill ok">${L("La bixiyay: "+dl+" maalmood ayaa haray","Paid: "+dl+" days left","مدفوع: متبقٍ "+dl+" يوم","Imelipwa: zimebaki siku "+dl)}</span>`}};
+  // watch the account too: if the phone loses the answer, the opened account still shows up
+  const watch=async()=>{for(let i=0;i<45&&!done;i++){await new Promise(r=>setTimeout(r,4000));if(done)return;
+    try{const {data}=await sb.from("profiles").select("*").eq("id",me.id).maybeSingle();if(data&&+new Date(data.paid_until||0)>before&&data.pay_status==="ok"){profile=data;win(data.paid_until);return}}catch{}}};
+  watch();
+  let res=null;try{const {data,error}=await sb.functions.invoke("pay-auto",{body:{phone:"252"+d,way}});res=data||null;
+    if(!res&&error){try{res=await error.context?.json?.()}catch{}}}catch{}
+  if(done)return;
+  if(res?.ok){win(res.until);return}
+  const code=res?.error&&AB_ERR[res.error]?res.error:(res?"failed":"unknown");
+  if(code==="unknown"&&!res){abState(box,"wait",`<span class="ab-spin"></span>${L("Waxaan sugaynaa jawaabta WaafiPay…","Waiting for WaafiPay's answer…","بانتظار رد WaafiPay…","Tunasubiri jibu la WaafiPay…")}<br>${waHelp()}`);return}  // the watch loop keeps checking
+  done=true;abBusy=false;go.disabled=false;
+  abState(box,"bad",(code==="unknown"?"⏳ ":"❌ ")+AB_ERR[code]()+"<br>"+waHelp())}
+document.addEventListener("click",e=>{const g=e.target.closest(".ab-go");if(g){autoPay(g.closest(".autobox"));return}
+  const m=e.target.closest(".ab-man");if(m){const slot=m.closest("[data-autoslot]");slot.dataset.manual="1";slot.closest(".sub-panel")?.classList.remove("auto-on");m.hidden=true}});
+document.addEventListener("change",e=>{const r=e.target.closest(".autobox input[type=radio]");if(!r)return;
+  r.closest(".autobox").querySelector(".ab-lbl").textContent=r.value==="waafi"?L("Lambarka WaafiPay ee lacagta laga jarayo","WaafiPay number to pay from","رقم WaafiPay الذي سيُدفع منه","Namba ya WaafiPay ya kulipa"):L("Lambarka EVC Plus ee lacagta laga jarayo","EVC Plus number to pay from","رقم EVC Plus الذي سيُدفع منه","Namba ya EVC Plus ya kulipa")});
 /* ---------- render ---------- */
 function inMonth(t){const d=new Date(t.date+"T00:00");return d.getFullYear()===view.getFullYear()&&d.getMonth()===view.getMonth()}
 function fillCats(){const type=document.querySelector('input[name=type]:checked').value;const sel=$("cat");const cur=sel.value;

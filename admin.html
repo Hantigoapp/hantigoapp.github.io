@@ -65,6 +65,9 @@ html:root{--bg:#0b1118;--surface:#141c26;--ink:#eef3f8;--muted:#8fa0b3;--line:#2
 .req .meta{font-size:.9rem;opacity:.85;display:grid;gap:2px}.req img{max-width:100%;max-height:260px;border-radius:8px;margin-top:6px;cursor:zoom-in}
 .req .ok-b{background:#1e8e5a;color:#fff;border-color:#1e8e5a}.req .no-b{color:#e5534b}
 @media (max-width:560px){.req{grid-template-columns:1fr}}
+.autobox{background:var(--surface);border:2px solid #1f9d55;border-radius:16px;padding:12px 14px;display:grid;gap:8px}.autobox h2{margin:0;font-size:1.05rem;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.autobox .ncount{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.autobox .ncount div{background:rgba(31,157,85,.1);border-radius:10px;padding:8px;text-align:center}.autobox .ncount b{display:block;font-size:1.2rem}
+.apay{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;border-top:1px solid var(--line);padding-top:8px;font-size:.92rem}.apay span{color:var(--muted)}.apay .r{text-align:right}
 .newbox{background:var(--surface);border:2px solid var(--accent);border-radius:16px;padding:12px 14px;display:grid;gap:10px}
 .newbox h2{margin:0;font-size:1.05rem;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
 .ncount{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -89,6 +92,7 @@ h2{font-family:var(--display)}
   <p class="msg" id="msg">Waa la soo dejinayaa…</p>
   <div id="main" hidden style="display:grid;gap:14px">
     <section id="reqs" class="reqs" hidden></section>
+    <section id="autobox" class="autobox" hidden></section>
     <section id="newbox" class="newbox" aria-live="polite"></section>
     <div class="stats">
       <div class="stat"><small>Macaamiisha</small><b id="nAll">0</b><em id="nNew"></em></div>
@@ -270,7 +274,17 @@ function renderNew(cust){
   return fresh.length}
 document.addEventListener("click",e=>{if(e.target.closest("[data-seen]")){seen=Date.now();setSeen(seen);render();return}
   if(e.target.closest("[data-shownew]")){filt="new";$("q").value="";render();$("chips").scrollIntoView({behavior:"smooth",block:"start"})}});
-async function loadExtra(){const {data,error}=await sb.rpc("admin_signups");hasExtra=!error&&Array.isArray(data);extra={};if(hasExtra)data.forEach(r=>extra[r.id]=r)}
+/* ---------- ⚡ automatic payments (pay-auto Edge Function, autopay.sql) ---------- */
+async function loadAuto(){let data=null,error=null;try{({data,error}=await sb.from("payments").select("*").order("created_at",{ascending:false}).limit(200))}catch(e){error=e}
+  const box=$("autobox");if(error||!data?.length){box.hidden=true;return}
+  const t0=new Date();t0.setHours(0,0,0,0);const mon=+new Date(t0.getFullYear(),t0.getMonth(),1),ok=data.filter(x=>x.status==="approved");
+  const sum=a=>"$"+a.reduce((n,x)=>n+Number(x.amount||0),0).toFixed(0);
+  const pill={approved:["ok","✓ La bixiyay"],failed:["warn","✕ Fashil"],pending:["trial","⏳ Sugaya PIN"],unknown:["warn","? Hubi WaafiPay"]};
+  box.hidden=false;box.innerHTML=`<h2><span>⚡ Lacag-bixinta tooska ah</span><small class="msg" style="margin:0">Si toos ah ayay u furmeen · rasiid waa la diray</small></h2>
+    <div class="ncount"><div><b>${sum(ok.filter(x=>+new Date(x.created_at)>=+t0))}</b><small>Maanta</small></div><div><b>${sum(ok.filter(x=>+new Date(x.created_at)>=mon))}</b><small>Bishan</small></div><div><b>${ok.length}</b><small>Wadarta</small></div></div>`+
+    data.slice(0,8).map(x=>{const [c,t]=pill[x.status]||["",x.status];return `<div class="apay"><div><b>${esc(x.email||"")}</b> <span class="pill ${c}">${t}</span><br><span>${esc(x.method||"")} +${esc(x.phone||"")}${x.waafi_tx?" · Tix "+esc(x.waafi_tx):""}${x.status==="failed"&&x.error?" · "+esc(String(x.error).split(":")[0]):""}${x.receipt_no?" · 🧾 "+esc(x.receipt_no):""}</span></div>
+      <div class="r"><b>$${Number(x.amount).toFixed(0)}</b><br><span>${new Date(x.created_at).toLocaleString("en-GB",{dateStyle:"short",timeStyle:"short"})}</span></div></div>`}).join("")}
+async function loadExtra(){loadAuto();const {data,error}=await sb.rpc("admin_signups");hasExtra=!error&&Array.isArray(data);extra={};if(hasExtra)data.forEach(r=>extra[r.id]=r)}
 /* check for new sign-ups every minute while the page is open */
 setInterval(()=>{if(!document.hidden&&rows.length)load()},60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&rows.length)load()});
