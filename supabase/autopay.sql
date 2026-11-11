@@ -25,6 +25,7 @@ create table if not exists public.payments (
   created_at   timestamptz not null default now(),
   done_at      timestamptz
 );
+alter table public.payments add column if not exists source text;   -- toos (automatic) | gacanta (admin), shared with sales.sql
 create index if not exists payments_user_idx on public.payments (user_id, created_at desc);
 
 alter table public.payments enable row level security;

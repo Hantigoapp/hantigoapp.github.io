@@ -192,7 +192,7 @@ Deno.serve(async (req) => {
   if ((recent ?? []).length >= 8) return json({ ok: false, error: "limit" }, 429);
 
   const { data: pay, error: insErr } = await admin.from("payments")
-    .insert({ user_id: user.id, email: user.email, plan, amount, days: DAYS, phone, method }).select().single();
+    .insert({ user_id: user.id, email: user.email, plan, amount, days: DAYS, phone, method, source: "toos" }).select().single();
   if (insErr || !pay) return json({ ok: false, error: "db", detail: insErr?.message }, 500);
 
   let r: any = null;
