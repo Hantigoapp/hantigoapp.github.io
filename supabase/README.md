@@ -54,3 +54,6 @@ The service worker handles incoming Web Push events and notification clicks, inc
 ## Web Push deployment
 
 After applying `push_notifications.sql`, follow [`push_deployment.md`](push_deployment.md) to configure VAPID secrets, deploy the three Edge Functions, store the scheduler secret in Vault, and enable the cron job. The browser UI can request a subscription and send a test push. The scheduled worker currently sends only the daily check-in reminder; other alert types are not yet delivered in the background. Do not commit secrets or the service-role key.
+
+
+Use [`push_deployment.md`](push_deployment.md) for the VAPID, Edge Function, Vault, and cron setup. Use [`role_acceptance_tests.md`](role_acceptance_tests.md) for the owner/manager/staff isolation test matrix.
