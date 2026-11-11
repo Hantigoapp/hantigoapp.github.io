@@ -12,7 +12,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="HantiGo">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+/* Business Module Manager */
+.bm-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px}
+.bm-item{display:flex;gap:10px;align-items:flex-start;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--bg);cursor:pointer;min-width:0}
+.bm-item input{width:19px;height:19px;flex:none;margin:2px 0 0;accent-color:var(--accent)}
+.bm-item span{display:grid;gap:2px;min-width:0}.bm-item b{font-size:.92rem}.bm-item small{font-size:.78rem;color:var(--muted);line-height:1.35}
+.bm-caution{border-inline-start:3px solid var(--accent);padding:8px 10px;background:var(--accent-soft);border-radius:8px}
+#bmStatus.error{color:var(--out)}#bmStatus.ok{color:var(--in)}
+</style>
 <title>HantiGo</title>
 <script>try{document.documentElement.dataset.skin=localStorage.getItem("hantigo.skin")||"3"}catch{document.documentElement.dataset.skin="3"}</script>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1147,6 +1155,15 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
         <a class="dial manual" href="tel:*712*613735086*3%23"><span>📞</span><span><span class="pp-now">Bixi hadda $3</span><small>Riix, kadib geli PIN-ka EVC</small></span></a>
         <div class="goal-actions manual"><button type="button" id="copyCode">Koobiyee koodhka</button><span class="note" id="copyMsg" role="status"></span></div>
         <div class="evc manual"><span class="note">💳 WaafiPay</span><span><span>Fur app-ka</span> WaafiPay → <b>Lacag dir</b> → +252 61 373 5086 → <b class="pp">$3</b></span></div>
+      </section>
+
+      <section class="panel biz-only owner-only" aria-labelledby="bmH" data-tab="more" id="businessModulePanel">
+        <div class="panel-head"><h2 id="bmH">🧩 Maamulka qaybaha ganacsiga</h2><button type="button" id="bmReload">Dib u cusboonaysii</button></div>
+        <p class="note" style="margin:0">Hal shirkad waxaad ku dari kartaa dhowr nooc oo ganacsi ah. Dooro dhammaan qaybaha shirkaddaadu isticmaasho.</p>
+        <div id="bmStatus" class="note" role="status" aria-live="polite">Qaybaha waa la soo rarayaa…</div>
+        <div id="bmList" class="bm-list"></div>
+        <div class="goal-actions"><button type="button" class="primary" id="bmSave" disabled>Kaydi qaybaha la doortay</button><span class="note" id="bmCount"></span></div>
+        <p class="note bm-caution">Ogow: doorashadani waxay kaydinaysaa qaab-dhismeedka shirkadda. Shaashadaha iyo hawlaha gaarka ah ee qayb kasta wali waa la dhisayaa; doorashadu kaligeed ma hawlgelinayso nidaam dugsi, hoteel ama bakhaar.</p>
       </section>
 
       <section class="panel" aria-labelledby="remH" data-tab="more" id="remPanel">
@@ -3669,5 +3686,67 @@ if(!$("appView").hidden&&!pinUnlocked)pinLock();
 </script>
 <div id="printArea"></div>
 <script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{r.update();document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update()})}).catch(()=>{}));</script>
+<script>
+/* Business Module Manager UI — additive; does not alter existing ledger data. */
+(()=>{
+  const modules=[
+    ["education","Waxbarasho","Iskuul, jaamacad, arday iyo fiigo"],
+    ["hotel","Hoteel","Qolal, marti, boos-qabsi iyo adeegyo"],
+    ["restaurant","Maqaaxi / Maqaayad","Miisaska, dalabka cuntada iyo jikada"],
+    ["retail","Dukaan / Tafaariiq","Iibka tooska ah iyo alaabta"],
+    ["wholesale","Jumlad","Iibka jumlada iyo macaamiisha ganacsiga"],
+    ["construction","Dhismaha","Mashaariic, qandaraasyo iyo horumar"],
+    ["agriculture","Beeraha","Dalag, beer, goosasho iyo wax-soo-saar"],
+    ["livestock","Xoolaha","Xoolo, quudin, caafimaad iyo wax-soo-saar"],
+    ["transport","Gaadiid","Gaadiid, safarro, rakaab iyo rarid"],
+    ["manufacturing","Warshad / Wax-soo-saar","Wax-soo-saar, agab ceeriin iyo badeeco"],
+    ["services","Adeegyo","Shaqooyin, ballamo iyo adeeg macaamiil"],
+    ["fishing","Kalluumaysi","Doon, kalluun, qabasho iyo iib"]
+  ];
+  const $id=id=>document.getElementById(id);
+  let ready=false,busy=false,lastOwner="";
+  const ownerId=()=>typeof me!=="undefined"&&me?.id?me.id:"";
+  const setStatus=(message,kind="")=>{const el=$id("bmStatus");if(el){el.textContent=message;el.className="note "+kind}};
+  const count=()=>{const n=document.querySelectorAll("#bmList input:checked").length;const el=$id("bmCount");if(el)el.textContent=n+" qaybood ayaa la doortay";};
+  const render=enabled=>{
+    const list=$id("bmList");if(!list)return;list.replaceChildren();
+    modules.forEach(([id,name,desc])=>{
+      const label=document.createElement("label");label.className="bm-item";
+      const input=document.createElement("input");input.type="checkbox";input.value=id;input.checked=enabled.has(id);input.addEventListener("change",count);
+      const text=document.createElement("span"),title=document.createElement("b"),detail=document.createElement("small");
+      title.textContent=name;detail.textContent=desc;text.append(title,detail);label.append(input,text);list.append(label);
+    });
+    ready=true;$id("bmSave").disabled=false;count();
+  };
+  const load=async(force=false)=>{
+    const id=ownerId();if(!id||busy)return;if(!force&&lastOwner===id&&ready)return;
+    busy=true;ready=false;$id("bmSave").disabled=true;setStatus("Qaybaha shirkadda waa la soo rarayaa…");
+    try{
+      const {data,error}=await sb.rpc("business_modules_get",{p_owner:id});
+      if(error)throw error;if(!Array.isArray(data))throw new Error("Jawaabta server-ku ma ahayn liis sax ah.");
+      render(new Set(data.filter(x=>x.enabled).map(x=>x.module_id)));lastOwner=id;setStatus("Doorashada shirkadda waa la soo raray.","ok");
+    }catch(e){
+      lastOwner="";ready=false;setStatus("Ma suuragelin in qaybaha la soo raro. Hubi in migration-ka business_modules.sql lagu rakibay Supabase. Faahfaahin: "+(e?.message||"qalad aan la aqoon"),"error");$id("bmSave").disabled=true;
+    }finally{busy=false}
+  };
+  const save=async()=>{
+    if(!ready||busy)return;const selected=[...document.querySelectorAll("#bmList input:checked")].map(x=>x.value);
+    busy=true;$id("bmSave").disabled=true;setStatus("Doorashada waa la kaydinayaa…");
+    try{
+      const {error}=await sb.rpc("business_modules_set",{p_module_ids:selected});if(error)throw error;
+      setStatus("Waa la kaydiyay. "+selected.length+" qaybood ayaa shirkadda u shaqaynaya marka qaybahaas la dhammaystiro.","ok");count();
+    }catch(e){setStatus("Kaydintu ma guulaysan. Hubi in migration-ka la rakibay iyo in aad tahay milkiilaha shirkadda. "+(e?.message||""),"error")}
+    finally{busy=false;$id("bmSave").disabled=!ready}
+  };
+  const maybeLoad=()=>{
+    const app=$id("appView"),root=document.documentElement;
+    if(!app||app.hidden||root.dataset.mode!=="business"||root.classList.contains("in-team"))return;
+    if(ownerId())load(false);
+  };
+  $id("bmSave")?.addEventListener("click",save);$id("bmReload")?.addEventListener("click",()=>load(true));
+  const observer=new MutationObserver(maybeLoad);observer.observe(document.documentElement,{attributes:true,attributeFilter:["class","data-mode"]});
+  const app=$id("appView");if(app)observer.observe(app,{attributes:true,attributeFilter:["hidden","class"]});maybeLoad();
+})();
+</script>
 </body>
 </html>
