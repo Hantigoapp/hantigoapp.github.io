@@ -1,5 +1,6 @@
 -- HantiGo: harden table and helper-function privileges.
--- Run AFTER schema.sql, team.sql, isolation.sql, roles.sql and pricing.sql.
+-- Run AFTER schema.sql, team.sql, isolation.sql, roles.sql, pricing.sql,
+-- account.sql, location.sql, payment.sql, sales.sql and signups.sql.
 -- Safe to run repeatedly. Does not alter finance records or staff assignments.
 --
 -- SECURITY MODEL:
@@ -77,7 +78,7 @@ select c.relname as table_name, c.relrowsecurity as rls_enabled
 from pg_class c
 join pg_namespace n on n.oid = c.relnamespace
 where n.nspname = 'public'
-  and c.relname in ('profiles', 'user_data', 'team_members')
+  and c.relname in ('profiles', 'user_data', 'team_members', 'payments')
 order by c.relname;
 
 -- 6. Verification B: anon_can_execute should be false for every listed function.
@@ -100,7 +101,7 @@ select
   table_name, grantee, privilege_type
 from information_schema.role_table_grants
 where table_schema = 'public'
-  and table_name in ('profiles', 'user_data', 'team_members')
+  and table_name in ('profiles', 'user_data', 'team_members', 'payments')
   and grantee in ('anon', 'authenticated')
 order by table_name, grantee, privilege_type;
 
