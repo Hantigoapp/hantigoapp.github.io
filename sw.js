@@ -1,4 +1,4 @@
-const CACHE="hantigo-v96";
+const CACHE="hantigo-v97";
 // Everything the app needs to open and work with no internet (sign-in, lists, reports, PDF/Excel).
 const FILES=["./","index.html","admin.html","privacy.html","manifest.json","icon.svg","icon-192.png","icon-512.png",
   "vendor/supabase.js","vendor/591.supabase.js","vendor/jspdf.umd.min.js","vendor/exceljs.min.js","vendor/hg-arabic.ttf","vendor/hg-arabic-bold.ttf"];
@@ -19,7 +19,8 @@ self.addEventListener("push",e=>{
 });
 self.addEventListener("notificationclick",e=>{
   e.notification.close();
-  const target=new URL(e.notification.data?.url||"./",self.location.origin).href;
+  const requested=new URL(e.notification.data?.url||"./",self.location.origin);
+  const target=requested.origin===self.location.origin?requested.href:self.registration.scope;
   e.waitUntil(self.clients.matchAll({type:"window",includeUncontrolled:true}).then(list=>{
     for(const client of list){if(new URL(client.url).origin===self.location.origin){client.navigate(target);return client.focus()}}
     return self.clients.openWindow(target);
