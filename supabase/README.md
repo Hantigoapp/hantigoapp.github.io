@@ -40,3 +40,11 @@ Use test data. Do not use another person's account or real financial records to 
 ## Important
 
 Repository changes do not automatically update the Supabase database. The SQL files must be run in the Supabase project. This setup guide and hardening script do not certify the whole system as secure; verify the results and test the role boundaries before production use.
+
+## Role and RLS audit
+
+After applying all migrations, run `role_security_audit.sql` in the SQL Editor. It is read-only: it reports RLS flags, policies, table grants, role-aware RPC grants, and current staff roles. Review the results and complete the negative tests listed at the end with separate disposable accounts and dummy data. A SQL report alone does not prove that role boundaries work end-to-end.
+
+## Background notifications status
+
+The service worker handles incoming Web Push events and notification clicks, including when the HantiGo page is closed. This is only the browser-side receiver. Actual background delivery is **not yet configured**: it also requires VAPID keys, authenticated push-subscription storage, a trusted server-side sender (for example a Supabase Edge Function), and a scheduled job that evaluates each account's reminder preferences. Do not put VAPID private keys or a Supabase service-role key in `index.html` or any other public repository file. The current in-app reminder timer continues to work only while HantiGo is open.

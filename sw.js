@@ -6,6 +6,25 @@ self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>Promi
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
 // Network first for this site's own files (so updates arrive at once); with no or very slow internet the saved copy opens.
 // Account data from the server is never cached here: the app keeps it on the phone itself and syncs it safely.
+// Web Push arrives even when every HantiGo tab is closed. Never put account data in the payload.
+self.addEventListener("push",e=>{
+  let data={title:"HantiGo",body:"Waxaad haysaa xusuusin cusub."};
+  try{if(e.data){const incoming=e.data.json();data={...data,...incoming}}}catch{}
+  e.waitUntil(self.registration.showNotification(data.title||"HantiGo",{
+    body:String(data.body||"Xusuusin cusub"),
+    icon:"icon-192.png",badge:"icon-192.png",
+    tag:String(data.tag||"hantigo-push"),
+    data:{url:data.url||"./"}
+  }));
+});
+self.addEventListener("notificationclick",e=>{
+  e.notification.close();
+  const target=new URL(e.notification.data?.url||"./",self.location.origin).href;
+  e.waitUntil(self.clients.matchAll({type:"window",includeUncontrolled:true}).then(list=>{
+    for(const client of list){if(new URL(client.url).origin===self.location.origin){client.navigate(target);return client.focus()}}
+    return self.clients.openWindow(target);
+  }));
+});
 self.addEventListener("fetch",e=>{
   const u=new URL(e.request.url);
   if(e.request.method!=="GET"||u.origin!==location.origin)return;
