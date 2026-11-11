@@ -96,8 +96,10 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .dytag{font-size:.7rem;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--accent);color:#06121f}
 .dysum{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:flex-end;font-variant-numeric:tabular-nums;font-weight:600;font-size:.9rem}
 .dysum .in{color:var(--in)}.dysum .out{color:var(--out)}.dysum .nt{color:var(--muted);font-weight:500}
-.dyday[open]>summary{border-bottom:1px solid var(--line)}.dyday .list{padding:0 12px}.dyday .tx:first-child{border-top:0}.dyday .tx{grid-template-columns:auto minmax(0,1fr) auto}
+.dyday[open]>summary{border-bottom:1px solid var(--line)}.dyday .list{padding:0 12px}.dyday .tx:first-child{border-top:0}
 .dymore{justify-self:center}
+.dyday .tx{grid-template-columns:auto minmax(0,1fr) auto auto}#appView .dyday .dyed{font-size:.74rem;padding:4px 8px;white-space:nowrap}
+.dyqe{grid-column:1/-1;display:grid;gap:8px;padding:10px;border:1px solid var(--accent);border-radius:12px;background:var(--surface)}.dyqe .goal-actions{flex-wrap:wrap}.dyqe .err:empty{display:none}.dyok{grid-column:1/-1;justify-self:start;font-size:.8rem;font-weight:600;color:var(--in)}
 .list .dayh{display:grid;gap:4px;padding:14px 2px 6px;border-top:1px solid var(--line);font-size:.86rem}
 .list .dayh:first-child{border-top:0;padding-top:4px}.list .dayh b{font-size:.95rem}.list .dayh+.tx{border-top:0}
 .list .dayh .dysum{font-size:.84rem}
@@ -1681,7 +1683,25 @@ function dayGroups(txs){const m=new Map();txs.forEach(t=>{const k=t.date||"";if(
 const dayCount=n=>L(n+" qoraal",n+(n===1?" entry":" entries"),n+" معاملة","miamala "+n);
 function daySums(g){return `<span class="dysum">${g.si?`<span class="in">+${money(g.si)}</span>`:""}${g.so?`<span class="out">−${money(g.so)}</span>`:""}${g.si&&g.so?`<span class="nt">= ${g.net<0?"−":""}${money(Math.abs(g.net))}</span>`:""}</span>`}
 function dayHead(g){const d=dayDate(g.date);return `<span class="dyd">${d.rel?`<span class="dytag">${d.rel}</span>`:""}<b>${d.wd?d.wd+(RTL?"، ":", "):""}${d.full}</b></span><span class="dyl"><small>${dayCount(g.n)}</small>${daySums(g)}</span>`}
-let DY_ALL=false;
+let DY_ALL=false,QE=null,QOK=null;
+/* quick fix from the home day list: same rule as the Ku dar list (bill/debt/savings entries are changed where they were made) */
+const dyEditable=t=>!(t.billId||t.debtId||t.cat==="Kayd")&&(!TEAM||(t.by&&me&&t.by===me.email));   // staff fix only what they entered themselves
+function dyQeForm(t){return `<div class="dyqe" role="group" aria-label="${L("Beddel qadarka","Change the amount","تغيير المبلغ","Badilisha kiasi")}">
+  <label class="field"><span>${L("Qadarka saxda ah","Correct amount","المبلغ الصحيح","Kiasi sahihi")} (${currency()==="SOS"?"Sh":"$"})</span><input type="number" min="0" step="0.01" inputmode="decimal" id="qeAmt" value="${esc(String(t.amount))}"></label>
+  <div class="goal-actions"><button type="button" class="primary" data-qsave="${esc(t.id)}">${L("Kaydi","Save","حفظ","Hifadhi")}</button><button type="button" data-qcancel="1">${L("Jooji","Cancel","إلغاء","Ghairi")}</button><button type="button" class="del" data-qfull="${esc(t.id)}">${L("Wax kale beddel (qaybta, taariikhda…)","Change something else (category, date…)","تغيير شيء آخر (الفئة، التاريخ…)","Badilisha kingine (aina, tarehe…)")}</button></div>
+  <div class="err" id="qeErr" role="alert"></div></div>`}
+document.addEventListener("click",async e=>{
+  const q=e.target.closest("[data-qedit],[data-qsave],[data-qcancel],[data-qfull]");if(!q)return;e.preventDefault();
+  if(q.dataset.qedit){QE=QE===q.dataset.qedit?null:q.dataset.qedit;render();if(QE)setTimeout(()=>{const a=$("qeAmt");if(a){a.focus();a.select()}},50);return}
+  if(q.dataset.qcancel){QE=null;render();return}
+  const t=items.find(i=>i.id===(q.dataset.qsave||q.dataset.qfull));if(!t){QE=null;render();return}
+  if(q.dataset.qfull){QE=null;goTab("add");startEdit(t);return}
+  const v=parseFloat($("qeAmt")?.value);
+  if(!(v>0)){$("qeErr").textContent=L("Geli qadar ka weyn eber.","Enter an amount above zero.","أدخل مبلغًا أكبر من صفر.","Weka kiasi zaidi ya sifuri.");$("qeAmt")?.focus();return}
+  q.disabled=true;
+  try{await put({...t,amount:v});QE=null;QOK=t.id;render();setTimeout(()=>{if(QOK===t.id){QOK=null;render()}},4000)}
+  catch{q.disabled=false;$("qeErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Imeshindwa kuhifadhi sasa. Jaribu tena.")}});
+document.addEventListener("keydown",e=>{if(e.target?.id!=="qeAmt")return;if(e.key==="Enter"){e.preventDefault();document.querySelector("[data-qsave]")?.click()}else if(e.key==="Escape"){QE=null;render()}});
 function renderDays(month){const box=$("dyList");if(!box)return;
   $("dyMonth").textContent=MONTHS[view.getMonth()]+" "+view.getFullYear();
   if(mode==="loading"){box.innerHTML="";return}
@@ -1692,7 +1712,7 @@ function renderDays(month){const box=$("dyList");if(!box)return;
   box.innerHTML=show.map((g,i)=>`<details class="dyday" data-day="${esc(g.date)}"${(g.date in prev?prev[g.date]:g.date===today()||(first&&i===0))?" open":""}><summary>${dayHead(g)}</summary><ul class="list">${g.txs.map(t=>`<li class="tx">
       <span class="dot ${t.type}" aria-hidden="true">${t.type==="in"?"+":"−"}</span>
       <div style="min-width:0"><div class="name">${esc(T(t.cat))}<span class="pm">${esc(T(t.method||"Kaash"))}</span></div>${t.place||t.note||(t.by&&(TEAM||hasStaff))?`<div class="meta">${[t.place,t.note].filter(Boolean).map(esc).join(" · ")}${t.by&&(TEAM||hasStaff)?(t.place||t.note?" · ":"")+"👤 "+esc(t.by.split("@")[0]):""}</div>`:""}</div>
-      <span class="amt ${t.type}">${t.type==="in"?"+":"−"}${money(t.amount)}</span></li>`).join("")}</ul></details>`).join("")
+      <span class="amt ${t.type}">${t.type==="in"?"+":"−"}${money(t.amount)}</span>${dyEditable(t)?`<button type="button" class="del dyed" data-qedit="${esc(t.id)}" aria-label="${L("Beddel","Edit","تعديل","Hariri")}">✏️ ${L("Beddel","Edit","تعديل","Hariri")}</button>`:""}${QE===t.id?dyQeForm(t):""}${QOK===t.id?`<span class="dyok" role="status">✓ ${L("Waa la saxay","Corrected","تم التصحيح","Imesahihishwa")}</span>`:""}</li>`).join("")}</ul></details>`).join("")
     +(gs.length>7?`<button type="button" class="del dymore" id="dyMore">${DY_ALL?L("Muuji 7 maalmood oo kaliya","Show only 7 days","إظهار 7 أيام فقط","Onyesha siku 7 tu"):L("Eeg dhammaan maalmaha","See all days","عرض كل الأيام","Ona siku zote")+" ("+gs.length+")"}</button>`:"");
   $("dyMore")?.addEventListener("click",()=>{DY_ALL=!DY_ALL;renderDays(month)})}
 function render(){
