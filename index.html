@@ -536,6 +536,19 @@ button.plt[data-pl="up"].on{outline-color:#3ddc97}button.plt[data-pl="down"].on{
 .plcol .in{color:#8ff0c2}.plcol .out{color:#ffb3a6}
 .plbar{position:absolute;inset-inline-start:0;bottom:0;height:3px;border-radius:2px}
 .plbar.in{background:#3ddc97}.plbar.out{background:#ff7a66}
+.plcol li.plent{flex-wrap:wrap}
+.plcol li.plent .pln{flex:1 1 auto}
+.plcol li.plent .plbtn{min-height:34px;padding:4px 10px;font-size:.8rem;position:relative;z-index:1}
+.plcol li.plent .dyqe,.plcol li.plent .dyok{flex:1 1 100%;position:relative;z-index:1}
+.plcol li.plgrp{display:block;padding:0}
+.plcol li.plgrp summary{color:inherit;font-weight:inherit;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;position:relative}
+.plcol li.plgrp summary::-webkit-details-marker{display:none}
+.plcol li.plgrp details[open] summary{border-bottom:1px solid rgba(255,255,255,.1)}
+.plcol li.plgrp ul{max-height:none;padding:6px;gap:4px}
+.plcol li.plgrp li.plent{background:rgba(255,255,255,.04)}
+.pldl{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1)}
+.pldl span{grid-column:1/-1;font-size:.85rem;font-weight:700;opacity:.85}
+.pldl button{min-height:42px;padding:6px 8px;font-weight:700;white-space:nowrap}
 html:not([data-skin="3"]) .pldet{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.12)}
 html:not([data-skin="3"]) .plcol .in{color:#137a4b}html:not([data-skin="3"]) .plcol .out{color:#b3261e}
 /* summary tiles: two per row on phones, four on wide screens */
@@ -1799,26 +1812,66 @@ function renderPL(txs){const box=$("glPL");if(!box)return;
   if(!box.dataset.on){box.dataset.on=1;box.addEventListener("click",e=>{const b=e.target.closest("[data-plk]");if(!b||b.disabled)return;PLsel=PLsel===b.dataset.plk?null:b.dataset.plk;render();
     if(PLsel)setTimeout(()=>{const d=$("glPLd");d&&!d.hidden&&d.scrollIntoView({behavior:"smooth",block:"nearest"})},50)})}
   renderPLDetail(PLsel==="m"?mArr:PLsel==="d"?dArr:null,PLsel==="m"?mHead:L("Maanta","Today","اليوم","Leo"),PLsel==="m")}
-var PLsel=null;
+var PLsel=null,QESRC="",PLopen=new Set();
+var PLD=null;
+/* download the Bishan / Maanta profit-loss breakdown (Excel, Word, PDF) */
+function plParts(){const d=PLD,sm=a=>a.reduce((s,x)=>s+Number(x.amount||0),0);
+  const byCat=a=>{const m=new Map();a.forEach(x=>{const k=x.cat||"Kale",g=m.get(k)||{cat:k,amt:0,n:0};g.amt+=Number(x.amount||0);g.n++;m.set(k,g)});return [...m.values()].sort((a,b)=>b.amt-a.amt)};
+  const res=d.n<0?L("Khasaare","Loss","خسارة","Hasara"):d.n>0?L("Faa'iido","Profit","ربح","Faida"):L("Siman","Break-even","تعادل","Sawa");
+  const entries=[...d.ins,...d.outs].sort((a,b)=>(a.date+(a.created||"")).localeCompare(b.date+(b.created||"")));
+  return {res,inC:byCat(d.ins),outC:byCat(d.outs),entries,title:`${d.head}: ${res} (${d.from===d.to?d.from:d.from+" → "+d.to})`}}
+const plFile=ext=>`HantiGo-${brandName()}-${PLD.n<0?"khasaare":"faaiido"}-${PLD.from===PLD.to?PLD.from:PLD.from+"-"+PLD.to}.${ext}`.replace(/[^\w.@ -]+/g,"_");
+function plTables(){const d=PLD,P=plParts(),pct=(v,t)=>t?Math.round(v/t*100)+"%":"";
+  const H={cat:L("Qaybta","Category","الفئة","Aina"),n:L("Jeer","Times","مرات","Mara"),amt:L("Qadarka","Amount","المبلغ","Kiasi")};
+  const catT=(rows,tot)=>`<table><tr><th>${H.cat}</th><th>${H.n}</th><th>${H.amt}</th><th>%</th></tr>${rows.map(g=>`<tr><td>${esc(T(g.cat))}</td><td class="n">${g.n}</td><td class="n">${money(g.amt)}</td><td class="n">${pct(g.amt,tot)}</td></tr>`).join("")||`<tr><td colspan="4">—</td></tr>`}</table>`;
+  const sIn=`<h2>💰 ${L("Lacagta soo gashay","Money that came in","الأموال الواردة","Pesa iliyoingia")}</h2>${catT(P.inC,d.i)}`,sOut=`<h2>💸 ${L("Waxa lacagtu ku baxday","Where the money went","أين ذهبت الأموال","Pesa ilienda wapi")}</h2>${catT(P.outC,d.o)}`;
+  return `<h2>${L("Kooban","Summary")}</h2><table><tr><th>${L("Lacagta soo gashay","Income")}</th><th>${L("Kharashka","Spending")}</th><th>${P.res}</th></tr>
+  <tr><td class="n">${money(d.i)}</td><td class="n">${money(d.o)}</td><td class="n" style="color:${d.n<0?"#c0392b":"#0b7a4b"};font-weight:700">${d.n>0?"+":d.n<0?"−":""}${money(Math.abs(d.n))}</td></tr></table><p>${esc(d.why)}</p>
+  ${d.n<0?sOut+sIn:sIn+sOut}
+  <h2>${L("Qoraal kasta","Every entry","كل معاملة","Kila muamala")}</h2><table><tr><th>${L("Taariikhda","Date","التاريخ","Tarehe")}</th><th>${L("Nooca","Type","النوع","Aina")}</th><th>${H.cat}</th><th>${L("Meesha / faahfaahin","Place / details","المكان / التفاصيل","Mahali / maelezo")}</th><th>${H.amt}</th></tr>
+  ${P.entries.map(x=>`<tr><td>${esc(x.date||"")}</td><td>${x.type==="in"?L("Soo galay","In","دخل","Iliingia"):L("Ka baxay","Out","خرج","Ilitoka")}</td><td>${esc(T(x.cat||"Kale"))}</td><td>${esc([x.place,x.note&&x.note!=="Tusaale"?x.note:""].filter(Boolean).join(" · "))}</td><td class="n">${x.type==="in"?"+":"−"}${money(Number(x.amount||0))}</td></tr>`).join("")}</table>`}
+const plHead=()=>`${coHead()}<p>${L("Faa'iido / Khasaare","Profit / Loss","الربح / الخسارة","Faida / Hasara")}: <b>${esc(plParts().title)}</b> · ${esc(modeLabel())}</p>`;
+function plExport(k){if(!PLD)return;
+  if(k==="p"){$("printArea").innerHTML=plHead()+plTables()+stFoot();
+    document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
+    window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50);return}
+  if(k==="w"){const doc=`<html${RTL?' dir="rtl"':""} xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
+<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b}h2{font-size:13pt;margin-top:14pt}table{border-collapse:collapse;width:100%;margin:6pt 0}th,td{border:1px solid #999;padding:4pt 6pt;text-align:${RTL?"right":"left"}}th{background:#e8f5ee}.n{text-align:right}</style></head><body>${plHead()+plTables()+stFoot()}</body></html>`;
+    saveFile(plFile("doc"),"\ufeff"+doc,"application/msword");return}
+  const d=PLD,P=plParts(),H=[L("Qaybta","Category","الفئة","Aina"),L("Jeer","Times","مرات","Mara"),L("Qadarka","Amount","المبلغ","Kiasi"),"%"];
+  const cat=(rows,tot)=>rows.map(g=>[T(g.cat),g.n,g.amt,tot?g.amt/tot:0]);
+  const secIn={title:"💰 "+L("Lacagta soo gashay","Money that came in","الأموال الواردة","Pesa iliyoingia"),head:H,rows:[...cat(P.inC,d.i),[L("Wadarta","Total"),d.ins.length,d.i,d.i?1:0]],totalRow:1};
+  const secOut={title:"💸 "+L("Waxa lacagtu ku baxday","Where the money went","أين ذهبت الأموال","Pesa ilienda wapi"),head:H,rows:[...cat(P.outC,d.o),[L("Wadarta","Total"),d.outs.length,d.o,d.o?1:0]],totalRow:1};
+  exportSheet(L("Faa'iido / Khasaare","Profit / Loss","الربح / الخسارة","Faida / Hasara")+": "+P.title,[
+    {title:L("Kooban","Summary"),colorFirst:1,head:[L("Lacagta soo gashay","Income"),L("Kharashka","Spending"),P.res],rows:[[d.i,d.o,d.n]]},
+    ...(d.n<0?[secOut,secIn]:[secIn,secOut]),
+    {title:L("Qoraal kasta","Every entry","كل معاملة","Kila muamala"),head:[L("Taariikhda","Date","التاريخ","Tarehe"),L("Nooca","Type","النوع","Aina"),H[0],L("Meesha / faahfaahin","Place / details","المكان / التفاصيل","Mahali / maelezo"),H[2]],
+      rows:P.entries.map(x=>[x.date||"",x.type==="in"?L("Soo galay","In","دخل","Iliingia"):L("Ka baxay","Out","خرج","Ilitoka"),T(x.cat||"Kale"),[x.place,x.note&&x.note!=="Tusaale"?x.note:""].filter(Boolean).join(" · "),x.type==="in"?Number(x.amount||0):-Number(x.amount||0)])}
+  ],plFile("x").slice(0,-2))}
 function renderPLDetail(arr,head,month){const box=$("glPLd");if(!box)return;
   if(!arr||!arr.length){box.hidden=true;box.innerHTML="";return}
   const ins=arr.filter(x=>x.type==="in"),outs=arr.filter(x=>x.type==="out"),sm=a=>a.reduce((s,x)=>s+Number(x.amount||0),0),i=sm(ins),o=sm(outs),n=i-o;
   const sd=iso=>{const d=new Date(iso+"T00:00");return isNaN(d)?esc(iso||""):d.getDate()+" "+MONTHS[d.getMonth()]};
   /* a month: one row per category (how many times, total); a day: every entry */
-  const rows=(a,type)=>{let r;
-    if(month){const m=new Map();a.forEach(x=>{const k=x.cat||"Kale";const g=m.get(k)||{cat:k,amt:0,n:0,last:""};g.amt+=Number(x.amount||0);g.n++;if((x.date||"")>g.last)g.last=x.date||"";m.set(k,g)});
-      r=[...m.values()].sort((a,b)=>b.amt-a.amt).map(g=>({t:T(g.cat),s:(g.n>1?L(g.n+" jeer",g.n+" times",g.n+" مرات",g.n+" mara"):sd(g.last)),amt:g.amt}))}
-    else r=[...a].sort((x,y)=>Number(y.amount||0)-Number(x.amount||0)).map(x=>({t:T(x.cat||"Kale"),s:[x.place,x.note&&x.note!=="Tusaale"?x.note:""].filter(Boolean).join(" · "),amt:Number(x.amount||0)}));
-    const tot=sm(a);
-    return r.map(x=>`<li><span class="pln"><b>${esc(x.t)}</b>${x.s?`<small>${esc(x.s)}</small>`:""}</span><span class="pla ${type}">${type==="in"?"+":"−"}${money(x.amt)}</span><i class="plbar ${type}" style="width:${tot?Math.max(3,Math.round(x.amt/tot*100)):0}%"></i></li>`).join("")};
+  /* a month: one row per category (tap to see its entries); a day: every entry. Each entry has ✏️ Beddel (same rule as Maalin-maalin) */
+  const ent=(x,showDate)=>`<li class="plent" data-plid="${esc(x.id)}"><span class="pln"><b>${esc(T(x.cat||"Kale"))}</b>${(()=>{const sub=[showDate?sd(x.date):"",x.place,x.note&&x.note!=="Tusaale"?x.note:"",x.by&&(TEAM||hasStaff)?"👤 "+x.by.split("@")[0]:""].filter(Boolean).join(" · ");return sub?`<small>${esc(sub)}</small>`:""})()}</span><span class="pla ${x.type}">${x.type==="in"?"+":"−"}${money(Number(x.amount||0))}</span>${dyEditable(x)?`<button type="button" class="del dyed plbtn" data-qedit="${esc(x.id)}" data-qsrc="pl">✏️ ${L("Beddel","Edit","تعديل","Hariri")}</button>`:""}${QE===x.id&&QESRC==="pl"?dyQeForm(x):""}${QOK===x.id?`<span class="dyok" role="status">✓ ${L("Waa la saxay","Corrected","تم التصحيح","Imesahihishwa")}</span>`:""}</li>`;
+  const rows=(a,type)=>{const tot=sm(a),bar=v=>`<i class="plbar ${type}" style="width:${tot?Math.max(3,Math.round(v/tot*100)):0}%"></i>`;
+    if(!month)return [...a].sort((x,y)=>Number(y.amount||0)-Number(x.amount||0)).map(x=>ent(x,false).replace("</li>",bar(Number(x.amount||0))+"</li>")).join("");
+    const m=new Map();a.forEach(x=>{const k=x.cat||"Kale";const g=m.get(k)||{cat:k,amt:0,n:0,last:"",l:[]};g.amt+=Number(x.amount||0);g.n++;g.l.push(x);if((x.date||"")>g.last)g.last=x.date||"";m.set(k,g)});
+    return [...m.values()].sort((a,b)=>b.amt-a.amt).map(g=>{const k=type+"|"+g.cat,op=PLopen.has(k)||g.l.some(x=>x.id===QE||x.id===QOK);
+      return `<li class="plgrp"><details data-plcat="${esc(k)}"${op?" open":""}><summary><span class="pln"><b>${esc(T(g.cat))}</b><small>${g.n>1?L(g.n+" jeer",g.n+" times",g.n+" مرات",g.n+" mara"):sd(g.last)} · ${L("riix si aad u aragto","tap to see","اضغط للعرض","gusa kuona")}</small></span><span class="pla ${type}">${type==="in"?"+":"−"}${money(g.amt)}</span>${bar(g.amt)}</summary><ul>${g.l.sort((x,y)=>(y.date||"").localeCompare(x.date||"")).map(x=>ent(x,true)).join("")}</ul></details></li>`}).join("")};
   const col=(type,a,title,empty)=>`<div class="plcol"><h4>${title}<span class="${type}">${type==="in"?"+":"−"}${money(sm(a))}</span></h4>${a.length?`<ul>${rows(a,type)}</ul>`:`<p class="note">${empty}</p>`}</div>`;
   const cIn=col("in",ins,"💰 "+L("Lacagta soo gashay","Money that came in","الأموال الواردة","Pesa iliyoingia"),L("Wax lacag ah ma soo gelin.","No money came in.","لم يدخل أي مال.","Hakuna pesa iliyoingia."));
   const cOut=col("out",outs,"💸 "+L("Waxa lacagtu ku baxday","Where the money went","أين ذهبت الأموال","Pesa ilienda wapi"),L("Wax kharash ah lama qorin.","No spending recorded.","لا مصاريف مسجلة.","Hakuna matumizi yaliyorekodiwa."));
-  const why=n<0?L(`Kharashka (${money(o)}) ayaa ka badnaa lacagta soo gashay (${money(i)}) , sidaas ayaa khasaare ${money(-n)} u dhacay.`,`Spending (${money(o)}) was more than income (${money(i)}), so the loss is ${money(-n)}.`,`المصاريف (${money(o)}) أكثر من الدخل (${money(i)})، لذلك الخسارة ${money(-n)}.`,`Matumizi (${money(o)}) yalizidi mapato (${money(i)}), kwa hiyo hasara ni ${money(-n)}.`)
+  const why=n<0?L(`Kharashka (${money(o)}) ayaa ka badnaa lacagta soo gashay (${money(i)}), sidaas ayaa khasaare ${money(-n)} u dhacay.`,`Spending (${money(o)}) was more than income (${money(i)}), so the loss is ${money(-n)}.`,`المصاريف (${money(o)}) أكثر من الدخل (${money(i)})، لذلك الخسارة ${money(-n)}.`,`Matumizi (${money(o)}) yalizidi mapato (${money(i)}), kwa hiyo hasara ni ${money(-n)}.`)
     :n>0?L(`Lacagta soo gashay (${money(i)}) ayaa ka badnayd kharashka (${money(o)}): faa'iido ${money(n)}.`,`Income (${money(i)}) was more than spending (${money(o)}): a profit of ${money(n)}.`,`الدخل (${money(i)}) أكثر من المصاريف (${money(o)}): ربح ${money(n)}.`,`Mapato (${money(i)}) yalizidi matumizi (${money(o)}): faida ya ${money(n)}.`)
     :L("Lacagta soo gashay iyo kharashku waa isku mid.","Income and spending are equal.","الدخل والمصاريف متساويان.","Mapato na matumizi ni sawa.");
   box.dataset.pl=n<0?"down":n>0?"up":"zero";
-  box.innerHTML=`<div class="plhd"><b>${esc(head)}: ${n<0?"📉 "+L("Khasaare","Loss","خسارة","Hasara"):n>0?"📈 "+L("Faa'iido","Profit","ربح","Faida"):"➖ "+L("Siman","Break-even","تعادل","Sawa")} ${n>0?"+":n<0?"−":""}${money(Math.abs(n))}</b><button type="button" class="plx" aria-label="${L("Xir","Close","إغلاق","Funga")}">✕</button></div><p class="plwhy">${why}</p><div class="plcols">${n<0?cOut+cIn:cIn+cOut}</div>`;
+  const per=month?(()=>{const y=view.getFullYear(),m=view.getMonth(),z=x=>String(x).padStart(2,"0");return {from:`${y}-${z(m+1)}-01`,to:`${y}-${z(m+1)}-${z(new Date(y,m+1,0).getDate())}`}})():{from:today(),to:today()};
+  PLD={head,month,ins,outs,i,o,n,why,...per};
+  box.innerHTML=`<div class="plhd"><b>${esc(head)}: ${n<0?"📉 "+L("Khasaare","Loss","خسارة","Hasara"):n>0?"📈 "+L("Faa'iido","Profit","ربح","Faida"):"➖ "+L("Siman","Break-even","تعادل","Sawa")} ${n>0?"+":n<0?"−":""}${money(Math.abs(n))}</b><button type="button" class="plx" aria-label="${L("Xir","Close","إغلاق","Funga")}">✕</button></div><p class="plwhy">${why}</p><div class="plcols">${n<0?cOut+cIn:cIn+cOut}</div><div class="pldl"><span>${L("Soo deji:","Download:","تنزيل:","Pakua:")}</span><button type="button" data-pldl="x">⬇ Excel</button><button type="button" data-pldl="w">⬇ Word</button>${NATIVE?"":`<button type="button" data-pldl="p">🖨 PDF</button>`}</div>`;
+  box.querySelectorAll("[data-pldl]").forEach(b=>b.onclick=()=>plExport(b.dataset.pldl));
+  box.querySelectorAll("details[data-plcat]").forEach(d=>d.addEventListener("toggle",()=>{if(d.open)PLopen.add(d.dataset.plcat);else PLopen.delete(d.dataset.plcat)}));
   box.querySelector(".plx").onclick=()=>{PLsel=null;render()};box.hidden=false}
 function initFold(){document.querySelectorAll("[data-fold]").forEach(p=>{const head=p.querySelector(".panel-head");if(!head||head.querySelector(".foldbtn"))return;
   const k="hantigo.fold."+p.dataset.fold;let v=null;try{v=localStorage.getItem(k)}catch{}
@@ -1991,7 +2044,7 @@ function dyQeForm(t){return `<div class="dyqe" role="group" aria-label="${L("Bed
   <div class="err" id="qeErr" role="alert"></div></div>`}
 document.addEventListener("click",async e=>{
   const q=e.target.closest("[data-qedit],[data-qsave],[data-qcancel],[data-qfull]");if(!q)return;e.preventDefault();
-  if(q.dataset.qedit){QE=QE===q.dataset.qedit?null:q.dataset.qedit;render();if(QE)setTimeout(()=>{const a=$("qeAmt");if(a){a.focus();a.select()}},50);return}
+  if(q.dataset.qedit){QESRC=q.dataset.qsrc||"dy";QE=QE===q.dataset.qedit?null:q.dataset.qedit;render();if(QE)setTimeout(()=>{const a=$("qeAmt");if(a){a.focus();a.select()}},50);return}
   if(q.dataset.qcancel){QE=null;render();return}
   const t=items.find(i=>i.id===(q.dataset.qsave||q.dataset.qfull));if(!t){QE=null;render();return}
   if(q.dataset.qfull){QE=null;goTab("add");startEdit(t);return}
@@ -2014,7 +2067,7 @@ function renderDays(month){const box=$("dyList");if(!box)return;const ab=$("dyAn
   box.innerHTML=show.map((g,i)=>`<details class="dyday" data-day="${esc(g.date)}"${(g.date in prev?prev[g.date]:g.date===today()||(first&&i===0))?" open":""}><summary>${dayHead(g)}</summary><ul class="list">${g.txs.map(t=>`<li class="tx">
       <span class="dot ${t.type}" aria-hidden="true">${t.type==="in"?"+":"−"}</span>
       <div style="min-width:0"><div class="name">${esc(T(t.cat))}<span class="pm">${esc(T(t.method||"Kaash"))}</span></div>${t.place||t.note||(t.by&&(TEAM||hasStaff))?`<div class="meta">${[t.place,t.note].filter(Boolean).map(esc).join(" · ")}${t.by&&(TEAM||hasStaff)?(t.place||t.note?" · ":"")+"👤 "+esc(t.by.split("@")[0]):""}</div>`:""}</div>
-      <span class="amt ${t.type}">${t.type==="in"?"+":"−"}${money(t.amount)}</span>${dyEditable(t)?`<button type="button" class="del dyed" data-qedit="${esc(t.id)}" aria-label="${L("Beddel","Edit","تعديل","Hariri")}">✏️ ${L("Beddel","Edit","تعديل","Hariri")}</button>`:""}${QE===t.id?dyQeForm(t):""}${QOK===t.id?`<span class="dyok" role="status">✓ ${L("Waa la saxay","Corrected","تم التصحيح","Imesahihishwa")}</span>`:""}</li>`).join("")}</ul>${dyAddBtns(g.date)}</details>`).join("")
+      <span class="amt ${t.type}">${t.type==="in"?"+":"−"}${money(t.amount)}</span>${dyEditable(t)?`<button type="button" class="del dyed" data-qedit="${esc(t.id)}" aria-label="${L("Beddel","Edit","تعديل","Hariri")}">✏️ ${L("Beddel","Edit","تعديل","Hariri")}</button>`:""}${QE===t.id&&QESRC!=="pl"?dyQeForm(t):""}${QOK===t.id?`<span class="dyok" role="status">✓ ${L("Waa la saxay","Corrected","تم التصحيح","Imesahihishwa")}</span>`:""}</li>`).join("")}</ul>${dyAddBtns(g.date)}</details>`).join("")
     +(gs.length>7?`<button type="button" class="del dymore" id="dyMore">${DY_ALL?L("Muuji 7 maalmood oo kaliya","Show only 7 days","إظهار 7 أيام فقط","Onyesha siku 7 tu"):L("Eeg dhammaan maalmaha","See all days","عرض كل الأيام","Ona siku zote")+" ("+gs.length+")"}</button>`:"");
   $("dyMore")?.addEventListener("click",()=>{DY_ALL=!DY_ALL;renderDays(month)})}
 function render(){
