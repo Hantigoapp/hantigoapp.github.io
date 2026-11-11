@@ -20,6 +20,7 @@ This folder contains the database setup and feature migrations used by HantiGo. 
 13. `push_notifications.sql` — private, RLS-protected browser push subscriptions and preferences.
 14. `activity.sql` — activity history: a trigger on `user_data` records every add / correction / delete (who, when, before/after) in `activity_log`; read through `activity_list` (owner: all, manager: company, staff: own). Until it is run, the app hides the history panel.
 15. `business_modules.sql` — additive Business Module Manager backend foundation: module catalog, company-scoped selections, and owner/member-checked RPCs. Run only after the existing migrations above.
+16. `education.sql` — first operational module: company-scoped classes, students and fee payments, with role-checked RPCs. Run after `business_modules.sql`.
 
 Run each file once in this order. If you are updating an existing deployment, review the file comments and take a database backup before applying migrations.
 
@@ -36,7 +37,7 @@ The new `business_modules.sql` migration is **not applied automatically** by a G
 7. Test with disposable accounts: owner can read/update their own module selection; a member can read only their company's selection; a member cannot update it; a user from another company cannot read it.
 8. Confirm existing Shakhsi/Shirkad, team, finance, export and offline flows still work.
 
-The migration seeds stable IDs for Education, Hotel, Restaurant, Retail, Wholesale, Construction, Agriculture, Livestock, Transport, Manufacturing, Services and Fishing. It does not yet add the app UI or operational screens for those modules. Disabling a module stores `enabled = false`; it does not delete module data.
+The migration seeds stable IDs for Education, Hotel, Restaurant, Retail, Wholesale, Construction, Agriculture, Livestock, Transport, Manufacturing, Services and Fishing. The app includes the module selection UI. Education is the first module with operational tables and a basic app screen; the other modules do not yet have operational screens. Disabling a module stores `enabled = false`; it does not delete module data.
 
 ## Verification after setup
 
@@ -79,4 +80,4 @@ Use [`push_deployment.md`](push_deployment.md) for the VAPID, Edge Function, Vau
 
 The `index.html` settings screen includes an owner-only Business Module Manager under **Akoon** for Shirkad accounts. It reads and saves selected module IDs through `business_modules_get` and `business_modules_set`. It fails safely if the migration is not installed; the rest of HantiGo Core remains available.
 
-The current screen stores module selection only. Module-specific workflows (school management, hotel operations, restaurant orders, stock, transport, and other module screens) are not implemented by this settings screen. Apply and verify `business_modules.sql` on staging before testing the UI. The service worker cache was bumped so installed PWAs pick up the updated page.
+The current screen stores module selection only. Module-specific workflows (school management, hotel operations, restaurant orders, stock, transport, and other module screens) are not implemented by this settings screen. Apply and verify `business_modules.sql` and `education.sql` on staging before testing the Education UI. The service worker cache was bumped so installed PWAs pick up the updated page. The Education screen supports class and student registration and recording fee payments; it does not yet generate invoices, automate EVC/WaafiPay collection, or connect student transport.
