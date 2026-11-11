@@ -30,7 +30,7 @@ New file: `supabase/business_modules.sql`.
 - Enables RLS and revokes direct client table access; authenticated clients use the guarded RPCs.
 - Includes SQL verification queries.
 
-**Important:** this is a migration file only. It has not been executed against Supabase, and the UI does not call these RPCs yet. Back up/stage and run it manually only after reviewing it.
+**Important:** the migration has not been executed against Supabase. The UI integration is committed, but it cannot load or save selections until the migration is applied and verified. Back up/stage and run it manually only after reviewing it.
 
 ## Architecture
 
@@ -44,15 +44,16 @@ New file: `supabase/business_modules.sql`.
 ## Remaining rollout
 
 ### Phase 1 — Backend verification
-- Review and run the migration in staging or after a fresh backup.
-- Verify RLS, grants, RPC execution and cross-company negative tests.
-- Confirm existing app and offline flows are unaffected.
+- [ ] Review and run the migration in staging or after a fresh backup.
+- [ ] Verify RLS, grants, RPC execution and cross-company negative tests.
+- [ ] Confirm existing app and offline flows are unaffected.
 
-### Phase 2 — UI integration
-- Add a Module Manager screen as a separate feature entry point.
-- Render only modules returned as enabled for the active company.
-- Keep existing navigation and Core screens available.
-- Add feature flags and a safe fallback if module settings cannot load.
+### Phase 2 — UI integration (initial settings screen committed)
+- Added an owner-only **Akoon → Maamulka qaybaha ganacsiga** screen for Shirkad accounts.
+- Loads the module catalog and enabled selections through `business_modules_get` and saves through `business_modules_set`.
+- Uses safe text rendering and displays a clear setup error if the RPC migration is missing; it does not block HantiGo Core.
+- Selection is configuration only: module-specific operational screens are not yet implemented.
+- Next: verify on staging, then add a navigation registry and module screens one at a time.
 
 ### Phase 3 — First business module
 - Start with Education as the first module, then validate the pattern before adding more modules.
