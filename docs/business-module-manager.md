@@ -59,7 +59,7 @@ New file: `supabase/business_modules.sql`.
 ### Phase 3 — First business module (Education initial version committed)
 - Added `supabase/education.sql` with company-scoped classes, students and fee-payment records.
 - Added guarded RPCs for reading data, creating/updating classes and students, recording payments, and deleting records.
-- Authorization checks company membership/manager role and requires the Education module to be enabled. Fee history is protected from accidental deletion when a student has payments; classes with enrolled students cannot be deleted.
+- Authorization checks company membership/manager role and requires the Education module to be enabled. Recorded fee-payment history is immutable through the module UI/RPC; corrections and refunds need a separate auditable workflow. Students with payment history cannot be deleted, and classes with enrolled students cannot be deleted.
 - Added an Education screen under Akoon/More for business accounts: class registration, student registration, fee-payment entry, summary counts and record lists.
 - The current UI is an initial operational foundation. It does not yet include attendance, exams, timetables, automated invoices, EVC/WaafiPay collection, parent portal, student transport, or offline sync for Education records.
 
