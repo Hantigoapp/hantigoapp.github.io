@@ -1177,7 +1177,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
         <p class="note bm-caution">Ogow: doorashadani waxay kaydinaysaa qaab-dhismeedka shirkadda. Shaashadaha iyo hawlaha gaarka ah ee qayb kasta wali waa la dhisayaa; doorashadu kaligeed ma hawlgelinayso nidaam dugsi, hoteel ama bakhaar.</p>
       </section>
 
-      <section class="panel biz-only owner-only" aria-labelledby="eduH" data-tab="more" id="educationPanel">
+      <section class="panel biz-only mgr-only" aria-labelledby="eduH" data-tab="more" id="educationPanel">
         <div class="panel-head"><h2 id="eduH">🎓 Maamulka iskuulka</h2><button type="button" id="eduReload">Cusboonaysii</button></div>
         <p class="note" style="margin:0">Maamul fasallada, ardayda iyo lacagaha waxbarashada. Xogtu waxay ku xiran tahay shirkaddan oo keliya.</p>
         <div id="eduStatus" class="note" role="status" aria-live="polite">Sugaya in Education module la doorto…</div>
@@ -3810,7 +3810,7 @@ if(!$("appView").hidden&&!pinUnlocked)pinLock();
 (()=>{
  const $=id=>document.getElementById(id), today=new Date().toISOString().slice(0,10);
  let data={classes:[],students:[],payments:[]},busy=false,loadedOwner="";
- const owner=()=>typeof me!=="undefined"&&me?.id?me.id:"";
+ const owner=()=>typeof TEAM!=="undefined"&&TEAM?TEAM:(typeof me!=="undefined"&&me?.id?me.id:"");
  const status=(msg,kind="")=>{$("eduStatus").textContent=msg;$("eduStatus").className="note "+kind};
  const esc=s=>String(s??"");
  const call=async(name,args)=>{if(!sb)throw new Error("Adeegga xogta lama helin.");const {data,error}=await sb.rpc(name,args);if(error)throw error;return data};
@@ -3857,7 +3857,7 @@ if(!$("appView").hidden&&!pinUnlocked)pinLock();
    if(!record.enrolled_on&&form.id==="eduStudentForm")record.enrolled_on=today;
    if(!record.paid_on&&form.id==="eduPaymentForm")record.paid_on=today;
    busy=true;status("Xogta waa la kaydinayaa…");
-   try{await call(rpc,makeArgs(owner(),record));form.reset();if(form.id==="eduStudentForm")form.elements.enrolled_on.value=today;if(form.id==="eduPaymentForm")form.elements.paid_on.value=today;loadedOwner="";await load(true);status(msg,"ok")}
+   try{await call(rpc,makeArgs(owner(),record));form.reset();if(form.id==="eduStudentForm")form.elements.enrolled_on.value=today;if(form.id==="eduPaymentForm")form.elements.paid_on.value=today;busy=false;loadedOwner="";await load(true);status(msg,"ok")}
    catch(e){status("Kaydintu ma guulaysan: "+(e?.message||""),"error")}
    finally{busy=false}
  };
@@ -3870,12 +3870,12 @@ if(!$("appView").hidden&&!pinUnlocked)pinLock();
    const kind=btn.dataset.eduDelete,id=btn.dataset.id;
    if(!confirm("Ma hubtaa inaad tirtirayso diiwaankan?"))return;
    busy=true;status("Diiwaanka waa la tirtirayaa…");
-   try{await call("education_record_delete",{p_owner:owner(),p_kind:kind,p_id:id});loadedOwner="";await load(true);status("Diiwaanka waa la tirtiray.","ok")}
+   try{await call("education_record_delete",{p_owner:owner(),p_kind:kind,p_id:id});busy=false;loadedOwner="";await load(true);status("Diiwaanka waa la tirtiray.","ok")}
    catch(err){status("Tirtiriddu ma suurtagelin: "+(err?.message||""),"error")}
    finally{busy=false}
  });
  ["eduStudentForm","eduPaymentForm"].forEach(id=>{const el=$(id);const date=el.querySelector('input[type="date"]');if(date)date.value=today});
- const maybe=()=>{const app=$("appView");if(app&&!app.hidden&&document.documentElement.dataset.mode==="business"&&!document.documentElement.classList.contains("in-team")&&owner())load(false)};
+ const maybe=()=>{const app=$("appView");if(app&&!app.hidden&&document.documentElement.dataset.mode==="business"&&owner())load(false)};
  const obs=new MutationObserver(maybe);obs.observe(document.documentElement,{attributes:true,attributeFilter:["data-mode","class"]});
  const app=$("appView");if(app)obs.observe(app,{attributes:true,attributeFilter:["hidden"]});maybe();
 })();
