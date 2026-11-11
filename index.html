@@ -457,6 +457,32 @@ html[dir="rtl"] .plt .plv{text-align:right}
 html:not([data-skin="3"]) .plt[data-pl="up"] .plk,html:not([data-skin="3"]) .plt[data-pl="up"] .plv{color:#137a4b}
 html:not([data-skin="3"]) .plt[data-pl="down"] .plk,html:not([data-skin="3"]) .plt[data-pl="down"] .plv{color:#b3261e}
 html:not([data-skin="3"]) .plt{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.1)}
+button.plt{font:inherit;color:inherit;text-align:start;cursor:pointer;min-height:0;width:100%;align-items:stretch}
+button.plt:disabled{cursor:default;opacity:1}
+button.plt:not(:disabled):hover{filter:brightness(1.12)}
+button.plt.on{outline:2px solid currentColor;outline-offset:1px}
+button.plt[data-pl="up"].on{outline-color:#3ddc97}button.plt[data-pl="down"].on{outline-color:#ff7a66}
+.plt .plmore{font-size:.74rem;font-weight:700;margin-top:4px;opacity:.9;text-decoration:underline;text-underline-offset:3px}
+.pldet{border-radius:14px;padding:12px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.12);margin:2px 0 4px}
+.pldet[data-pl="down"]{border-color:rgba(255,122,102,.5)}.pldet[data-pl="up"]{border-color:rgba(61,220,151,.45)}
+.pldet .plhd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pldet .plhd b{font-size:1rem;overflow-wrap:anywhere}
+.pldet .plx{min-height:0;width:34px;height:34px;padding:0;border-radius:50%;flex:0 0 auto}
+.pldet .plwhy{margin:6px 0 10px;font-size:.86rem;opacity:.9}
+.plcols{display:grid;gap:12px}
+@media (min-width:640px){.plcols{grid-template-columns:1fr 1fr}}
+.plcol h4{margin:0 0 6px;font-size:.9rem;display:flex;justify-content:space-between;gap:8px}
+.plcol h4 span{direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.plcol ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:340px;overflow:auto}
+.plcol li{position:relative;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.05);overflow:hidden}
+.plcol .pln{display:flex;flex-direction:column;min-width:0;position:relative;z-index:1}
+.plcol .pln b{font-size:.9rem;overflow-wrap:anywhere}.plcol .pln small{font-size:.74rem;opacity:.75;overflow-wrap:anywhere}
+.plcol .pla{font-weight:800;white-space:nowrap;position:relative;z-index:1;direction:ltr;unicode-bidi:isolate}
+.plcol .in{color:#8ff0c2}.plcol .out{color:#ffb3a6}
+.plbar{position:absolute;inset-inline-start:0;bottom:0;height:3px;border-radius:2px}
+.plbar.in{background:#3ddc97}.plbar.out{background:#ff7a66}
+html:not([data-skin="3"]) .pldet{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.12)}
+html:not([data-skin="3"]) .plcol .in{color:#137a4b}html:not([data-skin="3"]) .plcol .out{color:#b3261e}
 /* summary tiles: two per row on phones, four on wide screens */
 #appView .summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 #appView .summary .stat:not(.bal):not(.top-spend){padding:12px 14px}
@@ -669,7 +695,8 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
   <section class="summary" aria-label="Kooban" data-tab="home">
     <div class="stat bal glance">
       <div class="gl-top"><span class="glmode" id="glMode"></span><span class="glst" id="glState"></span></div>
-      <div class="glpl" id="glPL" aria-live="polite"></div>
+      <div class="glpl" id="glPL"></div>
+      <div class="pldet" id="glPLd" aria-live="polite" hidden></div>
       <span class="lbl">Lacagta akoonkaaga</span><span class="val" id="sBal">0</span>
       <div class="glbar" aria-hidden="true"><i id="glBar"></i></div><p class="glsum" id="glSum"></p>
       <div class="methods" id="sMethods"></div>
@@ -1541,10 +1568,37 @@ function renderPL(txs){const box=$("glPL");if(!box)return;
     const k=pl==="up"?"📈 "+L("Faa'iido","Profit","ربح","Faida"):pl==="down"?"📉 "+L("Khasaare","Loss","خسارة","Hasara"):pl==="zero"?"➖ "+L("Siman","Break-even","تعادل","Sawa"):"";
     const v=pl==="none"?"—":(n>0?"+":n<0?"−":"")+money(Math.abs(n));
     const d=pl==="none"?L("Weli waxba lama qorin","Nothing recorded yet","لا شيء مسجل بعد","Hakuna kilichorekodiwa bado"):`${L("Soo galay","In","دخل","Iliingia")} ${money(i)} · ${L("Ka baxay","Out","خرج","Ilitoka")} ${money(o)}`;
-    return `<div class="plt${only?" only":""}" data-pl="${pl}"><span class="plh">${head}</span>${k?`<span class="plk">${k}</span>`:""}<span class="plv">${v}</span><span class="pld">${d}</span></div>`};
+    const key=only||head===mHead?"m":"d",on=PLsel===key&&pl!=="none";
+    return `<button type="button" class="plt${only?" only":""}${on?" on":""}" data-pl="${pl}" data-plk="${key}" aria-expanded="${on}"${pl==="none"?" disabled":""}><span class="plh">${head}</span>${k?`<span class="plk">${k}</span>`:""}<span class="plv">${v}</span><span class="pld">${d}</span>${pl!=="none"?`<span class="plmore">${on?L("Qari faahfaahinta ▴","Hide details ▴","إخفاء التفاصيل ▴","Ficha maelezo ▴"):L("Eeg faahfaahinta ▾","See details ▾","عرض التفاصيل ▾","Angalia maelezo ▾")}</span>`:""}</button>`};
   const mHead=(cur?L("Bishan","This month","هذا الشهر","Mwezi huu"):MONTHS[view.getMonth()]+" "+view.getFullYear());
   const t=today();
-  box.innerHTML=tile(mHead,real.filter(inMonth),!cur)+(cur?tile(L("Maanta","Today","اليوم","Leo"),real.filter(x=>x.date===t)):"")}
+  const mArr=real.filter(inMonth),dArr=cur?real.filter(x=>x.date===t):[];
+  if(PLsel==="d"&&!cur)PLsel=null;
+  box.innerHTML=tile(mHead,mArr,!cur)+(cur?tile(L("Maanta","Today","اليوم","Leo"),dArr):"");
+  if(!box.dataset.on){box.dataset.on=1;box.addEventListener("click",e=>{const b=e.target.closest("[data-plk]");if(!b||b.disabled)return;PLsel=PLsel===b.dataset.plk?null:b.dataset.plk;render();
+    if(PLsel)setTimeout(()=>{const d=$("glPLd");d&&!d.hidden&&d.scrollIntoView({behavior:"smooth",block:"nearest"})},50)})}
+  renderPLDetail(PLsel==="m"?mArr:PLsel==="d"?dArr:null,PLsel==="m"?mHead:L("Maanta","Today","اليوم","Leo"),PLsel==="m")}
+var PLsel=null;
+function renderPLDetail(arr,head,month){const box=$("glPLd");if(!box)return;
+  if(!arr||!arr.length){box.hidden=true;box.innerHTML="";return}
+  const ins=arr.filter(x=>x.type==="in"),outs=arr.filter(x=>x.type==="out"),sm=a=>a.reduce((s,x)=>s+Number(x.amount||0),0),i=sm(ins),o=sm(outs),n=i-o;
+  const sd=iso=>{const d=new Date(iso+"T00:00");return isNaN(d)?esc(iso||""):d.getDate()+" "+MONTHS[d.getMonth()]};
+  /* a month: one row per category (how many times, total); a day: every entry */
+  const rows=(a,type)=>{let r;
+    if(month){const m=new Map();a.forEach(x=>{const k=x.cat||"Kale";const g=m.get(k)||{cat:k,amt:0,n:0,last:""};g.amt+=Number(x.amount||0);g.n++;if((x.date||"")>g.last)g.last=x.date||"";m.set(k,g)});
+      r=[...m.values()].sort((a,b)=>b.amt-a.amt).map(g=>({t:T(g.cat),s:(g.n>1?L(g.n+" jeer",g.n+" times",g.n+" مرات",g.n+" mara"):sd(g.last)),amt:g.amt}))}
+    else r=[...a].sort((x,y)=>Number(y.amount||0)-Number(x.amount||0)).map(x=>({t:T(x.cat||"Kale"),s:[x.place,x.note&&x.note!=="Tusaale"?x.note:""].filter(Boolean).join(" · "),amt:Number(x.amount||0)}));
+    const tot=sm(a);
+    return r.map(x=>`<li><span class="pln"><b>${esc(x.t)}</b>${x.s?`<small>${esc(x.s)}</small>`:""}</span><span class="pla ${type}">${type==="in"?"+":"−"}${money(x.amt)}</span><i class="plbar ${type}" style="width:${tot?Math.max(3,Math.round(x.amt/tot*100)):0}%"></i></li>`).join("")};
+  const col=(type,a,title,empty)=>`<div class="plcol"><h4>${title}<span class="${type}">${type==="in"?"+":"−"}${money(sm(a))}</span></h4>${a.length?`<ul>${rows(a,type)}</ul>`:`<p class="note">${empty}</p>`}</div>`;
+  const cIn=col("in",ins,"💰 "+L("Lacagta soo gashay","Money that came in","الأموال الواردة","Pesa iliyoingia"),L("Wax lacag ah ma soo gelin.","No money came in.","لم يدخل أي مال.","Hakuna pesa iliyoingia."));
+  const cOut=col("out",outs,"💸 "+L("Waxa lacagtu ku baxday","Where the money went","أين ذهبت الأموال","Pesa ilienda wapi"),L("Wax kharash ah lama qorin.","No spending recorded.","لا مصاريف مسجلة.","Hakuna matumizi yaliyorekodiwa."));
+  const why=n<0?L(`Kharashka (${money(o)}) ayaa ka badnaa lacagta soo gashay (${money(i)}) , sidaas ayaa khasaare ${money(-n)} u dhacay.`,`Spending (${money(o)}) was more than income (${money(i)}), so the loss is ${money(-n)}.`,`المصاريف (${money(o)}) أكثر من الدخل (${money(i)})، لذلك الخسارة ${money(-n)}.`,`Matumizi (${money(o)}) yalizidi mapato (${money(i)}), kwa hiyo hasara ni ${money(-n)}.`)
+    :n>0?L(`Lacagta soo gashay (${money(i)}) ayaa ka badnayd kharashka (${money(o)}): faa'iido ${money(n)}.`,`Income (${money(i)}) was more than spending (${money(o)}): a profit of ${money(n)}.`,`الدخل (${money(i)}) أكثر من المصاريف (${money(o)}): ربح ${money(n)}.`,`Mapato (${money(i)}) yalizidi matumizi (${money(o)}): faida ya ${money(n)}.`)
+    :L("Lacagta soo gashay iyo kharashku waa isku mid.","Income and spending are equal.","الدخل والمصاريف متساويان.","Mapato na matumizi ni sawa.");
+  box.dataset.pl=n<0?"down":n>0?"up":"zero";
+  box.innerHTML=`<div class="plhd"><b>${esc(head)}: ${n<0?"📉 "+L("Khasaare","Loss","خسارة","Hasara"):n>0?"📈 "+L("Faa'iido","Profit","ربح","Faida"):"➖ "+L("Siman","Break-even","تعادل","Sawa")} ${n>0?"+":n<0?"−":""}${money(Math.abs(n))}</b><button type="button" class="plx" aria-label="${L("Xir","Close","إغلاق","Funga")}">✕</button></div><p class="plwhy">${why}</p><div class="plcols">${n<0?cOut+cIn:cIn+cOut}</div>`;
+  box.querySelector(".plx").onclick=()=>{PLsel=null;render()};box.hidden=false}
 function initFold(){document.querySelectorAll("[data-fold]").forEach(p=>{const head=p.querySelector(".panel-head");if(!head||head.querySelector(".foldbtn"))return;
   const k="hantigo.fold."+p.dataset.fold;let v=null;try{v=localStorage.getItem(k)}catch{}
   const set=f=>{p.classList.toggle("folded",f);b.setAttribute("aria-expanded",String(!f));b.innerHTML=f?`${L("Muuji","Show","إظهار","Onyesha")} <i>▾</i>`:`${L("Qari","Hide","إخفاء","Ficha")} <i>▴</i>`};
