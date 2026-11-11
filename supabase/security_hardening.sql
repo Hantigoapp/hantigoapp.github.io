@@ -1,6 +1,6 @@
 -- HantiGo: harden table and helper-function privileges.
 -- Run AFTER schema.sql, team.sql, isolation.sql, roles.sql, pricing.sql,
--- account.sql, location.sql, payment.sql, sales.sql and signups.sql.
+-- leave.sql, account.sql, location.sql, payment.sql, sales.sql and signups.sql.
 -- Safe to run repeatedly. Does not alter finance records or staff assignments.
 --
 -- SECURITY MODEL:
