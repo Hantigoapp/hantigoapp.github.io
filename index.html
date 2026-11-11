@@ -3821,7 +3821,8 @@ if(!$("appView").hidden&&!pinUnlocked)pinLock();
  const row=(title,sub,kind,id)=>{
    const wrap=node("div","edu-record"),info=node("span",""),b=node("b","",title),sm=node("small","",sub);
    info.append(b,sm);wrap.append(info);
-   const btn=node("button","del","Tirtir");btn.type="button";btn.dataset.eduDelete=kind;btn.dataset.id=id;wrap.append(btn);return wrap;
+   if(kind!=="payment"){const btn=node("button","del","Tirtir");btn.type="button";btn.dataset.eduDelete=kind;btn.dataset.id=id;wrap.append(btn)}
+   return wrap;
  };
  const render=()=>{
    $("eduSummary").replaceChildren();
