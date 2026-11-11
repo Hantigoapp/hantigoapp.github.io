@@ -1,27 +1,53 @@
--- HantiGo: harden helper-function execution privileges.
+-- HantiGo: harden table and helper-function privileges.
 -- Run AFTER schema.sql, team.sql, isolation.sql, roles.sql and pricing.sql.
--- Safe to run more than once. This does NOT change business data or staff roles.
+-- Safe to run repeatedly. Does not alter finance records or staff assignments.
 --
--- Why:
--- PostgreSQL grants EXECUTE on newly-created functions to PUBLIC by default.
--- RLS policies need is_admin() and has_access(), so authenticated users retain
--- access to those two helpers. Internal team helpers are callable only from
--- the SECURITY DEFINER RPCs owned by the database owner.
---
--- 1. Remove default PUBLIC/anon access from internal helpers.
+-- SECURITY MODEL:
+-- profiles: signed-in user can read permitted profiles; changes only through
+--           SECURITY DEFINER RPCs (set_my_phone/admin_*).
+-- user_data: signed-in owner can read/insert/update their own row via RLS;
+--            direct DELETE is disabled (app uses my_save/team_save).
+-- team_members: owner manages memberships; listed member can read their own
+--               membership rows. Staff do not get write permission.
+-- Team data is accessed through team_load/team_save, which check membership,
+-- active subscription and role on the server.
+
+-- 1. Ensure RLS is enabled on every application table.
+alter table public.profiles enable row level security;
+alter table public.user_data enable row level security;
+alter table public.team_members enable row level security;
+
+-- 2. Explicit table privileges: no anonymous table access.
+revoke all on table public.profiles from anon;
+revoke all on table public.user_data from anon;
+revoke all on table public.team_members from anon;
+
+-- Profiles are read-only through the client; writes use guarded RPCs.
+revoke all on table public.profiles from authenticated;
+grant select on table public.profiles to authenticated;
+
+-- User data: no direct DELETE; RLS restricts rows and WITH CHECK enforces access.
+revoke all on table public.user_data from authenticated;
+grant select, insert, update on table public.user_data to authenticated;
+
+-- Membership management remains available to the company owner only via RLS.
+-- Team members can SELECT their own membership row via the separate policy.
+revoke all on table public.team_members from authenticated;
+grant select, insert, update, delete on table public.team_members to authenticated;
+
+-- 3. Remove default PUBLIC/anon execution from internal helpers.
 revoke all on function public.is_team_member(uuid) from public, anon;
 revoke all on function public.owner_active(uuid) from public, anon;
 revoke all on function public.team_role(uuid) from public, anon;
 revoke all on function public.merge_items(jsonb, jsonb, text[], boolean) from public, anon;
 
--- 2. RLS policy helpers: only signed-in users need to execute these.
+-- RLS policy helpers must remain executable by signed-in users.
 revoke all on function public.is_admin() from public, anon;
 revoke all on function public.has_access() from public, anon;
 grant execute on function public.is_admin() to authenticated;
 grant execute on function public.has_access() to authenticated;
 
--- 3. Keep privileged RPCs unavailable to anonymous/public callers.
--- Authenticated grants are restored explicitly for the app's supported calls.
+-- 4. Explicitly restrict app RPCs to authenticated users.
 revoke all on function public.admin_extend(uuid, int) from public, anon;
 grant execute on function public.admin_extend(uuid, int) to authenticated;
 
@@ -46,7 +72,7 @@ grant execute on function public.team_save(uuid, jsonb, text[]) to authenticated
 revoke all on function public.my_save(jsonb, text[]) from public, anon;
 grant execute on function public.my_save(jsonb, text[]) to authenticated;
 
--- 4. Verify the three application tables still have RLS enabled.
+-- 5. Verification A: all app tables must report rls_enabled = true.
 select c.relname as table_name, c.relrowsecurity as rls_enabled
 from pg_class c
 join pg_namespace n on n.oid = c.relnamespace
@@ -54,7 +80,7 @@ where n.nspname = 'public'
   and c.relname in ('profiles', 'user_data', 'team_members')
 order by c.relname;
 
--- 5. Verify helper execution grants (PUBLIC must be false).
+-- 6. Verification B: anon_can_execute should be false for every listed function.
 select
   p.oid::regprocedure as function_name,
   has_function_privilege('anon', p.oid, 'EXECUTE') as anon_can_execute,
@@ -62,5 +88,18 @@ select
 from pg_proc p
 join pg_namespace n on n.oid = p.pronamespace
 where n.nspname = 'public'
-  and p.proname in ('is_admin', 'has_access', 'is_team_member', 'owner_active', 'team_role')
+  and p.proname in (
+    'is_admin', 'has_access', 'is_team_member', 'owner_active', 'team_role',
+    'my_companies', 'team_load', 'team_save', 'my_save',
+    'admin_extend', 'admin_set_plan', 'set_my_plan', 'set_my_phone'
+  )
 order by p.proname;
+
+-- 7. Verification C: client table grants.
+select
+  table_name, grantee, privilege_type
+from information_schema.role_table_grants
+where table_schema = 'public'
+  and table_name in ('profiles', 'user_data', 'team_members')
+  and grantee in ('anon', 'authenticated')
+order by table_name, grantee, privilege_type;
