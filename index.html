@@ -436,6 +436,24 @@ html[data-skin="3"][data-mode="business"] .stat.bal .val{color:#cfe1ff}
 .glact [data-quick="in"]{background:var(--per)!important;color:var(--per-ink)!important}
 .glact [data-quick="out"]{background:#ff7a66!important;color:#3a0d06!important}
 .in-team .glact [data-quick]{display:flex}
+/* profit / loss tiles (this month + today) */
+.glpl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 2px}
+.glpl:empty{display:none}
+.plt{border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:2px;min-width:0}
+.plt.only{grid-column:1/-1}
+.plt .plh{font-size:.78rem;opacity:.85;font-weight:600;overflow-wrap:anywhere}
+.plt .plk{font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:4px}
+.plt .plv{font-size:clamp(1.25rem,5.6vw,1.6rem);font-weight:800;letter-spacing:-.01em;line-height:1.1;overflow-wrap:anywhere;direction:ltr;unicode-bidi:isolate}
+html[dir="rtl"] .plt .plv{text-align:right}
+.plt .pld{font-size:.74rem;opacity:.75;overflow-wrap:anywhere}
+.plt[data-pl="up"]{background:rgba(61,220,151,.16);border-color:rgba(61,220,151,.45)}
+.plt[data-pl="up"] .plk,.plt[data-pl="up"] .plv{color:#8ff0c2}
+.plt[data-pl="down"]{background:rgba(255,122,102,.17);border-color:rgba(255,122,102,.5)}
+.plt[data-pl="down"] .plk,.plt[data-pl="down"] .plv{color:#ffb3a6}
+.plt[data-pl="zero"] .plv{opacity:.7}
+html:not([data-skin="3"]) .plt[data-pl="up"] .plk,html:not([data-skin="3"]) .plt[data-pl="up"] .plv{color:#137a4b}
+html:not([data-skin="3"]) .plt[data-pl="down"] .plk,html:not([data-skin="3"]) .plt[data-pl="down"] .plv{color:#b3261e}
+html:not([data-skin="3"]) .plt{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.1)}
 /* summary tiles: two per row on phones, four on wide screens */
 #appView .summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 #appView .summary .stat:not(.bal):not(.top-spend){padding:12px 14px}
@@ -648,6 +666,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
   <section class="summary" aria-label="Kooban" data-tab="home">
     <div class="stat bal glance">
       <div class="gl-top"><span class="glmode" id="glMode"></span><span class="glst" id="glState"></span></div>
+      <div class="glpl" id="glPL" aria-live="polite"></div>
       <span class="lbl">Lacagta akoonkaaga</span><span class="val" id="sBal">0</span>
       <div class="glbar" aria-hidden="true"><i id="glBar"></i></div><p class="glsum" id="glSum"></p>
       <div class="methods" id="sMethods"></div>
@@ -1495,12 +1514,12 @@ function renderGlance(mi,mo){const g=$("glState");if(!g)return;const biz=MODE===
   $("glMode").textContent=TEAM?"👥 "+L("Shirkadda","Company","الشركة","Kampuni"):biz?"🏢 "+(co||L("Shirkaddaada","Your business","شركتك","Biashara yako")):"👤 "+L("Lacagtaada shakhsiga ah","Your personal money","أموالك الشخصية","Pesa zako binafsi");
   const net=mi-mo,pct=mi>0?Math.round(mo/mi*100):0;let st,txt;
   if(!mi&&!mo){st="none";g.textContent=L("Bishan weli waxba lama qorin","Nothing recorded this month","لا شيء مسجل هذا الشهر","Hakuna kilichorekodiwa mwezi huu");txt=""}
-  else if(mo>mi){st="bad";g.textContent=biz?L("🔴 Khasaare","🔴 Loss","🔴 خسارة","🔴 Hasara"):L("🔴 Kharash badan","🔴 Overspending","🔴 إنفاق زائد","🔴 Matumizi makubwa");
+  else if(mo>mi){st="bad";g.textContent=L("🔴 Khasaare","🔴 Loss","🔴 خسارة","🔴 Hasara");
     txt=biz?L(`Kharashku dakhliga ayuu ka badan yahay ${money(-net)} bishan.`,`Spending is ${money(-net)} more than income this month.`,`المصاريف أكثر من الدخل بمقدار ${money(-net)} هذا الشهر.`,`Matumizi yamezidi mapato kwa ${money(-net)} mwezi huu.`)
       :L(`Waxaad isticmaashay ${money(-net)} ka badan inta kuu soo gashay.`,`You spent ${money(-net)} more than came in.`,`أنفقت ${money(-net)} أكثر مما دخل.`,`Umetumia ${money(-net)} zaidi ya kilichoingia.`)}
   else if(pct>80){st="warn";g.textContent=L("⚠️ Taxaddar","⚠️ Careful","⚠️ انتبه","⚠️ Kuwa makini");
     txt=L(`Kharashku wuxuu gaaray ${pct}% dakhliga. Waxaa haray ${money(net)}.`,`Spending reached ${pct}% of income. ${money(net)} left.`,`بلغت المصاريف ${pct}% من الدخل. المتبقي ${money(net)}.`,`Matumizi yamefika ${pct}% ya mapato. Imebaki ${money(net)}.`)}
-  else{st="ok";g.textContent=biz?L("✅ Faa'iido","✅ Profit","✅ ربح","✅ Faida"):L("✅ Xaalad wanaagsan","✅ Looking good","✅ وضع جيد","✅ Hali nzuri");
+  else{st="ok";g.textContent=L("✅ Faa'iido","✅ Profit","✅ ربح","✅ Faida");
     txt=mi&&!mo?L(`Weli kharash lama qorin. Dakhliga: ${money(mi)}.`,`No spending yet. Income: ${money(mi)}.`,`لا مصاريف بعد. الدخل: ${money(mi)}.`,`Hakuna matumizi bado. Mapato: ${money(mi)}.`)
       :biz?L(`Faa'iidada bishan: ${money(net)} (${100-pct}% dakhliga).`,`Profit this month: ${money(net)} (${100-pct}% of income).`,`ربح هذا الشهر: ${money(net)} (${100-pct}% من الدخل).`,`Faida ya mwezi huu: ${money(net)} (${100-pct}% ya mapato).`)
       :L(`Waxaa kuu haray ${money(net)}: ${100-pct}% dakhligaaga.`,`You kept ${money(net)}: ${100-pct}% of your income.`,`تبقّى لك ${money(net)}: ${100-pct}% من دخلك.`,`Umebakiwa na ${money(net)}: ${100-pct}% ya mapato yako.`)}
@@ -1509,6 +1528,17 @@ function renderGlance(mi,mo){const g=$("glState");if(!g)return;const biz=MODE===
   bar.parentNode.title=mi?L(`Kharashka: ${pct}% dakhliga`,`Spending: ${pct}% of income`,`المصاريف: ${pct}% من الدخل`,`Matumizi: ${pct}% ya mapato`):"";
   const a=$("glAct");if(!a.dataset.on){a.dataset.on=1;a.addEventListener("click",e=>{const b=e.target.closest("[data-quick]");if(!b)return;goTab("add");const r=$(b.dataset.quick==="in"?"tIn":"tOut");if(r&&!r.checked)r.click();setTimeout(()=>{const x=$("amount");(x&&x.offsetParent?x:document.querySelector("#multiList input:not([type=checkbox])"))?.focus()},60)})}
   a.innerHTML=`<button type="button" data-quick="in"><b>+</b> ${biz?L("Dakhli / iib","Income / sale","دخل / بيع","Mapato / mauzo"):L("Lacag soo gashay","Money in","دخل","Pesa iliyoingia")}</button><button type="button" data-quick="out"><b>−</b> ${L("Kharash","Expense","مصروف","Matumizi")}</button>`}
+function renderPL(txs){const box=$("glPL");if(!box)return;
+  const real=txs.filter(t=>t.cat!=="Kayd"),sm=(a,t)=>a.filter(x=>x.type===t).reduce((s,x)=>s+Number(x.amount||0),0);
+  const now=new Date(),cur=view.getFullYear()===now.getFullYear()&&view.getMonth()===now.getMonth();
+  const tile=(head,arr,only)=>{const i=sm(arr,"in"),o=sm(arr,"out"),n=i-o,pl=!i&&!o?"none":n>0?"up":n<0?"down":"zero";
+    const k=pl==="up"?"📈 "+L("Faa'iido","Profit","ربح","Faida"):pl==="down"?"📉 "+L("Khasaare","Loss","خسارة","Hasara"):pl==="zero"?"➖ "+L("Siman","Break-even","تعادل","Sawa"):"";
+    const v=pl==="none"?"—":(n>0?"+":n<0?"−":"")+money(Math.abs(n));
+    const d=pl==="none"?L("Weli waxba lama qorin","Nothing recorded yet","لا شيء مسجل بعد","Hakuna kilichorekodiwa bado"):`${L("Soo galay","In","دخل","Iliingia")} ${money(i)} · ${L("Ka baxay","Out","خرج","Ilitoka")} ${money(o)}`;
+    return `<div class="plt${only?" only":""}" data-pl="${pl}"><span class="plh">${head}</span>${k?`<span class="plk">${k}</span>`:""}<span class="plv">${v}</span><span class="pld">${d}</span></div>`};
+  const mHead=(cur?L("Bishan","This month","هذا الشهر","Mwezi huu"):MONTHS[view.getMonth()]+" "+view.getFullYear());
+  const t=today();
+  box.innerHTML=tile(mHead,real.filter(inMonth),!cur)+(cur?tile(L("Maanta","Today","اليوم","Leo"),real.filter(x=>x.date===t)):"")}
 function initFold(){document.querySelectorAll("[data-fold]").forEach(p=>{const head=p.querySelector(".panel-head");if(!head||head.querySelector(".foldbtn"))return;
   const k="hantigo.fold."+p.dataset.fold;let v=null;try{v=localStorage.getItem(k)}catch{}
   const set=f=>{p.classList.toggle("folded",f);b.setAttribute("aria-expanded",String(!f));b.innerHTML=f?`${L("Muuji","Show","إظهار","Onyesha")} <i>▾</i>`:`${L("Qari","Hide","إخفاء","Ficha")} <i>▴</i>`};
@@ -1673,7 +1703,7 @@ function render(){
   const sum=(arr,t)=>arr.filter(x=>x.type===t).reduce((s,x)=>s+Number(x.amount||0),0);
   const real=month.filter(t=>t.cat!=="Kayd"),mi=sum(real,"in"),mo=sum(real,"out"),mk=sum(month,"out")-sum(real,"out")-(sum(month,"in")-sum(real,"in"));
   $("sIn").textContent=money(mi);$("sOut").textContent=money(mo);$("sNet").textContent=money(mi-mo-mk);
-  $("sBal").textContent=money(sum(txs,"in")-sum(txs,"out"));renderGlance(mi,mo);
+  $("sBal").textContent=money(sum(txs,"in")-sum(txs,"out"));renderGlance(mi,mo);renderPL(txs);
   $("sMethods").innerHTML=METHODS.map(m=>{const ts=txs.filter(t=>(t.method||"Kaash")===m);return `<span>${T(m)}: <b>${money(sum(ts,"in")-sum(ts,"out"))}</b></span>`}).join("");
   const kayd=month.filter(t=>t.cat==="Kayd");
   $("sSaved").textContent=money(kayd.filter(t=>t.type==="out").reduce((a,t)=>a+Number(t.amount),0)-kayd.filter(t=>t.type==="in").reduce((a,t)=>a+Number(t.amount),0));
