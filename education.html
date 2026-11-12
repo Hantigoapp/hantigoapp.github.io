@@ -62,9 +62,10 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
 
   <section class="panel" id="attendancePanel">
     <h2>Xaadirinta Ardayda</h2>
-    <p class="muted">Dooro fasal iyo taariikh, kadibna calaamadee xaaladda arday kasta. Hal diiwaan ayaa jiri kara arday kasta maalintii.</p>
+    <p class="muted">1) Dooro fasalka aad rabto (dhammaan fasallada ayaa liiska ku jira). 2) Liiska ardayda fasalkaas oo dhan ayaa soo baxaya; dooro ardayga aad rabto ama ka tag "Dhammaan ardayda". Hal diiwaan ayaa jiri kara arday kasta maalintii.</p>
     <div class="formgrid">
-      <div class="field"><label for="attendanceClass">Fasalka</label><select id="attendanceClass"><option value="">Dooro fasalka</option></select></div>
+      <div class="field"><label for="attendanceClass">1. Fasalka</label><select id="attendanceClass"><option value="">Dooro fasalka</option></select></div>
+      <div class="field"><label for="attendanceStudent">2. Ardayga</label><select id="attendanceStudent" disabled><option value="">Marka hore dooro fasalka</option></select></div>
       <div class="field"><label for="attendanceDate">Taariikhda</label><input id="attendanceDate" type="date"></div>
     </div>
     <div class="actions"><button type="button" id="loadAttendance">Soo bandhig ardayda</button><span id="attendanceMessage" class="muted" role="status" aria-live="polite"></span></div>
@@ -150,6 +151,21 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
    existing.filter(item=>!standardClasses.includes(item.name)).forEach(item=>{
      classSelect.add(new Option(item.name,item.id));
    });
+   // Xaadirinta: dhammaan fasallada isla habka liiska diiwaangelinta
+   const keep=attendanceClass.value;
+   attendanceClass.replaceChildren(new Option("Dooro fasalka",""));
+   [...classSelect.options].slice(1).forEach(opt=>attendanceClass.add(new Option(opt.text,opt.value)));
+   if(keep&&classNames[keep])attendanceClass.value=keep;
+   await labelAttendanceClasses();
+ }
+ async function labelAttendanceClasses(){
+   const {data,error}=await sb.from("education_students").select("class_id").eq("status","active");
+   if(error)return;
+   const counts={};
+   (data||[]).forEach(s=>{if(s.class_id)counts[s.class_id]=(counts[s.class_id]||0)+1});
+   [...attendanceClass.options].slice(1).forEach(opt=>{
+     opt.text=classNames[opt.value]+" ("+(counts[opt.value]||0)+" arday)";
+   });
  }
  async function loadStudents(){
    const {data,error}=await sb.from("education_students")
@@ -204,6 +220,7 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
  const attendanceDate=document.getElementById("attendanceDate");
  const attendanceMessage=document.getElementById("attendanceMessage");
  const attendanceRows=document.getElementById("attendanceRows");
+ const attendanceStudent=document.getElementById("attendanceStudent");
  const attendanceTable=document.getElementById("attendanceTable");
  const saveAttendance=document.getElementById("saveAttendance");
  attendanceDate.value=today();
@@ -215,6 +232,9 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
    attendanceRows.replaceChildren();
    attendanceTable.hidden=true;
    saveAttendance.disabled=true;
+   const keepStudent=attendanceStudent.value;
+   attendanceStudent.replaceChildren(new Option("Marka hore dooro fasalka",""));
+   attendanceStudent.disabled=true;
    if(!classId){attendanceMessage.textContent="Fadlan dooro fasal.";return}
    const [{data:students,error:studentError},{data:records,error:recordError}]=await Promise.all([
      sb.from("education_students").select("id,student_no,full_name").eq("class_id",classId).eq("status","active").order("full_name"),
@@ -238,16 +258,33 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
      select.value=saved[student.id]||"present";
      statusCell.appendChild(select);tr.append(no,name,statusCell);attendanceRows.appendChild(tr);
    });
-   attendanceTable.hidden=!(students&&students.length);
-   saveAttendance.disabled=!(students&&students.length);
-   attendanceMessage.textContent=students&&students.length
-     ? (students.length+" arday ayaa la helay. Xog hore u kaydsan waa la soo bandhigay.")
+   const list=students||[];
+   attendanceStudent.replaceChildren(new Option(list.length?("Dhammaan ardayda fasalka ("+list.length+")"):"Arday kuma jiraan fasalkan",""));
+   list.forEach(student=>attendanceStudent.add(new Option(student.full_name+" · "+student.student_no,student.id)));
+   attendanceStudent.disabled=!list.length;
+   if(keepStudent&&list.some(s=>s.id===keepStudent))attendanceStudent.value=keepStudent;
+   attendanceTable.hidden=!list.length;
+   saveAttendance.disabled=!list.length;
+   attendanceMessage.textContent=list.length
+     ? (list.length+" arday ayaa fasalkan ku jira. Xog hore u kaydsan waa la soo bandhigay.")
      : "Fasalkan kuma jiraan arday firfircoon.";
+   filterAttendanceStudent();
+ }
+ function filterAttendanceStudent(){
+   const id=attendanceStudent.value;
+   const trs=[...attendanceRows.querySelectorAll("tr")];
+   trs.forEach(tr=>{tr.hidden=!!id&&tr.dataset.studentId!==id});
+   if(id&&trs.length){
+     const tr=trs.find(t=>t.dataset.studentId===id);
+     attendanceMessage.textContent="Ardayga la doortay: "+(tr?tr.children[1].textContent:"")+". Dooro \"Dhammaan ardayda\" si aad fasalka oo dhan u aragto.";
+     attendanceMessage.className="muted";
+   }
  }
  async function saveAttendanceRecords(){
    const classId=attendanceClass.value;
    const date=attendanceDate.value||today();
-   const trs=[...attendanceRows.querySelectorAll("tr")];
+   // Kaliya ardayda muuqda (hal arday ama fasalka oo dhan) ayaa la kaydinayaa
+   const trs=[...attendanceRows.querySelectorAll("tr")].filter(tr=>!tr.hidden);
    if(!classId||!trs.length)return;
    saveAttendance.disabled=true;
    attendanceMessage.textContent="Xaadirinta waa la kaydinayaa…";
@@ -315,7 +352,8 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
    form.reset();document.getElementById("enrolledOn").value=today();
    formMessage.textContent="Ardayga si guul leh ayaa loo diiwaangeliyey.";
    formMessage.className="success";
-   await Promise.all([refreshCounts(),loadStudents()]);
+   await Promise.all([refreshCounts(),loadStudents(),labelAttendanceClasses()]);
+   if(attendanceClass.value)await loadAttendance();
  });
  document.getElementById("classForm").addEventListener("submit",async event=>{
    event.preventDefault();
@@ -353,7 +391,8 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
    message.textContent="Xogta fasalka waa la kaydiyey.";message.className="success";
  });
 
- attendanceClass.addEventListener("change",loadAttendance);
+ attendanceClass.addEventListener("change",()=>{attendanceStudent.value="";loadAttendance()});
+ attendanceStudent.addEventListener("change",filterAttendanceStudent);
  document.getElementById("loadAttendance").addEventListener("click",loadAttendance);
  attendanceDate.addEventListener("change",loadAttendance);
  saveAttendance.addEventListener("click",saveAttendanceRecords);
