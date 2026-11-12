@@ -3878,10 +3878,31 @@ if(!$("appView").hidden&&!pinUnlocked)pinLock();
    try{
      const result=await call("education_get",{p_owner:id});
      data={classes:Array.isArray(result?.classes)?result.classes:[],students:Array.isArray(result?.students)?result.students:[],payments:Array.isArray(result?.payments)?result.payments:[]};
-     loadedOwner=id;render();status("Xogta iskuulka waa diyaar.","ok");
+     loadedOwner=id;render();await loadV2();status("Xogta iskuulka waa diyaar.","ok");
    }catch(e){loadedOwner="";status("Education ma furmin. Hubi in education.sql iyo business_modules.sql lagu rakibay Supabase, iyo in Education la doortay. "+(e?.message||""),"error")}
    finally{busy=false}
  };
+ let v2={stages:[],periods:[],cohorts:[],enrolments:[]};
+ const v2status=(s,k="")=>{const el=$("eduV2Status");if(el){el.textContent=s;el.className="note "+k}};
+ const fillSelect=(id,items,label,empty)=>{const el=$(id);if(!el)return;el.replaceChildren(new Option(empty||"Dooro",""));items.forEach(x=>el.add(new Option(label(x),x.id)))};
+ const renderV2=()=>{
+   const stageBox=$("eduV2Stages"),periodBox=$("eduV2Periods"),cohortBox=$("eduV2Cohorts"),historyBox=$("eduV2History");
+   [[stageBox,v2.stages,x=>x.name+" · "+x.stage_code],[periodBox,v2.periods,x=>x.name+" · "+x.period_type],[cohortBox,v2.cohorts,x=>x.name+" · "+(v2.stages.find(s=>s.id===x.stage_id)?.name||"Heer aan la aqoon")]].forEach(([el,items,label])=>{if(!el)return;el.replaceChildren();items.forEach(x=>el.append(node("div","edu-record",label(x))));if(!items.length)el.append(node("p","note","Weli xog lama diiwaangelin."))});
+   if(historyBox){historyBox.replaceChildren();v2.enrolments.slice(0,100).forEach(x=>{const st=data.students.find(s=>s.id===x.student_id);const co=v2.cohorts.find(z=>z.id===x.cohort_id);historyBox.append(node("div","edu-record",(st?.full_name||"Arday")+" · "+(co?.name||"Koox")+" · "+x.status+" · "+x.enrolled_on+(x.ended_on?" → "+x.ended_on:"")))});if(!v2.enrolments.length)historyBox.append(node("p","note","Weli diiwaangelin V2 ma jirto."))}
+   fillSelect("eduV2StageSelect",v2.stages.filter(x=>x.enabled),x=>x.name+" ("+x.stage_code+")","Dooro heer");
+   fillSelect("eduV2PeriodSelect",v2.periods.filter(x=>x.period_type==="academic_year"),x=>x.name,"Midna");
+   fillSelect("eduV2Parent",v2.periods.filter(x=>x.period_type==="academic_year"),x=>x.name,"Dooro sannad");
+   fillSelect("eduV2StudentSelect",data.students.filter(x=>x.status==="active"),x=>x.full_name+" ("+x.student_no+")","Dooro arday");
+   fillSelect("eduV2CohortSelect",v2.cohorts.filter(x=>["active","planned"].includes(x.status)),x=>x.name+" · "+(v2.stages.find(s=>s.id===x.stage_id)?.name||""),"Dooro fasal / koox");
+ };
+ const loadV2=async()=>{try{const x=await call("education_v2_get",{p_owner:owner()});v2={stages:Array.isArray(x?.stages)?x.stages:[],periods:Array.isArray(x?.periods)?x.periods:[],cohorts:Array.isArray(x?.cohorts)?x.cohorts:[],enrolments:Array.isArray(x?.enrolments)?x.enrolments:[]};renderV2();v2status("Education V2 waa diyaar.","ok")}catch(e){v2status("V2 weli lama diyaarin. Hubi in education_v2.sql iyo education_v2_rpc.sql lagu rakibay staging. "+(e?.message||""),"error")}};
+ const submitV2=async(form,rpc,msg)=>{if(busy)return;const record=Object.fromEntries(new FormData(form).entries());record.is_active=form.elements.is_active?form.elements.is_active.checked:false;busy=true;v2status("V2 xogta waa la kaydinayaa…");try{await call(rpc,{p_owner:owner(),p_record:record});form.reset();if(form.id==="eduV2PeriodForm")$("eduV2ParentWrap").hidden=true;await loadV2();v2status(msg,"ok")}catch(e){v2status("Kaydintu ma suurtagelin: "+(e?.message||""),"error")}finally{busy=false}};
+ $("eduV2StageForm").addEventListener("submit",e=>{e.preventDefault();submitV2(e.currentTarget,"education_v2_stage_save","Heerka waa la kaydiyay.")});
+ $("eduV2PeriodForm").addEventListener("submit",e=>{e.preventDefault();submitV2(e.currentTarget,"education_v2_period_save","Xilliga waxbarashada waa la kaydiyay.")});
+ $("eduV2CohortForm").addEventListener("submit",e=>{e.preventDefault();submitV2(e.currentTarget,"education_v2_cohort_save","Fasalka / kooxda waa la kaydiyay.")});
+ $("eduV2TransferForm").addEventListener("submit",e=>{e.preventDefault();submitV2(e.currentTarget,"education_v2_enrolment_transfer","Diiwaangelinta / wareejinta waa la kaydiyay.")});
+ $("eduV2PeriodType").addEventListener("change",e=>{$("eduV2ParentWrap").hidden=e.target.value==="academic_year"});
+ $("eduV2PeriodType").dispatchEvent(new Event("change"));
  const submit=async(form,rpc,makeArgs,msg)=>{
    if(busy)return;const fd=new FormData(form),record=Object.fromEntries(fd.entries());
    if(!record.enrolled_on&&form.id==="eduStudentForm")record.enrolled_on=today;
