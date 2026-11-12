@@ -21,6 +21,7 @@ This folder contains the database setup and feature migrations used by HantiGo. 
 14. `activity.sql` — activity history: a trigger on `user_data` records every add / correction / delete (who, when, before/after) in `activity_log`; read through `activity_list` (owner: all, manager: company, staff: own). Until it is run, the app hides the history panel.
 15. `business_modules.sql` — additive Business Module Manager backend foundation: module catalog, company-scoped selections, and owner/member-checked RPCs. Run only after the existing migrations above.
 16. `education.sql` — first operational module: company-scoped classes, students and fee payments, with role-checked RPCs. Run after `business_modules.sql`.
+17. `education_v2.sql` — additive multi-level Education foundation (stages, academic periods, departments, programmes, courses, cohorts, enrolment history, attendance, assessments/results, fee obligations and certificates). Run after `education.sql`; it preserves V1 tables and RPCs, backfills old classes as explicitly unclassified, and currently exposes a read-only V2 snapshot RPC. V2 write RPCs and the expanded UI are not included yet.
 
 Run each file once in this order. If you are updating an existing deployment, review the file comments and take a database backup before applying migrations.
 
