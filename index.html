@@ -1440,6 +1440,9 @@ const BILL_GRP={"Taleefan bille":"Guriga & biilal","Qashin qaad":"Guriga & biila
 const grpOf=(c,t="out")=>{const g=GROUPS(t).find(g=>g[2].includes(c))||(SPLIT_OLD[c]&&GROUPS(t).find(g=>g[2].includes(SPLIT_OLD[c][0])));if(g)return g[0];if(MODE!=="business"&&BILL_GRP[c])return BILL_GRP[c];const o=items.find(x=>x.kind==="cat"&&x.type===t&&x.name===c&&(x.mode||"person")===MODE);return o&&GROUPS(t).some(g=>g[0]===o.grp)?o.grp:"Kale"};
 const grpLabel=g=>{const x=[...GROUPS("out"),...GROUPS("in")].find(y=>y[0]===g);return (x?x[1]+" ":"")+T(g)};
 const useGroups=()=>GROUPS().length>0;
+/* Topics hidden from the Ku dar pickers (AM 2026-11-12). Old entries keep their topic in reports, and editing one still shows its own topic. */
+const HIDE_GRPS=new Set(["Beeraha & wax-soo-saar"]);
+const pickGroups=(cur,t)=>GROUPS(t).filter(g=>!HIDE_GRPS.has(g[0])||(cur&&g[2].includes(cur)));
 function setCat(name){if(useGroups()&&$("grp").value!==grpOf(name,curType())){$("grp").value=grpOf(name,curType());fillCats()}$("cat").value=name;markChip();
   if(MULTI_ON&&useGroups()&&!editing){const i=[...document.querySelectorAll("[data-mamt]")].find(x=>x.dataset.mamt===name);if(i){i.focus();return true}}}
 const B_DAILY=["Alaab","Rar & gaadiid","Shidaal","Shaqaale maalinle","Cunto shaqaale","Baakad & bac","Kaarka taleefanka","Nadaafad","Dayactir yar","Qalab yar"];
@@ -2080,9 +2083,9 @@ function fillCats(){const type=document.querySelector('input[name=type]:checked'
   const opts=a=>a.filter(c=>c!=="Kayd").map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   const own=ownCats(type).map(c=>c.name);
   $("grpRow").hidden=!useGroups();
-  if(useGroups()){const gs=$("grp"),known=cur&&cur!=="__new"&&(GROUPS().some(g=>g[2].includes(cur))||own.includes(cur)),g0=(gs.dataset.m===MODE+type&&gs.value)||grpOf(known?cur:GROUPS()[0][2][0],type);gs.dataset.m=MODE+type;
-    gs.innerHTML=GROUPS().map(([g])=>`<option value="${esc(g)}">${esc(grpLabel(g))}</option>`).join("");gs.value=GROUPS().some(x=>x[0]===g0)?g0:GROUPS()[0][0];
-    const G=GROUPS().find(x=>x[0]===gs.value),mineG=own.filter(c=>grpOf(c,type)===G[0]);
+  if(useGroups()){const PG=pickGroups(cur,type),gs=$("grp"),known=cur&&cur!=="__new"&&(GROUPS().some(g=>g[2].includes(cur))||own.includes(cur)),g0=(gs.dataset.m===MODE+type&&gs.value)||grpOf(known?cur:PG[0][2][0],type);gs.dataset.m=MODE+type;
+    gs.innerHTML=PG.map(([g])=>`<option value="${esc(g)}">${esc(grpLabel(g))}</option>`).join("");gs.value=PG.some(x=>x[0]===g0)?g0:PG[0][0];
+    const G=PG.find(x=>x[0]===gs.value),mineG=own.filter(c=>grpOf(c,type)===G[0]);
     sel.innerHTML=opts(G[2])+(mineG.length?`<optgroup label="Kuwa aad adigu ku dartay">${opts(mineG)}</optgroup>`:"")+`<option value="__new">➕ Ku dar mid liiska ka maqan…</option>`;
     if(G[2].includes(cur)||mineG.includes(cur))sel.value=cur;
     $("ownCats").innerHTML=ownCats(type).map(c=>`<button type="button" class="chip own" data-delcat="${c.id}" aria-label="${L("Ka saar ","Remove ")}${esc(c.name)}">${c.name} ✕</button>`).join("");
