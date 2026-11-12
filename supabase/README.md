@@ -83,3 +83,27 @@ Use [`push_deployment.md`](push_deployment.md) for the VAPID, Edge Function, Vau
 The `index.html` settings screen includes an owner-only Business Module Manager under **Akoon** for Shirkad accounts. It reads and saves selected module IDs through `business_modules_get` and `business_modules_set`. It fails safely if the migration is not installed; the rest of HantiGo Core remains available.
 
 The current screen stores module selection only. Module-specific workflows (school management, hotel operations, restaurant orders, stock, transport, and other module screens) are not implemented by this settings screen. Apply and verify `business_modules.sql` and `education.sql` on staging before testing the Education UI. The service worker cache was bumped so installed PWAs pick up the updated page. The Education screen supports class and student registration and recording fee payments; payment history cannot be deleted in this first version. It does not yet generate invoices, automate EVC/WaafiPay collection, or connect student transport.
+## Education V2 UI status
+
+The Education panel now includes an initial V2 management screen for:
+- Creating institution stages (primary, middle, secondary, university, vocational).
+- Creating academic years and child terms/semesters.
+- Creating stage-linked cohorts/classes.
+- Enrolling or transferring existing V1 students into V2 cohorts while retaining enrolment history.
+- Viewing stages, periods, cohorts, and enrolment history from `education_v2_get`.
+
+This is a development-branch UI only. The V2 snapshot and write RPC migrations must be installed in a non-production Supabase staging project before the forms can save data. The V1 Education forms remain present and use their existing RPCs.
+
+### Required staging acceptance checks before production
+
+- Owner can read/write only their own institution's V2 records.
+- Manager can read/write within the institution; Staff can read but cannot write.
+- Inactive owner and disabled Education module are denied.
+- A user from another company cannot read or mutate records by supplying another `p_owner`.
+- Stage, academic-year, semester/term, and cohort validation rejects invalid parent/company references.
+- A student can have only one active enrolment; transfer closes the prior enrolment and preserves its history.
+- Existing V1 classes, students, and fee-payment history remain intact after the additive V2 backfill.
+- V1 fee payment history cannot be altered through V2 operations.
+- Verify mobile layout, Somali/English labels, reload behavior, and graceful V2-not-installed messaging.
+
+Do not run these migrations against production until SQL review and the staging checks above pass.
