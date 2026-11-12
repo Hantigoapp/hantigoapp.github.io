@@ -86,12 +86,36 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
  let classNames={};
  const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
  async function loadClasses(){
+   const standardClasses=[
+     "Fasalka 1aad","Fasalka 2aad","Fasalka 3aad","Fasalka 4aad",
+     "Fasalka 5aad","Fasalka 6aad","Fasalka 7aad","Fasalka 8aad",
+     "Form 1","Form 2","Form 3","Form 4"
+   ];
    const {data,error}=await sb.from("education_classes").select("id,name").order("name");
    if(error){formMessage.textContent="Fasallada lama soo rari karin: "+error.message;formMessage.className="error";return}
+   const existing=data||[];
+   const missing=standardClasses.filter(name=>!existing.some(item=>item.name===name));
+   for(const name of missing){
+     const {data:created,error:createError}=await sb.from("education_classes")
+       .insert({owner_id:currentUser.id,name})
+       .select("id,name").single();
+     if(createError){
+       formMessage.textContent="Fasalka '"+name+"' lama abuuri karin: "+createError.message;
+       formMessage.className="error";
+       break;
+     }
+     existing.push(created);
+   }
    classNames={};
-   (data||[]).forEach(item=>{classNames[item.id]=item.name});
+   existing.forEach(item=>{classNames[item.id]=item.name});
    classSelect.replaceChildren(new Option("Fasal hadda ha loo qoondeyn",""));
-   (data||[]).forEach(item=>classSelect.add(new Option(item.name,item.id)));
+   standardClasses.forEach(name=>{
+     const item=existing.find(row=>row.name===name);
+     if(item)classSelect.add(new Option(name,item.id));
+   });
+   existing.filter(item=>!standardClasses.includes(item.name)).forEach(item=>{
+     classSelect.add(new Option(item.name,item.id));
+   });
  }
  async function loadStudents(){
    const {data,error}=await sb.from("education_students")
