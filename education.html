@@ -42,6 +42,25 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
   </div>
 
   <section class="panel">
+    <h2>Maamulka Fasallada</h2>
+    <p class="muted">Abuur fasal cusub ama cusboonaysii macallinka, sannad-dugsiyeedka iyo qolka fasalka. Fasalladii iyo ardaydii hore way sii jirayaan.</p>
+    <form id="classForm">
+      <div class="formgrid">
+        <div class="field"><label for="newClassName">Magaca fasalka *</label><input id="newClassName" required maxlength="120" placeholder="Tusaale: Fasalka 9aad"></div>
+        <div class="field"><label for="newAcademicYear">Sannad-dugsiyeedka</label><input id="newAcademicYear" maxlength="40" placeholder="Tusaale: 2026–2027"></div>
+        <div class="field"><label for="newTeacherName">Magaca macallinka</label><input id="newTeacherName" maxlength="160"></div>
+        <div class="field"><label for="newRoom">Qolka fasalka</label><input id="newRoom" maxlength="80" placeholder="Tusaale: Qolka 3"></div>
+      </div>
+      <div class="actions"><button class="primary" id="saveClass" type="submit">Ku dar fasalka</button><span id="classMessage" class="muted" role="status" aria-live="polite"></span></div>
+    </form>
+    <div class="tablewrap" style="margin-top:14px"><table id="classTable">
+      <thead><tr><th>Fasalka</th><th>Sannad-dugsiyeedka</th><th>Macallinka</th><th>Qolka</th><th>Ardayda</th><th>Ficil</th></tr></thead>
+      <tbody id="classRows"></tbody>
+    </table></div>
+    <p id="classListMessage" class="muted">Fasallada waa la soo rarayaa…</p>
+  </section>
+
+  <section class="panel">
     <h2>Diiwaangeli arday cusub</h2>
     <p class="muted">Buuxi xogta ardayga. Magaca ardayga iyo lambarkiisu waa khasab; fasalka waa ikhtiyaari.</p>
     <form id="studentForm">
@@ -91,7 +110,7 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
      "Fasalka 5aad","Fasalka 6aad","Fasalka 7aad","Fasalka 8aad",
      "Form 1","Form 2","Form 3","Form 4"
    ];
-   const {data,error}=await sb.from("education_classes").select("id,name").order("name");
+   const {data,error}=await sb.from("education_classes").select("id,name,academic_year,teacher_name,room").order("name");
    if(error){formMessage.textContent="Fasallada lama soo rari karin: "+error.message;formMessage.className="error";return}
    const existing=data||[];
    const missing=standardClasses.filter(name=>!existing.some(item=>item.name===name));
@@ -136,6 +155,35 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
    message.textContent=data&&data.length?("Waxaa la soo bandhigay "+data.length+" arday (ugu badnaan 100)."):"Weli arday lama diiwaangelin.";
    message.className="muted";
  }
+ async function loadClassManagement(){
+   const message=document.getElementById("classListMessage");
+   const rows=document.getElementById("classRows");
+   const [{data:classes,error:classError},{data:students,error:studentError}]=await Promise.all([
+     sb.from("education_classes").select("id,name,academic_year,teacher_name,room").order("name"),
+     sb.from("education_students").select("class_id")
+   ]);
+   if(classError||studentError){
+     message.textContent="Fasallada lama soo bandhigi karin: "+(classError?.message||studentError?.message);
+     message.className="error";return;
+   }
+   const counts={};
+   (students||[]).forEach(student=>{if(student.class_id)counts[student.class_id]=(counts[student.class_id]||0)+1});
+   rows.replaceChildren();
+   (classes||[]).forEach(item=>{
+     const tr=document.createElement("tr");
+     tr.dataset.classId=item.id;
+     tr.innerHTML=
+       '<td>'+escapeHtml(item.name)+'</td>'+
+       '<td><input aria-label="Sannad-dugsiyeedka" maxlength="40" value="'+escapeHtml(item.academic_year||'')+'" style="width:120px;background:#0e1620;border:1px solid var(--line);border-radius:7px;padding:7px;color:var(--ink)"></td>'+
+       '<td><input aria-label="Macallinka" maxlength="160" value="'+escapeHtml(item.teacher_name||'')+'" style="width:140px;background:#0e1620;border:1px solid var(--line);border-radius:7px;padding:7px;color:var(--ink)"></td>'+
+       '<td><input aria-label="Qolka" maxlength="80" value="'+escapeHtml(item.room||'')+'" style="width:100px;background:#0e1620;border:1px solid var(--line);border-radius:7px;padding:7px;color:var(--ink)"></td>'+
+       '<td>'+String(counts[item.id]||0)+'</td>'+
+       '<td><button type="button" data-save-class>Kaydi</button></td>';
+     rows.appendChild(tr);
+   });
+   message.textContent=(classes||[]).length+" fasal ayaa jira. Tirada ardaydu waxay ku salaysan tahay ardayda fasal loo qoondeeyey.";
+   message.className="muted";
+ }
  async function refreshCounts(){
    const tables=[["education_classes","classes"],["education_students","students"],["education_fee_payments","payments"]];
    const results=await Promise.all(tables.map(async([table,id])=>{
@@ -156,7 +204,7 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
    currentUser=session.user;
    status.hidden=true;dashboard.hidden=false;
    await loadClasses();
-   await Promise.all([refreshCounts(),loadStudents()]);
+   await Promise.all([refreshCounts(),loadStudents(),loadClassManagement()]);
  }
  form.addEventListener("submit",async event=>{
    event.preventDefault();
@@ -183,8 +231,43 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
    formMessage.className="success";
    await Promise.all([refreshCounts(),loadStudents()]);
  });
+ document.getElementById("classForm").addEventListener("submit",async event=>{
+   event.preventDefault();
+   const message=document.getElementById("classMessage");
+   const name=document.getElementById("newClassName").value.trim();
+   if(!name)return;
+   const button=document.getElementById("saveClass");
+   button.disabled=true;message.textContent="Fasalka waa la abuurayaa…";message.className="muted";
+   const {error}=await sb.from("education_classes").insert({
+     owner_id:currentUser.id,name,
+     academic_year:document.getElementById("newAcademicYear").value.trim()||null,
+     teacher_name:document.getElementById("newTeacherName").value.trim()||null,
+     room:document.getElementById("newRoom").value.trim()||null
+   });
+   button.disabled=false;
+   if(error){message.textContent="Fasalka lama abuuri karin: "+error.message;message.className="error";return}
+   document.getElementById("classForm").reset();
+   message.textContent="Fasalka si guul leh ayaa loo abuuray.";message.className="success";
+   await loadClasses();await Promise.all([refreshCounts(),loadClassManagement()]);
+ });
+ document.getElementById("classRows").addEventListener("click",async event=>{
+   const button=event.target.closest("[data-save-class]");
+   if(!button)return;
+   const tr=button.closest("tr");
+   const fields=tr.querySelectorAll("input");
+   button.disabled=true;button.textContent="Waa la kaydinayaa…";
+   const {error}=await sb.from("education_classes").update({
+     academic_year:fields[0].value.trim()||null,
+     teacher_name:fields[1].value.trim()||null,
+     room:fields[2].value.trim()||null
+   }).eq("id",tr.dataset.classId);
+   button.disabled=false;button.textContent="Kaydi";
+   const message=document.getElementById("classListMessage");
+   if(error){message.textContent="Wax-ka-beddelku ma guulaysan: "+error.message;message.className="error";return}
+   message.textContent="Xogta fasalka waa la kaydiyey.";message.className="success";
+ });
  document.getElementById("refresh").addEventListener("click",async()=>{
-   await loadClasses();await Promise.all([refreshCounts(),loadStudents()]);
+   await loadClasses();await Promise.all([refreshCounts(),loadStudents(),loadClassManagement()]);
  });
  check();
 })();
