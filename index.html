@@ -2264,10 +2264,11 @@ function goalPlanHtml(g,p){
 let goalEdit=null;var GP;
 // Shakhsi sees only personal / family goal ideas, Shirkad only company / business ones.
 function goalPresets(){const s=$("gPreset");if(!s)return;
-  if(!GP)GP=[...s.querySelectorAll("optgroup[data-gm]")];
-  const keep=GP.find(g=>g.dataset.gm===MODE)||GP[0],cust=s.querySelector('option[value="__custom"]');
-  GP.forEach(g=>{if(g!==keep&&g.isConnected)g.remove()});
-  if(keep&&!keep.isConnected)s.insertBefore(keep,cust);
+  // flat list, no group heading: each mode only sees its own ideas
+  if(!GP){GP={};s.querySelectorAll("optgroup[data-gm]").forEach(g=>{GP[g.dataset.gm]=[...g.children];g.remove()})}
+  const keep=GP[MODE]||GP.person||[],cust=s.querySelector('option[value="__custom"]');
+  Object.values(GP).flat().forEach(o=>{if(!keep.includes(o)&&o.isConnected)o.remove()});
+  keep.forEach(o=>{if(!o.isConnected)s.insertBefore(o,cust)});
   if(!s.selectedOptions[0]?.isConnected)s.value="";
   $("gName").placeholder=MODE==="business"?L("Tusaale: Raasamaal ganacsi","Example: Business capital","مثال: رأس مال العمل","Mfano: Mtaji wa biashara"):L("Tusaale: Kayd degdeg","Example: Emergency fund","مثال: صندوق الطوارئ","Mfano: Akiba ya dharura")}
 function renderGoals(){
