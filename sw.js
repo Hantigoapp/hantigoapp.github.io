@@ -1,4 +1,4 @@
-const CACHE="hantigo-v109";
+const CACHE="hantigo-v110";
 // Everything the app needs to open and work with no internet (sign-in, lists, reports, PDF/Excel).
 const FILES=["./","index.html","admin.html","privacy.html","manifest.json","icon.svg","icon-192.png","icon-512.png",
   "vendor/supabase.js","vendor/591.supabase.js","vendor/jspdf.umd.min.js","vendor/exceljs.min.js","vendor/hg-arabic.ttf","vendor/hg-arabic-bold.ttf"];
