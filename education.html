@@ -60,6 +60,21 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
     <p id="classListMessage" class="muted">Fasallada waa la soo rarayaa…</p>
   </section>
 
+  <section class="panel" id="attendancePanel">
+    <h2>Xaadirinta Ardayda</h2>
+    <p class="muted">Dooro fasal iyo taariikh, kadibna calaamadee xaaladda arday kasta. Hal diiwaan ayaa jiri kara arday kasta maalintii.</p>
+    <div class="formgrid">
+      <div class="field"><label for="attendanceClass">Fasalka</label><select id="attendanceClass"><option value="">Dooro fasalka</option></select></div>
+      <div class="field"><label for="attendanceDate">Taariikhda</label><input id="attendanceDate" type="date"></div>
+    </div>
+    <div class="actions"><button type="button" id="loadAttendance">Soo bandhig ardayda</button><span id="attendanceMessage" class="muted" role="status" aria-live="polite"></span></div>
+    <div class="tablewrap" style="margin-top:14px"><table id="attendanceTable" hidden>
+      <thead><tr><th>Lambarka</th><th>Ardayga</th><th>Xaaladda</th></tr></thead>
+      <tbody id="attendanceRows"></tbody>
+    </table></div>
+    <div class="actions"><button class="primary" type="button" id="saveAttendance" disabled>Kaydi xaadirinta</button></div>
+  </section>
+
   <section class="panel">
     <h2>Diiwaangeli arday cusub</h2>
     <p class="muted">Buuxi xogta ardayga. Magaca ardayga iyo lambarkiisu waa khasab; fasalka waa ikhtiyaari.</p>
@@ -184,6 +199,77 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
    message.textContent=(classes||[]).length+" fasal ayaa jira. Tirada ardaydu waxay ku salaysan tahay ardayda fasal loo qoondeeyey.";
    message.className="muted";
  }
+
+ const attendanceClass=document.getElementById("attendanceClass");
+ const attendanceDate=document.getElementById("attendanceDate");
+ const attendanceMessage=document.getElementById("attendanceMessage");
+ const attendanceRows=document.getElementById("attendanceRows");
+ const attendanceTable=document.getElementById("attendanceTable");
+ const saveAttendance=document.getElementById("saveAttendance");
+ attendanceDate.value=today();
+ async function loadAttendance(){
+   const classId=attendanceClass.value;
+   const date=attendanceDate.value||today();
+   attendanceMessage.textContent="";
+   attendanceMessage.className="muted";
+   attendanceRows.replaceChildren();
+   attendanceTable.hidden=true;
+   saveAttendance.disabled=true;
+   if(!classId){attendanceMessage.textContent="Fadlan dooro fasal.";return}
+   const [{data:students,error:studentError},{data:records,error:recordError}]=await Promise.all([
+     sb.from("education_students").select("id,student_no,full_name").eq("class_id",classId).eq("status","active").order("full_name"),
+     sb.from("education_attendance").select("student_id,status").eq("class_id",classId).eq("attendance_date",date)
+   ]);
+   if(studentError||recordError){
+     attendanceMessage.textContent="Xogta xaadirinta lama soo rari karin: "+(studentError?.message||recordError?.message);
+     attendanceMessage.className="error";return;
+   }
+   const saved={};
+   (records||[]).forEach(r=>{saved[r.student_id]=r.status});
+   (students||[]).forEach(student=>{
+     const tr=document.createElement("tr");
+     tr.dataset.studentId=student.id;
+     const no=document.createElement("td");no.textContent=student.student_no;
+     const name=document.createElement("td");name.textContent=student.full_name;
+     const statusCell=document.createElement("td");
+     const select=document.createElement("select");
+     select.setAttribute("aria-label","Xaaladda xaadirinta ee "+student.student_no);
+     [["present","Xaadir"],["absent","Maqan"],["excused","Fasax"]].forEach(([value,label])=>select.add(new Option(label,value)));
+     select.value=saved[student.id]||"present";
+     statusCell.appendChild(select);tr.append(no,name,statusCell);attendanceRows.appendChild(tr);
+   });
+   attendanceTable.hidden=!(students&&students.length);
+   saveAttendance.disabled=!(students&&students.length);
+   attendanceMessage.textContent=students&&students.length
+     ? (students.length+" arday ayaa la helay. Xog hore u kaydsan waa la soo bandhigay.")
+     : "Fasalkan kuma jiraan arday firfircoon.";
+ }
+ async function saveAttendanceRecords(){
+   const classId=attendanceClass.value;
+   const date=attendanceDate.value||today();
+   const trs=[...attendanceRows.querySelectorAll("tr")];
+   if(!classId||!trs.length)return;
+   saveAttendance.disabled=true;
+   attendanceMessage.textContent="Xaadirinta waa la kaydinayaa…";
+   attendanceMessage.className="muted";
+   const payload=trs.map(tr=>({
+     owner_id:currentUser.id,
+     class_id:classId,
+     student_id:tr.dataset.studentId,
+     attendance_date:date,
+     status:tr.querySelector("select").value,
+     marked_by:currentUser.id,
+     updated_at:new Date().toISOString()
+   }));
+   const {error}=await sb.from("education_attendance").upsert(payload,{onConflict:"student_id,attendance_date"});
+   saveAttendance.disabled=false;
+   if(error){
+     attendanceMessage.textContent="Kaydintu ma guulaysan: "+error.message+" — Hubi inaad marka hore fulisay education_attendance.sql.";
+     attendanceMessage.className="error";return;
+   }
+   attendanceMessage.textContent="Xaadirinta "+payload.length+" arday si guul leh ayaa loo kaydiyey.";
+   attendanceMessage.className="success";
+ }
  async function refreshCounts(){
    const tables=[["education_classes","classes"],["education_students","students"],["education_fee_payments","payments"]];
    const results=await Promise.all(tables.map(async([table,id])=>{
@@ -266,6 +352,11 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
    if(error){message.textContent="Wax-ka-beddelku ma guulaysan: "+error.message;message.className="error";return}
    message.textContent="Xogta fasalka waa la kaydiyey.";message.className="success";
  });
+
+ attendanceClass.addEventListener("change",loadAttendance);
+ document.getElementById("loadAttendance").addEventListener("click",loadAttendance);
+ attendanceDate.addEventListener("change",loadAttendance);
+ saveAttendance.addEventListener("click",saveAttendanceRecords);
  document.getElementById("refresh").addEventListener("click",async()=>{
    await loadClasses();await Promise.all([refreshCounts(),loadStudents(),loadClassManagement()]);
  });
