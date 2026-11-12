@@ -14,6 +14,7 @@ Status: preparation only. No SQL in this document has been run against Supabase,
 
 1. `supabase/education_v2.sql`
 2. `supabase/education_v2_rpc.sql`
+3. `supabase/education_v2_academic_rpc.sql`
 
 Run only after the prerequisite migrations listed in `supabase/README.md`. Review SQL output and verification queries after each file. Stop on any error; do not continue to the next migration.
 
@@ -45,6 +46,9 @@ Run only after the prerequisite migrations listed in `supabase/README.md`. Revie
 - Create an academic year, then a semester or term linked to that same company's academic year.
 - Reject a semester/term whose parent year belongs to another company or is not an academic year.
 - Create cohorts under each stage; reject a cohort whose stage or period belongs to another company.
+- Create faculties, departments and training units; reject parent departments from another company or invalid parent types.
+- Create university/vocational programmes and courses; reject programmes or courses linked to another company's stage/department/programme.
+- Confirm course credits and duration values reject negative numbers.
 - Enrol an active V1 student into a V2 cohort.
 - Transfer that student to another cohort on the same date or a later date; preserve the previous enrolment and leave exactly one active enrolment.
 - Reject transfer dates earlier than the current enrolment date.
