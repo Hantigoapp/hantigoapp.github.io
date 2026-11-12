@@ -52,3 +52,5 @@ to the run as the `HantiGo-play-store-aab` artifact.
 The Android app (APK / Uptodown) loads the live site (`server.url` in `capacitor.config.json`),
 so a push to `main` updates the website, home-screen apps and the Android app at the same time.
 A new APK upload is only needed when the native shell itself changes (icon, app id, Capacitor version).
+
+Current web version: service worker `hantigo-v101` (goal ideas split Shakhsi / Shirkad).
