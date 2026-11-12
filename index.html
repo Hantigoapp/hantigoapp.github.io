@@ -12,7 +12,26 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="HantiGo">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+/* Business Module Manager */
+.bm-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px}
+.bm-item{display:flex;gap:10px;align-items:flex-start;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--bg);cursor:pointer;min-width:0}
+.bm-item input{width:19px;height:19px;flex:none;margin:2px 0 0;accent-color:var(--accent)}
+.bm-item span{display:grid;gap:2px;min-width:0}.bm-item b{font-size:.92rem}.bm-item small{font-size:.78rem;color:var(--muted);line-height:1.35}
+.bm-caution{border-inline-start:3px solid var(--accent);padding:8px 10px;background:var(--accent-soft);border-radius:8px}
+#bmStatus.error{color:var(--out)}#bmStatus.ok{color:var(--in)}
+
+/* Education module */
+.edu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.edu-card{border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:10px;background:var(--surface)}
+.edu-card h3{margin:0;font-size:1rem}.edu-form{display:grid;gap:9px}.edu-form .field{margin:0}
+.edu-records{display:grid;gap:8px}.edu-record{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.edu-record:first-child{border-top:0}.edu-record>span{min-width:0;display:grid;gap:2px}.edu-record small{color:var(--muted);overflow-wrap:anywhere}
+.edu-record button{flex:none}.edu-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.edu-stat{border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:2px}.edu-stat small{color:var(--muted)}.edu-stat b{font-size:1.1rem;overflow-wrap:anywhere}
+.edu-caution{padding:9px 11px;border-inline-start:3px solid var(--accent);background:var(--accent-soft);border-radius:8px}
+#eduStatus.error{color:var(--out)}#eduStatus.ok{color:var(--in)}
+</style>
 <title>HantiGo</title>
 <script>try{document.documentElement.dataset.skin=localStorage.getItem("hantigo.skin")||"3"}catch{document.documentElement.dataset.skin="3"}</script>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1147,6 +1166,61 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
         <a class="dial manual" href="tel:*712*613735086*3%23"><span>📞</span><span><span class="pp-now">Bixi hadda $3</span><small>Riix, kadib geli PIN-ka EVC</small></span></a>
         <div class="goal-actions manual"><button type="button" id="copyCode">Koobiyee koodhka</button><span class="note" id="copyMsg" role="status"></span></div>
         <div class="evc manual"><span class="note">💳 WaafiPay</span><span><span>Fur app-ka</span> WaafiPay → <b>Lacag dir</b> → +252 61 373 5086 → <b class="pp">$3</b></span></div>
+      </section>
+
+      <section class="panel biz-only owner-only" aria-labelledby="bmH" data-tab="more" id="businessModulePanel">
+        <div class="panel-head"><h2 id="bmH">🧩 Maamulka qaybaha ganacsiga</h2><button type="button" id="bmReload">Dib u cusboonaysii</button></div>
+        <p class="note" style="margin:0">Hal shirkad waxaad ku dari kartaa dhowr nooc oo ganacsi ah. Dooro dhammaan qaybaha shirkaddaadu isticmaasho.</p>
+        <div id="bmStatus" class="note" role="status" aria-live="polite">Qaybaha waa la soo rarayaa…</div>
+        <div id="bmList" class="bm-list"></div>
+        <div class="goal-actions"><button type="button" class="primary" id="bmSave" disabled>Kaydi qaybaha la doortay</button><span class="note" id="bmCount"></span></div>
+        <p class="note bm-caution">Ogow: doorashadani waxay kaydinaysaa qaab-dhismeedka shirkadda. Shaashadaha iyo hawlaha gaarka ah ee qayb kasta wali waa la dhisayaa; doorashadu kaligeed ma hawlgelinayso nidaam dugsi, hoteel ama bakhaar.</p>
+      </section>
+
+      <section class="panel biz-only mgr-only" aria-labelledby="eduH" data-tab="more" id="educationPanel">
+        <div class="panel-head"><h2 id="eduH">🎓 Maamulka iskuulka</h2><button type="button" id="eduReload">Cusboonaysii</button></div>
+        <p class="note" style="margin:0">Maamul fasallada, ardayda iyo lacagaha waxbarashada. Xogtu waxay ku xiran tahay shirkaddan oo keliya.</p>
+        <div id="eduStatus" class="note" role="status" aria-live="polite">Sugaya in Education module la doorto…</div>
+        <div class="edu-summary" id="eduSummary"></div>
+        <div class="edu-grid">
+          <div class="edu-card">
+            <h3>Fasallo cusub</h3>
+            <form id="eduClassForm" class="edu-form">
+              <label class="field"><span>Magaca fasalka *</span><input name="name" maxlength="100" required placeholder="Tusaale: Fasalka 1aad"></label>
+              <label class="field"><span>Sannad-dugsiyeed</span><input name="academic_year" maxlength="30" placeholder="2026–2027"></label>
+              <label class="field"><span>Macallinka</span><input name="teacher_name" maxlength="120" placeholder="Magaca macallinka"></label>
+              <label class="field"><span>Qolka</span><input name="room" maxlength="50" placeholder="Qolka 2"></label>
+              <button type="submit">Ku dar fasalka</button>
+            </form>
+          </div>
+          <div class="edu-card">
+            <h3>Arday cusub</h3>
+            <form id="eduStudentForm" class="edu-form">
+              <label class="field"><span>Lambarka ardayga *</span><input name="student_no" maxlength="40" required placeholder="ST-001"></label>
+              <label class="field"><span>Magaca ardayga *</span><input name="full_name" maxlength="140" required placeholder="Magaca oo buuxa"></label>
+              <label class="field"><span>Fasalka</span><select name="class_id" id="eduStudentClass"><option value="">Dooro fasal</option></select></label>
+              <label class="field"><span>Waalidka / masuulka</span><input name="guardian_name" maxlength="120"></label>
+              <label class="field"><span>Telefoonka masuulka</span><input name="guardian_phone" maxlength="40" type="tel"></label>
+              <label class="field"><span>Taariikhda diiwaangelinta</span><input name="enrolled_on" type="date"></label>
+              <button type="submit">Diiwaangeli ardayga</button>
+            </form>
+          </div>
+          <div class="edu-card">
+            <h3>Lacag-bixin cusub</h3>
+            <form id="eduPaymentForm" class="edu-form">
+              <label class="field"><span>Ardayga *</span><select name="student_id" id="eduPaymentStudent" required><option value="">Dooro arday</option></select></label>
+              <label class="field"><span>Lacagta *</span><input name="amount" type="number" min="0.01" step="0.01" required placeholder="0.00"></label>
+              <label class="field"><span>Taariikhda</span><input name="paid_on" type="date"></label>
+              <label class="field"><span>Habka lacag-bixinta</span><select name="method"><option value="">Dooro hab</option><option>EVC Plus</option><option>WaafiPay</option><option>Kaash</option><option>Bank</option><option>Kale</option></select></label>
+              <label class="field"><span>Faahfaahin</span><input name="note" maxlength="250" placeholder="Tusaale: Lacagta bisha"></label>
+              <button type="submit">Diiwaangeli lacagta</button>
+            </form>
+          </div>
+        </div>
+        <div class="edu-card"><div class="panel-head"><h3>Fasallada</h3><span class="note" id="eduClassCount"></span></div><div id="eduClasses" class="edu-records"></div></div>
+        <div class="edu-card"><div class="panel-head"><h3>Ardayda</h3><span class="note" id="eduStudentCount"></span></div><div id="eduStudents" class="edu-records"></div></div>
+        <div class="edu-card"><div class="panel-head"><h3>Lacagaha la bixiyay</h3><span class="note" id="eduPaymentCount"></span></div><div id="eduPayments" class="edu-records"></div></div>
+        <p class="note edu-caution">Xogta ardaydu waa xog gaar ah. Ku qor oo keliya xogta aad xaq u leedahay inaad maamusho, hana wadaagin akoonkaaga. Tallaabadan koowaad waxay diiwaangelisaa lacagaha iskuulka; weli ma samaynayso biilal otomaatig ah ama xiriir EVC/WaafiPay.</p>
       </section>
 
       <section class="panel" aria-labelledby="remH" data-tab="more" id="remPanel">
@@ -3670,5 +3744,143 @@ if(!$("appView").hidden&&!pinUnlocked)pinLock();
 </script>
 <div id="printArea"></div>
 <script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{r.update();document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update()})}).catch(()=>{}));</script>
+<script>
+/* Business Module Manager UI — additive; does not alter existing ledger data. */
+(()=>{
+  const modules=[
+    ["education","Waxbarasho","Iskuul, jaamacad, arday iyo fiigo"],
+    ["hotel","Hoteel","Qolal, marti, boos-qabsi iyo adeegyo"],
+    ["restaurant","Maqaaxi / Maqaayad","Miisaska, dalabka cuntada iyo jikada"],
+    ["retail","Dukaan / Tafaariiq","Iibka tooska ah iyo alaabta"],
+    ["wholesale","Jumlad","Iibka jumlada iyo macaamiisha ganacsiga"],
+    ["construction","Dhismaha","Mashaariic, qandaraasyo iyo horumar"],
+    ["agriculture","Beeraha","Dalag, beer, goosasho iyo wax-soo-saar"],
+    ["livestock","Xoolaha","Xoolo, quudin, caafimaad iyo wax-soo-saar"],
+    ["transport","Gaadiid","Gaadiid, safarro, rakaab iyo rarid"],
+    ["manufacturing","Warshad / Wax-soo-saar","Wax-soo-saar, agab ceeriin iyo badeeco"],
+    ["services","Adeegyo","Shaqooyin, ballamo iyo adeeg macaamiil"],
+    ["fishing","Kalluumaysi","Doon, kalluun, qabasho iyo iib"]
+  ];
+  const $id=id=>document.getElementById(id);
+  let ready=false,busy=false,lastOwner="";
+  const ownerId=()=>typeof me!=="undefined"&&me?.id?me.id:"";
+  const setStatus=(message,kind="")=>{const el=$id("bmStatus");if(el){el.textContent=message;el.className="note "+kind}};
+  const count=()=>{const n=document.querySelectorAll("#bmList input:checked").length;const el=$id("bmCount");if(el)el.textContent=n+" qaybood ayaa la doortay";};
+  const render=enabled=>{
+    const list=$id("bmList");if(!list)return;list.replaceChildren();
+    modules.forEach(([id,name,desc])=>{
+      const label=document.createElement("label");label.className="bm-item";
+      const input=document.createElement("input");input.type="checkbox";input.value=id;input.checked=enabled.has(id);input.addEventListener("change",count);
+      const text=document.createElement("span"),title=document.createElement("b"),detail=document.createElement("small");
+      title.textContent=name;detail.textContent=desc;text.append(title,detail);label.append(input,text);list.append(label);
+    });
+    ready=true;$id("bmSave").disabled=false;count();
+  };
+  const load=async(force=false)=>{
+    const id=ownerId();if(!id||busy)return;if(!force&&lastOwner===id&&ready)return;
+    busy=true;ready=false;$id("bmSave").disabled=true;setStatus("Qaybaha shirkadda waa la soo rarayaa…");
+    try{
+      const {data,error}=await sb.rpc("business_modules_get",{p_owner:id});
+      if(error)throw error;if(!Array.isArray(data))throw new Error("Jawaabta server-ku ma ahayn liis sax ah.");
+      render(new Set(data.filter(x=>x.enabled).map(x=>x.module_id)));lastOwner=id;setStatus("Doorashada shirkadda waa la soo raray.","ok");
+    }catch(e){
+      lastOwner="";ready=false;setStatus("Ma suuragelin in qaybaha la soo raro. Hubi in migration-ka business_modules.sql lagu rakibay Supabase. Faahfaahin: "+(e?.message||"qalad aan la aqoon"),"error");$id("bmSave").disabled=true;
+    }finally{busy=false}
+  };
+  const save=async()=>{
+    if(!ready||busy)return;const selected=[...document.querySelectorAll("#bmList input:checked")].map(x=>x.value);
+    busy=true;$id("bmSave").disabled=true;setStatus("Doorashada waa la kaydinayaa…");
+    try{
+      const {error}=await sb.rpc("business_modules_set",{p_module_ids:selected});if(error)throw error;
+      setStatus("Waa la kaydiyay. "+selected.length+" qaybood ayaa shirkadda u shaqaynaya marka qaybahaas la dhammaystiro.","ok");count();
+    }catch(e){setStatus("Kaydintu ma guulaysan. Hubi in migration-ka la rakibay iyo in aad tahay milkiilaha shirkadda. "+(e?.message||""),"error")}
+    finally{busy=false;$id("bmSave").disabled=!ready}
+  };
+  const maybeLoad=()=>{
+    const app=$id("appView"),root=document.documentElement;
+    if(!app||app.hidden||root.dataset.mode!=="business"||root.classList.contains("in-team"))return;
+    if(ownerId())load(false);
+  };
+  $id("bmSave")?.addEventListener("click",save);$id("bmReload")?.addEventListener("click",()=>load(true));
+  const observer=new MutationObserver(maybeLoad);observer.observe(document.documentElement,{attributes:true,attributeFilter:["class","data-mode"]});
+  const app=$id("appView");if(app)observer.observe(app,{attributes:true,attributeFilter:["hidden","class"]});maybeLoad();
+})();
+</script>
+<script>
+/* Education module UI: isolated RPC calls; existing HantiGo Core data is untouched. */
+(()=>{
+ const $=id=>document.getElementById(id), today=new Date().toISOString().slice(0,10);
+ let data={classes:[],students:[],payments:[]},busy=false,loadedOwner="";
+ const owner=()=>typeof TEAM!=="undefined"&&TEAM?TEAM:(typeof me!=="undefined"&&me?.id?me.id:"");
+ const status=(msg,kind="")=>{$("eduStatus").textContent=msg;$("eduStatus").className="note "+kind};
+ const esc=s=>String(s??"");
+ const call=async(name,args)=>{if(!sb)throw new Error("Adeegga xogta lama helin.");const {data,error}=await sb.rpc(name,args);if(error)throw error;return data};
+ const clsName=id=>data.classes.find(x=>x.id===id)?.name||"Fasal lama dooran";
+ const studentName=id=>{const s=data.students.find(x=>x.id===id);return s?s.full_name+" ("+s.student_no+")":"Arday lama helin"};
+ const money=n=>new Intl.NumberFormat("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n||0));
+ const node=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e};
+ const row=(title,sub,kind,id)=>{
+   const wrap=node("div","edu-record"),info=node("span",""),b=node("b","",title),sm=node("small","",sub);
+   info.append(b,sm);wrap.append(info);
+   if(kind!=="payment"){const btn=node("button","del","Tirtir");btn.type="button";btn.dataset.eduDelete=kind;btn.dataset.id=id;wrap.append(btn)}
+   return wrap;
+ };
+ const render=()=>{
+   $("eduSummary").replaceChildren();
+   const paid=data.payments.reduce((n,p)=>n+Number(p.amount||0),0);
+   [["Fasallo",data.classes.length],["Arday firfircoon",data.students.filter(s=>s.status==="active").length],["Lacag la bixiyay",money(paid)]].forEach(([label,value])=>{
+     const el=node("div","edu-stat"),sm=node("small","",label),b=node("b","",String(value));el.append(sm,b);$("eduSummary").append(el);
+   });
+   const cl=$("eduClasses");cl.replaceChildren();$("eduClassCount").textContent=data.classes.length+" fasal";
+   data.classes.forEach(c=>cl.append(row(c.name,[c.academic_year,c.teacher_name,c.room].filter(Boolean).join(" · ")||"Faahfaahin lama darin","class",c.id)));
+   if(!data.classes.length)cl.append(node("p","note","Weli fasal lama diiwaangelin."));
+   const st=$("eduStudents");st.replaceChildren();$("eduStudentCount").textContent=data.students.length+" arday";
+   data.students.forEach(s=>st.append(row(s.full_name,s.student_no+" · "+clsName(s.class_id)+" · "+(s.guardian_name||"Masuul lama darin"),"student",s.id)));
+   if(!data.students.length)st.append(node("p","note","Weli arday lama diiwaangelin."));
+   const pay=$("eduPayments");pay.replaceChildren();$("eduPaymentCount").textContent=data.payments.length+" lacag-bixin";
+   data.payments.slice(0,100).forEach(p=>pay.append(row(money(p.amount)+" · "+studentName(p.student_id),p.paid_on+" · "+(p.method||"Hab lama sheegin")+(p.note?" · "+p.note:""),"payment",p.id)));
+   if(!data.payments.length)pay.append(node("p","note","Weli lacag-bixin lama diiwaangelin."));
+   const cs=$("eduStudentClass"),ps=$("eduPaymentStudent");
+   cs.replaceChildren(new Option("Dooro fasal",""));data.classes.forEach(c=>cs.add(new Option(c.name,c.id)));
+   ps.replaceChildren(new Option("Dooro arday",""));data.students.filter(s=>s.status==="active").forEach(s=>ps.add(new Option(s.full_name+" ("+s.student_no+")",s.id)));
+ };
+ const load=async(force=false)=>{
+   const id=owner();if(!id||busy)return;if(!force&&loadedOwner===id)return;
+   busy=true;status("Xogta iskuulka waa la soo rarayaa…");
+   try{
+     const result=await call("education_get",{p_owner:id});
+     data={classes:Array.isArray(result?.classes)?result.classes:[],students:Array.isArray(result?.students)?result.students:[],payments:Array.isArray(result?.payments)?result.payments:[]};
+     loadedOwner=id;render();status("Xogta iskuulka waa diyaar.","ok");
+   }catch(e){loadedOwner="";status("Education ma furmin. Hubi in education.sql iyo business_modules.sql lagu rakibay Supabase, iyo in Education la doortay. "+(e?.message||""),"error")}
+   finally{busy=false}
+ };
+ const submit=async(form,rpc,makeArgs,msg)=>{
+   if(busy)return;const fd=new FormData(form),record=Object.fromEntries(fd.entries());
+   if(!record.enrolled_on&&form.id==="eduStudentForm")record.enrolled_on=today;
+   if(!record.paid_on&&form.id==="eduPaymentForm")record.paid_on=today;
+   busy=true;status("Xogta waa la kaydinayaa…");
+   try{await call(rpc,makeArgs(owner(),record));form.reset();if(form.id==="eduStudentForm")form.elements.enrolled_on.value=today;if(form.id==="eduPaymentForm")form.elements.paid_on.value=today;busy=false;loadedOwner="";await load(true);status(msg,"ok")}
+   catch(e){status("Kaydintu ma guulaysan: "+(e?.message||""),"error")}
+   finally{busy=false}
+ };
+ $("eduClassForm").addEventListener("submit",e=>{e.preventDefault();submit(e.currentTarget,"education_class_save",(p_owner,p_record)=>({p_owner,p_record}),"Fasalka waa la diiwaangeliyay.")});
+ $("eduStudentForm").addEventListener("submit",e=>{e.preventDefault();submit(e.currentTarget,"education_student_save",(p_owner,p_record)=>({p_owner,p_record}),"Ardayga waa la diiwaangeliyay.")});
+ $("eduPaymentForm").addEventListener("submit",e=>{e.preventDefault();submit(e.currentTarget,"education_payment_add",(p_owner,p_record)=>({p_owner,p_record}),"Lacag-bixinta waa la diiwaangeliyay.")});
+ $("eduReload").addEventListener("click",()=>load(true));
+ $("educationPanel").addEventListener("click",async e=>{
+   const btn=e.target.closest("[data-edu-delete]");if(!btn||busy)return;
+   const kind=btn.dataset.eduDelete,id=btn.dataset.id;
+   if(!confirm("Ma hubtaa inaad tirtirayso diiwaankan?"))return;
+   busy=true;status("Diiwaanka waa la tirtirayaa…");
+   try{await call("education_record_delete",{p_owner:owner(),p_kind:kind,p_id:id});busy=false;loadedOwner="";await load(true);status("Diiwaanka waa la tirtiray.","ok")}
+   catch(err){status("Tirtiriddu ma suurtagelin: "+(err?.message||""),"error")}
+   finally{busy=false}
+ });
+ ["eduStudentForm","eduPaymentForm"].forEach(id=>{const el=$(id);const date=el.querySelector('input[type="date"]');if(date)date.value=today});
+ const maybe=()=>{const app=$("appView");if(app&&!app.hidden&&document.documentElement.dataset.mode==="business"&&owner())load(false)};
+ const obs=new MutationObserver(maybe);obs.observe(document.documentElement,{attributes:true,attributeFilter:["data-mode","class"]});
+ const app=$("appView");if(app)obs.observe(app,{attributes:true,attributeFilter:["hidden"]});maybe();
+})();
+</script>
 </body>
 </html>
