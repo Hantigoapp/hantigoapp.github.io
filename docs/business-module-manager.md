@@ -78,3 +78,36 @@ New file: `supabase/business_modules.sql`.
 ## Deployment warning
 
 Repository changes do not apply SQL to Supabase automatically. The new migration must be reviewed, backed up, run manually in the Supabase project, and verified. Do not merge this branch into `main` until the acceptance tests pass.
+
+
+## Education product decision — multi-level institution
+
+A single company/owner account may operate multiple education levels and institution types at the same time. Separate HantiGo accounts are not required for primary, middle, secondary, university, or vocational/training operations.
+
+### Supported education structures
+
+- School levels: primary, middle, secondary.
+- Higher education: university faculties, departments, programmes, semesters/terms, courses and credit-bearing enrolments.
+- Vocational and training centres: programmes, courses, cohorts, course duration and completion certificates.
+- A single institution may enable any combination of these structures.
+
+### Data-model direction before expanding the UI
+
+The current initial Education schema (classes, students, fee payments) is only a starter and is not yet sufficient for universities or training centres. Expand it additively, preserving existing records and RPC compatibility where possible:
+
+1. Add institution-scoped education stages/types so one company can configure multiple levels.
+2. Add academic years and terms/semesters, with dates and active-period rules.
+3. Add faculties/departments and programmes for higher education and training.
+4. Add subjects/courses with level/programme links and optional credits/duration.
+5. Evolve classes into stage/year-aware groups or cohorts; retain compatibility with existing education_classes.
+6. Replace the assumption that a student belongs to only one class with explicit enrolment/history records, so progression and transfers are auditable.
+7. Scope attendance, timetable, assessments/results, certificates and fee obligations to the appropriate stage, term, course or enrolment.
+8. Support institution-wide reports while allowing permissions to be limited to selected stages/departments.
+
+### Non-negotiable constraints
+
+- Every new record is scoped to the existing company owner ID.
+- Existing student, class and payment records must be preserved during migration.
+- No student progression or class transfer should erase historical enrolments, results or fee records.
+- Do not apply the expanded migration to production until tested on staging with existing data, owner/manager/staff accounts, and cross-company negative tests.
+- Do not claim university/training functionality is implemented until its tables, RPCs, UI and acceptance tests are complete.
