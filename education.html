@@ -26,6 +26,8 @@ button:disabled{opacity:.55;cursor:wait}
 label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:#0e1620}
 .actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
 .tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}
+.clsPick{min-width:150px;min-height:36px;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:#0e1620}
+.clsCell{display:flex;gap:6px;align-items:center}.clsCell button{padding:6px 10px}.nocls{color:#ffcf6b}
 @media(max-width:620px){.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}}
 </style>
 <script src="vendor/supabase.js"></script>
@@ -78,7 +80,7 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
 
   <section class="panel">
     <h2>Diiwaangeli arday cusub</h2>
-    <p class="muted">Buuxi xogta ardayga. Magaca ardayga iyo lambarkiisu waa khasab; fasalka waa ikhtiyaari.</p>
+    <p class="muted">Buuxi xogta ardayga. Magaca ardayga iyo lambarkiisu waa khasab. Fasalka waa ikhtiyaari: hadda toos ugu xir fasal, ama ka tag "Fasal hadda ha loo qoondeyn" oo isbuucyo ama bilo kadib, marka uu u qalmo, ku xir fasal liiska "Ardayda diiwaangashan" hoose.</p>
     <form id="studentForm">
       <div class="formgrid">
         <div class="field"><label for="studentNo">Lambarka ardayga *</label><input id="studentNo" name="student_no" required maxlength="80" autocomplete="off"></div>
@@ -94,13 +96,18 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
 
   <section class="panel">
     <div class="actions" style="justify-content:space-between;margin-top:0"><h2 style="margin:0">Ardayda diiwaangashan</h2><button id="refresh" type="button">Dib u cusboonaysii</button></div>
+    <p class="muted">Fasal ku xir: arday kasta fasalkiisa ka dooro liiska oo riix "Kaydi". Ama calaamadi ardayda (☑), dooro fasal, kadibna riix "Fasal ku xir kuwa la doortay".</p>
+    <div class="formgrid" id="assignBar">
+      <div class="field"><label for="studentFilter">Muuji</label><select id="studentFilter"><option value="">Dhammaan ardayda</option><option value="none">Arday aan fasal lahayn</option></select></div>
+      <div class="field"><label for="bulkClass">Fasal ku xir kuwa la doortay</label><div style="display:flex;gap:8px"><select id="bulkClass" style="flex:1"><option value="">Dooro fasalka</option></select><button class="primary" type="button" id="bulkAssign" disabled>Ku xir (0)</button></div></div>
+    </div>
     <p id="studentListMessage" class="muted">Xogta ardayda waa la soo rarayaa…</p>
     <div class="tablewrap"><table id="studentTable" hidden>
-      <thead><tr><th>Lambarka</th><th>Magaca</th><th>Waalidka</th><th>Telefoon</th><th>Fasalka</th><th>Taariikh</th><th>Xaalad</th></tr></thead>
+      <thead><tr><th><input type="checkbox" id="pickAll" aria-label="Dooro dhammaan ardayda muuqda"></th><th>Lambarka</th><th>Magaca</th><th>Waalidka</th><th>Telefoon</th><th>Fasalka</th><th>Taariikh</th><th>Xaalad</th></tr></thead>
       <tbody id="studentRows"></tbody>
     </table></div>
   </section>
-  <section class="panel"><h2>Heerka xogta</h2><p class="muted">Diiwaangelinta cusub waxay ku dhacaysaa Supabase. Boggan ma laha hawl tirtirid ama wax-ka-beddelid arday.</p><p id="detail" class="muted"></p></section>
+  <section class="panel"><h2>Heerka xogta</h2><p class="muted">Diiwaangelinta cusub waxay ku dhacaysaa Supabase. Ardayga waxaa laga beddeli karaa fasalka oo keliya; boggan ma laha tirtirid arday.</p><p id="detail" class="muted"></p></section>
 </section>
 <script>
 (()=>{
@@ -151,6 +158,7 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
    existing.filter(item=>!standardClasses.includes(item.name)).forEach(item=>{
      classSelect.add(new Option(item.name,item.id));
    });
+   fillAssignPickers();
    // Xaadirinta: dhammaan fasallada isla habka liiska diiwaangelinta
    const keep=attendanceClass.value;
    attendanceClass.replaceChildren(new Option("Dooro fasalka",""));
@@ -167,24 +175,88 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
      opt.text=classNames[opt.value]+" ("+(counts[opt.value]||0)+" arday)";
    });
  }
+ let studentCache=[];
+ const studentFilter=document.getElementById("studentFilter");
+ const bulkClass=document.getElementById("bulkClass");
+ const bulkAssign=document.getElementById("bulkAssign");
+ const pickAll=document.getElementById("pickAll");
+ function classOptions(select,first,current){
+   select.replaceChildren(new Option(first,""));
+   [...classSelect.options].slice(1).forEach(opt=>select.add(new Option(opt.text,opt.value)));
+   if(current&&classNames[current])select.value=current;
+ }
+ function fillAssignPickers(){
+   const keepF=studentFilter.value,keepB=bulkClass.value;
+   studentFilter.replaceChildren(new Option("Dhammaan ardayda",""),new Option("Arday aan fasal lahayn","none"));
+   [...classSelect.options].slice(1).forEach(opt=>studentFilter.add(new Option(opt.text,opt.value)));
+   studentFilter.value=[...studentFilter.options].some(o=>o.value===keepF)?keepF:"";
+   classOptions(bulkClass,"Dooro fasalka",keepB);
+ }
  async function loadStudents(){
    const {data,error}=await sb.from("education_students")
      .select("id,student_no,full_name,guardian_name,guardian_phone,class_id,enrolled_on,status")
-     .order("created_at",{ascending:false}).limit(100);
+     .order("created_at",{ascending:false}).limit(500);
+   const message=document.getElementById("studentListMessage");
+   const table=document.getElementById("studentTable");
+   if(error){table.hidden=true;message.textContent="Ardayda lama soo rari karin: "+error.message;message.className="error";return}
+   studentCache=data||[];
+   renderStudents();
+ }
+ function renderStudents(note){
    const message=document.getElementById("studentListMessage");
    const table=document.getElementById("studentTable");
    const rows=document.getElementById("studentRows");
-   if(error){table.hidden=true;message.textContent="Ardayda lama soo rari karin: "+error.message;message.className="error";return}
+   const f=studentFilter.value;
+   const list=studentCache.filter(st=>!f||(f==="none"?!(st.class_id&&classNames[st.class_id]):st.class_id===f));
    rows.replaceChildren();
-   (data||[]).forEach(student=>{
+   list.forEach(student=>{
      const tr=document.createElement("tr");
-     const values=[student.student_no,student.full_name,student.guardian_name,student.guardian_phone,classNames[student.class_id]||"—",student.enrolled_on,student.status];
-     values.forEach(value=>{const td=document.createElement("td");td.textContent=value||"—";tr.appendChild(td)});
+     tr.dataset.studentId=student.id;
+     const pick=document.createElement("td");
+     const box=document.createElement("input");box.type="checkbox";box.dataset.pick="";box.setAttribute("aria-label","Dooro "+student.full_name);
+     pick.appendChild(box);tr.appendChild(pick);
+     [student.student_no,student.full_name,student.guardian_name,student.guardian_phone].forEach(value=>{const td=document.createElement("td");td.textContent=value||"—";tr.appendChild(td)});
+     const clsTd=document.createElement("td");
+     const wrap=document.createElement("div");wrap.className="clsCell";
+     const sel=document.createElement("select");sel.className="clsPick"+(student.class_id&&classNames[student.class_id]?"":" nocls");
+     sel.setAttribute("aria-label","Fasalka "+student.full_name);
+     classOptions(sel,"— Fasal ma laha —",student.class_id);
+     const btn=document.createElement("button");btn.type="button";btn.dataset.assign="";btn.textContent="Kaydi";btn.disabled=true;
+     sel.addEventListener("change",()=>{btn.disabled=(sel.value||null)===(student.class_id||null)});
+     wrap.append(sel,btn);clsTd.appendChild(wrap);tr.appendChild(clsTd);
+     [student.enrolled_on,student.status].forEach(value=>{const td=document.createElement("td");td.textContent=value||"—";tr.appendChild(td)});
      rows.appendChild(tr);
    });
-   table.hidden=!(data&&data.length);
-   message.textContent=data&&data.length?("Waxaa la soo bandhigay "+data.length+" arday (ugu badnaan 100)."):"Weli arday lama diiwaangelin.";
+   pickAll.checked=false;updateBulk();
+   table.hidden=!list.length;
+   const noClass=studentCache.filter(st=>!(st.class_id&&classNames[st.class_id])).length;
+   if(note){message.textContent=note;message.className="success";return}
    message.className="muted";
+   if(!studentCache.length){message.textContent="Weli arday lama diiwaangelin.";return}
+   message.textContent=list.length
+     ?("Waxaa muuqda "+list.length+" arday. "+(noClass?noClass+" arday weli fasal lama xirin.":"Arday kasta fasal ayuu leeyahay."))
+     :(f==="none"?"Arday kasta fasal ayaa loo xiray.":"Fasalkan arday kuma jiro.");
+ }
+ function updateBulk(){
+   const n=document.querySelectorAll("#studentRows [data-pick]:checked").length;
+   bulkAssign.textContent="Ku xir ("+n+")";
+   bulkAssign.disabled=!n||!bulkClass.value;
+ }
+ async function assignClass(ids,classId){
+   const message=document.getElementById("studentListMessage");
+   message.textContent="Fasalka waa la xirayaa…";message.className="muted";
+   const {data,error}=await sb.from("education_students").update({class_id:classId||null}).in("id",ids).select("id");
+   if(error){message.textContent="Fasal ku xiriddu ma guulaysan: "+error.message;message.className="error";return false}
+   if(!data||data.length!==ids.length){
+     message.textContent="Supabase ma oggolaanin beddelka. Fur Supabase → SQL Editor oo fuli supabase/education_students_class.sql hal mar, kadib isku day mar kale.";
+     message.className="error";return false;
+   }
+   ids.forEach(id=>{const st=studentCache.find(x=>x.id===id);if(st)st.class_id=classId||null});
+   const name=classId?classNames[classId]:"fasal la'aan";
+   renderStudents(ids.length+" arday ayaa loo xiray: "+name+".");
+   await Promise.all([labelAttendanceClasses(),loadClassManagement()]);
+   if(attendanceClass.value)await loadAttendance();
+   return true;
  }
  async function loadClassManagement(){
    const message=document.getElementById("classListMessage");
@@ -391,6 +463,24 @@ label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padd
    message.textContent="Xogta fasalka waa la kaydiyey.";message.className="success";
  });
 
+ studentFilter.addEventListener("change",()=>renderStudents());
+ bulkClass.addEventListener("change",updateBulk);
+ pickAll.addEventListener("change",()=>{document.querySelectorAll("#studentRows [data-pick]").forEach(b=>{b.checked=pickAll.checked});updateBulk()});
+ document.getElementById("studentRows").addEventListener("change",e=>{if(e.target.matches("[data-pick]"))updateBulk()});
+ document.getElementById("studentRows").addEventListener("click",async e=>{
+   const btn=e.target.closest("[data-assign]");if(!btn)return;
+   const tr=btn.closest("tr");
+   btn.disabled=true;btn.textContent="…";
+   const ok=await assignClass([tr.dataset.studentId],tr.querySelector(".clsPick").value);
+   if(!ok){btn.disabled=false;btn.textContent="Kaydi"}
+ });
+ bulkAssign.addEventListener("click",async()=>{
+   const ids=[...document.querySelectorAll("#studentRows [data-pick]:checked")].map(b=>b.closest("tr").dataset.studentId);
+   if(!ids.length||!bulkClass.value)return;
+   bulkAssign.disabled=true;
+   await assignClass(ids,bulkClass.value);
+   updateBulk();
+ });
  attendanceClass.addEventListener("change",()=>{attendanceStudent.value="";loadAttendance()});
  attendanceStudent.addEventListener("change",filterAttendanceStudent);
  document.getElementById("loadAttendance").addEventListener("click",loadAttendance);
