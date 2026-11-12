@@ -1048,7 +1048,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
 
       <section class="panel" aria-labelledby="accH" data-tab="more">
         <h2 id="accH">Akoonkaaga</h2>
-      <div class="account acc-panel"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option><option value="ar">العربية</option><option value="sw">Kiswahili</option></select></label><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a></div>
+      <div class="account acc-panel"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option><option value="ar">العربية</option><option value="sw">Kiswahili</option></select></label><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a> <a id="educationLink" href="education.html" hidden>Waxbarasho</a></div>
         <div class="goal-actions" style="font-size:.92rem"><span>📍 <span id="accLoc">—</span></span><button type="button" class="del" id="locEdit">Beddel</button></div>
         <div class="pinbox"><div class="goal-actions"><b>🔒 Qufulka PIN-ka</b><span class="pill" id="pinState">—</span></div>
           <p class="note" style="margin:0">Marka app-ka la furo, 4 lambar ayaa la weydiinayaa si qof kale uusan u arkin lacagtaada.</p>
@@ -1691,7 +1691,7 @@ async function enter(user){
   const d=daysLeft(profile);
   $("accStatus").innerHTML=profile.is_admin?`<span class="pill ok">Maamule</span>`
     :`<span class="pill ${d<=3?"warn":"ok"}">${profile.paid_until&&new Date(profile.paid_until)>new Date()?L("La bixiyay: "+d+" maalmood ayaa haray","Paid: "+d+" days left","مدفوع: متبقٍ "+d+" يوم","Imelipwa: zimebaki siku "+d):L("Tijaabo: "+d+" maalmood ayaa haray","Trial: "+d+" days left","تجربة: متبقٍ "+d+" يوم","Majaribio: zimebaki siku "+d)}</span>`;
-  $("adminLink").hidden=!profile.is_admin;
+  $("adminLink").hidden=!profile.is_admin;$("educationLink").hidden=!profile.is_admin;
   if(profile.is_admin)sb.from("profiles").select("id").eq("pay_status","pending").then(({data})=>{const n=data?.length||0;$("adminLink").textContent=n?L(`Maamul · ⏳ ${n} codsi lacag`,`Admin · ⏳ ${n} payment requests`,`الإدارة · ⏳ ${n} طلبات دفع`,`Usimamizi · ⏳ maombi ${n} ya malipo`):L("Maamul","Admin");$("adminLink").classList.toggle("hot",!!n)}).catch(()=>{});
   let cached=loadLocal();if(!Array.isArray(cached))cached=await idbGet(cacheKey());const pend=loadPending();
   let data=null,error=null;
