@@ -1220,6 +1220,35 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
         <div class="edu-card"><div class="panel-head"><h3>Fasallada</h3><span class="note" id="eduClassCount"></span></div><div id="eduClasses" class="edu-records"></div></div>
         <div class="edu-card"><div class="panel-head"><h3>Ardayda</h3><span class="note" id="eduStudentCount"></span></div><div id="eduStudents" class="edu-records"></div></div>
         <div class="edu-card"><div class="panel-head"><h3>Lacagaha la bixiyay</h3><span class="note" id="eduPaymentCount"></span></div><div id="eduPayments" class="edu-records"></div></div>
+        <div class="edu-card" id="eduV2Manager">
+          <h3>Education V2 — heerar badan oo hal shirkad ah</h3>
+          <p class="note">Hal akoon ayaa maamuli kara dugsi hoose, dhexe, sare, jaamacad iyo xarun tababar.</p>
+          <div class="edu-grid">
+            <form id="eduV2StageForm" class="edu-form"><h4>Ku dar heer</h4>
+              <label class="field"><span>Nooca</span><select name="stage_code"><option value="primary">Hoose</option><option value="middle">Dhexe</option><option value="secondary">Sare</option><option value="university">Jaamacad</option><option value="vocational">Tababar</option></select></label>
+              <label class="field"><span>Magaca heerka</span><input name="name" maxlength="120" required></label><button type="submit">Kaydi heerka</button></form>
+            <form id="eduV2PeriodForm" class="edu-form"><h4>Ku dar sannad / semester</h4>
+              <label class="field"><span>Nooca</span><select name="period_type" id="eduV2PeriodType"><option value="academic_year">Sannad-dugsiyeed</option><option value="semester">Semester</option><option value="term">Term</option></select></label>
+              <label class="field"><span>Magaca</span><input name="name" maxlength="100" required></label>
+              <label class="field" id="eduV2ParentWrap" hidden><span>Sannadka waalidka</span><select name="parent_period_id" id="eduV2Parent"></select></label>
+              <label class="field"><span>Bilaabashada</span><input name="starts_on" type="date"></label><label class="field"><span>Dhammaadka</span><input name="ends_on" type="date"></label>
+              <label><input name="is_active" type="checkbox"> Xilligan waa firfircoon yahay</label><button type="submit">Kaydi xilliga</button></form>
+            <form id="eduV2CohortForm" class="edu-form"><h4>Ku dar fasal / koox</h4>
+              <label class="field"><span>Heerka</span><select name="stage_id" id="eduV2StageSelect" required></select></label>
+              <label class="field"><span>Sannad / semester</span><select name="period_id" id="eduV2PeriodSelect"><option value="">Midna</option></select></label>
+              <label class="field"><span>Magaca fasalka / kooxda</span><input name="name" maxlength="120" required></label>
+              <label class="field"><span>Macallin / tababare</span><input name="teacher_name" maxlength="120"></label><label class="field"><span>Qolka</span><input name="room" maxlength="50"></label>
+              <label class="field"><span>Xaaladda</span><select name="status"><option value="active">Firfircoon</option><option value="planned">Qorshaysan</option><option value="completed">Dhammaystiran</option><option value="archived">Kayd</option></select></label><button type="submit">Kaydi fasalka</button></form>
+            <form id="eduV2TransferForm" class="edu-form"><h4>Diiwaangeli / wareeji arday</h4>
+              <label class="field"><span>Ardayga</span><select name="student_id" id="eduV2StudentSelect" required></select></label>
+              <label class="field"><span>Fasalka / kooxda cusub</span><select name="cohort_id" id="eduV2CohortSelect" required></select></label>
+              <label class="field"><span>Taariikhda</span><input name="enrolled_on" type="date" required></label><label class="field"><span>Faahfaahin</span><input name="notes" maxlength="500"></label>
+              <button type="submit">Diiwaangeli / wareeji</button><p class="note">Taariikhda diiwaangelintii hore waa la ilaalinayaa.</p></form>
+          </div>
+          <div class="edu-grid"><div><h4>Heerarka</h4><div id="eduV2Stages" class="edu-records"></div></div><div><h4>Xilliyada</h4><div id="eduV2Periods" class="edu-records"></div></div><div><h4>Fasallada / kooxaha</h4><div id="eduV2Cohorts" class="edu-records"></div></div><div><h4>Taariikhda ardayda</h4><div id="eduV2History" class="edu-records"></div></div></div>
+          <p id="eduV2Status" class="note" role="status">V2 wali lama soo rarin.</p>
+        </div>
+        <p class="note edu-caution">Education V2 wali waa horumar. Ha gelin xog dhab ah ilaa migrations-ka lagu tijaabiyo staging.</p>
         <p class="note edu-caution">Xogta ardaydu waa xog gaar ah. Ku qor oo keliya xogta aad xaq u leedahay inaad maamusho, hana wadaagin akoonkaaga. Tallaabadan koowaad waxay diiwaangelisaa lacagaha iskuulka; weli ma samaynayso biilal otomaatig ah ama xiriir EVC/WaafiPay.</p>
       </section>
 
