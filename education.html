@@ -9,15 +9,24 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
 <style>
 :root{color-scheme:dark;--bg:#0b1118;--surface:#141c26;--ink:#eef3f8;--muted:#8fa0b3;--line:#233041;--accent:#3ddc97;--bad:#ff8877;font-family:"Figtree",system-ui,sans-serif}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font, "Figtree",system-ui,sans-serif)}
-main{max-width:900px;margin:auto;padding:24px 16px 48px;display:grid;gap:16px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font,"Figtree",system-ui,sans-serif)}
+main{max-width:1000px;margin:auto;padding:24px 16px 48px;display:grid;gap:16px}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 h1{font:700 1.7rem "Bricolage Grotesque",system-ui;margin:0}h1 span{color:var(--accent)}
-a,button{color:var(--ink);font:inherit}a{color:var(--accent)}button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 13px;cursor:pointer}
+a,button,input,select{color:var(--ink);font:inherit}a{color:var(--accent)}
+button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 14px;cursor:pointer}
+button.primary{background:var(--accent);color:#062016;border-color:var(--accent);font-weight:700}
+button:disabled{opacity:.55;cursor:wait}
 .panel,.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
 .tile{display:grid;gap:6px}.tile small{color:var(--muted)}.tile b{font:700 1.7rem "Bricolage Grotesque",system-ui}
-.muted{color:var(--muted)}.error{color:var(--bad)}.toplinks{display:flex;gap:14px;flex-wrap:wrap}
+.muted{color:var(--muted)}.error{color:var(--bad)}.success{color:var(--accent)}.toplinks{display:flex;gap:14px;flex-wrap:wrap}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.field{display:grid;gap:6px}.field.full{grid-column:1/-1}
+label{font-weight:600}.field input,.field select{width:100%;min-height:42px;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:#0e1620}
+.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}
+@media(max-width:620px){.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}}
 </style>
 <script src="vendor/supabase.js"></script>
 </head>
@@ -27,11 +36,36 @@ a,button{color:var(--ink);font:inherit}a{color:var(--accent)}button{border:1px s
 <section class="panel" id="status" aria-live="polite">Hubinaya gelitaanka maamulka…</section>
 <section id="dashboard" hidden>
   <div class="tiles">
-    <article class="tile"><small>Fasallada</small><b id="classes">—</b><span class="muted" id="classesNote">education_classes</span></article>
-    <article class="tile"><small>Ardayda</small><b id="students">—</b><span class="muted" id="studentsNote">education_students</span></article>
-    <article class="tile"><small>Lacag-bixinnada</small><b id="payments">—</b><span class="muted" id="paymentsNote">education_fee_payments</span></article>
+    <article class="tile"><small>Fasallada</small><b id="classes">—</b><span class="muted">education_classes</span></article>
+    <article class="tile"><small>Ardayda</small><b id="students">—</b><span class="muted">education_students</span></article>
+    <article class="tile"><small>Lacag-bixinnada</small><b id="payments">—</b><span class="muted">education_fee_payments</span></article>
   </div>
-  <section class="panel"><h2>Heerka xogta</h2><p class="muted">Boggan hadda wuxuu xaqiijinayaa akhriska jadwallada. Ma gelinayo, ma beddelayo, mana tirtirayo xog.</p><p id="detail" class="muted"></p><button id="refresh" type="button">Dib u hubi</button></section>
+
+  <section class="panel">
+    <h2>Diiwaangeli arday cusub</h2>
+    <p class="muted">Buuxi xogta ardayga. Magaca ardayga iyo lambarkiisu waa khasab; fasalka waa ikhtiyaari.</p>
+    <form id="studentForm">
+      <div class="formgrid">
+        <div class="field"><label for="studentNo">Lambarka ardayga *</label><input id="studentNo" name="student_no" required maxlength="80" autocomplete="off"></div>
+        <div class="field"><label for="fullName">Magaca oo buuxa *</label><input id="fullName" name="full_name" required maxlength="160" autocomplete="name"></div>
+        <div class="field"><label for="guardianName">Magaca waalidka / mas'uulka</label><input id="guardianName" name="guardian_name" maxlength="160"></div>
+        <div class="field"><label for="guardianPhone">Telefoonka waalidka</label><input id="guardianPhone" name="guardian_phone" type="tel" maxlength="40" autocomplete="tel"></div>
+        <div class="field"><label for="classId">Fasalka</label><select id="classId" name="class_id"><option value="">Fasal hadda ha loo qoondeyn</option></select></div>
+        <div class="field"><label for="enrolledOn">Taariikhda isdiiwaangelinta</label><input id="enrolledOn" name="enrolled_on" type="date"></div>
+      </div>
+      <div class="actions"><button class="primary" id="saveStudent" type="submit">Diiwaangeli ardayga</button><span id="formMessage" class="muted" role="status" aria-live="polite"></span></div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="actions" style="justify-content:space-between;margin-top:0"><h2 style="margin:0">Ardayda diiwaangashan</h2><button id="refresh" type="button">Dib u cusboonaysii</button></div>
+    <p id="studentListMessage" class="muted">Xogta ardayda waa la soo rarayaa…</p>
+    <div class="tablewrap"><table id="studentTable" hidden>
+      <thead><tr><th>Lambarka</th><th>Magaca</th><th>Waalidka</th><th>Telefoon</th><th>Fasalka</th><th>Taariikh</th><th>Xaalad</th></tr></thead>
+      <tbody id="studentRows"></tbody>
+    </table></div>
+  </section>
+  <section class="panel"><h2>Heerka xogta</h2><p class="muted">Diiwaangelinta cusub waxay ku dhacaysaa Supabase. Boggan ma laha hawl tirtirid ama wax-ka-beddelid arday.</p><p id="detail" class="muted"></p></section>
 </section>
 <script>
 (()=>{
@@ -41,27 +75,93 @@ a,button{color:var(--ink);font:inherit}a{color:var(--accent)}button{border:1px s
  const status=document.getElementById("status");
  const dashboard=document.getElementById("dashboard");
  const detail=document.getElementById("detail");
+ const form=document.getElementById("studentForm");
+ const formMessage=document.getElementById("formMessage");
+ const saveButton=document.getElementById("saveStudent");
+ const classSelect=document.getElementById("classId");
+ const today=()=>{const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")};
+ document.getElementById("enrolledOn").value=today();
  const setStatus=(msg,error=false)=>{status.textContent=msg;status.className=error?"panel error":"panel"};
+ let currentUser=null;
+ let classNames={};
+ const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+ async function loadClasses(){
+   const {data,error}=await sb.from("education_classes").select("id,name").order("name");
+   if(error){formMessage.textContent="Fasallada lama soo rari karin: "+error.message;formMessage.className="error";return}
+   classNames={};
+   (data||[]).forEach(item=>{classNames[item.id]=item.name});
+   classSelect.replaceChildren(new Option("Fasal hadda ha loo qoondeyn",""));
+   (data||[]).forEach(item=>classSelect.add(new Option(item.name,item.id)));
+ }
+ async function loadStudents(){
+   const {data,error}=await sb.from("education_students")
+     .select("id,student_no,full_name,guardian_name,guardian_phone,class_id,enrolled_on,status")
+     .order("created_at",{ascending:false}).limit(100);
+   const message=document.getElementById("studentListMessage");
+   const table=document.getElementById("studentTable");
+   const rows=document.getElementById("studentRows");
+   if(error){table.hidden=true;message.textContent="Ardayda lama soo rari karin: "+error.message;message.className="error";return}
+   rows.replaceChildren();
+   (data||[]).forEach(student=>{
+     const tr=document.createElement("tr");
+     const values=[student.student_no,student.full_name,student.guardian_name,student.guardian_phone,classNames[student.class_id]||"—",student.enrolled_on,student.status];
+     values.forEach(value=>{const td=document.createElement("td");td.textContent=value||"—";tr.appendChild(td)});
+     rows.appendChild(tr);
+   });
+   table.hidden=!(data&&data.length);
+   message.textContent=data&&data.length?("Waxaa la soo bandhigay "+data.length+" arday (ugu badnaan 100)."):"Weli arday lama diiwaangelin.";
+   message.className="muted";
+ }
+ async function refreshCounts(){
+   const tables=[["education_classes","classes"],["education_students","students"],["education_fee_payments","payments"]];
+   const results=await Promise.all(tables.map(async([table,id])=>{
+     const {count,error}=await sb.from(table).select("*",{count:"exact",head:true});
+     document.getElementById(id).textContent=error?"—":String(count??0);
+     return {table,error:error?.message||null};
+   }));
+   const failed=results.filter(x=>x.error);
+   detail.textContent=failed.length?"Jadwallada qaar lama akhrin karin: "+failed.map(x=>x.table+": "+x.error).join(" | "):"Saddexda jadwal waa la akhrin karaa. Tiradu waa xogta hadda ku jirta jadwal kasta.";
+ }
  async function check(){
-   detail.textContent="";setStatus("Hubinaya gelitaanka maamulka…");
+   setStatus("Hubinaya gelitaanka maamulka…");
    if(!sb){setStatus("Supabase lama heli karo. Hubi internetka oo dib u fur bogga.",true);return}
    const {data:{session},error:sessionError}=await sb.auth.getSession();
    if(sessionError||!session){setStatus("Marka hore HantiGo ka gal akoonkaaga maamulka. Kadib ku noqo Education.",true);return}
    const {data:profile,error:profileError}=await sb.from("profiles").select("is_admin").eq("id",session.user.id).maybeSingle();
    if(profileError||!profile?.is_admin){setStatus("Gelitaanka waa la diiday. Education waxaa geli kara Admin oo keliya.",true);return}
+   currentUser=session.user;
    status.hidden=true;dashboard.hidden=false;
-   const tables=[["education_classes","classes"],["education_students","students"],["education_fee_payments","payments"]];
-   const results=await Promise.all(tables.map(async([table,id])=>{
-     const {count,error}=await sb.from(table).select("*",{count:"exact",head:true});
-     document.getElementById(id).textContent=error?"—":String(count??0);
-     return {table,error:error?.message||null,count};
-   }));
-   const failed=results.filter(x=>x.error);
-   detail.textContent=failed.length
-     ?"Jadwallada qaar lama akhrin karin: "+failed.map(x=>x.table+": "+x.error).join(" | ")
-     :"Saddexda jadwal waa la akhrin karaa. Tiradu waa xogta hadda ku jirta jadwal kasta.";
+   await loadClasses();
+   await Promise.all([refreshCounts(),loadStudents()]);
  }
- document.getElementById("refresh").addEventListener("click",check);
+ form.addEventListener("submit",async event=>{
+   event.preventDefault();
+   if(!currentUser)return;
+   formMessage.textContent="";formMessage.className="muted";
+   const studentNo=document.getElementById("studentNo").value.trim();
+   const fullName=document.getElementById("fullName").value.trim();
+   if(!studentNo||!fullName){formMessage.textContent="Lambarka ardayga iyo magaciisa waa khasab.";formMessage.className="error";return}
+   const payload={
+     owner_id:currentUser.id,
+     student_no:studentNo,
+     full_name:fullName,
+     guardian_name:document.getElementById("guardianName").value.trim(),
+     guardian_phone:document.getElementById("guardianPhone").value.trim(),
+     class_id:classSelect.value||null,
+     enrolled_on:document.getElementById("enrolledOn").value||today()
+   };
+   saveButton.disabled=true;saveButton.textContent="Waa la diiwaangelinayaa…";
+   const {error}=await sb.from("education_students").insert(payload);
+   saveButton.disabled=false;saveButton.textContent="Diiwaangeli ardayga";
+   if(error){formMessage.textContent="Diiwaangelintu ma guulaysan: "+error.message;formMessage.className="error";return}
+   form.reset();document.getElementById("enrolledOn").value=today();
+   formMessage.textContent="Ardayga si guul leh ayaa loo diiwaangeliyey.";
+   formMessage.className="success";
+   await Promise.all([refreshCounts(),loadStudents()]);
+ });
+ document.getElementById("refresh").addEventListener("click",async()=>{
+   await loadClasses();await Promise.all([refreshCounts(),loadStudents()]);
+ });
  check();
 })();
 </script>
