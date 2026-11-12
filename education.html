@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="so">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b1118">
+<title>HantiGo · Education</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#0b1118;--surface:#141c26;--ink:#eef3f8;--muted:#8fa0b3;--line:#233041;--accent:#3ddc97;--bad:#ff8877;font-family:"Figtree",system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--font, "Figtree",system-ui,sans-serif)}
+main{max-width:900px;margin:auto;padding:24px 16px 48px;display:grid;gap:16px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font:700 1.7rem "Bricolage Grotesque",system-ui;margin:0}h1 span{color:var(--accent)}
+a,button{color:var(--ink);font:inherit}a{color:var(--accent)}button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 13px;cursor:pointer}
+.panel,.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.tile{display:grid;gap:6px}.tile small{color:var(--muted)}.tile b{font:700 1.7rem "Bricolage Grotesque",system-ui}
+.muted{color:var(--muted)}.error{color:var(--bad)}.toplinks{display:flex;gap:14px;flex-wrap:wrap}
+</style>
+<script src="vendor/supabase.js"></script>
+</head>
+<body>
+<main>
+<header><div><h1>HantiGo <span>Education</span></h1><div class="muted">Qaybta maamulka waxbarashada</div></div><nav class="toplinks"><a href="./">Homepage</a><a href="admin.html">Maamulka guud</a></nav></header>
+<section class="panel" id="status" aria-live="polite">Hubinaya gelitaanka maamulka…</section>
+<section id="dashboard" hidden>
+  <div class="tiles">
+    <article class="tile"><small>Fasallada</small><b id="classes">—</b><span class="muted" id="classesNote">education_classes</span></article>
+    <article class="tile"><small>Ardayda</small><b id="students">—</b><span class="muted" id="studentsNote">education_students</span></article>
+    <article class="tile"><small>Lacag-bixinnada</small><b id="payments">—</b><span class="muted" id="paymentsNote">education_fee_payments</span></article>
+  </div>
+  <section class="panel"><h2>Heerka xogta</h2><p class="muted">Boggan hadda wuxuu xaqiijinayaa akhriska jadwallada. Ma gelinayo, ma beddelayo, mana tirtirayo xog.</p><p id="detail" class="muted"></p><button id="refresh" type="button">Dib u hubi</button></section>
+</section>
+<script>
+(()=>{
+ const URL="https://izcvgigmcqxkntsvxkhj.supabase.co";
+ const KEY="sb_publishable_Uzpl7gYnsQAvLVwvsyD7nA_ZhJt_XpZ";
+ const sb=window.supabase?.createClient(URL,KEY);
+ const status=document.getElementById("status");
+ const dashboard=document.getElementById("dashboard");
+ const detail=document.getElementById("detail");
+ const setStatus=(msg,error=false)=>{status.textContent=msg;status.className=error?"panel error":"panel"};
+ async function check(){
+   detail.textContent="";setStatus("Hubinaya gelitaanka maamulka…");
+   if(!sb){setStatus("Supabase lama heli karo. Hubi internetka oo dib u fur bogga.",true);return}
+   const {data:{session},error:sessionError}=await sb.auth.getSession();
+   if(sessionError||!session){setStatus("Marka hore HantiGo ka gal akoonkaaga maamulka. Kadib ku noqo Education.",true);return}
+   const {data:profile,error:profileError}=await sb.from("profiles").select("is_admin").eq("id",session.user.id).maybeSingle();
+   if(profileError||!profile?.is_admin){setStatus("Gelitaanka waa la diiday. Education waxaa geli kara Admin oo keliya.",true);return}
+   status.hidden=true;dashboard.hidden=false;
+   const tables=[["education_classes","classes"],["education_students","students"],["education_fee_payments","payments"]];
+   const results=await Promise.all(tables.map(async([table,id])=>{
+     const {count,error}=await sb.from(table).select("*",{count:"exact",head:true});
+     document.getElementById(id).textContent=error?"—":String(count??0);
+     return {table,error:error?.message||null,count};
+   }));
+   const failed=results.filter(x=>x.error);
+   detail.textContent=failed.length
+     ?"Jadwallada qaar lama akhrin karin: "+failed.map(x=>x.table+": "+x.error).join(" | ")
+     :"Saddexda jadwal waa la akhrin karaa. Tiradu waa xogta hadda ku jirta jadwal kasta.";
+ }
+ document.getElementById("refresh").addEventListener("click",check);
+ check();
+})();
+</script>
+</main>
+</body>
+</html>
