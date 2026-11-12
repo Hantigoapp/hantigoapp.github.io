@@ -32,6 +32,7 @@ create table if not exists public.education_periods (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique(owner_id,id),
+  unique(owner_id,period_type,name),
   foreign key(owner_id,parent_period_id) references public.education_periods(owner_id,id) on delete restrict,
   check (starts_on is null or ends_on is null or ends_on >= starts_on),
   check ((period_type='academic_year' and parent_period_id is null) or
@@ -108,6 +109,7 @@ create table if not exists public.education_cohorts (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique(owner_id,id),
+  unique(owner_id,legacy_class_id),
   foreign key(owner_id,stage_id) references public.education_stages(owner_id,id) on delete restrict,
   foreign key(owner_id,period_id) references public.education_periods(owner_id,id) on delete restrict,
   foreign key(owner_id,programme_id) references public.education_programmes(owner_id,id) on delete restrict,
@@ -128,6 +130,7 @@ create table if not exists public.education_enrolments (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique(owner_id,id),
+  unique(owner_id,student_id,cohort_id,enrolled_on),
   foreign key(owner_id,student_id) references public.education_students(owner_id,id) on delete restrict,
   foreign key(owner_id,cohort_id) references public.education_cohorts(owner_id,id) on delete restrict,
   check (ended_on is null or ended_on >= enrolled_on)
