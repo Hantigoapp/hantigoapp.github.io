@@ -2298,11 +2298,12 @@ function goalHint(){
   if(mo&&p.eta!=null)parts.push(L(`${money(mo)} bishii: waxaad gaaraysaa ${ymText(p.eta)}.`,`${money(mo)} a month: you reach it in ${ymText(p.eta)}.`,`${money(mo)} شهريًا: ستصل إليه في ${ymText(p.eta)}.`,`${money(mo)} kwa mwezi: utafikia ${ymText(p.eta)}.`));
   if(p.short)parts.push(L("⚠️ Qadarka bishii kuma filna taariikhdaas.","⚠️ The monthly amount is not enough for that date.","⚠️ المبلغ الشهري لا يكفي لذلك التاريخ.","⚠️ Kiasi cha mwezi hakitoshi kwa tarehe hiyo."));
   el.textContent="💡 "+parts.join(" ")}
-const DEFAULT_BILLS=["Kiro guri","Koronto","Biyo","Gaas","Internet","Taleefan bille","Iskuul","Xawaalad qoys","Gaadiid bille","Qashin qaad","Ilaalada xaafadda","Telefishin","Caymis caafimaad","Deyn bixin","Jiim","Gaari-raac"];
+const DEFAULT_BILLS=["Kiro guri","Koronto","Biyo","Gaas","Internet","Taleefan bille","Iskuul","Jaamacad","Xawaalad qoys","Gaadiid bille","Qashin qaad","Ilaalada xaafadda","Telefishin","Caymis caafimaad","Deyn bixin","Jiim","Gaari-raac"];
 const B_BILLS=["Macallin","Maamulaha iskuulka","Maamulaha jaamacadda","Maamulaha dugsiga","Dhakhtar","Kalkaaliso","Xisaabiye","Waardiye","Xoghaye","Karraani","Darawal","Nadiifiye","Kariye","Farsamayaqaan","Khabiir IT","Iibiye","Shaqaale kale","Kiro dukaan","Kiro xafiis","Koronto","Biyo-caafi","Biyo caadi","Internet","Taleefan","Ilaalo","Qashin qaad","Canshuur & liisan","Caymis","Deyn bixin","Kiro gaari","Kiro gaadiid"];
 const BIZ_BILLS_VERSION=5;
 const B_NOT_MONTHLY=["Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Daawooyin & qalab caafimaad","Tababar shaqaale"];
-const BILLS_VERSION=3;
+const BILLS_VERSION=4;
+const BILLS_ADDED_V4=["Jaamacad"];   // only these are added for people already on v3, so bills they deleted do not come back
 const bills=()=>mine("bill").sort((a,b)=>a.created.localeCompare(b.created));
 const paidTx=(b,txs)=>txs.find(t=>t.billId===b.id&&inMonth(t));
 function renderBills(txs){
@@ -2346,7 +2347,7 @@ async function seedBills(){
   try{const now=Date.now();const have=new Set(bills().map(b=>b.name));
     const first=!st?.billsSeeded&&!bills().length;
     for(let k=0;k<DEFAULT_BILLS.length;k++){const n=DEFAULT_BILLS[k];
-      if(have.has(n)||(!first&&k<5))continue;   // keep bills the person already deleted from the first five
+      if(have.has(n)||(!first&&k<5)||(!first&&(st?.billsVersion||0)>=3&&!BILLS_ADDED_V4.includes(n)))continue;   // keep bills the person already deleted from the first five
       await put({id:uid(),kind:"bill",name:n,amount:0,created:new Date(now+k).toISOString()})}
     await put({...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),billsSeeded:true,billsVersion:BILLS_VERSION});
   }catch{}seeding=false}
