@@ -2012,7 +2012,7 @@ $("phoneForm").addEventListener("submit",async e=>{e.preventDefault();
 function notifyAdmin(ev){try{if(!sb||!me||!online()||profile?.is_admin)return;
   if(ev==="signup"){const k="hantigo.notified."+me.id;
     if(localStorage.getItem(k)||!profile?.created_at||Date.now()-new Date(profile.created_at)>3*864e5||companies.some(c=>c.active))return;
-    sb.functions.invoke("notify-admin",{body:{event:"signup"}}).then(({data})=>{if(data?.ok)try{localStorage.setItem(k,"1")}catch{}}).catch(()=>{});return}
+    sb.functions.invoke("notify-admin",{body:{event:"signup",lang:LANG}}).then(({data})=>{if(data?.ok)try{localStorage.setItem(k,"1")}catch{}}).catch(()=>{});return}
   sb.functions.invoke("notify-admin",{body:{event:"pay"}}).catch(()=>{})}catch{}}
 $("recheck").addEventListener("click",()=>{if(me)enter(me)});
 document.querySelectorAll("input[name=pway]").forEach(r=>r.addEventListener("change",()=>{const w=document.querySelector("input[name=pway]:checked").value==="waafi";$("pwEvc").hidden=w;$("pwWaafi").hidden=!w;
