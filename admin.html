@@ -127,6 +127,11 @@ h2{font-family:var(--display)}
 .ncount button[aria-pressed=true] b,.ncount button[aria-pressed=true] small{color:#06281a}
 .ncount.n5{grid-template-columns:repeat(5,minmax(0,1fr))}
 @media (max-width:560px){.ncount.n5{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* top count tiles are buttons: tap one to open that customer list; the chosen one stays lit */
+button.stat{font:inherit;color:inherit;text-align:start;cursor:pointer;display:block;width:100%;transition:border-color .15s,box-shadow .15s}
+button.stat:hover{border-color:var(--accent)}
+button.stat[aria-pressed=true]{border-color:var(--accent);box-shadow:0 0 0 3px rgba(61,220,151,.35);outline:0}
+button.stat[aria-pressed=true] small{color:var(--accent)}
 .plist-h{margin:0;font-size:.9rem;color:var(--muted);font-weight:600}
 </style>
 <script src="vendor/supabase.js"></script>
@@ -140,10 +145,10 @@ h2{font-family:var(--display)}
     <section id="autobox" class="autobox" hidden></section>
     <section id="newbox" class="newbox" aria-live="polite"></section>
     <div class="stats">
-      <div class="stat"><small>Macaamiisha</small><b id="nAll">0</b><em id="nNew"></em></div>
-      <div class="stat"><small>Bixiyay</small><b id="nPaid" class="cin">0</b></div>
-      <div class="stat"><small>Tijaabo</small><b id="nTrial" class="cac">0</b></div>
-      <div class="stat"><small>Dhacay</small><b id="nExp" class="cout">0</b></div>
+      <button type="button" class="stat" data-sf="all" aria-pressed="false"><small>Macaamiisha</small><b id="nAll">0</b><em id="nNew"></em></button>
+      <button type="button" class="stat" data-sf="paid" aria-pressed="false"><small>Bixiyay</small><b id="nPaid" class="cin">0</b></button>
+      <button type="button" class="stat" data-sf="trial" aria-pressed="false"><small>Tijaabo</small><b id="nTrial" class="cac">0</b></button>
+      <button type="button" class="stat" data-sf="exp" aria-pressed="false"><small>Dhacay</small><b id="nExp" class="cout">0</b></button>
       <div class="stat wide"><small>Dakhliga bishii</small><b id="mrr">$0</b></div>
       <div class="stat"><small>Iibka bishan</small><b id="sMon" class="cin">—</b><em id="sDay"></em></div>
     </div>
@@ -231,6 +236,7 @@ function render(){
   const cust=rows.filter(p=>!p.is_admin);
   const paid=cust.filter(isPaid).length,trial=cust.filter(isTrial).length,nw=cust.filter(isNew).length;
   $("nAll").textContent=cust.length;$("nNew").textContent=nw?`+${nw} toddobaadkan`:"";$("nPaid").textContent=paid;$("nTrial").textContent=trial;$("nExp").textContent=cust.length-paid-trial;$("mrr").textContent="$"+cust.filter(isPaid).reduce((a,p)=>a+priceOf(p),0);
+  syncSf();
   $("chips").innerHTML=FILTERS.map(([k,t,f])=>`<button type="button" data-f="${k}" aria-pressed="${filt===k}">${t} · ${cust.filter(f).length}</button>`).join("");
   renderLocs(cust);renderReqs(cust);const nf=renderNew(cust);document.title=(nf?"🆕"+nf+" ":"")+document.title;
   const fn=FILTERS.find(x=>x[0]===filt)[2];const qd=q.replace(/\D/g,"");
@@ -241,12 +247,14 @@ function render(){
     return `<h3 class="grp-h ${k==="business"?"biz":"per"}"><span>${t} · ${g.length}</span><small>✓ ${pd} bixiyay · ⏳ ${tr} tijaabo · ✕ ${g.length-pd-tr} dhacay</small></h3>`+(g.length?g.map(custRow).join(""):`<p class="msg">Macmiil ${t.slice(3)} ah lama helin.</p>`)};
   $("list").innerHTML=list.length?GROUPS.filter(x=>grp==="all"||grp===x[0]).map(sect).join(""):`<p class="msg">Macmiil lama helin.</p>`;
   if(!hasInfo&&cust.length)$("list").insertAdjacentHTML("afterbegin",'<p class="msg">Si aad u aragto magaca, telefoonka iyo shirkadda macmiil kasta, ku shub <b>supabase/customer_info.sql</b> gudaha Supabase (SQL Editor → Run).</p>')}
-document.addEventListener("click",e=>{const f=e.target.closest("[data-f]");if(f){filt=f.dataset.f;render();return}
+document.addEventListener("click",e=>{const sf=e.target.closest("[data-sf]");if(sf){filt=sf.dataset.sf;if(tab!=="cust")document.querySelector('[data-tab="cust"]').click();render();$("tabCust").scrollIntoView({behavior:"smooth",block:"start"});return}
+  const f=e.target.closest("[data-f]");if(f){filt=f.dataset.f;render();return}
   const g=e.target.closest("[data-g]");if(g){grp=g.dataset.g;render();return}
   const l=e.target.closest("[data-lk]");if(l){const k=l.dataset.lk,v=l.dataset.lv;
     if(k==="all"){locCountry="";locCity=""}else if(k==="country"){locCountry=locCountry===v?"":v;locCity=""}else locCity=locCity===v?"":v;
     render();const b=document.querySelector(`#locs [data-lk="${k}"][aria-pressed="true"]`);if(b)b.focus({preventScroll:true});return}
-  const t=e.target.closest("[data-tab]");if(t){tab=t.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-selected",x===t));$("tabCust").hidden=tab!=="cust";$("tabLoc").hidden=tab!=="loc";$("tabSales").hidden=tab!=="sales"}});
+  const t=e.target.closest("[data-tab]");if(t){tab=t.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-selected",x===t));$("tabCust").hidden=tab!=="cust";$("tabLoc").hidden=tab!=="loc";$("tabSales").hidden=tab!=="sales";syncSf()}});
+function syncSf(){document.querySelectorAll("[data-sf]").forEach(b=>b.setAttribute("aria-pressed",String(tab==="cust"&&filt===b.dataset.sf)))}
 async function load(){
   const {data,error}=await sb.from("profiles").select("*").order("created_at",{ascending:false});
   if(error){$("msg").textContent="Xogta lama soo saari karo: "+error.message;return}
