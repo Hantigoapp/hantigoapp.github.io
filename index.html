@@ -139,7 +139,7 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .newcat{display:grid;gap:8px;padding:12px;border:1px dashed var(--line);border-radius:12px}
 .chip.own{border-style:dashed}
 .chip.on{background:var(--out-soft);border-color:var(--out);color:var(--out);font-weight:600}
-.bill{display:grid;grid-template-columns:minmax(0,1fr) 110px auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.bill{display:grid;grid-template-columns:minmax(0,1fr) 110px auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
 .bill:first-child{border-top:0}
 .bill .name{font-weight:600;overflow-wrap:anywhere}
 .paid{color:var(--in);font-weight:600;font-size:.85rem;white-space:nowrap;display:grid;justify-items:end}.paid .del{padding:2px 0;font-size:.78rem}
@@ -150,6 +150,8 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .bpill{display:inline-flex;align-items:center;gap:3px;padding:1px 8px;border-radius:99px;font-size:.74rem;font-weight:700;background:var(--line);color:var(--muted);white-space:nowrap}
 .bpill.ok{background:var(--in-soft);color:var(--in)}.bpill.part{background:#f6e7c1;color:#8a5a00}.bpill.late{background:var(--out-soft);color:var(--out)}
 :root[data-theme="dark"] .bpill.part{background:#3a2f12;color:#f3d38a}
+.bacts{grid-column:1/-1;display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:6px}.bacts button{min-height:40px;padding:6px 4px;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bacts button[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}.bacts .bpay.done{color:var(--in);opacity:1}.bacts .bpay:disabled{cursor:default}
 .bstat{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.bstat .note{margin-inline-start:auto}
 .bill.bs-late{box-shadow:inset 3px 0 0 var(--out);padding-inline-start:8px}.bill.bs-off>input,.bill.bs-off .name{opacity:.6}
 .btabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px}
@@ -171,7 +173,7 @@ em.paid{background:var(--in)}em.part{background:#d49a1b}em.unpaid{background:#8a
 .bfc>div.cur{border-color:var(--accent)}.bfc b{font-size:.95rem;overflow-wrap:anywhere}
 @media (max-width:420px){.bfc{grid-template-columns:repeat(2,1fr)}}
 .bill-total{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;font-weight:600}
-@media (max-width:420px){.bill{grid-template-columns:minmax(0,1fr) 76px auto auto;gap:6px}.bill .del{padding:6px 2px}}
+@media (max-width:420px){.bill{grid-template-columns:minmax(0,1fr) 96px auto;gap:6px}.bill .del{padding:6px 2px}}
 .done{color:var(--in);font-weight:600;font-size:.85rem}
 .note{font-size:.8rem;color:var(--muted)}
 .banner{background:var(--accent-soft);border-radius:12px;padding:10px 14px;font-size:.88rem}
@@ -2431,13 +2433,14 @@ function renderBills(txs){
   for(const b of bs){const x=billState(b,txs),g=bcatOf(b);gsum[g]=(gsum[g]||0)+(x.due?x.amt:0)}
   $("bills").innerHTML=bs.length?bs.map(b=>{const x=billState(b,txs),id=esc(b.id),f=Number(b.freq)||1,g=bcatOf(b),head=billTab==="list"&&g!==lastG?`<div class="bgrp">${bcatLabel(g)}<span>${gsum[g]>0?money(gsum[g]):""}</span></div>`:"";lastG=g;
     if(x.due)total+=x.amt;if(x.due&&x.left>0&&x.amt>0)left++;if(cnt[x.s]!=null)cnt[x.s]++;if(x.late)cnt.late++;if(x.due&&x.amt>0)rest+=x.left;
-    const act=x.s==="off"?`<span class="note bnext">💤 ${L("Bishan ma jiro","Not this month","ليس هذا الشهر","Si mwezi huu")}</span>`
-      :x.s==="paid"?`<span class="paid">✓ ${money(x.paid)}</span>`
-      :`<button data-pay="${id}">Bixi</button>`;
+    /* one bar on every bill: Bixi · Taariikh · Jadwal side by side */
+    const act=x.s==="off"?`<button type="button" class="bpay" disabled>💤 ${L("Bishan ma jiro","Not this month","ليس هذا الشهر","Si mwezi huu")}</button>`
+      :x.s==="paid"?`<button type="button" class="bpay done" disabled>✓ ${money(x.paid)}</button>`
+      :`<button type="button" class="bpay primary" data-pay="${id}">💳 ${L("Bixi","Pay","ادفع","Lipa")}${x.left>0&&x.s==="part"?" "+money(x.left):""}</button>`;
+    const bar=`<div class="bacts">${act}<button type="button" data-bhist="${id}" aria-expanded="${billHist===b.id}">🕓 ${L("Taariikh","History","السجل","Historia")}</button><button type="button" data-bset="${id}" aria-expanded="${billOpen===b.id}">⚙ ${L("Jadwal","Schedule","الجدول","Ratiba")}</button></div>`;
     const sch=(f>1?"🔁 "+freqTxt(f)+(x.s==="off"&&billNext(b)?" · "+L("Xiga: ","Next: ","التالي: ","Ijayo: ")+MONTHS[billNext(b).getMonth()]:""):"")+(b.auto?(f>1?" · ":"")+"⚡ "+L("Toos","Auto","تلقائي","Otomatiki"):"");
     const line2=x.amt>0||x.paid?`<div class="bill-x">${billPill(x)}${x.paid&&x.s!=="paid"?`<span class="note">${money(x.paid)} / ${money(x.amt)} · ${L("Haray","Left","المتبقي","Kilichobaki")} <b>${money(x.left)}</b></span>`:""}
-        ${sch?`<span class="note">${sch}</span>`:""}<span class="bx-btns">${x.s==="unpaid"||x.s==="part"?`<button class="del" data-bpart="${id}">½ ${L("Bixi qayb","Pay part","ادفع جزءًا","Lipa sehemu")}</button>`:""}${x.pays.length?`<button class="del" data-unpay="${esc(x.pays[x.pays.length-1].id)}">${L("↩ Ka noqo","↩ Undo")}</button>`:""}<button class="del" data-bhist="${id}" aria-expanded="${billHist===b.id}">🕓 ${L("Taariikh","History","السجل","Historia")}</button><button class="del" data-bset="${id}" aria-expanded="${billOpen===b.id}">⚙ ${L("Jadwal","Schedule","الجدول","Ratiba")}</button></span></div>`
-      :`<div class="bill-x"><span class="bx-btns"><button class="del" data-bset="${id}" aria-expanded="${billOpen===b.id}">⚙ ${L("Jadwal","Schedule","الجدول","Ratiba")}</button></span></div>`;
+        ${sch?`<span class="note">${sch}</span>`:""}<span class="bx-btns">${x.s==="unpaid"||x.s==="part"?`<button class="del" data-bpart="${id}">½ ${L("Bixi qayb","Pay part","ادفع جزءًا","Lipa sehemu")}</button>`:""}${x.pays.length?`<button class="del" data-unpay="${esc(x.pays[x.pays.length-1].id)}">${L("↩ Ka noqo","↩ Undo")}</button>`:""}</span></div>`:"";
     const part=billPart===b.id&&(x.s==="unpaid"||x.s==="part")?`<div class="bill-x bpart"><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="${esc(String(x.left||""))}" data-bpartin="${id}" aria-label="${L("Qadarka qaybta","Part amount","مبلغ الجزء","Kiasi cha sehemu")}"><button class="primary" data-bpartgo="${id}">${L("Bixi qaybtan","Pay this part","ادفع هذا الجزء","Lipa sehemu hii")}</button><button class="del" data-bpart="${id}">✕</button></div>`:"";
     const set=billOpen===b.id?`<div class="bill-x bset"><label class="due">🗂️ <select data-bgrp="${id}" aria-label="${L("Qaybta","Category","الفئة","Aina")}">${bcats().map(c=>`<option value="${c[0]}"${c[0]===g?" selected":""}>${c[1]} ${L(...c[2])}</option>`).join("")}</select></label><label class="due">🔁 <select data-bfreq="${id}" aria-label="${L("Inta jeer","How often","كم مرة","Mara ngapi")}">${BILL_FREQ.map(n=>`<option value="${n}"${n===f?" selected":""}>${freqTxt(n)}</option>`).join("")}</select></label>
         ${f>1?`<label class="due">${L("Bisha ugu horreysa:","First month:","الشهر الأول:","Mwezi wa kwanza:")} <select data-bmon="${id}">${MONTHS.map((m,i)=>`<option value="${i}"${i===billMon(b)?" selected":""}>${m}</option>`).join("")}</select></label>`:""}
@@ -2447,8 +2450,7 @@ function renderBills(txs){
     const hist=billHist===b.id?billHistory(b,txs):"";
     return head+`<div class="bill bs-${x.late?"late":x.s}"><span class="name"><span>${esc(T(b.name))}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
       <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${id}" aria-label="${L("Qadarka ","Amount for ")}${esc(b.name)}">
-      ${act}
-      <button class="del" data-del="${id}">Tirtir</button>${line2}${part}${set}${hist}</div>`}).join("")
+      <button class="del" data-del="${id}">Tirtir</button>${line2}${bar}${part}${set}${hist}</div>`}).join("")
     :`<p class="empty" style="margin:0">Weli ma jiro kharash joogto ah. Hoos ka ku dar.</p>`;
   if(keep){const el=document.querySelector(`[data-${keep.a}="${keep.id}"]`);if(el){el.value=keep.v;el.focus()}}
   $("billSum").textContent=L("Wadarta bishii: ","Monthly total: ","مجموع الشهر: ","Jumla ya mwezi: ")+money(total);
