@@ -58,6 +58,13 @@ input{width:100%;border:1px solid var(--line);background:var(--surface);border-r
 .acts button{padding:5px 10px;font-size:.85rem}
 @media (max-width:560px){.row{grid-template-columns:auto minmax(0,1fr)}.acts{grid-column:1/-1}}
 .bar{display:grid;grid-template-columns:minmax(80px,30%) 1fr auto;gap:10px;align-items:center;padding:5px 0;font-size:.92rem}
+button.bar{width:100%;background:transparent;border:1px solid transparent;border-radius:10px;padding:7px 8px;margin:2px 0;color:var(--ink);font:inherit;font-size:.92rem;text-align:left;cursor:pointer;min-height:38px}
+button.bar span{overflow-wrap:anywhere}button.bar:hover{background:var(--accent-soft)}
+button.bar.all{font-weight:700;border-bottom-color:var(--line);border-radius:10px}button.bar.all i{opacity:.35}
+button.bar[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#06281a;font-weight:700;box-shadow:0 0 0 2px rgba(61,220,151,.25)}
+button.bar[aria-pressed=true] i{background:#06281a;opacity:.55}
+.locsel{grid-column:1/-1;display:grid;gap:8px}.locsel h3{margin:6px 0 0;font-size:1rem;display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:space-between}
+.locclr{padding:5px 12px;font-size:.85rem;border-radius:99px}
 .bar i{display:block;height:10px;border-radius:0 4px 4px 0;background:var(--accent);min-width:4px}
 .bar b{min-width:2ch;text-align:right}
 html:root{--bg:#0b1118;--surface:#141c26;--ink:#eef3f8;--muted:#8fa0b3;--line:#233041;--accent:#3ddc97;--accent-soft:#16352a;--in:#3ddc97;--in-soft:#14322a;--out:#ff7a66;--out-soft:#3a1f1b;color-scheme:dark}
@@ -175,7 +182,7 @@ function status(p){const now=new Date();
   if(p.paid_until&&new Date(p.paid_until)>now)return["Bixiyay ilaa "+fmt(p.paid_until),"ok"];
   if(new Date(p.trial_until)>now)return["Tijaabo ilaa "+fmt(p.trial_until),"trial"];
   return["Dhacay","warn"]}
-let filt="all",tab="cust",grp="all";
+let filt="all",tab="cust",grp="all",locCountry="",locCity="";
 const isBiz=p=>planOf(p)==="business";
 const GROUPS=[["person","👤 Shakhsi",p=>!isBiz(p)],["business","🏢 Shirkad",isBiz]];
 const isPaid=p=>p.paid_until&&new Date(p.paid_until)>new Date();
@@ -187,12 +194,27 @@ const dataAt=p=>info[p.id]?.data_updated_at||null;
 const activeAt=p=>{const a=[signInAt(p),dataAt(p)].filter(Boolean).map(d=>+new Date(d));return a.length?Math.max(...a):0};
 const isToday=t=>{const d=new Date();d.setHours(0,0,0,0);return t>=+d};
 const FILTERS=[["all","Dhammaan",()=>true],["paid","Bixiyay",isPaid],["trial","Tijaabo",isTrial],["exp","Dhacay",p=>!isPaid(p)&&!isTrial(p)],["new","Cusub (7 maalmood)",isNew],["today","🟢 Maanta galay",p=>isToday(activeAt(p))]];
+function custRow(p){const [t,c]=status(p);return `<div class="row">
+    <div class="av" aria-hidden="true">${initial(p)}</div>
+    <div class="who"><b>${esc(nameOf(p)||p.email)}</b><span class="pill ${c}">${esc(t)}</span>${planPill(p)}
+      ${whoLines(p)}
+      <div>📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")} · 📅 ${fmt(p.created_at)}${startTxt(p)}</div>${seenLine(p)}</div>
+    <div class="acts"><button class="primary" data-id="${p.id}" data-d="30">+30 maalmood</button><button data-id="${p.id}" data-d="365">+1 sano</button><button class="stop" data-id="${p.id}" data-d="0">Jooji</button>${"plan" in p?`<button data-plan="${p.id}" data-to="${planOf(p)==="business"?"person":"business"}">→ ${planOf(p)==="business"?"👤 Shakhsi $3":"🏢 Shirkad $7"}</button>`:""}</div>
+  </div>`}
 function renderLocs(cust){
   if(cust.length&&!("city" in cust[0])){$("locs").innerHTML='<p class="msg">Si aad u aragto meelaha ay dadku joogaan, ku shub faylka <b>supabase/location.sql</b> gudaha Supabase (SQL Editor → Run).</p>';return}
-  const box=(title,key)=>{const m={};cust.forEach(p=>{const v=p[key]||"Lama oga";m[v]=(m[v]||0)+1});
+  /* each country / city is a button: pressed one stays highlighted and filters the customers shown under the boxes */
+  const vOf=(p,key)=>p[key]||"Lama oga";
+  if(locCountry&&!cust.some(p=>vOf(p,"country")===locCountry))locCountry="";
+  const inC=locCountry?cust.filter(p=>vOf(p,"country")===locCountry):cust;
+  if(locCity&&!inC.some(p=>vOf(p,"city")===locCity))locCity="";
+  const box=(title,key,src,cur)=>{const m={};src.forEach(p=>{const v=vOf(p,key);m[v]=(m[v]||0)+1});
     const list=Object.entries(m).sort((a,b)=>b[1]-a[1]);const max=Math.max(1,...list.map(x=>x[1]));
-    return `<div class="locbox"><h3>${title}</h3>${list.map(([k,n])=>`<div class="bar"><span>${esc(k)}</span><i style="width:${n/max*100}%"></i><b>${n}</b></div>`).join("")||'<p class="msg">Weli qofna</p>'}</div>`};
-  $("locs").innerHTML=box("📍 Magaalooyinka","city")+box("🌍 Wadamada","country")}
+    return `<div class="locbox"><h3>${title}</h3><div role="group" aria-label="${esc(title)}"><button type="button" class="bar all" data-lk="${key}" data-lv="" aria-pressed="${!cur}"><span>Dhammaan</span><i style="width:100%"></i><b>${src.length}</b></button>${list.map(([k,n])=>`<button type="button" class="bar" data-lk="${key}" data-lv="${esc(k)}" aria-pressed="${cur===k}"><span>${esc(k)}</span><i style="width:${n/max*100}%"></i><b>${n}</b></button>`).join("")||'<p class="msg">Weli qofna</p>'}</div></div>`};
+  const sel=inC.filter(p=>!locCity||vOf(p,"city")===locCity);
+  const place=[locCity,locCountry].filter(Boolean).join(", ");
+  $("locs").innerHTML=box("📍 Magaalooyinka"+(locCountry?" · "+esc(locCountry):""),"city",inC,locCity)+box("🌍 Wadamada","country",cust,locCountry)+
+    (place?`<div class="locsel"><h3>👥 Macaamiisha ${esc(place)} · ${sel.length}<button type="button" class="locclr" data-lk="all" data-lv="">✕ Ka saar</button></h3>${sel.length?sel.map(custRow).join(""):'<p class="msg">Macmiil lama helin.</p>'}</div>`:"")}
 function renderReqs(cust){
   const hasCol=cust.length&&("pay_status" in cust[0]);
   const reqs=cust.filter(p=>hasCol?p.pay_status==="pending":(p.phone&&!isPaid(p)));
@@ -214,20 +236,16 @@ function render(){
   const fn=FILTERS.find(x=>x[0]===filt)[2];const qd=q.replace(/\D/g,"");
   const list=cust.filter(fn).filter(p=>!q||[p.email,p.city,nameOf(p),coOf(p)].some(v=>String(v||"").toLowerCase().includes(q))||(qd&&[p.phone,phoneOf(p)].some(v=>String(v||"").replace(/\D/g,"").includes(qd))));
   $("grps").innerHTML=[["all","Dhammaan",()=>true],...GROUPS].map(([k,t,f])=>`<button type="button" data-g="${k}" aria-pressed="${grp===k}">${t} · ${cust.filter(f).length}</button>`).join("");
-  const row=p=>{const [t,c]=status(p);return `<div class="row">
-    <div class="av" aria-hidden="true">${initial(p)}</div>
-    <div class="who"><b>${esc(nameOf(p)||p.email)}</b><span class="pill ${c}">${esc(t)}</span>${planPill(p)}
-      ${whoLines(p)}
-      <div>📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")} · 📅 ${fmt(p.created_at)}${startTxt(p)}</div>${seenLine(p)}</div>
-    <div class="acts"><button class="primary" data-id="${p.id}" data-d="30">+30 maalmood</button><button data-id="${p.id}" data-d="365">+1 sano</button><button class="stop" data-id="${p.id}" data-d="0">Jooji</button>${"plan" in p?`<button data-plan="${p.id}" data-to="${planOf(p)==="business"?"person":"business"}">→ ${planOf(p)==="business"?"👤 Shakhsi $3":"🏢 Shirkad $7"}</button>`:""}</div>
-  </div>`};
   /* customers split in two lists: Shakhsi and Shirkad, each with how many bought / are on trial */
   const sect=([k,t,f])=>{const g=list.filter(f),pd=g.filter(isPaid).length,tr=g.filter(isTrial).length;
-    return `<h3 class="grp-h ${k==="business"?"biz":"per"}"><span>${t} · ${g.length}</span><small>✓ ${pd} bixiyay · ⏳ ${tr} tijaabo · ✕ ${g.length-pd-tr} dhacay</small></h3>`+(g.length?g.map(row).join(""):`<p class="msg">Macmiil ${t.slice(3)} ah lama helin.</p>`)};
+    return `<h3 class="grp-h ${k==="business"?"biz":"per"}"><span>${t} · ${g.length}</span><small>✓ ${pd} bixiyay · ⏳ ${tr} tijaabo · ✕ ${g.length-pd-tr} dhacay</small></h3>`+(g.length?g.map(custRow).join(""):`<p class="msg">Macmiil ${t.slice(3)} ah lama helin.</p>`)};
   $("list").innerHTML=list.length?GROUPS.filter(x=>grp==="all"||grp===x[0]).map(sect).join(""):`<p class="msg">Macmiil lama helin.</p>`;
   if(!hasInfo&&cust.length)$("list").insertAdjacentHTML("afterbegin",'<p class="msg">Si aad u aragto magaca, telefoonka iyo shirkadda macmiil kasta, ku shub <b>supabase/customer_info.sql</b> gudaha Supabase (SQL Editor → Run).</p>')}
 document.addEventListener("click",e=>{const f=e.target.closest("[data-f]");if(f){filt=f.dataset.f;render();return}
   const g=e.target.closest("[data-g]");if(g){grp=g.dataset.g;render();return}
+  const l=e.target.closest("[data-lk]");if(l){const k=l.dataset.lk,v=l.dataset.lv;
+    if(k==="all"){locCountry="";locCity=""}else if(k==="country"){locCountry=locCountry===v?"":v;locCity=""}else locCity=locCity===v?"":v;
+    render();const b=document.querySelector(`#locs [data-lk="${k}"][aria-pressed="true"]`);if(b)b.focus({preventScroll:true});return}
   const t=e.target.closest("[data-tab]");if(t){tab=t.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-selected",x===t));$("tabCust").hidden=tab!=="cust";$("tabLoc").hidden=tab!=="loc";$("tabSales").hidden=tab!=="sales"}});
 async function load(){
   const {data,error}=await sb.from("profiles").select("*").order("created_at",{ascending:false});
