@@ -34,6 +34,7 @@ input{width:100%;border:1px solid var(--line);background:var(--surface);border-r
 .grp-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px;margin:14px 0 2px;padding:8px 12px;border-radius:10px;font-size:1rem;border-left:4px solid #3ddc97;background:rgba(61,220,151,.08)}
 .grp-h.biz{border-left-color:#6aa5ff;background:rgba(106,165,255,.08)}.grp-h small{font-weight:500;opacity:.8;font-size:.82rem}
 .cinfo{display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:4px}.cinfo span{white-space:normal}
+.seen{color:var(--muted);font-size:.88rem;margin-top:2px}.seen b{color:var(--ink);font-weight:600}.seen.on{color:var(--in)}.seen.on b{color:var(--in)}
 .who{min-width:0}.who b{overflow-wrap:anywhere}.who div{color:var(--muted);font-size:.85rem;overflow-wrap:anywhere}
 .acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
 .pill{display:inline-block;padding:1px 9px;border-radius:99px;font-weight:600;font-size:.78rem;margin-left:6px}
@@ -180,7 +181,12 @@ const GROUPS=[["person","👤 Shakhsi",p=>!isBiz(p)],["business","🏢 Shirkad",
 const isPaid=p=>p.paid_until&&new Date(p.paid_until)>new Date();
 const isTrial=p=>!isPaid(p)&&new Date(p.trial_until)>new Date();
 const isNew=p=>p.created_at&&Date.now()-new Date(p.created_at)<7*864e5;
-const FILTERS=[["all","Dhammaan",()=>true],["paid","Bixiyay",isPaid],["trial","Tijaabo",isTrial],["exp","Dhacay",p=>!isPaid(p)&&!isTrial(p)],["new","Cusub (7 maalmood)",isNew]];
+/* last sign-in (auth.users) and last time the app saved their data (user_data), from customer_info.sql */
+const signInAt=p=>info[p.id]?.last_sign_in_at||extra[p.id]?.last_seen||null;
+const dataAt=p=>info[p.id]?.data_updated_at||null;
+const activeAt=p=>{const a=[signInAt(p),dataAt(p)].filter(Boolean).map(d=>+new Date(d));return a.length?Math.max(...a):0};
+const isToday=t=>{const d=new Date();d.setHours(0,0,0,0);return t>=+d};
+const FILTERS=[["all","Dhammaan",()=>true],["paid","Bixiyay",isPaid],["trial","Tijaabo",isTrial],["exp","Dhacay",p=>!isPaid(p)&&!isTrial(p)],["new","Cusub (7 maalmood)",isNew],["today","🟢 Maanta galay",p=>isToday(activeAt(p))]];
 function renderLocs(cust){
   if(cust.length&&!("city" in cust[0])){$("locs").innerHTML='<p class="msg">Si aad u aragto meelaha ay dadku joogaan, ku shub faylka <b>supabase/location.sql</b> gudaha Supabase (SQL Editor → Run).</p>';return}
   const box=(title,key)=>{const m={};cust.forEach(p=>{const v=p[key]||"Lama oga";m[v]=(m[v]||0)+1});
@@ -212,7 +218,7 @@ function render(){
     <div class="av" aria-hidden="true">${initial(p)}</div>
     <div class="who"><b>${esc(nameOf(p)||p.email)}</b><span class="pill ${c}">${esc(t)}</span>${planPill(p)}
       ${whoLines(p)}
-      <div>📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")} · 📅 ${fmt(p.created_at)}${startTxt(p)}</div></div>
+      <div>📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")} · 📅 ${fmt(p.created_at)}${startTxt(p)}</div>${seenLine(p)}</div>
     <div class="acts"><button class="primary" data-id="${p.id}" data-d="30">+30 maalmood</button><button data-id="${p.id}" data-d="365">+1 sano</button><button class="stop" data-id="${p.id}" data-d="0">Jooji</button>${"plan" in p?`<button data-plan="${p.id}" data-to="${planOf(p)==="business"?"person":"business"}">→ ${planOf(p)==="business"?"👤 Shakhsi $3":"🏢 Shirkad $7"}</button>`:""}</div>
   </div>`};
   /* customers split in two lists: Shakhsi and Shirkad, each with how many bought / are on trial */
@@ -307,6 +313,10 @@ const coOf=p=>info[p.id]?.company||extra[p.id]?.company||"";
 const initial=p=>esc((nameOf(p)||p.email||"?")[0].toUpperCase());
 function whoLines(p){const ph=phoneOf(p),evc=p.phone&&String(p.phone).replace(/\D/g,"")!==String(ph).replace(/\D/g,"")?p.phone:"";
   return `<div class="cinfo"><span>✉️ ${esc(p.email||"—")}</span><span>📞 ${esc(ph||"—")}</span>${evc?`<span>💳 EVC: ${esc(evc)}</span>`:""}${coOf(p)?`<span>🏢 ${esc(coOf(p))}</span>`:""}</div>`}
+/* "Galay ugu dambeyn": when the customer last signed in, and when they last saved something in the app */
+function seenLine(p){const si=signInAt(p),du=dataAt(p);if(!si&&!du)return hasInfo||hasExtra?`<div class="seen">🔑 Galay ugu dambeyn: weli ma galin</div>`:"";
+  const on=isToday(activeAt(p));
+  return `<div class="seen${on?" on":""}">🔑 Galay ugu dambeyn: ${si?`<b>${when(si)}</b> (${ago(si)})`:"—"}${du?` · ✏️ Xog u dambaysay: ${when(du)} (${ago(du)})`:""}</div>`}
 const startTxt=p=>{const d=starts[p.id];return d?` · 🗓 Bilaabay: ${esc(d)}`:""};
 const SEEN_KEY="hantigo.admin.seen";
 function getSeen(){try{const v=Number(localStorage.getItem(SEEN_KEY));if(v)return v}catch{}return Date.now()-864e5}
