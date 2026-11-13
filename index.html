@@ -227,7 +227,6 @@ em.paid{background:var(--in)}em.part{background:#d49a1b}em.unpaid{background:#8a
 .gate .hero-chips b{font-weight:600}
 .gate .hero-cta{display:grid;grid-template-columns:1fr;gap:8px}
 .gate .hero-cta .ghost{background:transparent;border:1.5px solid rgba(61,220,151,.45);color:var(--text,inherit);font-weight:700}
-.gate .hero-cta{display:grid;grid-template-columns:1fr;gap:8px}
 .steps-panel{display:grid;gap:14px}
 .stepper{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;counter-reset:none}
 .stepper li{position:relative;min-width:0}
@@ -247,28 +246,27 @@ em.paid{background:var(--in)}em.part{background:#d49a1b}em.unpaid{background:#8a
 .steps-panel:not([data-step="1"]) #step1{display:none}
 .steps-panel[data-step="1"] #authForm{display:none}
 .steps-panel[data-step="2"] #forgot,.steps-panel[data-step="2"] #altUp,.steps-panel[data-step="3"] #altIn,.steps-panel[data-step="3"] #aChosen,.steps-panel[data-step="3"] #aNote{display:none}
-.typecard{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:7px 12px;align-items:center;padding:18px;border-radius:18px;background:linear-gradient(135deg,rgba(61,220,151,.12),rgba(61,220,151,.035));border:1.5px solid rgba(61,220,151,.42);box-shadow:0 5px 18px rgba(0,0,0,.08);transition:transform .15s,background .15s,border-color .15s}
-.typecard b{font-size:1.12rem;font-weight:800;letter-spacing:-.01em}.typecard em{grid-column:2;grid-row:1;font-style:normal;font-weight:800;color:#3ddc97;font-size:1rem;white-space:nowrap;background:rgba(61,220,151,.13);border:1px solid rgba(61,220,151,.28);border-radius:999px;padding:6px 10px}
-.typecard span{grid-column:1/-1;color:var(--muted);font-size:.9rem;line-height:1.4}
-.typecard:hover,.typecard:focus-visible{background:rgba(61,220,151,.16);transform:translateY(-1px)}
-.typecard:focus-visible{outline:2px solid #3ddc97;outline-offset:2px}
-.typecard.on{border-color:#3ddc97;background:rgba(61,220,151,.18)}
-.typecard[data-pick="business"]{background:linear-gradient(135deg,rgba(106,165,255,.13),rgba(106,165,255,.035));border-color:rgba(106,165,255,.45)}.typecard[data-pick="business"] em{color:#6aa5ff;background:rgba(106,165,255,.13);border-color:rgba(106,165,255,.3)}
-.typecard[data-pick="business"]:hover,.typecard[data-pick="business"]:focus-visible,.typecard[data-pick="business"].on{background:rgba(106,165,255,.16);border-color:#6aa5ff}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.plan{--pc:#3ddc97;--pk:#06281a;display:grid;gap:8px;align-content:start;grid-template-rows:auto auto auto 1fr auto;padding:16px;border-radius:16px;border:1.5px solid color-mix(in srgb,var(--pc) 45%,transparent);background:color-mix(in srgb,var(--pc) 8%,transparent)}
+.plan-b{--pc:#6aa5ff;--pk:#061a33}
+.plan-tag{margin:0;justify-self:start;font-size:.72rem;font-weight:800;color:var(--pc);background:color-mix(in srgb,var(--pc) 14%,transparent);border-radius:999px;padding:4px 10px}
+.plan h3{margin:0;font-size:1.15rem;font-weight:800}
+.plan-price{margin:0;display:flex;align-items:baseline;gap:4px;color:var(--muted)}.plan-price b{font-size:2.1rem;line-height:1;font-weight:800;color:var(--pc);font-variant-numeric:tabular-nums}
+.plan ul{margin:0;padding:0;list-style:none;display:grid;align-content:start;gap:6px;font-size:.9rem;line-height:1.35}
+.plan li{display:flex;gap:8px}.plan li::before{content:"✓";flex:none;font-weight:800;color:var(--pc)}
+.typecard{all:unset;box-sizing:border-box;cursor:pointer;display:block;text-align:center;margin-top:4px;padding:14px 12px;min-height:50px;border-radius:12px;background:var(--pc);color:var(--pk);font-weight:800;font-size:1.02rem;box-shadow:0 6px 18px color-mix(in srgb,var(--pc) 35%,transparent);transition:transform .12s,filter .12s}
+.typecard:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.typecard:focus-visible{outline:3px solid var(--ink,#fff);outline-offset:2px}
+.typecard.on{outline:3px solid var(--pc);outline-offset:2px}
+.gate .hero-cta .signup-cta,#aBtn{min-height:52px;font-size:1.05rem;font-weight:800;background:#3ddc97;color:#06281a;border:0;box-shadow:0 6px 18px rgba(61,220,151,.35)}
 .chosen{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:12px;background:var(--accent-soft);font-weight:700}
 .step-alt{margin:0;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 8px;font-size:.92rem;color:var(--muted);padding-top:10px;border-top:1px solid var(--line)}
 .linkbtn{all:unset;cursor:pointer;color:#3ddc97;font-weight:700;text-decoration:underline;text-underline-offset:3px}
 .linkbtn:focus-visible{outline:2px solid #3ddc97;outline-offset:2px;border-radius:4px}
 @media (max-width:899px){.gate-home.returning .home-side{order:-1}}
 html[data-skin="1"] .stepper i,html[data-skin="2"] .stepper i{background:#fff}
-.gate .hero-sep{height:1px;background:linear-gradient(90deg,rgba(61,220,151,.35),transparent)}
-.gate .hero-h{margin:0;font-weight:800;font-size:1rem}
-.gate .hero-list{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.gate .hero-list li{display:grid;gap:8px;align-content:start;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:12px;font-size:.9rem;line-height:1.35;font-weight:600}
-.gate .hero-list i{font-style:normal;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(61,220,151,.15);font-size:1.05rem}
-html[data-skin="1"] .gate .hero-chips span,html[data-skin="2"] .gate .hero-chips span,html[data-skin="1"] .gate .hero-list li,html[data-skin="2"] .gate .hero-list li{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.1)}
-@media (min-width:900px){.home-grid{grid-template-columns:1.1fr .9fr;gap:28px}.gate .hero{padding:34px 32px;gap:18px;position:sticky;top:20px}.gate .hero h2{font-size:2.3rem}.gate .hero-lead{font-size:1.08rem}}
-@media (max-width:360px){.gate .hero-list{grid-template-columns:1fr}}
+html[data-skin="1"] .gate .hero-chips span,html[data-skin="2"] .gate .hero-chips span{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.1)}
+@media (min-width:900px){.home-grid{grid-template-columns:1fr 1fr;gap:28px}.gate .hero{padding:34px 32px;gap:18px;position:sticky;top:20px}.gate .hero h2{font-size:2.3rem}.gate .hero-lead{font-size:1.08rem}}
 .tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .tabs button{border:0;border-radius:0;font-weight:600;color:var(--muted)}
 .tabs button[aria-selected="true"]{background:var(--accent-soft);color:var(--accent)}
@@ -615,7 +613,7 @@ html:not([data-mode="business"]) #appView .summary .stat:has(#sNet){grid-column:
 #appView>header,#appView>#net{order:-2}
 #appView>.summary{order:-1}
 @media (max-width:560px){#appView>header{position:relative}}
-@media (min-width:900px){#appView[data-tab="home"] #stPanel,#appView[data-tab="home"] #psPanel,#appView[data-tab="home"] #dyPanel{grid-column:1/-1}}
+@media (min-width:900px){#appView[data-tab="home"] #stPanel,#appView[data-tab="home"] #psPanel,#appView[data-tab="home"] #dyPanel,#appView[data-tab="home"] .catpanel,#appView[data-tab="home"] .month-compare{grid-column:1/-1}}
 /* folding panels */
 .foldbtn{margin-inline-start:auto;border-radius:999px!important;padding:5px 12px;font-size:.8rem;color:var(--accent);border:1px solid var(--line);background:var(--bg)}
 .foldbtn i{font-style:normal}
@@ -707,16 +705,8 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
     <p class="hero-eyebrow">⭐ Sababta ay dadku u dooranayaan HantiGo</p>
     <h2>Maamul dhaqaalahaaga.<br><span>Kobci mustaqbalkaaga.</span></h2>
     <p class="hero-lead">Hal meel ku maamul dakhligaaga, kharashaadkaaga, kaydkaaga iyo dhaqaalaha ganacsigaaga.</p>
-    <div class="hero-chips"><span>🎁 <b>7 maalmood bilaash</b></span></div>
-    <div class="hero-cta"><button type="button" class="primary" data-go="1">Bilow: 3 tallaabo oo fudud ↓</button><button type="button" class="ghost" data-go="3">Horay akoon u leedahay? Gal</button></div>
-    <div class="hero-sep"></div>
-    <p class="hero-h">HantiGo wuxuu kuu fududeynayaa:</p>
-    <ul class="hero-list">
-      <li><i aria-hidden="true">💰</i><span>La soco dakhliga iyo kharashaadkaaga.</span></li>
-      <li><i aria-hidden="true">🎯</i><span>Samee miisaaniyad iyo yoolal kayd.</span></li>
-      <li><i aria-hidden="true">🏢</i><span>Maamul iibka iyo shaqaalaha ganacsiga.</span></li>
-      <li><i aria-hidden="true">📊</i><span>Hel warbixinno kooban oo cad.</span></li>
-    </ul>
+    <div class="hero-chips"><span>🎁 <b>7 maalmood bilaash</b></span><span>🛡️ <b>Ammaan</b></span><span>🏷️ <b>Qiimo jaban</b></span></div>
+    <div class="hero-cta"><button type="button" class="primary signup-cta" data-go="1">✍️ Diiwaangeli bilaash ↓</button><button type="button" class="ghost" data-go="3">Horay akoon u leedahay? Gal</button></div>
   </aside>
   <div class="home-side">
   <div class="panel steps-panel" id="stepsPanel" data-step="1">
@@ -727,8 +717,22 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
     </ol>
     <div class="step" id="step1">
       <h2 class="step-h"><b>1</b><span>Dooro Shakhsi ama Shirkad</span></h2>
-      <button type="button" class="typecard" data-pick="person"><b>👤 Shakhsi</b><span>Lacagtaada gaarka ah: soo galay, kharash, miisaaniyad, biilal iyo kayd.</span><em class="tprice">$3 / bishii</em></button>
-      <button type="button" class="typecard" data-pick="business"><b>🏢 Shirkad</b><span>Ganacsigaaga: iib, kharash, shaqaale, deymo iyo warbixinno.</span><em class="tprice">$7 / bishii</em></button>
+      <div class="plans">
+        <div class="plan plan-p">
+          <p class="plan-tag">Adeegyada qofka</p>
+          <h3>👤 Shakhsi</h3>
+          <p class="plan-price"><b>$3</b> <span>/ bishii</span></p>
+          <ul><li>Soo galay iyo kharash</li><li>Miisaaniyad, biilal iyo kayd</li><li>Warbixin Excel, Word iyo PDF</li></ul>
+          <button type="button" class="typecard" data-pick="person">Diiwaangeli · Shakhsi</button>
+        </div>
+        <div class="plan plan-b">
+          <p class="plan-tag">Adeegyada shirkadda</p>
+          <h3>🏢 Shirkad</h3>
+          <p class="plan-price"><b>$7</b> <span>/ bishii</span></p>
+          <ul><li>Iib, kharash iyo faa'iido</li><li>Shaqaale, mushahar iyo fasax</li><li>Deymo, rasiid iyo warbixinno</li><li>Shakhsi waa ku jiraa</li></ul>
+          <button type="button" class="typecard" data-pick="business">Diiwaangeli · Shirkad</button>
+        </div>
+      </div>
       <p class="note" style="margin:0;text-align:center">🎁 Labaduba waxay helayaan 7 maalmood oo bilaash ah.</p>
       <p class="step-alt"><span>Horay akoon u leedahay?</span> <button type="button" class="linkbtn" data-go="3">Gal dashboard-kaaga →</button></p>
     </div>
@@ -873,10 +877,12 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
     <div class="stat top-spend no-person"><span class="lbl" id="topPlaceLbl">Shirkadda lacagta ugu badan laga siiyay bishan</span><span class="val" id="sTopPlace">—</span><span class="note" id="sTopPlaceNote">Ku qor magaca shirkadda marka aad kharash gelinayso.</span></div>
   </section>
 
-  <section class="panel month-compare no-staff" aria-labelledby="mcH" data-tab="home" data-fold="mc" data-fold-def="1">
-    <div class="panel-head"><h2 id="mcH">Isbarbardhigga bishan iyo tii hore</h2><span class="note" id="mcPeriod"></span></div>
-    <div class="mc-grid" id="monthCompare" aria-live="polite"></div>
+  <section class="panel catpanel no-staff" aria-labelledby="catH" data-tab="home">
+    <h2 id="catH">Meesha lacagtu ku baxday</h2>
+    <div id="extremes" class="extremes"></div>
+    <div id="cats" style="display:grid;gap:10px"></div>
   </section>
+
 
   <section class="panel daypanel" aria-labelledby="dyH" data-tab="home" id="dyPanel" data-fold="dy">
     <div class="panel-head"><h2 id="dyH">📅 Maalin-maalin</h2><span class="dynav"><button type="button" class="icon" data-dynav="-1" aria-label="Bishii hore">‹</button><b id="dyMonth"></b><button type="button" class="icon" data-dynav="1" aria-label="Bisha xigta">›</button></span></div>
@@ -897,6 +903,32 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
     <div id="chart" class="chart" role="img" aria-label="Garaafka lacagta soo gashay iyo tan baxday"></div>
     <div id="chartTip" class="tip" hidden></div>
     <details class="note"><summary>Eeg tirooyinka</summary><div style="overflow-x:auto"><table class="ctable" id="chartTable"></table></div></details>
+  </section>
+
+  <section class="panel person-only" aria-labelledby="psH" data-tab="home" id="psPanel" data-fold="ps" data-fold-def="1">
+    <div class="panel-head"><h2 id="psH">📊 Tirakoobkayga</h2>
+      <select id="psPer" aria-label="Muddada" style="width:auto"><option value="1">Bishan</option><option value="3">3-dii bilood</option><option value="12">12-kii bilood</option></select></div>
+    <div class="goal-actions"><button type="button" id="psCsv">⬇ Excel</button><button type="button" id="psDoc">⬇ Word</button><button type="button" id="psPdf">🖨 PDF</button></div>
+    <div class="sttiles" id="psTiles"></div>
+    <div class="stin" id="psIn" aria-live="polite"></div>
+    <h3 class="sth stsec">Lacagta soo gashay, kharashka iyo kaydka bil kasta</h3>
+    <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#20a070"></i>Lacagta soo gashay</span><span><i class="sq" style="background:#e5534b"></i>Kharashka</span><span><i class="sq" style="background:#5a8fe0"></i>Kaydka</span></div>
+    <div id="psMonths" class="chart stc" role="img" aria-label="Lacagta soo gashay, kharashka iyo kaydka bil kasta"></div>
+    <p class="note stx">Bil kasta 3 tiir: <b>cagaar</b> = lacagta soo gashay, <b>cas</b> = kharashka, <b>buluug</b> = kaydka. Haddii cagaarku ka dheer yahay casaanka, lacag ayaa kuu haray.</p>
+    <h3 class="sth stsec">Kharashka mowduuc kasta</h3>
+    <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#e5534b"></i>Kharashka</span></div>
+    <div id="psGroups" class="hbars"></div>
+    <p class="note stx">Mowduucyada lacagtaadu ku baxday (Cunto, Cabitaan, Hilib…), laga bilaabo kan ugu badan.</p>
+    <h3 class="sth stsec">Waxyaabaha ugu lacagta badan</h3>
+    <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#d4a017"></i>Shay kasta</span></div>
+    <div id="psItems" class="hbars"></div>
+    <p class="note stx">8-da shay ee lacagta ugu badan aad ku bixisay muddadan.</p>
+    <details class="note"><summary>Eeg tirooyinka</summary><div style="overflow-x:auto"><table class="ctable" id="psTable"></table></div></details>
+  </section>
+
+  <section class="panel month-compare no-staff" aria-labelledby="mcH" data-tab="home" data-fold="mc" data-fold-def="1">
+    <div class="panel-head"><h2 id="mcH">Isbarbardhigga bishan iyo tii hore</h2><span class="note" id="mcPeriod"></span></div>
+    <div class="mc-grid" id="monthCompare" aria-live="polite"></div>
   </section>
 
   <section class="panel biz-only mgr-only" aria-labelledby="stH" data-tab="home" id="stPanel" data-fold="st" data-fold-def="1">
@@ -1251,31 +1283,6 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
         </div>
       </section>
 
-  <section class="panel person-only" aria-labelledby="psH" data-tab="home" id="psPanel" data-fold="ps">
-    <div class="panel-head"><h2 id="psH">📊 Tirakoobkayga</h2>
-      <select id="psPer" aria-label="Muddada" style="width:auto"><option value="1">Bishan</option><option value="3">3-dii bilood</option><option value="12">12-kii bilood</option></select></div>
-    <div class="goal-actions"><button type="button" id="psCsv">⬇ Excel</button><button type="button" id="psDoc">⬇ Word</button><button type="button" id="psPdf">🖨 PDF</button></div>
-    <div class="sttiles" id="psTiles"></div>
-    <div class="stin" id="psIn" aria-live="polite"></div>
-    <h3 class="sth stsec">Lacagta soo gashay, kharashka iyo kaydka bil kasta</h3>
-    <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#20a070"></i>Lacagta soo gashay</span><span><i class="sq" style="background:#e5534b"></i>Kharashka</span><span><i class="sq" style="background:#5a8fe0"></i>Kaydka</span></div>
-    <div id="psMonths" class="chart stc" role="img" aria-label="Lacagta soo gashay, kharashka iyo kaydka bil kasta"></div>
-    <p class="note stx">Bil kasta 3 tiir: <b>cagaar</b> = lacagta soo gashay, <b>cas</b> = kharashka, <b>buluug</b> = kaydka. Haddii cagaarku ka dheer yahay casaanka, lacag ayaa kuu haray.</p>
-    <h3 class="sth stsec">Kharashka mowduuc kasta</h3>
-    <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#e5534b"></i>Kharashka</span></div>
-    <div id="psGroups" class="hbars"></div>
-    <p class="note stx">Mowduucyada lacagtaadu ku baxday (Cunto, Cabitaan, Hilib…), laga bilaabo kan ugu badan.</p>
-    <h3 class="sth stsec">Waxyaabaha ugu lacagta badan</h3>
-    <div class="legend" aria-hidden="true"><span><i class="sq" style="background:#d4a017"></i>Shay kasta</span></div>
-    <div id="psItems" class="hbars"></div>
-    <p class="note stx">8-da shay ee lacagta ugu badan aad ku bixisay muddadan.</p>
-    <details class="note"><summary>Eeg tirooyinka</summary><div style="overflow-x:auto"><table class="ctable" id="psTable"></table></div></details>
-  </section>
-      <section class="panel catpanel no-staff" aria-labelledby="catH" data-tab="home">
-        <h2 id="catH">Meesha lacagtu ku baxday</h2>
-        <div id="extremes" class="extremes"></div>
-        <div id="cats" style="display:grid;gap:10px"></div>
-      </section>
     </div>
   </div>
   <div data-install data-tab="more"></div>
@@ -1425,6 +1432,7 @@ Object.assign(EN,{"La soco dakhliga iyo kharashaadkaaga.":"Track your income and
 Object.assign(AR,{"Track your income and expenses.":"تابع دخلك ومصروفاتك.","Set budgets and savings goals.":"أنشئ ميزانية وأهدافًا للادخار.","Manage business sales and staff.":"أدر مبيعات العمل والموظفين.","Get clear, concise reports.":"احصل على تقارير واضحة وموجزة."});
 Object.assign(SW,{"Track your income and expenses.":"Fuatilia mapato na matumizi yako.","Set budgets and savings goals.":"Weka bajeti na malengo ya akiba.","Manage business sales and staff.":"Simamia mauzo ya biashara na wafanyakazi.","Get clear, concise reports.":"Pata ripoti fupi na zilizo wazi."});
 /* landing page 3 steps */Object.assign(EN,{"Bilow: 3 tallaabo oo fudud ↓": "Start: 3 easy steps ↓", "Horay akoon u leedahay? Gal": "Already have an account? Log in", "Dooro nooca": "Choose type", "Gal dashboard-kaaga": "Open your dashboard", "Dooro Shakhsi ama Shirkad": "Choose Personal or Business", "Lacagtaada gaarka ah: soo galay, kharash, miisaaniyad, biilal iyo kayd.": "Your own money: income, spending, budget, bills and savings.", "Ganacsigaaga: iib, kharash, shaqaale, deymo iyo warbixinno.": "Your business: sales, spending, staff, debts and reports.", "🎁 Labaduba waxay helayaan 7 maalmood oo bilaash ah.": "🎁 Both come with 7 days free.", "Horay akoon u leedahay?": "Already have an account?", "Gal dashboard-kaaga →": "Open your dashboard →", "👤 Shakhsi · $3 / bishii": "👤 Personal · $3 / month", "🏢 Shirkad · $7 / bishii": "🏢 Business · $7 / month", "Akoon ma lihid?": "No account yet?", "Samee akoon cusub (tallaabada 1)": "Create a new account (step 1)", "✓ Akoonkaaga waa diyaar. Dashboard-kaaga ayaa la furayaa…": "✓ Your account is ready. Opening your dashboard…"});Object.assign(AR,{"Start: 3 easy steps ↓": "ابدأ: 3 خطوات سهلة ↓", "Already have an account? Log in": "لديك حساب بالفعل؟ سجّل الدخول", "Choose type": "اختر النوع", "Open your dashboard": "ادخل إلى لوحتك", "Choose Personal or Business": "اختر شخصي أو شركة", "Your own money: income, spending, budget, bills and savings.": "أموالك الخاصة: الدخل والمصاريف والميزانية والفواتير والادخار.", "Your business: sales, spending, staff, debts and reports.": "عملك التجاري: المبيعات والمصاريف والموظفون والديون والتقارير.", "🎁 Both come with 7 days free.": "🎁 كلاهما يحصل على 7 أيام مجانًا.", "Already have an account?": "لديك حساب بالفعل؟", "Open your dashboard →": "ادخل إلى لوحتك ←", "👤 Personal · $3 / month": "👤 شخصي · 3$ / شهريًا", "🏢 Business · $7 / month": "🏢 شركة · 7$ / شهريًا", "No account yet?": "ليس لديك حساب؟", "Create a new account (step 1)": "أنشئ حسابًا جديدًا (الخطوة 1)", "✓ Your account is ready. Opening your dashboard…": "✓ حسابك جاهز. يتم فتح لوحتك…"});Object.assign(SW,{"Start: 3 easy steps ↓": "Anza: hatua 3 rahisi ↓", "Already have an account? Log in": "Una akaunti tayari? Ingia", "Choose type": "Chagua aina", "Open your dashboard": "Ingia kwenye dashibodi yako", "Choose Personal or Business": "Chagua Binafsi au Biashara", "Your own money: income, spending, budget, bills and savings.": "Pesa yako binafsi: mapato, matumizi, bajeti, bili na akiba.", "Your business: sales, spending, staff, debts and reports.": "Biashara yako: mauzo, matumizi, wafanyakazi, madeni na ripoti.", "🎁 Both come with 7 days free.": "🎁 Zote mbili zinapata siku 7 bure.", "Already have an account?": "Una akaunti tayari?", "Open your dashboard →": "Ingia kwenye dashibodi yako →", "👤 Personal · $3 / month": "👤 Binafsi · $3 / mwezi", "🏢 Business · $7 / month": "🏢 Biashara · $7 / mwezi", "No account yet?": "Huna akaunti bado?", "Create a new account (step 1)": "Fungua akaunti mpya (hatua ya 1)", "✓ Your account is ready. Opening your dashboard…": "✓ Akaunti yako iko tayari. Dashibodi yako inafunguliwa…"});
+/* home v122: plans */Object.assign(EN,{"Ammaan": "Secure", "Qiimo jaban": "Low price", "✍️ Diiwaangeli bilaash ↓": "✍️ Sign up free ↓", "Adeegyada qofka": "Personal services", "Adeegyada shirkadda": "Business services", "/ bishii": "/ month", "Soo galay iyo kharash": "Income and spending", "Miisaaniyad, biilal iyo kayd": "Budget, bills and savings", "Warbixin Excel, Word iyo PDF": "Excel, Word and PDF reports", "Iib, kharash iyo faa'iido": "Sales, spending and profit", "Shaqaale, mushahar iyo fasax": "Staff, salaries and leave", "Deymo, rasiid iyo warbixinno": "Debts, receipts and reports", "Shakhsi waa ku jiraa": "Personal is included", "Diiwaangeli · Shakhsi": "Sign up · Personal", "Diiwaangeli · Shirkad": "Sign up · Business"});Object.assign(AR,{"Secure": "آمن", "Low price": "سعر منخفض", "✍️ Sign up free ↓": "✍️ سجّل مجانًا ↓", "Personal services": "خدمات شخصية", "Business services": "خدمات الشركات", "/ month": "/ شهريًا", "Income and spending": "الدخل والمصاريف", "Budget, bills and savings": "الميزانية والفواتير والادخار", "Excel, Word and PDF reports": "تقارير Excel وWord وPDF", "Sales, spending and profit": "المبيعات والمصاريف والربح", "Staff, salaries and leave": "الموظفون والرواتب والإجازات", "Debts, receipts and reports": "الديون والإيصالات والتقارير", "Personal is included": "يشمل الحساب الشخصي", "Sign up · Personal": "سجّل · شخصي", "Sign up · Business": "سجّل · شركة"});Object.assign(SW,{"Secure": "Salama", "Low price": "Bei nafuu", "✍️ Sign up free ↓": "✍️ Jisajili bure ↓", "Personal services": "Huduma binafsi", "Business services": "Huduma za biashara", "/ month": "/ mwezi", "Income and spending": "Mapato na matumizi", "Budget, bills and savings": "Bajeti, bili na akiba", "Excel, Word and PDF reports": "Ripoti za Excel, Word na PDF", "Sales, spending and profit": "Mauzo, matumizi na faida", "Staff, salaries and leave": "Wafanyakazi, mishahara na likizo", "Debts, receipts and reports": "Madeni, risiti na ripoti", "Personal is included": "Binafsi imejumuishwa", "Sign up · Personal": "Jisajili · Binafsi", "Sign up · Business": "Jisajili · Biashara"});
 /* recurring bills: schedule, auto, part payments */Object.assign(EN,{"⚙ Jadwal: dooro inta jeer (bil kasta, 3 biloodba, sannad kasta), digniinta iyo ⚡ bixin toos ah. “½ Bixi qayb” waxay bixisaa qayb ka mid ah biilka.":"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.","Joogto · qayb":"Recurring · part","Joogto · toos":"Recurring · auto","Joogto":"Recurring","Qaybaha":"Categories","Jadwalka bisha":"Month calendar","Dib u dhacay":"Late","Saadaal":"Forecast"});
 Object.assign(AR,{"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.":"⚙ الجدول: اختر كم مرة (كل شهر، كل 3 أشهر، كل سنة)، والتذكير و⚡ الدفع التلقائي. “½ ادفع جزءًا” يدفع جزءًا فقط من الفاتورة.","Recurring · part":"ثابت · جزء","Recurring · auto":"ثابت · تلقائي","Recurring":"ثابت","Categories":"الفئات","Month calendar":"تقويم الشهر","Late":"متأخر","Forecast":"التوقعات"});
 Object.assign(SW,{"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.":"⚙ Ratiba: chagua mara ngapi (kila mwezi, kila miezi 3, kila mwaka), kikumbusho na ⚡ malipo ya otomatiki. “½ Lipa sehemu” hulipa sehemu tu ya bili.","Recurring · part":"Ya kawaida · sehemu","Recurring · auto":"Ya kawaida · otomatiki","Recurring":"Ya kawaida","Categories":"Aina","Month calendar":"Kalenda ya mwezi","Late":"Zimechelewa","Forecast":"Utabiri"});
