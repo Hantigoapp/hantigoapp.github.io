@@ -112,16 +112,18 @@ Deno.serve(async (req) => {
     const plan = p.plan === "business" || (!p.plan && um.mode === "business") ? "business" : "person";
     const planTxt = plan === "business" ? "🏢 Shirkad ($7 bishii)" : "👤 Shakhsi ($3 bishii)";
     const company = String(um.company ?? "").trim().slice(0, 60);
+    const fullName = String(um.full_name ?? "").trim().slice(0, 60), contact = String(um.phone ?? "").trim().slice(0, 20);
+    const whoTxt = `${fullName ? `Magaca: ${fullName}\n` : ""}Email: ${p.email}${contact ? `\nTelefoon: ${contact}` : ""}`;
     const place = [p.city, p.country].filter(Boolean).join(", ") || "lama oga";
-    const phone = digits(p.phone);
+    const phone = digits(p.phone || contact);
     const ref = String(p.pay_ref ?? "");
     const way = /\[WaafiPay\]/.test(ref) ? "WaafiPay" : "EVC Plus";
 
     let subject = "", text = "";
     if (ev === "pay") {
-      subject = `HantiGo · 💰 Lacag-bixin cusub ayaa ku sugaysa: ${planTxt.split(" (")[0]} · ${p.email}`;
+      subject = `HantiGo · 💰 Lacag-bixin cusub ayaa ku sugaysa: ${planTxt.split(" (")[0]} · ${fullName ? fullName + " · " : ""}${p.email}`;
       text = `Salaan,\n\nMacmiil ayaa yiri "waan bixiyay" wuxuuna sugayaa inaad ansixiso.\n\n` +
-        `Macmiil: ${p.email}\nNooca: ${planTxt}${company ? `\nShirkadda: ${company}` : ""}\n` +
+        `${whoTxt}\nNooca: ${planTxt}${company ? `\nShirkadda: ${company}` : ""}\n` +
         `Habka: ${way}\nLambarka uu ka soo diray: ${p.phone ?? "-"}\nTixraac: ${ref || "-"}\n` +
         `Goobta: ${place}\nWaqtiga: ${when(p.pay_requested_at)}\n` +
         `${p.pay_shot ? "Sawirka lacag-bixinta waa lifaaqan.\n" : ""}\n` +
@@ -131,9 +133,9 @@ Deno.serve(async (req) => {
         `\nHantiGo`;
     } else {
       const trial = p.trial_until ? when(p.trial_until).slice(0, 10) : "-";
-      subject = `HantiGo · 🆕 Macmiil cusub: ${planTxt.split(" (")[0]} · ${p.email}`;
+      subject = `HantiGo · 🆕 Macmiil cusub: ${planTxt.split(" (")[0]} · ${fullName ? fullName + " · " : ""}${p.email}`;
       text = `Salaan,\n\nQof cusub ayaa HantiGo is-diiwaangeliyay.\n\n` +
-        `Macmiil: ${p.email}\nNooca: ${planTxt}${company ? `\nShirkadda: ${company}` : ""}\n` +
+        `${whoTxt}\nNooca: ${planTxt}${company ? `\nShirkadda: ${company}` : ""}\n` +
         `Goobta: ${place}\nWaqtiga: ${when(p.created_at)}\nTijaabada bilaashka ahi waxay dhacaysaa: ${trial}\n\n` +
         `Si aad u caawiso: email ugu dir ${p.email}${phone ? ` ama WhatsApp https://wa.me/${phone}` : ""}.\n` +
         `Maamulka → "🆕 Macaamiil cusub": ${SITE}/admin.html\n\nHantiGo`;

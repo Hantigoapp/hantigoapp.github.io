@@ -92,6 +92,7 @@ const ascii = (s: string) => s.replace(/[^\x20-\x7E\xA0-\xFF]/g, "");
 export async function receiptPdf(r: {
   no: string; date: Date; email: string; phone: string; method: string; tx: string;
   plan: string; days: number; amount: number; until: Date; logo?: Uint8Array | null;
+  name?: string; contact?: string; company?: string;
 }): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   const page = doc.addPage([595.28, 841.89]); // A4
@@ -111,9 +112,12 @@ export async function receiptPdf(r: {
   txt("Taariikhda: " + dmy(r.date), W - M, y + 8, { color: grey(90), right: true });
   y += 24; page.drawLine({ start: { x: mm(M), y: H - mm(y) }, end: { x: mm(W - M), y: H - mm(y) }, color: grey(200), thickness: 0.6 }); y += 8;
   txt("Macmiilka", M, y, { color: grey(90) });
-  txt(r.email, M, y + 6, { size: 12, bold: true });
-  txt(`${r.method}: +${r.phone}   ·   Tix: ${r.tx || "-"}`, M, y + 11, { color: grey(90) });
-  y += 22;
+  txt(r.name || r.email, M, y + 6, { size: 12, bold: true });
+  const cl = [r.name ? "Email: " + r.email : "", r.contact ? "Telefoon: " + r.contact : "", r.company ? "Shirkadda: " + r.company : ""].filter(Boolean).join("   ·   ");
+  let yy = y + 11;
+  if (cl) { txt(cl, M, yy, { color: grey(60) }); yy += 5; }
+  txt(`${r.method}: +${r.phone}   ·   Tix: ${r.tx || "-"}`, M, yy, { color: grey(90) });
+  y = Math.max(y + 22, yy + 11);
   page.drawRectangle({ x: mm(M), y: H - mm(y + 3), width: mm(W - 2 * M), height: mm(8), color: green });
   txt("Adeegga", M + 2, y, { bold: true, color: rgb(1, 1, 1) });
   txt("Muddada", 128, y, { bold: true, color: rgb(1, 1, 1) });
@@ -139,8 +143,10 @@ async function sendReceipt(admin: any, pay: Record<string, any>, until: Date) {
   const no = "HG-" + String(now.getFullYear()).slice(2) + z(now.getMonth() + 1) + z(now.getDate()) + "-" + String(pay.id).replace(/-/g, "").slice(0, 4).toUpperCase();
   let logo: Uint8Array | null = null;
   try { const r = await fetch(SITE + "/icon-192.png"); if (r.ok) logo = new Uint8Array(await r.arrayBuffer()); } catch { /* skip logo */ }
-  const pdf = await receiptPdf({ no, date: now, email: pay.email, phone: pay.phone, method: pay.method, tx: pay.waafi_tx ?? "", plan: pay.plan, days: pay.days, amount: Number(pay.amount), until, logo });
-  const text = `Salaan,\n\nMahadsanid inaad iibsatay HantiGo. Lacagtaada si toos ah ayaa loo helay, akoonkaaguna waa furan yahay.\n\n` +
+  const name = String(pay.name ?? "").trim(), contact = String(pay.contact ?? "").trim(), company = String(pay.company ?? "").trim();
+  const pdf = await receiptPdf({ no, date: now, email: pay.email, phone: pay.phone, method: pay.method, tx: pay.waafi_tx ?? "", plan: pay.plan, days: pay.days, amount: Number(pay.amount), until, logo, name, contact, company });
+  const who = [name ? "Magaca: " + name : "", "Email: " + pay.email, contact ? "Telefoon: " + contact : "", company ? "Shirkadda: " + company : ""].filter(Boolean).join("\n");
+  const text = `Salaan${name ? " " + name : ""},\n\nMahadsanid inaad iibsatay HantiGo. Lacagtaada si toos ah ayaa loo helay, akoonkaaguna waa furan yahay.\n\n${who}\n\n` +
     `Rasiid: ${no}\nTaariikhda: ${dmy(now)}\nAdeegga: HantiGo ${planName(pay.plan)} (${pay.days} maalmood)\n` +
     `Lacagta: $${Number(pay.amount).toFixed(2)} (${pay.method}, +${pay.phone})\nTix: ${pay.waafi_tx ?? "-"}\n` +
     `Akoonkaagu wuu furan yahay ilaa: ${dmy(until)}\n\nRasiidka PDF-ka ah waa lifaaqan.\n` +
@@ -154,8 +160,8 @@ async function sendReceipt(admin: any, pay: Record<string, any>, until: Date) {
   const copy = [...new Set(((admins ?? []) as { email: string }[]).map((a) => a.email).filter(Boolean))];
   if (!copy.length) copy.push(env("SMTP_USER"));
   await tr.sendMail({
-    from, to: copy.join(", "), subject: "Nuqul / Copy: " + subject + ` · ${pay.email}`,
-    text: `⚡ Lacag-bixin toos ah (WaafiPay) — lama baahna ansixin.\nMacmiil: ${pay.email}\n\n` + text, attachments: att,
+    from, to: copy.join(", "), subject: "Nuqul / Copy: " + subject + ` · ${name ? name + " · " : ""}${pay.email}`,
+    text: `⚡ Lacag-bixin toos ah (WaafiPay) — lama baahna ansixin.\nMacmiil: ${name ? name + " · " : ""}${pay.email}${contact ? " · " + contact : ""}\n\n` + text, attachments: att,
   });
   await admin.from("payments").update({ receipt_no: no, receipt_sent: true }).eq("id", pay.id);
   return true;
@@ -219,6 +225,6 @@ Deno.serve(async (req) => {
   const until = new Date(untilRaw as string);
 
   let mailed = false;
-  try { mailed = await sendReceipt(admin, { ...pay, waafi_tx: tx }, until); } catch (e) { console.error("receipt", e); }
+  try { mailed = await sendReceipt(admin, { ...pay, waafi_tx: tx, name: String(user.user_metadata?.full_name ?? "").slice(0, 60), contact: String(user.user_metadata?.phone ?? "").slice(0, 20), company: String(user.user_metadata?.company ?? "").slice(0, 60) }, until); } catch (e) { console.error("receipt", e); }
   return json({ ok: true, until: until.toISOString(), amount, plan, tx, mailed });
 });
