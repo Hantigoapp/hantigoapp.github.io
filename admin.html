@@ -108,6 +108,18 @@ h2{font-family:var(--display)}
 .sgrp{display:inline-grid;grid-template-columns:1fr 1fr;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px}
 .sgrp button{border:0;background:transparent;min-height:34px;color:var(--muted)}.sgrp button[aria-pressed=true]{background:var(--accent);color:#06281a}
 @media (max-width:560px){.scount{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* every button group: the pressed one is highlighted and stays active */
+.chips button[aria-pressed=true],.sgrp button[aria-pressed=true],.tabs button[aria-selected=true]{background:var(--accent);border-color:var(--accent);color:#06281a;box-shadow:0 0 0 2px rgba(61,220,151,.25)}
+.chips button[aria-pressed=false]:hover,.sgrp button[aria-pressed=false]:hover,.tabs button[aria-selected=false]:hover{color:var(--ink)}
+/* period tiles (Macaamiil cusub, Lacag-bixinta tooska ah) are buttons */
+.ncount button{min-height:0;font:inherit;color:inherit;width:100%;cursor:pointer;background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:8px 10px;text-align:center;transition:background .15s,border-color .15s}
+.autobox .ncount button{background:rgba(31,157,85,.1)}
+.ncount button:hover{border-color:var(--accent)}
+.ncount button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 3px rgba(61,220,151,.25)}
+.ncount button[aria-pressed=true] b,.ncount button[aria-pressed=true] small{color:#06281a}
+.ncount.n5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:560px){.ncount.n5{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.plist-h{margin:0;font-size:.9rem;color:var(--muted);font-weight:600}
 </style>
 <script src="vendor/supabase.js"></script>
 </head>
@@ -304,18 +316,20 @@ function ago(d){const m=Math.floor((Date.now()-new Date(d))/6e4);if(m<1)return"h
 const when=d=>new Date(d).toLocaleString("en-GB",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
 function trialLeft(p){if(isPaid(p))return`<span class="pill ok">Bixiyay</span>`;const ms=new Date(p.trial_until)-Date.now();
   if(ms>0){const d=Math.ceil(ms/864e5);return`<span class="pill trial">Tijaabo · ${d} maalmood ka haray</span>`}return`<span class="pill warn">Tijaabadu way dhacday</span>`}
+let nPer="7d",nMore=false;
 function renderNew(cust){
   const t0=new Date();t0.setHours(0,0,0,0);const today=+t0,yday=today-864e5,mon=+new Date(t0.getFullYear(),t0.getMonth(),1);
   const at=p=>p.created_at?+new Date(p.created_at):0;
-  const nToday=cust.filter(p=>at(p)>=today).length,nY=cust.filter(p=>at(p)>=yday&&at(p)<today).length,
-        n7=cust.filter(isNew).length,nM=cust.filter(p=>at(p)>=mon).length;
-  const fresh=cust.filter(p=>at(p)>seen);
-  const recent=cust.filter(isNew);const show=(recent.length?recent:cust.slice(0,3)).slice(0,10);
   const months=["Janaayo","Febraayo","Maarso","Abriil","Maajo","Juun","Luulyo","Agoosto","Sebteembar","Oktoobar","Nofeembar","Diseembar"];
+  const NP=[["today","Maanta",p=>at(p)>=today],["yday","Shalay",p=>at(p)>=yday&&at(p)<today],["7d","7-dii maalmood",isNew],["month",months[t0.getMonth()],p=>at(p)>=mon],["all","Wadarta",()=>true]];
+  const fresh=cust.filter(p=>at(p)>seen);
+  const cur=NP.find(x=>x[0]===nPer)||NP[2];
+  const recent=cust.filter(cur[2]);const show=nMore?recent:recent.slice(0,10);
   $("newbox").innerHTML=`<h2><span>🆕 Macaamiil cusub</span>${recent.length>show.length?`<button type="button" data-shownew>Muuji dhammaan (${recent.length}) →</button>`:""}</h2>
-    <div class="ncount"><div><b>${nToday}</b><small>Maanta</small></div><div><b>${nY}</b><small>Shalay</small></div><div><b>${n7}</b><small>7-dii maalmood</small></div><div><b>${nM}</b><small>${months[t0.getMonth()]}</small></div></div>
+    <div class="ncount n5" role="group" aria-label="Muddada">${NP.map(([k,t,f])=>`<button type="button" data-nper="${k}" aria-pressed="${nPer===k}"><b>${cust.filter(f).length}</b><small>${t}</small></button>`).join("")}</div>
     ${fresh.length?`<div class="nbell"><span>🔔 ${fresh.length} macmiil cusub ayaa is-diiwaangeliyay tan iyo markii u dambaysay ee aad eegtay</span><button type="button" data-seen>✓ Waan arkay</button></div>`:""}
-    ${recent.length?"":`<p class="msg" style="margin:0">Toddobaadkan weli qof cusub ma jiro.${show.length?" Kuwii ugu dambeeyay:":""}</p>`}
+    <p class="plist-h">${esc(cur[1])} · ${recent.length} macmiil</p>
+    ${recent.length?"":`<p class="msg" style="margin:0">Muddadan weli qof cusub ma jiro.</p>`}
     ${show.map(p=>{const x=extra[p.id]||{};const wa=String(phoneOf(p)).replace(/\D/g,"");return`<div class="nrow">
       <div class="av" aria-hidden="true">${initial(p)}</div>
       <div class="who"><b>${esc(nameOf(p)||p.email)}</b>${at(p)>seen?'<span class="pill fresh">CUSUB</span>':""}${planPill(p)}${trialLeft(p)}
@@ -327,16 +341,25 @@ function renderNew(cust){
     ${hasExtra?"":`<p class="msg" style="margin:0;font-size:.85rem">Si aad u aragto magaca shirkadda iyo inuu bilaabay isticmaalka, ku shub <b>supabase/signups.sql</b> gudaha Supabase (SQL Editor → Run).</p>`}`;
   return fresh.length}
 document.addEventListener("click",e=>{if(e.target.closest("[data-seen]")){seen=Date.now();setSeen(seen);render();return}
-  if(e.target.closest("[data-shownew]")){filt="new";$("q").value="";render();$("chips").scrollIntoView({behavior:"smooth",block:"start"})}});
+  if(e.target.closest("[data-shownew]")){nMore=true;render();return}
+  const np=e.target.closest("[data-nper]");if(np){nPer=np.dataset.nper;nMore=false;render();return}
+  const ap=e.target.closest("[data-aper]");if(ap){aPer=ap.dataset.aper;renderAuto();return}});
 /* ---------- ⚡ automatic payments (pay-auto Edge Function, autopay.sql) ---------- */
+let autoData=[],aPer="all";
 async function loadAuto(){let data=null,error=null;try{({data,error}=await sb.from("payments").select("*").order("created_at",{ascending:false}).limit(200))}catch(e){error=e}
-  const box=$("autobox");if(error||!data?.length){box.hidden=true;return}
+  autoData=error||!data?.length?[]:data;renderAuto()}
+function renderAuto(){const box=$("autobox"),data=autoData;if(!data.length){box.hidden=true;return}
   const t0=new Date();t0.setHours(0,0,0,0);const mon=+new Date(t0.getFullYear(),t0.getMonth(),1),ok=data.filter(x=>x.status==="approved");
   const sum=a=>"$"+a.reduce((n,x)=>n+Number(x.amount||0),0).toFixed(0);
+  const AP=[["today","Maanta",x=>+new Date(x.created_at)>=+t0],["month","Bishan",x=>+new Date(x.created_at)>=mon],["all","Wadarta",()=>true]];
+  const cur=AP.find(x=>x[0]===aPer)||AP[2],list=data.filter(cur[2]);
+  const val={today:sum(ok.filter(AP[0][2])),month:sum(ok.filter(AP[1][2])),all:ok.length};
   const pill={approved:["ok","✓ La bixiyay"],failed:["warn","✕ Fashil"],pending:["trial","⏳ Sugaya PIN"],unknown:["warn","? Hubi WaafiPay"]};
   box.hidden=false;box.innerHTML=`<h2><span>⚡ Lacag-bixinta tooska ah</span><small class="msg" style="margin:0">Si toos ah ayay u furmeen · rasiid waa la diray</small></h2>
-    <div class="ncount"><div><b>${sum(ok.filter(x=>+new Date(x.created_at)>=+t0))}</b><small>Maanta</small></div><div><b>${sum(ok.filter(x=>+new Date(x.created_at)>=mon))}</b><small>Bishan</small></div><div><b>${ok.length}</b><small>Wadarta</small></div></div>`+
-    data.slice(0,8).map(x=>{const [c,t]=pill[x.status]||["",x.status];return `<div class="apay"><div><b>${esc(x.email||"")}</b> <span class="pill ${c}">${t}</span><br><span>${esc(x.method||"")} +${esc(x.phone||"")}${x.waafi_tx?" · Tix "+esc(x.waafi_tx):""}${x.status==="failed"&&x.error?" · "+esc(String(x.error).split(":")[0]):""}${x.receipt_no?" · 🧾 "+esc(x.receipt_no):""}</span></div>
+    <div class="ncount" role="group" aria-label="Muddada">${AP.map(([k,t])=>`<button type="button" data-aper="${k}" aria-pressed="${aPer===k}"><b>${val[k]}</b><small>${t}</small></button>`).join("")}</div>
+    <p class="plist-h">${cur[1]} · ${list.length} lacag-bixin${list.length>20?" (20-ka ugu dambeeyay)":""}</p>`+
+    (list.length?"":`<p class="msg" style="margin:0">Muddadan lacag-bixin toos ah ma jirto.</p>`)+
+    list.slice(0,20).map(x=>{const [c,t]=pill[x.status]||["",x.status];return `<div class="apay"><div><b>${esc(x.email||"")}</b> <span class="pill ${c}">${t}</span><br><span>${esc(x.method||"")} +${esc(x.phone||"")}${x.waafi_tx?" · Tix "+esc(x.waafi_tx):""}${x.status==="failed"&&x.error?" · "+esc(String(x.error).split(":")[0]):""}${x.receipt_no?" · 🧾 "+esc(x.receipt_no):""}</span></div>
       <div class="r"><b>$${Number(x.amount).toFixed(0)}</b><br><span>${new Date(x.created_at).toLocaleString("en-GB",{dateStyle:"short",timeStyle:"short"})}</span></div></div>`}).join("")}
 async function loadExtra(){loadAuto();sb.rpc("admin_customer_info").then(({data,error})=>{hasInfo=!error&&Array.isArray(data);info={};if(hasInfo)data.forEach(r=>info[r.id]=r);if(rows.length)render()},()=>{});sb.rpc("admin_start_dates").then(({data,error})=>{hasStarts=!error&&Array.isArray(data);starts={};if(hasStarts)data.forEach(r=>{if(r.start_date)starts[r.id]=r.start_date});if(hasStarts&&rows.length)render()},()=>{});const {data,error}=await sb.rpc("admin_signups");hasExtra=!error&&Array.isArray(data);extra={};if(hasExtra)data.forEach(r=>extra[r.id]=r)}
 /* ---------- 💰 Iibka: every payment, by day and by month, download Excel / Word / PDF ---------- */
