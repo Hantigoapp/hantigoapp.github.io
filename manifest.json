@@ -1,7 +1,7 @@
 {
   "name": "HantiGo",
   "short_name": "HantiGo",
-  "description": "Maamul lacagtaada: dakhli, kharash, buffer iyo kharashyada joogtada ah.",
+  "description": "Maamul lacagtaada: dakhli, kharash, kayd iyo biilasha joogtada ah. Shakhsi iyo Shirkad.",
   "lang": "so",
   "start_url": "./",
   "scope": "./",
