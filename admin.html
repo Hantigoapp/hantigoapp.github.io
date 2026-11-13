@@ -192,7 +192,7 @@ function render(){
   $("list").innerHTML=list.length?list.map(p=>{const [t,c]=status(p);return `<div class="row">
     <div class="av" aria-hidden="true">${esc((p.email||"?")[0].toUpperCase())}</div>
     <div class="who"><b>${esc(p.email)}</b><span class="pill ${c}">${esc(t)}</span>${planPill(p)}
-      <div>📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")} · 📅 ${fmt(p.created_at)} · 📞 ${esc(p.phone||"—")}</div></div>
+      <div>📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")} · 📅 ${fmt(p.created_at)}${startTxt(p)} · 📞 ${esc(p.phone||"—")}</div></div>
     <div class="acts"><button class="primary" data-id="${p.id}" data-d="30">+30 maalmood</button><button data-id="${p.id}" data-d="365">+1 sano</button><button class="stop" data-id="${p.id}" data-d="0">Jooji</button>${"plan" in p?`<button data-plan="${p.id}" data-to="${planOf(p)==="business"?"person":"business"}">→ ${planOf(p)==="business"?"👤 Shakhsi $3":"🏢 Shirkad $7"}</button>`:""}</div>
   </div>`}).join(""):`<p class="msg">Macmiil lama helin.</p>`}
 document.addEventListener("click",e=>{const f=e.target.closest("[data-f]");if(f){filt=f.dataset.f;render();return}
@@ -271,7 +271,8 @@ async function sendSubReceipt(id,days,amount,no){const p=rows.find(x=>x.id===id)
   catch(e){toast("🧾 Rasiidka lama diri karin: "+String(e?.message||e).slice(0,160),true)}}
 
 /* ---------- 🆕 Macaamiil cusub: new sign-ups, newest first ---------- */
-let extra={},hasExtra=false,known=null;
+let extra={},hasExtra=false,known=null,starts={},hasStarts=false;
+const startTxt=p=>{const d=starts[p.id];return d?` · 🗓 Bilaabay: ${esc(d)}`:""};
 const SEEN_KEY="hantigo.admin.seen";
 function getSeen(){try{const v=Number(localStorage.getItem(SEEN_KEY));if(v)return v}catch{}return Date.now()-864e5}
 function setSeen(t){try{localStorage.setItem(SEEN_KEY,String(t))}catch{}}
@@ -295,10 +296,11 @@ function renderNew(cust){
     ${show.map(p=>{const x=extra[p.id]||{};const wa=String(p.phone||"").replace(/\D/g,"");return`<div class="nrow">
       <div class="av" aria-hidden="true">${esc((p.email||"?")[0].toUpperCase())}</div>
       <div class="who"><b>${esc(p.email)}</b>${at(p)>seen?'<span class="pill fresh">CUSUB</span>':""}${planPill(p)}${trialLeft(p)}
-        <div>🕒 ${p.created_at?`${ago(p.created_at)} · ${when(p.created_at)}`:"—"}</div>
+        <div>🕒 ${p.created_at?`${ago(p.created_at)} · ${when(p.created_at)}`:"—"}${startTxt(p)}</div>
         <div>${x.company?`🏢 ${esc(x.company)} · `:""}📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")}${p.phone?` · 📞 ${esc(p.phone)}`:""}</div>
         ${hasExtra?`<div>${x.items>0?`✅ Wuu bilaabay isticmaalka (${x.items} xog)`:"⏳ Weli wax ma gelin"}${x.last_seen?` · Galay ${ago(x.last_seen)}`:""}</div>`:""}</div>
       <div class="acts">${wa?`<a href="https://wa.me/${wa}?text=${encodeURIComponent("Salaan, ku soo dhawoow HantiGo! Haddii aad caawimaad u baahato, halkan nagala soo xiriir.")}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}<a href="mailto:${esc(p.email)}?subject=${encodeURIComponent("Ku soo dhawoow HantiGo")}">✉️ Email</a></div></div>`}).join("")}
+    ${hasStarts?"":`<p class="msg" style="margin:0;font-size:.85rem">Si aad u aragto taariikhda diiwaangelintu bilaabatay (🗓) ee macmiil kasta doortay, ku shub <b>supabase/start_date.sql</b> gudaha Supabase (SQL Editor → Run).</p>`}
     ${hasExtra?"":`<p class="msg" style="margin:0;font-size:.85rem">Si aad u aragto magaca shirkadda iyo inuu bilaabay isticmaalka, ku shub <b>supabase/signups.sql</b> gudaha Supabase (SQL Editor → Run).</p>`}`;
   return fresh.length}
 document.addEventListener("click",e=>{if(e.target.closest("[data-seen]")){seen=Date.now();setSeen(seen);render();return}
@@ -313,7 +315,7 @@ async function loadAuto(){let data=null,error=null;try{({data,error}=await sb.fr
     <div class="ncount"><div><b>${sum(ok.filter(x=>+new Date(x.created_at)>=+t0))}</b><small>Maanta</small></div><div><b>${sum(ok.filter(x=>+new Date(x.created_at)>=mon))}</b><small>Bishan</small></div><div><b>${ok.length}</b><small>Wadarta</small></div></div>`+
     data.slice(0,8).map(x=>{const [c,t]=pill[x.status]||["",x.status];return `<div class="apay"><div><b>${esc(x.email||"")}</b> <span class="pill ${c}">${t}</span><br><span>${esc(x.method||"")} +${esc(x.phone||"")}${x.waafi_tx?" · Tix "+esc(x.waafi_tx):""}${x.status==="failed"&&x.error?" · "+esc(String(x.error).split(":")[0]):""}${x.receipt_no?" · 🧾 "+esc(x.receipt_no):""}</span></div>
       <div class="r"><b>$${Number(x.amount).toFixed(0)}</b><br><span>${new Date(x.created_at).toLocaleString("en-GB",{dateStyle:"short",timeStyle:"short"})}</span></div></div>`}).join("")}
-async function loadExtra(){loadAuto();const {data,error}=await sb.rpc("admin_signups");hasExtra=!error&&Array.isArray(data);extra={};if(hasExtra)data.forEach(r=>extra[r.id]=r)}
+async function loadExtra(){loadAuto();sb.rpc("admin_start_dates").then(({data,error})=>{hasStarts=!error&&Array.isArray(data);starts={};if(hasStarts)data.forEach(r=>{if(r.start_date)starts[r.id]=r.start_date});if(hasStarts&&rows.length)render()},()=>{});const {data,error}=await sb.rpc("admin_signups");hasExtra=!error&&Array.isArray(data);extra={};if(hasExtra)data.forEach(r=>extra[r.id]=r)}
 /* ---------- 💰 Iibka: every payment, by day and by month, download Excel / Word / PDF ---------- */
 let sales=[],salesOk=null,sPer="month",sGrp=null,sFrom="",sTo="";
 const WD=["Axad","Isniin","Talaado","Arbaco","Khamiis","Jimco","Sabti"];
