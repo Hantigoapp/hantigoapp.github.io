@@ -259,7 +259,6 @@ em.paid{background:var(--in)}em.part{background:#d49a1b}em.unpaid{background:#8a
 .step-alt{margin:0;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 8px;font-size:.92rem;color:var(--muted);padding-top:10px;border-top:1px solid var(--line)}
 .linkbtn{all:unset;cursor:pointer;color:#3ddc97;font-weight:700;text-decoration:underline;text-underline-offset:3px}
 .linkbtn:focus-visible{outline:2px solid #3ddc97;outline-offset:2px;border-radius:4px}
-@media (max-width:899px){.gate-home.returning .home-side{order:-1}}
 html[data-skin="1"] .stepper i,html[data-skin="2"] .stepper i{background:#fff}
 .gate .hero-sep{height:1px;background:linear-gradient(90deg,rgba(61,220,151,.35),transparent)}
 .gate .hero-h{margin:0;font-weight:800;font-size:1rem}
@@ -267,7 +266,7 @@ html[data-skin="1"] .stepper i,html[data-skin="2"] .stepper i{background:#fff}
 .gate .hero-list li{display:grid;gap:8px;align-content:start;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:12px;font-size:.9rem;line-height:1.35;font-weight:600}
 .gate .hero-list i{font-style:normal;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(61,220,151,.15);font-size:1.05rem}
 html[data-skin="1"] .gate .hero-chips span,html[data-skin="2"] .gate .hero-chips span,html[data-skin="1"] .gate .hero-list li,html[data-skin="2"] .gate .hero-list li{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.1)}
-@media (min-width:900px){.home-grid{grid-template-columns:1.1fr .9fr;gap:28px}.gate .hero{padding:34px 32px;gap:18px;position:sticky;top:20px}.gate .hero h2{font-size:2.3rem}.gate .hero-lead{font-size:1.08rem}}
+@media (min-width:900px){.home-grid{grid-template-columns:1fr;gap:28px}.home-side{width:100%;max-width:640px;justify-self:center}.gate .hero-list{grid-template-columns:repeat(4,1fr)}.gate .hero-cta{grid-template-columns:1fr 1fr;max-width:640px}.gate .hero{padding:34px 32px;gap:18px}.gate .hero h2{font-size:2.3rem}.gate .hero-lead{font-size:1.08rem}}
 @media (max-width:360px){.gate .hero-list{grid-template-columns:1fr}}
 .tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .tabs button{border:0;border-radius:0;font-weight:600;color:var(--muted)}
