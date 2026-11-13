@@ -19,8 +19,17 @@ This folder contains the database setup and feature migrations used by HantiGo. 
 12. `security_hardening.sql` — final table/function grants and verification queries.
 13. `push_notifications.sql` — private, RLS-protected browser push subscriptions and preferences.
 14. `activity.sql` — activity history: a trigger on `user_data` records every add / correction / delete (who, when, before/after) in `activity_log`; read through `activity_list` (owner: all, manager: company, staff: own). Until it is run, the app hides the history panel.
+15. `customer_info.sql` — customer name + phone (sign-up, receipts, admin details).
+16. `start_date.sql` — start date chosen at sign-up (admin view).
+17. Education (admin-only page `education.html`): `education.sql` (base tables), then `education_students_class.sql`, then `education_attendance.sql`. `education_audit.sql` is read-only.
+
+**Shortcut for the live project:** `pending_setup.sql` = `sales`, `autopay`, `signups`, `customer_info`, `start_date` and `activity` in one file (safe to run again). Its last line prints six `true` values when everything is in place.
+
+**Never re-run `team.sql`, `isolation.sql` or `leave.sql` after `roles.sql`:** they redefine `team_load` / `team_save` and remove the role checks. If you must, run `roles.sql` again straight after.
 
 Edge Function `notify-admin` (no SQL needed): emails every `is_admin` account when a customer sends a manual "I paid" request (with the payment screenshot) and when a new account opens for the first time; on that first sign-in the new customer also gets a welcome email (in the app language they used) with the sign-in link, plan price and trial end date. Deploy it with Verify JWT ON; it uses the same `SMTP_USER` / `SMTP_PASS` secrets as `send-receipt`. Secret `NOTIFY_SIGNUPS=0` turns the admin sign-up email off; `NOTIFY_WELCOME=0` turns the customer welcome email off. Each event is sent once (remembered in the user's `app_metadata`). Automatic WaafiPay payments are already reported by `pay-auto`.
+
+Edge Function `send-receipt` (Shirkad 🧾 Rasiid by email): only an open Business account (trial or paid, or an admin) or staff of an active company may send, at most 10 emails an hour per account. Uses the same SMTP secrets.
 
 Run each file once in this order. If you are updating an existing deployment, review the file comments and take a database backup before applying migrations.
 
@@ -50,14 +59,9 @@ Repository changes do not automatically update the Supabase database. The SQL fi
 
 After applying all migrations, run `role_security_audit.sql` in the SQL Editor. It is read-only: it reports RLS flags, policies, table grants, role-aware RPC grants, and current staff roles. Review the results and complete the negative tests listed at the end with separate disposable accounts and dummy data. A SQL report alone does not prove that role boundaries work end-to-end.
 
-## Background notifications status
-
-The service worker handles incoming Web Push events and notification clicks, including when the HantiGo page is closed. This is only the browser-side receiver. Actual background delivery is **not yet configured**: it also requires VAPID keys, authenticated push-subscription storage, a trusted server-side sender (for example a Supabase Edge Function), and a scheduled job that evaluates each account's reminder preferences. Do not put VAPID private keys or a Supabase service-role key in `index.html` or any other public repository file. The current in-app reminder timer continues to work only while HantiGo is open.
-
-
 ## Web Push deployment
 
-After applying `push_notifications.sql`, follow [`push_deployment.md`](push_deployment.md) to configure VAPID secrets, deploy the three Edge Functions, store the scheduler secret in Vault, and enable the cron job. The browser UI can request a subscription and send a test push. The scheduled worker currently sends only the daily check-in reminder; other alert types are not yet delivered in the background. Do not commit secrets or the service-role key.
+After applying `push_notifications.sql`, follow [`push_deployment.md`](push_deployment.md) to configure VAPID secrets, deploy the three Edge Functions, store the scheduler secret in Vault, and enable the cron job. The browser UI can request a subscription and send a test push. The scheduled worker currently sends only the daily check-in reminder; other alerts (bills, budget, leave) show only while HantiGo is open. Do not commit secrets or the service-role key.
 
 
-Use [`push_deployment.md`](push_deployment.md) for the VAPID, Edge Function, Vault, and cron setup. Use [`role_acceptance_tests.md`](role_acceptance_tests.md) for the owner/manager/staff isolation test matrix.
+Use [`role_acceptance_tests.md`](role_acceptance_tests.md) for the owner/manager/staff isolation test matrix.

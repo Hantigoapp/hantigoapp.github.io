@@ -429,7 +429,10 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;
 .hright{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
 .wafab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;width:58px;height:58px;border-radius:50%;background:#25d366;display:grid;place-items:center;box-shadow:0 8px 22px rgba(0,0,0,.3)}
-body:has(#appView:not([hidden])) .wafab{bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+/* inside the app WhatsApp sits in the header (always visible, never covers buttons) */
+body:has(#appView:not([hidden])) .wafab{display:none}
+.bill.bempty{opacity:.78;padding-top:8px;padding-bottom:8px}
+.hbtns{display:flex;align-items:center;gap:8px}.hwa{width:36px;height:36px;border-radius:50%;background:#25d366;display:grid;place-items:center;flex:none;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 @media print{.wafab{display:none!important}}
 .acc-panel{font-size:.95rem}
 .wa{justify-self:center;color:var(--in);font-weight:600;font-size:.9rem;text-decoration:none}
@@ -822,7 +825,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
 <div class="wrap" id="appView" hidden>
   <header>
     <div>
-      <div class="htop"><h1>Hanti<span>Go</span></h1><button type="button" class="logout hlogout" aria-label="Ka bax">🚪 Ka bax</button></div>
+      <div class="htop"><h1>Hanti<span>Go</span></h1><span class="hbtns"><a class="hwa" data-wa href="#" target="_blank" rel="noopener" aria-label="WhatsApp: caawimaad" title="WhatsApp"><svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true"><path fill="#fff" d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm0 23.6c-2 0-4-.6-5.7-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1 1 16 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7 0a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.7 3.7 0 0 0-1.1 2.7 6.4 6.4 0 0 0 1.3 3.4 14.7 14.7 0 0 0 5.6 5c2.1.9 2.9 1 4 .8a3.4 3.4 0 0 0 2.2-1.6 2.8 2.8 0 0 0 .2-1.6c-.1-.1-.3-.2-.6-.4z"/></svg></a><button type="button" class="logout hlogout" aria-label="Ka bax">🚪 Ka bax</button></span></div>
       <p class="sub" id="subline" hidden>Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.</p>
 
     </div>
@@ -867,10 +870,10 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
     <div class="stat"><span class="lbl">Ku haray bishan</span><span class="val" id="sNet">0</span></div>
     <div class="stat no-person"><span class="lbl">Kaydka bishan</span><span class="val" id="sSaved">0</span><span class="note" id="sSavedAll"></span></div>
     <div class="stat top-spend"><span class="lbl">Meesha lacagta ugu badan ku baxday bishan</span><span class="val" id="sTop">—</span><span class="note" id="sTopNote">Weli kharash lama qorin.</span></div>
-    <div class="stat top-spend"><span class="lbl" id="topPlaceLbl">Shirkadda lacagta ugu badan laga siiyay bishan</span><span class="val" id="sTopPlace">—</span><span class="note" id="sTopPlaceNote">Ku qor magaca shirkadda marka aad kharash gelinayso.</span></div>
+    <div class="stat top-spend no-person"><span class="lbl" id="topPlaceLbl">Shirkadda lacagta ugu badan laga siiyay bishan</span><span class="val" id="sTopPlace">—</span><span class="note" id="sTopPlaceNote">Ku qor magaca shirkadda marka aad kharash gelinayso.</span></div>
   </section>
 
-  <section class="panel month-compare no-staff" aria-labelledby="mcH" data-tab="home" data-fold="mc">
+  <section class="panel month-compare no-staff" aria-labelledby="mcH" data-tab="home" data-fold="mc" data-fold-def="1">
     <div class="panel-head"><h2 id="mcH">Isbarbardhigga bishan iyo tii hore</h2><span class="note" id="mcPeriod"></span></div>
     <div class="mc-grid" id="monthCompare" aria-live="polite"></div>
   </section>
@@ -883,7 +886,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
     <div id="dyList" class="dylist"></div>
   </section>
 
-  <section class="panel biz-only mgr-only mgpanel" aria-labelledby="mgH" data-tab="home" id="mgPanel" data-fold="mg">
+  <section class="panel biz-only mgr-only mgpanel" aria-labelledby="mgH" data-tab="home" id="mgPanel" data-fold="mg" data-fold-def="1">
     <div class="panel-head"><h2 id="mgH">🏢 Dashboard-ka maamulaha</h2><span class="note" id="mgMonth"></span></div>
     <div id="mgBody"></div>
   </section>
@@ -1282,7 +1285,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
     <button type="button" data-go="home" aria-current="page"><i aria-hidden="true">🏠</i><span>Guriga</span></button>
     <button type="button" data-go="add"><i aria-hidden="true">＋</i><span>Ku dar</span></button>
     <button type="button" data-go="plan"><i aria-hidden="true">📅</i><span>Qorshe</span></button>
-     <button type="button" data-go="expenses"><i aria-hidden="true">🧾</i><span>Kharashka joogtada ah</span></button>
+     <button type="button" data-go="expenses"><i aria-hidden="true">🧾</i><span>Biilasha</span></button>
     <button type="button" data-go="more"><i aria-hidden="true">👤</i><span>Akoon</span></button>
   </nav>
 </div>
@@ -1415,6 +1418,8 @@ Object.assign(AR,{"Donation":"تبرع","Aid":"مساعدة","Project":"مشرو
 Object.assign(EN,{"Isbarbardhigga bishan iyo tii hore":"Comparing this month with last month","👷 Dashboard-ka shaqaalaha":"👷 Staff dashboard","Waxaad halkan ku arkaysaa oo keliya waxa aad adigu qortay. Lacagta shirkadda, mushaharka iyo warbixinnada maamulka waxaa arka milkiilaha iyo maamulaha.":"Here you only see what you entered yourself. Company money, salaries and management reports are seen by the owner and the manager.","+ Iib / lacag soo gashay":"+ Sale / money in","− Kharash ka baxay":"− Expense paid","🤒 Waan xanuunsanahay":"🤒 I am sick","🏖️ Codso fasax":"🏖️ Request leave","👷 Shaqaale: wuxuu arkaa oo keliya waxa uu isagu qoray, fasaxiisa iyo xanuunkiisa. 🧑‍💼 Maamule: wuxuu arkaa maamulka shirkadda oo dhan (lacagta, mushaharka, tirakoobka, rasiidyada, deymaha, fasaxa iyo warbixinnada).":"👷 Staff: sees only what they entered, their own leave and sick days. 🧑‍💼 Manager: sees all company management (money, salaries, statistics, receipts, debts, leave and reports)."});
 Object.assign(AR,{"Comparing this month with last month":"مقارنة هذا الشهر بالشهر الماضي","New this month":"جديد هذا الشهر","No change":"بدون تغيير","increase":"زيادة","decrease":"انخفاض","Last month":"الشهر الماضي","Goal completed":"اكتمل الهدف","Remaining":"المتبقي","👷 Staff dashboard":"👷 لوحة الموظف","Here you only see what you entered yourself. Company money, salaries and management reports are seen by the owner and the manager.":"هنا ترى فقط ما أدخلته بنفسك. أموال الشركة والرواتب وتقارير الإدارة يراها المالك والمدير.","+ Sale / money in":"+ بيع / دخل","− Expense paid":"− مصروف مدفوع","🤒 I am sick":"🤒 أنا مريض","🏖️ Request leave":"🏖️ اطلب إجازة","👷 Staff: sees only what they entered, their own leave and sick days. 🧑‍💼 Manager: sees all company management (money, salaries, statistics, receipts, debts, leave and reports).":"👷 الموظف: يرى فقط ما أدخله وإجازاته وأيام مرضه. 🧑‍💼 المدير: يرى كل إدارة الشركة (الأموال والرواتب والإحصاءات والإيصالات والديون والإجازات والتقارير)."});
 Object.assign(SW,{"Comparing this month with last month":"Kulinganisha mwezi huu na uliopita","New this month":"Mpya mwezi huu","No change":"Hakuna mabadiliko","increase":"ongezeko","decrease":"upungufu","Last month":"Mwezi uliopita","Goal completed":"Lengo limekamilika","Remaining":"Kilichobaki","👷 Staff dashboard":"👷 Dashibodi ya mfanyakazi","Here you only see what you entered yourself. Company money, salaries and management reports are seen by the owner and the manager.":"Hapa unaona tu ulichoingiza mwenyewe. Pesa za kampuni, mishahara na ripoti za usimamizi zinaonwa na mmiliki na meneja.","+ Sale / money in":"+ Mauzo / pesa iliyoingia","− Expense paid":"− Gharama iliyolipwa","🤒 I am sick":"🤒 Mimi ni mgonjwa","🏖️ Request leave":"🏖️ Omba likizo","👷 Staff: sees only what they entered, their own leave and sick days. 🧑‍💼 Manager: sees all company management (money, salaries, statistics, receipts, debts, leave and reports).":"👷 Mfanyakazi: anaona tu alichoingiza, likizo na siku zake za ugonjwa. 🧑‍💼 Meneja: anaona usimamizi wote wa kampuni (pesa, mishahara, takwimu, risiti, madeni, likizo na ripoti)."});
+/* push notification messages */Object.assign(AR,{"Background notifications are enabled.": "تم تفعيل الإشعارات في الخلفية.", "Browser permission is on, but push setup is incomplete: ": "إذن المتصفح مفعّل، لكن إعداد الإشعارات لم يكتمل: ", "Hi, I need help with HantiGo (payment)": "مرحبًا، أحتاج مساعدة في HantiGo (الدفع)", "Push test failed: ": "فشل اختبار الإشعار: ", "Setting up background notifications...": "جارٍ إعداد الإشعارات في الخلفية...", "Test notification sent.": "تم إرسال إشعار تجريبي.", "Turn on notifications first.": "فعّل الإشعارات أولًا.", "✓ Local notification works.": "✓ الإشعار المحلي يعمل."});Object.assign(SW,{"Background notifications are enabled.": "Arifa za chinichini zimewashwa.", "Browser permission is on, but push setup is incomplete: ": "Ruhusa ya kivinjari imewashwa, lakini mpangilio wa arifa haujakamilika: ", "Hi, I need help with HantiGo (payment)": "Habari, nahitaji msaada wa HantiGo (malipo)", "Push test failed: ": "Jaribio la arifa limeshindwa: ", "Setting up background notifications...": "Inaandaa arifa za chinichini...", "Test notification sent.": "Arifa ya majaribio imetumwa.", "Turn on notifications first.": "Washa arifa kwanza.", "✓ Local notification works.": "✓ Arifa ya ndani inafanya kazi."});
+/* bottom menu short label */Object.assign(EN,{"Biilasha":"Bills"});Object.assign(AR,{"Bills":"الفواتير"});Object.assign(SW,{"Bills":"Bili"});
 /* landing page 3 steps */Object.assign(EN,{"Bilow: 3 tallaabo oo fudud ↓": "Start: 3 easy steps ↓", "Horay akoon u leedahay? Gal": "Already have an account? Log in", "Dooro nooca": "Choose type", "Gal dashboard-kaaga": "Open your dashboard", "Dooro Shakhsi ama Shirkad": "Choose Personal or Business", "Lacagtaada gaarka ah: soo galay, kharash, miisaaniyad, biilal iyo kayd.": "Your own money: income, spending, budget, bills and savings.", "Ganacsigaaga: iib, kharash, shaqaale, deymo iyo warbixinno.": "Your business: sales, spending, staff, debts and reports.", "🎁 Labaduba waxay helayaan 7 maalmood oo bilaash ah.": "🎁 Both come with 7 days free.", "Horay akoon u leedahay?": "Already have an account?", "Gal dashboard-kaaga →": "Open your dashboard →", "👤 Shakhsi · $3 / bishii": "👤 Personal · $3 / month", "🏢 Shirkad · $7 / bishii": "🏢 Business · $7 / month", "Akoon ma lihid?": "No account yet?", "Samee akoon cusub (tallaabada 1)": "Create a new account (step 1)", "✓ Akoonkaaga waa diyaar. Dashboard-kaaga ayaa la furayaa…": "✓ Your account is ready. Opening your dashboard…"});Object.assign(AR,{"Start: 3 easy steps ↓": "ابدأ: 3 خطوات سهلة ↓", "Already have an account? Log in": "لديك حساب بالفعل؟ سجّل الدخول", "Choose type": "اختر النوع", "Open your dashboard": "ادخل إلى لوحتك", "Choose Personal or Business": "اختر شخصي أو شركة", "Your own money: income, spending, budget, bills and savings.": "أموالك الخاصة: الدخل والمصاريف والميزانية والفواتير والادخار.", "Your business: sales, spending, staff, debts and reports.": "عملك التجاري: المبيعات والمصاريف والموظفون والديون والتقارير.", "🎁 Both come with 7 days free.": "🎁 كلاهما يحصل على 7 أيام مجانًا.", "Already have an account?": "لديك حساب بالفعل؟", "Open your dashboard →": "ادخل إلى لوحتك ←", "👤 Personal · $3 / month": "👤 شخصي · 3$ / شهريًا", "🏢 Business · $7 / month": "🏢 شركة · 7$ / شهريًا", "No account yet?": "ليس لديك حساب؟", "Create a new account (step 1)": "أنشئ حسابًا جديدًا (الخطوة 1)", "✓ Your account is ready. Opening your dashboard…": "✓ حسابك جاهز. يتم فتح لوحتك…"});Object.assign(SW,{"Start: 3 easy steps ↓": "Anza: hatua 3 rahisi ↓", "Already have an account? Log in": "Una akaunti tayari? Ingia", "Choose type": "Chagua aina", "Open your dashboard": "Ingia kwenye dashibodi yako", "Choose Personal or Business": "Chagua Binafsi au Biashara", "Your own money: income, spending, budget, bills and savings.": "Pesa yako binafsi: mapato, matumizi, bajeti, bili na akiba.", "Your business: sales, spending, staff, debts and reports.": "Biashara yako: mauzo, matumizi, wafanyakazi, madeni na ripoti.", "🎁 Both come with 7 days free.": "🎁 Zote mbili zinapata siku 7 bure.", "Already have an account?": "Una akaunti tayari?", "Open your dashboard →": "Ingia kwenye dashibodi yako →", "👤 Personal · $3 / month": "👤 Binafsi · $3 / mwezi", "🏢 Business · $7 / month": "🏢 Biashara · $7 / mwezi", "No account yet?": "Huna akaunti bado?", "Create a new account (step 1)": "Fungua akaunti mpya (hatua ya 1)", "✓ Your account is ready. Opening your dashboard…": "✓ Akaunti yako iko tayari. Dashibodi yako inafunguliwa…"});
 /* recurring bills: schedule, auto, part payments */Object.assign(EN,{"⚙ Jadwal: dooro inta jeer (bil kasta, 3 biloodba, sannad kasta), digniinta iyo ⚡ bixin toos ah. “½ Bixi qayb” waxay bixisaa qayb ka mid ah biilka.":"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.","Joogto · qayb":"Recurring · part","Joogto · toos":"Recurring · auto","Joogto":"Recurring","Qaybaha":"Categories","Jadwalka bisha":"Month calendar","Dib u dhacay":"Late","Saadaal":"Forecast"});
 Object.assign(AR,{"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.":"⚙ الجدول: اختر كم مرة (كل شهر، كل 3 أشهر، كل سنة)، والتذكير و⚡ الدفع التلقائي. “½ ادفع جزءًا” يدفع جزءًا فقط من الفاتورة.","Recurring · part":"ثابت · جزء","Recurring · auto":"ثابت · تلقائي","Recurring":"ثابت","Categories":"الفئات","Month calendar":"تقويم الشهر","Late":"متأخر","Forecast":"التوقعات"});
@@ -1924,7 +1929,7 @@ function plParts(){const d=PLD,sm=a=>a.reduce((s,x)=>s+Number(x.amount||0),0);
   const res=d.n<0?L("Khasaare","Loss","خسارة","Hasara"):d.n>0?L("Faa'iido","Profit","ربح","Faida"):L("Siman","Break-even","تعادل","Sawa");
   const entries=[...d.ins,...d.outs].sort((a,b)=>(a.date+(a.created||"")).localeCompare(b.date+(b.created||"")));
   return {res,inC:byCat(d.ins),outC:byCat(d.outs),entries,title:`${d.head}: ${res} (${d.from===d.to?d.from:d.from+" → "+d.to})`}}
-const plFile=ext=>`HantiGo-${brandName()}-${PLD.n<0?"khasaare":"faaiido"}-${PLD.from===PLD.to?PLD.from:PLD.from+"-"+PLD.to}.${ext}`.replace(/[^\w.@ -]+/g,"_");
+const plFile=ext=>`HantiGo-${brandName()}-${PLD.n<0?"khasaare":"faaiido"}-${PLD.from===PLD.to?PLD.from:PLD.from+"-"+PLD.to}.${ext}`.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_");
 function plTables(){const d=PLD,P=plParts(),pct=(v,t)=>t?Math.round(v/t*100)+"%":"";
   const H={cat:L("Qaybta","Category","الفئة","Aina"),n:L("Jeer","Times","مرات","Mara"),amt:L("Qadarka","Amount","المبلغ","Kiasi")};
   const catT=(rows,tot)=>`<table><tr><th>${H.cat}</th><th>${H.n}</th><th>${H.amt}</th><th>%</th></tr>${rows.map(g=>`<tr><td>${esc(T(g.cat))}</td><td class="n">${g.n}</td><td class="n">${money(g.amt)}</td><td class="n">${pct(g.amt,tot)}</td></tr>`).join("")||`<tr><td colspan="4">—</td></tr>`}</table>`;
@@ -2448,6 +2453,11 @@ function renderBills(txs){
         <label class="due bauto"><input type="checkbox" data-bauto="${id}"${b.auto?" checked":""}> ⚡ ${L("Si toos ah u diiwaangeli lacag-bixinta maalinta lacagta","Record the payment automatically on the due day","سجّل الدفع تلقائيًا في يوم الاستحقاق","Rekodi malipo otomatiki siku ya malipo")}</label>
         ${b.auto&&!b.due?`<span class="note">${L("Geli “Maalinta” si uu u shaqeeyo; haddii kale maalinta 1aad.","Set the “Day”, otherwise day 1 is used.","حدد “اليوم”، وإلا يُستخدم اليوم الأول.","Weka “Siku”, la sivyo siku ya 1 itatumika.")}</span>`:""}</div>`:"";
     const hist=billHist===b.id?billHistory(b,txs):"";
+    /* a bill with no amount yet and never paid: one short row (name, day, amount), no button bar */
+    const empty=!(Number(b.amount)>0)&&!x.pays.length&&billOpen!==b.id&&billHist!==b.id;
+    if(empty)return head+`<div class="bill bempty"><span class="name"><span>${esc(T(b.name))}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
+      <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${id}" aria-label="${L("Qadarka ","Amount for ")}${esc(b.name)}">
+      <button class="del" data-del="${id}">Tirtir</button></div>`;
     return head+`<div class="bill bs-${x.late?"late":x.s}"><span class="name"><span>${esc(T(b.name))}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
       <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${id}" aria-label="${L("Qadarka ","Amount for ")}${esc(b.name)}">
       <button class="del" data-del="${id}">Tirtir</button>${line2}${bar}${part}${set}${hist}</div>`}).join("")
@@ -2982,7 +2992,7 @@ $("lvPer").addEventListener("change",lvRepSummary);
 $("lvDoc").addEventListener("click",()=>{const r=lvReport();
   const doc=`<html${RTL?' dir="rtl"':""} xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
 <style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b}table{border-collapse:collapse;width:100%;margin:8pt 0}th,td{border:1px solid #999;padding:4pt 6pt;text-align:left}th{background:#e8f5ee}.n{text-align:right}</style></head><body>${lvHtml()}</body></html>`;
-  saveFile(`HantiGo-fasax-${r.title}.doc`.replace(/[^\w.@ -]+/g,"_"),"\ufeff"+doc,"application/msword")});
+  saveFile(`HantiGo-fasax-${r.title}.doc`.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_"),"\ufeff"+doc,"application/msword")});
 $("lvCsv").addEventListener("click",()=>{const r=lvReport();
   const head=[L("Shaqaalaha","Staff"),L("Nooca","Type"),L("Laga bilaabo","From"),L("Ilaa","To"),L("Maalmaha muddadan","Days in period"),L("Xaaladda","Status"),L("Faahfaahin","Details")];
   const rows=r.rows.map(v=>[v.who,L(...LVT[v.type]||LVT.fasax).replace(/^\S+ /,""),v.from,v.to,v.inDays,lvStatusTxt(v),v.note||""]);
@@ -3166,7 +3176,7 @@ function mgTables(){const r=MG,row=(c)=>`<tr>${c.map((x,i)=>`<td${i?' class="n"'
   <h2>${L("Shaqaalaha","Staff","الموظفون","Wafanyakazi")}</h2><table>${th([L("Shaqada","Role"),L("Mushaharka","Salaries")])}${r.roles.map(([n,v])=>row([esc(T(n)),money(v)])).join("")||dash(2)}</table>
   <h2>${L("Deymaha","Debts","الديون","Madeni")}</h2><table>${th([L("Lacag naloo hayo","Owed to us"),L("Lacag aan dad u hayno","We owe","مستحق علينا","Tunadaiwa")])}${rowN([money(r.owedIn),money(r.owedOut)])}</table>`}
 const mgHead=()=>`${coHead()}<p>${L("Dashboard-ka maamulaha","Manager dashboard","لوحة المدير","Dashibodi ya meneja")}: <b>${esc(MG.label)}</b> · ${esc(me?.email||"")}</p>`;
-const mgFile=ext=>`HantiGo-${brandName()}-dashboard-${MG.k}.${ext}`.replace(/[^\w.@ -]+/g,"_");
+const mgFile=ext=>`HantiGo-${brandName()}-dashboard-${MG.k}.${ext}`.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_");
 function mgPrint(){renderMgr();$("printArea").innerHTML=mgHead()+mgTables()+stFoot();
   document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
   window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50)}
@@ -3234,7 +3244,7 @@ function psTables(withBars){const r=PS,pct=(v,t)=>t?Math.round(v/t*100)+"%":"",b
   <h2>${L("Waxyaabaha ugu lacagta badan","Top items")}</h2><table><tr><th>${L("Qaybta","Category")}</th><th>${L("Qadarka","Amount")}</th><th>%</th>${withBars?"<th></th>":""}</tr>
   ${r.itemsTop.map(([c,v])=>`<tr><td>${esc(T(c))}</td><td class="n">${money(v)}</td><td class="n">${pct(v,r.outT)}</td>${bar(v,r.itemsTop[0][1],ST_OTH)}</tr>`).join("")||`<tr><td colspan="3">—</td></tr>`}</table>`}
 const psHead=()=>`${coHead()}<p>${L("Tirakoobkayga","My statistics")}: <b>${esc(psTitle())}</b> · ${esc(modeLabel())}</p>`;
-const psFile=ext=>`HantiGo-${brandName()}-tirakoob-${PS.from}-${PS.to}.${ext}`.replace(/[^\w.@ -]+/g,"_");
+const psFile=ext=>`HantiGo-${brandName()}-tirakoob-${PS.from}-${PS.to}.${ext}`.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_");
 $("psPdf").addEventListener("click",()=>{renderPStats();$("printArea").innerHTML=psHead()+psTables(true)+stFoot();
   document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
   window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50)});
@@ -3406,7 +3416,7 @@ function xlColor(h){h=String(h).toLowerCase();
   if(/haray|hadhay|left over/.test(h))return"FF2F6FC4";
   return"FF34495E"}
 const xlDays=h=>/maalm|days|dad\)|people/i.test(String(h));
-async function exportSheet(title,sections,base){base=base.replace(/[^\w.@ -]+/g,"_");
+async function exportSheet(title,sections,base){base=base.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_");
   const brand=brandName(),logo=MODE==="business"?coLogo():"";
   try{const X=await loadExcel(),wb=new X.Workbook(),ws=wb.addWorksheet("HantiGo",{views:[{showGridLines:false,rightToLeft:RTL}]});wb.creator="HantiGo";
     const nc=Math.max(...sections.map(s=>s.head.length));
@@ -3477,7 +3487,7 @@ function renderMyName(){$("myNameRow").hidden=MODE==="business";if(document.acti
 $("repDoc").addEventListener("click",()=>{const {title}=reportData();
   const doc=`<html${RTL?' dir="rtl"':""} xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
 <style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b;margin:0}h2{font-size:13pt;margin-top:14pt}table{border-collapse:collapse;width:100%;margin:6pt 0}th{background:#34495e;color:#fff}th,td{border:1px solid #999;padding:4pt 6pt;text-align:left}.n{text-align:right}</style></head><body>${buildReport()}</body></html>`;
-  saveFile(`HantiGo-${brandName()}-${title}.doc`.replace(/[^\w.@ -]+/g,"_"),"﻿"+doc,"application/msword")});
+  saveFile(`HantiGo-${brandName()}-${title}.doc`.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_"),"﻿"+doc,"application/msword")});
 if(NATIVE){$("repPdf").hidden=true;$("repNote").hidden=true;$("lvPdf").hidden=true}
 
 /* ---------- backup ---------- */
@@ -3664,7 +3674,7 @@ function actTable(){const rows=actRows();
       d.filter(c=>!["amount","total","target"].includes(c.f)).map(c=>`${c.lab}: ${c.from} → ${c.to}`).join("; ")]})}
 const actHead=()=>[L("Goorta","When","الوقت","Lini"),L("Qofka","Person","الشخص","Mtu"),L("Isbeddelka","Change","التغيير","Mabadiliko"),L("Qoraalka","Entry","القيد","Muamala"),L("Taariikhda qoraalka","Entry date","تاريخ القيد","Tarehe ya muamala"),L("Qadarka","Amount","المبلغ","Kiasi"),L("Waxa la beddelay","What changed","ما الذي تغيّر","Kilichobadilika")];
 const actPerLabel=()=>({"0":L("Maanta","Today","اليوم","Leo"),"7":L("7-dii maalmood","Last 7 days","آخر 7 أيام","Siku 7 zilizopita"),"m":L("Bishan","This month","هذا الشهر","Mwezi huu"),"90":L("3-dii bilood","3 months","3 أشهر","Miezi 3"),all:L("Dhammaan","All","الكل","Yote")})[ACT.per];
-const actFile=ext=>`HantiGo-${brandName()}-taariikh-${today()}.${ext}`.replace(/[^\w.@ -]+/g,"_");
+const actFile=ext=>`HantiGo-${brandName()}-taariikh-${today()}.${ext}`.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_");
 function actExport(k){const H=actHead(),R=actTable(),title=L("Taariikhda isbeddelka","Activity history","سجل التغييرات","Historia ya mabadiliko")+" · "+actPerLabel()+" · "+modeLabel();
   if(k==="x"){exportSheet(title,[{title:"",head:H,rows:R}],actFile("x").slice(0,-2));return}
   const html=`${coHead()}<p><b>${esc(title)}</b></p><table><tr>${H.map(h=>`<th>${esc(h)}</th>`).join("")}</tr>${R.map(r=>`<tr>${r.map((c,j)=>`<td${j===5?' class="n"':""}>${esc(c)}</td>`).join("")}</tr>`).join("")}</table>${stFoot()}`;
@@ -3870,6 +3880,8 @@ function mailWhy(w){w=String(w||"");
   if(/535|Invalid login|Username and Password|BadCredentials/i.test(w))return L("Gmail-ka wuu diiday: SMTP_USER ama SMTP_PASS ayaa khalad ah.","Gmail refused: SMTP_USER or SMTP_PASS is wrong.");
   if(/Missing credentials|PLAIN|EAUTH/i.test(w))return L("Secret-yada SMTP_USER / SMTP_PASS lama helin.","The SMTP_USER / SMTP_PASS secrets are missing.");
   if(/Invalid JWT|JWT|401|"auth"/i.test(w))return L("Supabase ayaa diiday gelitaanka (JWT). Dami \"Verify JWT\" ee send-receipt.","Supabase rejected the login (JWT). Turn off \"Verify JWT\" on send-receipt.");
+  if(/"plan"|^403/i.test(w))return L("Rasiidka email-ka waxaa diri kara akoon Shirkad ah oo furan (tijaabo ama la bixiyay).","Receipts by email need an open Business account (trial or paid).","إرسال الإيصالات بالبريد يتطلب حساب شركة مفعّلًا (تجربة أو مدفوع).","Kutuma risiti kwa barua pepe kunahitaji akaunti ya Biashara iliyo hai (majaribio au imelipwa).");
+  if(/"limit"|^429/i.test(w))return L("Saacaddii 10 rasiid ayaa email lagu diri karaa. Wax yar sug, kadib mar kale isku day.","You can email 10 receipts an hour. Wait a little and try again.","يمكنك إرسال 10 إيصالات في الساعة. انتظر قليلًا ثم حاول مرة أخرى.","Unaweza kutuma risiti 10 kwa saa. Subiri kidogo kisha ujaribu tena.");
   if(/404|not found/i.test(w))return L("send-receipt lama helin (lama gelin).","send-receipt was not found (not deployed).");
   if(/Failed to send a request|Failed to fetch|NetworkError|FunctionsFetchError/i.test(w))return L("Adeegga lama gaari karo. Hubi internetka.","Could not reach the service. Check the internet.");
   return ""}

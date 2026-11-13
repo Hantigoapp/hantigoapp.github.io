@@ -27,8 +27,19 @@ Deno.serve(async (req) => {
     const { data: { user } } = await sb.auth.getUser();
     if (!user?.email) return json({ ok: false, error: "auth" }, 401);
 
+    // Only a paid / trial Business account (or staff of an active company) may send receipts.
+    // Stops a free sign-up from using HantiGo's Gmail to send mail to strangers.
+    const [{ data: access }, { data: prof }, { data: cos }] = await Promise.all([
+      sb.rpc("has_access"),
+      sb.from("profiles").select("plan,is_admin").eq("id", user.id).maybeSingle(),
+      sb.rpc("my_companies"),
+    ]);
+    const owner = access === true && (prof?.is_admin || prof?.plan === "business");
+    const staff = Array.isArray(cos) && cos.some((c: { active?: boolean }) => c?.active);
+    if (!owner && !staff) return json({ ok: false, error: "plan" }, 403);
+
     const now = Date.now(), h = (hits.get(user.id) ?? []).filter((t) => now - t < 3600_000);
-    if (h.length >= 40) return json({ ok: false, error: "limit" }, 429);
+    if (h.length >= 10) return json({ ok: false, error: "limit" }, 429);
     h.push(now); hits.set(user.id, h);
 
     const b = await req.json();
