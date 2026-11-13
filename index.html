@@ -143,6 +143,15 @@ input,select{width:100%;min-width:0;border:1px solid var(--line);background:var(
 .bill:first-child{border-top:0}
 .bill .name{font-weight:600;overflow-wrap:anywhere}
 .paid{color:var(--in);font-weight:600;font-size:.85rem;white-space:nowrap;display:grid;justify-items:end}.paid .del{padding:2px 0;font-size:.78rem}
+.bill-x{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:-2px}
+.bill-x .note{font-size:.78rem}.bx-btns{display:flex;gap:4px;flex-wrap:wrap;margin-inline-start:auto}.bx-btns .del{font-size:.78rem;padding:4px 6px}
+.bill-x.bset,.bill-x.bpart{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px}
+.bill-x.bpart input{width:120px;flex:1 1 100px}.bill-x .due select{padding:2px 6px;font-size:.82rem;min-height:0}.bauto{flex-basis:100%}
+.bpill{display:inline-flex;align-items:center;gap:3px;padding:1px 8px;border-radius:99px;font-size:.74rem;font-weight:700;background:var(--line);color:var(--muted);white-space:nowrap}
+.bpill.ok{background:var(--in-soft);color:var(--in)}.bpill.part{background:#f6e7c1;color:#8a5a00}.bpill.late{background:var(--out-soft);color:var(--out)}
+:root[data-theme="dark"] .bpill.part{background:#3a2f12;color:#f3d38a}
+.bstat{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.bstat .note{margin-inline-start:auto}
+.bill.bs-late{box-shadow:inset 3px 0 0 var(--out);padding-inline-start:8px}.bill.bs-off>input,.bill.bs-off .name{opacity:.6}
 .bill-total{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;font-weight:600}
 @media (max-width:420px){.bill{grid-template-columns:minmax(0,1fr) 76px auto auto;gap:6px}.bill .del{padding:6px 2px}}
 .done{color:var(--in);font-weight:600;font-size:.85rem}
@@ -459,6 +468,8 @@ html[data-skin="3"]:not([data-mode="business"]) .bnav{border-color:#1f5a44}
 #appView .del{border-radius:8px}
 #appView input:not([type=checkbox]):not([type=radio]):not([type=file]),#appView select,#appView textarea,.gate input:not([type=checkbox]):not([type=radio]):not([type=file]),.gate select{min-height:46px;font-size:16px;border-radius:12px;padding:10px 12px;background:var(--bg);transition:border-color .15s,box-shadow .15s}
 #appView .due input{min-height:0;padding:2px 6px;font-size:.85rem}
+#appView .bill label.due input[data-bdue]{min-height:36px;width:60px;padding:2px 4px;text-align:center}
+#appView .bill-x .due select{min-height:0;width:auto;padding:2px 6px;font-size:.85rem}#appView .bill-x.bpart input{min-height:40px}
 #appView input:focus,#appView select:focus,#appView textarea:focus,.gate input:focus,.gate select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 28%,transparent)}
 .field span{font-size:.8rem;font-weight:600;color:var(--muted)}
 #appView .goal-actions{gap:8px}
@@ -990,6 +1001,8 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
         <p class="note" style="margin:0" id="billNote">Halkan geli oo kaliya kharashyada joogtada ah ee bil kasta la bixiyo (kiro, koronto, mushahar…). Kharash hal mar ah “Ku dar” ka geli.</p>
         <p class="note" style="margin:0">Geli qadarka hal mar. Bil kasta riix “Bixi”.</p>
         <p class="note" style="margin:0">Maalinta: xusuusin ayaad helaysaa 3 maalmood ka hor.</p>
+        <p class="note" style="margin:0">⚙ Jadwal: dooro inta jeer (bil kasta, 3 biloodba, sannad kasta), digniinta iyo ⚡ bixin toos ah. “½ Bixi qayb” waxay bixisaa qayb ka mid ah biilka.</p>
+        <div class="bstat" id="billStat" hidden></div>
         <div id="bills"></div>
         <div class="bill-total"><span id="billSum"></span><button class="primary" id="payAll" type="button">Bixi dhammaan</button></div>
         <form id="billForm" novalidate>
@@ -1381,6 +1394,9 @@ Object.assign(EN,{"Isbarbardhigga bishan iyo tii hore":"Comparing this month wit
 Object.assign(AR,{"Comparing this month with last month":"مقارنة هذا الشهر بالشهر الماضي","New this month":"جديد هذا الشهر","No change":"بدون تغيير","increase":"زيادة","decrease":"انخفاض","Last month":"الشهر الماضي","Goal completed":"اكتمل الهدف","Remaining":"المتبقي","👷 Staff dashboard":"👷 لوحة الموظف","Here you only see what you entered yourself. Company money, salaries and management reports are seen by the owner and the manager.":"هنا ترى فقط ما أدخلته بنفسك. أموال الشركة والرواتب وتقارير الإدارة يراها المالك والمدير.","+ Sale / money in":"+ بيع / دخل","− Expense paid":"− مصروف مدفوع","🤒 I am sick":"🤒 أنا مريض","🏖️ Request leave":"🏖️ اطلب إجازة","👷 Staff: sees only what they entered, their own leave and sick days. 🧑‍💼 Manager: sees all company management (money, salaries, statistics, receipts, debts, leave and reports).":"👷 الموظف: يرى فقط ما أدخله وإجازاته وأيام مرضه. 🧑‍💼 المدير: يرى كل إدارة الشركة (الأموال والرواتب والإحصاءات والإيصالات والديون والإجازات والتقارير)."});
 Object.assign(SW,{"Comparing this month with last month":"Kulinganisha mwezi huu na uliopita","New this month":"Mpya mwezi huu","No change":"Hakuna mabadiliko","increase":"ongezeko","decrease":"upungufu","Last month":"Mwezi uliopita","Goal completed":"Lengo limekamilika","Remaining":"Kilichobaki","👷 Staff dashboard":"👷 Dashibodi ya mfanyakazi","Here you only see what you entered yourself. Company money, salaries and management reports are seen by the owner and the manager.":"Hapa unaona tu ulichoingiza mwenyewe. Pesa za kampuni, mishahara na ripoti za usimamizi zinaonwa na mmiliki na meneja.","+ Sale / money in":"+ Mauzo / pesa iliyoingia","− Expense paid":"− Gharama iliyolipwa","🤒 I am sick":"🤒 Mimi ni mgonjwa","🏖️ Request leave":"🏖️ Omba likizo","👷 Staff: sees only what they entered, their own leave and sick days. 🧑‍💼 Manager: sees all company management (money, salaries, statistics, receipts, debts, leave and reports).":"👷 Mfanyakazi: anaona tu alichoingiza, likizo na siku zake za ugonjwa. 🧑‍💼 Meneja: anaona usimamizi wote wa kampuni (pesa, mishahara, takwimu, risiti, madeni, likizo na ripoti)."});
 /* landing page 3 steps */Object.assign(EN,{"Bilow: 3 tallaabo oo fudud ↓": "Start: 3 easy steps ↓", "Horay akoon u leedahay? Gal": "Already have an account? Log in", "Dooro nooca": "Choose type", "Gal dashboard-kaaga": "Open your dashboard", "Dooro Shakhsi ama Shirkad": "Choose Personal or Business", "Lacagtaada gaarka ah: soo galay, kharash, miisaaniyad, biilal iyo kayd.": "Your own money: income, spending, budget, bills and savings.", "Ganacsigaaga: iib, kharash, shaqaale, deymo iyo warbixinno.": "Your business: sales, spending, staff, debts and reports.", "🎁 Labaduba waxay helayaan 7 maalmood oo bilaash ah.": "🎁 Both come with 7 days free.", "Horay akoon u leedahay?": "Already have an account?", "Gal dashboard-kaaga →": "Open your dashboard →", "👤 Shakhsi · $3 / bishii": "👤 Personal · $3 / month", "🏢 Shirkad · $7 / bishii": "🏢 Business · $7 / month", "Akoon ma lihid?": "No account yet?", "Samee akoon cusub (tallaabada 1)": "Create a new account (step 1)", "✓ Akoonkaaga waa diyaar. Dashboard-kaaga ayaa la furayaa…": "✓ Your account is ready. Opening your dashboard…"});Object.assign(AR,{"Start: 3 easy steps ↓": "ابدأ: 3 خطوات سهلة ↓", "Already have an account? Log in": "لديك حساب بالفعل؟ سجّل الدخول", "Choose type": "اختر النوع", "Open your dashboard": "ادخل إلى لوحتك", "Choose Personal or Business": "اختر شخصي أو شركة", "Your own money: income, spending, budget, bills and savings.": "أموالك الخاصة: الدخل والمصاريف والميزانية والفواتير والادخار.", "Your business: sales, spending, staff, debts and reports.": "عملك التجاري: المبيعات والمصاريف والموظفون والديون والتقارير.", "🎁 Both come with 7 days free.": "🎁 كلاهما يحصل على 7 أيام مجانًا.", "Already have an account?": "لديك حساب بالفعل؟", "Open your dashboard →": "ادخل إلى لوحتك ←", "👤 Personal · $3 / month": "👤 شخصي · 3$ / شهريًا", "🏢 Business · $7 / month": "🏢 شركة · 7$ / شهريًا", "No account yet?": "ليس لديك حساب؟", "Create a new account (step 1)": "أنشئ حسابًا جديدًا (الخطوة 1)", "✓ Your account is ready. Opening your dashboard…": "✓ حسابك جاهز. يتم فتح لوحتك…"});Object.assign(SW,{"Start: 3 easy steps ↓": "Anza: hatua 3 rahisi ↓", "Already have an account? Log in": "Una akaunti tayari? Ingia", "Choose type": "Chagua aina", "Open your dashboard": "Ingia kwenye dashibodi yako", "Choose Personal or Business": "Chagua Binafsi au Biashara", "Your own money: income, spending, budget, bills and savings.": "Pesa yako binafsi: mapato, matumizi, bajeti, bili na akiba.", "Your business: sales, spending, staff, debts and reports.": "Biashara yako: mauzo, matumizi, wafanyakazi, madeni na ripoti.", "🎁 Both come with 7 days free.": "🎁 Zote mbili zinapata siku 7 bure.", "Already have an account?": "Una akaunti tayari?", "Open your dashboard →": "Ingia kwenye dashibodi yako →", "👤 Personal · $3 / month": "👤 Binafsi · $3 / mwezi", "🏢 Business · $7 / month": "🏢 Biashara · $7 / mwezi", "No account yet?": "Huna akaunti bado?", "Create a new account (step 1)": "Fungua akaunti mpya (hatua ya 1)", "✓ Your account is ready. Opening your dashboard…": "✓ Akaunti yako iko tayari. Dashibodi yako inafunguliwa…"});
+/* recurring bills: schedule, auto, part payments */Object.assign(EN,{"⚙ Jadwal: dooro inta jeer (bil kasta, 3 biloodba, sannad kasta), digniinta iyo ⚡ bixin toos ah. “½ Bixi qayb” waxay bixisaa qayb ka mid ah biilka.":"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.","Joogto · qayb":"Recurring · part","Joogto · toos":"Recurring · auto","Joogto":"Recurring"});
+Object.assign(AR,{"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.":"⚙ الجدول: اختر كم مرة (كل شهر، كل 3 أشهر، كل سنة)، والتذكير و⚡ الدفع التلقائي. “½ ادفع جزءًا” يدفع جزءًا فقط من الفاتورة.","Recurring · part":"ثابت · جزء","Recurring · auto":"ثابت · تلقائي","Recurring":"ثابت"});
+Object.assign(SW,{"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.":"⚙ Ratiba: chagua mara ngapi (kila mwezi, kila miezi 3, kila mwaka), kikumbusho na ⚡ malipo ya otomatiki. “½ Lipa sehemu” hulipa sehemu tu ya bili.","Recurring · part":"Ya kawaida · sehemu","Recurring · auto":"Ya kawaida · otomatiki","Recurring":"Ya kawaida"});
 const T=s=>LANG==="so"||!Object.prototype.hasOwnProperty.call(EN,s)?s:LANG==="en"?EN[s]:XL(EN[s]);
 function trText(n){const p=n.parentNode;if(!p||p.nodeName==="SCRIPT"||p.nodeName==="STYLE")return;
   const v=n.nodeValue,t=v.trim();if(!t)return;const x=T(t);if(x!==t)n.nodeValue=v.replace(t,x)}
@@ -1729,7 +1745,7 @@ async function enter(user){
   await migrateNames();
   if(addSpace&&pendingMode==="business")savePlan("business");
   fillPrice();
-  applyMode(st.mode);teamUI();showView("appView");render();seedBills();loadStaff();if(online())checkLocation();netState();
+  applyMode(st.mode);teamUI();showView("appView");render();seedBills();loadStaff();if(online())checkLocation();netState();setTimeout(autoPayBills,1500);
   if(!data&&!error&&items.length){items.forEach(i=>dirty.add(i.id));scheduleSync()}
   else if(dirty.size||gone.size)scheduleSync();
 }
@@ -2357,24 +2373,79 @@ const B_NOT_MONTHLY=["Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho
 const BILLS_VERSION=4;
 const BILLS_ADDED_V4=["Jaamacad"];   // only these are added for people already on v3, so bills they deleted do not come back
 const bills=()=>mine("bill").sort((a,b)=>a.created.localeCompare(b.created));
-const paidTx=(b,txs)=>txs.find(t=>t.billId===b.id&&inMonth(t));
+/* ---------- recurring bills: schedule, automatic payment, paid / part paid / unpaid / late ---------- */
+const BILL_FREQ=[1,2,3,6,12];
+const freqTxt=n=>n===1?L("Bil kasta","Every month","كل شهر","Kila mwezi"):n===12?L("Sannad kasta","Every year","كل سنة","Kila mwaka"):L(n+" biloodba mar","Every "+n+" months","كل "+n+" أشهر","Kila miezi "+n);
+const dimOf=d=>new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+const billMon=b=>Number.isInteger(b.mon)?b.mon:new Date(b.created||Date.now()).getMonth();
+/* is this bill due in month d? (monthly, or every 2/3/6/12 months counted from its first month) */
+function billDueIn(b,d=view){const f=Number(b.freq)||1;return f===1||((d.getMonth()-billMon(b))%f+f)%f===0}
+function billNext(b,d=view){for(let k=1;k<=12;k++){const x=new Date(d.getFullYear(),d.getMonth()+k,1);if(billDueIn(b,x))return x}return null}
+const sameMonth=(t,d)=>{const x=new Date(t.date+"T00:00");return x.getFullYear()===d.getFullYear()&&x.getMonth()===d.getMonth()};
+const billDay=(b,d=view)=>Math.min(Number(b.due)||1,dimOf(d));
+const billStartM=b=>{const c=new Date(b.created||Date.now());return c.getFullYear()*12+c.getMonth()};
+/* the state of one bill in month d: what was paid, what is left, paid/part/unpaid/off, late */
+function billState(b,txs,d=view){
+  const amt=Number(b.amount||0),pays=txs.filter(t=>t.billId===b.id&&sameMonth(t,d)).sort((a,c)=>(a.date+(a.created||"")).localeCompare(c.date+(c.created||"")));
+  const paid=Math.round(pays.reduce((a,t)=>a+Number(t.amount||0),0)*100)/100,due=billDueIn(b,d),left=Math.max(0,Math.round((amt-paid)*100)/100);
+  const s=!due?(paid?"paid":"off"):!(amt>0)?(paid?"paid":"none"):paid>=amt-0.004?"paid":paid>0?"part":"unpaid";
+  const now=new Date(),dm=d.getFullYear()*12+d.getMonth(),nm=now.getFullYear()*12+now.getMonth();
+  const late=(s==="unpaid"||s==="part")&&dm>=billStartM(b)&&(dm<nm||(dm===nm&&!!b.due&&now.getDate()>billDay(b,d)));
+  return {amt,paid,left,pays,s,late,due}}
+const paidTx=(b,txs)=>{const x=billState(b,txs);return x.s==="paid"||x.s==="off"};
+let billOpen=null,billPart=null;
+function billPill(x){
+  if(x.late)return `<span class="bpill late">⏰ ${L("Dib u dhacay","Late","متأخر","Imechelewa")}</span>`;
+  return x.s==="paid"?`<span class="bpill ok">✓ ${L("La bixiyay","Paid","مدفوع","Imelipwa")}</span>`
+    :x.s==="part"?`<span class="bpill part">½ ${L("Qayb la bixiyay","Part paid","مدفوع جزئيًا","Imelipwa sehemu")}</span>`
+    :x.s==="unpaid"?`<span class="bpill">○ ${L("Lama bixin","Unpaid","غير مدفوع","Haijalipwa")}</span>`:""}
 function renderBills(txs){
   $("billMonth").textContent=MONTHS[view.getMonth()];
-  const bs=bills();let total=0,left=0;
-  const ae=document.activeElement,ka=ae?.dataset?.bamt?"bamt":ae?.dataset?.bdue?"bdue":null,keep=ka?{a:ka,id:ae.dataset[ka],v:ae.value}:null;
-  $("bills").innerHTML=bs.length?bs.map(b=>{const p=paidTx(b,txs);total+=Number(b.amount||0);if(!p&&b.amount>0)left++;
-    return `<div class="bill"><span class="name"><span>${esc(b.name)}</span><label class="due">${L("Maalinta:","Day:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${esc(b.id)}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
-      <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${esc(b.id)}" aria-label="${L("Qadarka ","Amount for ")}${esc(b.name)}">
-      ${p?`<span class="paid">✓ ${money(p.amount)} <button class="del" data-unpay="${esc(p.id)}">${L("↩ Ka noqo","↩ Undo")}</button></span>`:`<button data-pay="${esc(b.id)}">Bixi</button>`}
-      <button class="del" data-del="${esc(b.id)}">Tirtir</button></div>`}).join("")
+  const bs=bills();let total=0,left=0,cnt={paid:0,part:0,unpaid:0,late:0},rest=0;
+  const ae=document.activeElement,ka=ae?.dataset?.bamt?"bamt":ae?.dataset?.bdue?"bdue":ae?.dataset?.bpartin?"bpartin":null,keep=ka?{a:ka,id:ae.dataset[ka],v:ae.value}:null;
+  $("bills").innerHTML=bs.length?bs.map(b=>{const x=billState(b,txs),id=esc(b.id),f=Number(b.freq)||1;
+    if(x.due)total+=x.amt;if(x.due&&x.left>0&&x.amt>0)left++;if(cnt[x.s]!=null)cnt[x.s]++;if(x.late)cnt.late++;if(x.due&&x.amt>0)rest+=x.left;
+    const act=x.s==="off"?`<span class="note bnext">💤 ${L("Bishan ma jiro","Not this month","ليس هذا الشهر","Si mwezi huu")}</span>`
+      :x.s==="paid"?`<span class="paid">✓ ${money(x.paid)}</span>`
+      :`<button data-pay="${id}">Bixi</button>`;
+    const sch=(f>1?"🔁 "+freqTxt(f)+(x.s==="off"&&billNext(b)?" · "+L("Xiga: ","Next: ","التالي: ","Ijayo: ")+MONTHS[billNext(b).getMonth()]:""):"")+(b.auto?(f>1?" · ":"")+"⚡ "+L("Toos","Auto","تلقائي","Otomatiki"):"");
+    const line2=x.amt>0||x.paid?`<div class="bill-x">${billPill(x)}${x.paid&&x.s!=="paid"?`<span class="note">${money(x.paid)} / ${money(x.amt)} · ${L("Haray","Left","المتبقي","Kilichobaki")} <b>${money(x.left)}</b></span>`:""}
+        ${sch?`<span class="note">${sch}</span>`:""}<span class="bx-btns">${x.s==="unpaid"||x.s==="part"?`<button class="del" data-bpart="${id}">½ ${L("Bixi qayb","Pay part","ادفع جزءًا","Lipa sehemu")}</button>`:""}${x.pays.length?`<button class="del" data-unpay="${esc(x.pays[x.pays.length-1].id)}">${L("↩ Ka noqo","↩ Undo")}</button>`:""}<button class="del" data-bset="${id}" aria-expanded="${billOpen===b.id}">⚙ ${L("Jadwal","Schedule","الجدول","Ratiba")}</button></span></div>`
+      :`<div class="bill-x"><span class="bx-btns"><button class="del" data-bset="${id}" aria-expanded="${billOpen===b.id}">⚙ ${L("Jadwal","Schedule","الجدول","Ratiba")}</button></span></div>`;
+    const part=billPart===b.id&&(x.s==="unpaid"||x.s==="part")?`<div class="bill-x bpart"><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="${esc(String(x.left||""))}" data-bpartin="${id}" aria-label="${L("Qadarka qaybta","Part amount","مبلغ الجزء","Kiasi cha sehemu")}"><button class="primary" data-bpartgo="${id}">${L("Bixi qaybtan","Pay this part","ادفع هذا الجزء","Lipa sehemu hii")}</button><button class="del" data-bpart="${id}">✕</button></div>`:"";
+    const set=billOpen===b.id?`<div class="bill-x bset"><label class="due">🔁 <select data-bfreq="${id}" aria-label="${L("Inta jeer","How often","كم مرة","Mara ngapi")}">${BILL_FREQ.map(n=>`<option value="${n}"${n===f?" selected":""}>${freqTxt(n)}</option>`).join("")}</select></label>
+        ${f>1?`<label class="due">${L("Bisha ugu horreysa:","First month:","الشهر الأول:","Mwezi wa kwanza:")} <select data-bmon="${id}">${MONTHS.map((m,i)=>`<option value="${i}"${i===billMon(b)?" selected":""}>${m}</option>`).join("")}</select></label>`:""}
+        <label class="due">🔔 <select data-brem="${id}" aria-label="${L("Digniin","Reminder","تذكير","Kikumbusho")}"><option value="">${L("Digniin: sida Akoon","Reminder: as in Account","التذكير: كما في الحساب","Kikumbusho: kama kwenye Akaunti")}</option>${[0,1,2,3,5,7,14].map(n=>`<option value="${n}"${b.remind===n?" selected":""}>${n===0?L("Maalinta lacagta","On the day","في يوم الدفع","Siku ya malipo"):L(n+" maalmood ka hor",n+" days before","قبل "+n+" أيام","Siku "+n+" kabla")}</option>`).join("")}</select></label>
+        <label class="due bauto"><input type="checkbox" data-bauto="${id}"${b.auto?" checked":""}> ⚡ ${L("Si toos ah u diiwaangeli lacag-bixinta maalinta lacagta","Record the payment automatically on the due day","سجّل الدفع تلقائيًا في يوم الاستحقاق","Rekodi malipo otomatiki siku ya malipo")}</label>
+        ${b.auto&&!b.due?`<span class="note">${L("Geli “Maalinta” si uu u shaqeeyo; haddii kale maalinta 1aad.","Set the “Day”, otherwise day 1 is used.","حدد “اليوم”، وإلا يُستخدم اليوم الأول.","Weka “Siku”, la sivyo siku ya 1 itatumika.")}</span>`:""}</div>`:"";
+    return `<div class="bill bs-${x.late?"late":x.s}"><span class="name"><span>${esc(T(b.name))}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
+      <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${id}" aria-label="${L("Qadarka ","Amount for ")}${esc(b.name)}">
+      ${act}
+      <button class="del" data-del="${id}">Tirtir</button>${line2}${part}${set}</div>`}).join("")
     :`<p class="empty" style="margin:0">Weli ma jiro kharash joogto ah. Hoos ka ku dar.</p>`;
   if(keep){const el=document.querySelector(`[data-${keep.a}="${keep.id}"]`);if(el){el.value=keep.v;el.focus()}}
-  $("billSum").textContent=L("Wadarta bishii: ","Monthly total: ")+money(total);
+  $("billSum").textContent=L("Wadarta bishii: ","Monthly total: ","مجموع الشهر: ","Jumla ya mwezi: ")+money(total);
+  $("billStat").innerHTML=total>0?`<span class="bpill ok">✓ ${cnt.paid}</span><span class="bpill part">½ ${cnt.part}</span><span class="bpill">○ ${cnt.unpaid}</span>${cnt.late?`<span class="bpill late">⏰ ${cnt.late}</span>`:""}<span class="note">${L("Weli la bixin:","Still to pay:","المتبقي للدفع:","Bado kulipa:")} <b>${money(rest)}</b></span>`:"";
+  $("billStat").hidden=!(total>0);
   $("payAll").hidden=!left;
 }
 function billDate(){const t=new Date();return (t.getFullYear()===view.getFullYear()&&t.getMonth()===view.getMonth())?today():`${view.getFullYear()}-${String(view.getMonth()+1).padStart(2,"0")}-01`}
-async function payBill(b){if(!(b.amount>0))return false;
-  await put({id:uid(),kind:"tx",method:payMethod(),type:"out",amount:Number(b.amount),cat:b.name,billId:b.id,date:billDate(),note:"Joogto",created:new Date().toISOString()});return true}
+/* pay a bill: the rest of this month's amount, or only a part of it */
+async function payBill(b,part){const x=billState(b,mine("tx")),amt=part>0?Math.min(part,x.left||part):x.left;if(!(amt>0))return false;
+  await put({id:uid(),kind:"tx",method:payMethod(),type:"out",amount:Math.round(amt*100)/100,cat:b.name,billId:b.id,date:billDate(),note:part>0&&amt<x.left?"Joogto · qayb":"Joogto",created:new Date().toISOString()});return true}
+/* automatic bills: on/after the due day the payment is written by itself, once per month.
+   The id is fixed per bill + month so two phones never write it twice; "Ka noqo" on it skips that month. */
+let autoBusy=false;
+async function autoPayBills(){
+  if(autoBusy||!me||STAFF()||!items.length)return;autoBusy=true;
+  try{const now=new Date(),k=ym(now),txs=mine("tx");
+    for(const b of bills()){if(!b.auto||!(Number(b.amount)>0)||!billDueIn(b,now)||(b.skip||[]).includes(k))continue;
+      const d=billDay(b,now);if(now.getDate()<d)continue;
+      const id="ab-"+b.id+"-"+k;if(items.some(i=>i.id===id)||gone.has(id))continue;
+      const x=billState(b,txs,now);if(x.pays.length||!(x.left>0))continue;
+      await put({id,kind:"tx",method:b.method||"EVC Plus",type:"out",amount:x.left,cat:b.name,billId:b.id,date:k+"-"+String(d).padStart(2,"0"),note:"Joogto · toos",auto:1,created:new Date().toISOString()})}
+  }catch{}finally{autoBusy=false}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoPayBills()});
 const RENAME={"Iskuul / waxbarasho":"Iskuul","Lacag-celin / celin":"Lacag-celin","Gunno / bonus":"Gunno","Hawlgab / pension":"Hawlgab","Biyo caafimaad (cabitaan)":"Biyo-caafi","Biyo caafi":"Biyo-caafi","Fiidmo ardayda":"Fiiga ardayda","Fiidmo iskuul (lacagta bisha)":"Fiiga iskuulka (lacagta bisha)","Caafimaad dhimirka":"Caafimaadka dhimirka","Dawooyin & qalab caafimaad":"Daawooyin & qalab caafimaad","Lacag-celin alaab-qeybiye":"Lacag-celin alaab-qaybiye","Xayeysiis & suuqgeyn":"Xayeysiis & suuq-geyn","Iib (sales)":"Iib","Iib jumlad (wholesale)":"Iib jumlad","Iib tafaariiq (retail)":"Iib tafaariiq","Qandaraas (contract)":"Qandaraas","La-talin (consulting)":"La-talin","Funaanad (T-shirt)":"Funaanad","Dhar dhaqid (laundry)":"Dhar dhaqid","Raajo & sawir (X-ray)":"Raajo & sawir","Cabitaan tamar (energy)":"Cabitaan tamar","Alaab (stock)":"Alaab","Gunno shaqaale (bonus)":"Gunno shaqaale","Xisaab-hubin (audit)":"Xisaab-hubin","Sadaqo & zakaad":"Sadaqo & Zakaad","Fiiga ardayga":"Fiiga ardayda","Fiiga ardayga":"Fiiga ardayda"};
 const newName=n=>RENAME[n]||(typeof n==="string"&&n.startsWith("Mushahar: ")?n.slice(10):null);
 const GRP_RENAME={"Mushaarka shaqaalaha":"Mushaharka shaqaalaha","Fiidmo & ardayda":"Fiiga & ardayda","Fiiga & ardayga":"Fiiga & ardayda","Activity":"Madadaalo"};
@@ -2416,8 +2487,15 @@ document.addEventListener("change",async e=>{const did=e.target.dataset?.bdue;
   if(did){const b=items.find(i=>i.id===did);let v=parseInt(e.target.value,10)||null;if(v&&(v<1||v>31))v=null;if(b&&v!==(b.due||null)){try{await put({...b,due:v})}catch{}}return}
   const id=e.target.dataset?.bamt;if(!id)return;
   const b=items.find(i=>i.id===id);const v=parseFloat(e.target.value)||0;if(b&&v!==Number(b.amount)){try{await put({...b,amount:v})}catch{}}});
-$("payAll").addEventListener("click",async()=>{const txs=mine("tx");
-  for(const b of bills())if(!paidTx(b,txs))await payBill(b).catch(()=>{})});
+$("payAll").addEventListener("click",async()=>{
+  for(const b of bills()){const x=billState(b,mine("tx"));if(x.due&&x.left>0)await payBill(b).catch(()=>{})}});
+document.addEventListener("change",async e=>{const ds=e.target.dataset||{},id=ds.bfreq||ds.bmon||ds.brem||ds.bauto;if(!id)return;
+  const b=items.find(i=>i.id===id);if(!b)return;let nb={...b};
+  if(ds.bfreq){const f=Number(e.target.value)||1;if(f===1){delete nb.freq;delete nb.mon}else{nb.freq=f;if(!Number.isInteger(b.mon))nb.mon=view.getMonth()}}
+  if(ds.bmon)nb.mon=Number(e.target.value);
+  if(ds.brem){if(e.target.value==="")delete nb.remind;else nb.remind=Number(e.target.value)}
+  if(ds.bauto){if(e.target.checked){nb.auto=1;nb.method=payMethod()}else delete nb.auto}
+  try{await put(nb)}catch{}if(ds.bauto&&e.target.checked)autoPayBills()});
 $("cat").addEventListener("change",()=>{const n=$("cat").value==="__new";$("newCatRow").hidden=!n;if(n)$("newCat").focus()});
 async function addCat(){const name=$("newCat").value.trim();if(!name){$("newCat").focus();return}
   const type=document.querySelector('input[name=type]:checked').value;
@@ -2488,6 +2566,8 @@ document.addEventListener("click",async e=>{
   if(ed){const t=items.find(i=>i.id===ed.dataset.edit);if(t)startEdit(t);return}
   const up=e.target.closest("[data-unpay]");
   if(up){if(!up.classList.contains("arm")){up.classList.add("arm");up.textContent=L("Hubi?","Sure?");setTimeout(()=>{up.classList.remove("arm");up.textContent=L("↩ Ka noqo","↩ Undo")},3000);return}
+    const ut=items.find(i=>i.id===up.dataset.unpay);
+    if(ut?.auto&&ut.billId){const b=items.find(i=>i.id===ut.billId),k=ut.date.slice(0,7);if(b&&!(b.skip||[]).includes(k))try{await put({...b,skip:[...(b.skip||[]),k].slice(-24)})}catch{}}
     try{await remove(up.dataset.unpay)}catch{}return}
   const ud=e.target.closest("[data-dundo]");
   if(ud){if(!ud.classList.contains("arm")){ud.classList.add("arm");ud.textContent=L("Hubi?","Sure?");setTimeout(()=>{ud.classList.remove("arm");ud.textContent=L("↩ Ka noqo lacagtii u dambeysay","↩ Undo last payment")},3000);return}
@@ -2500,7 +2580,14 @@ document.addEventListener("click",async e=>{
   if(chip&&chip.dataset.chip){if(setCat(chip.dataset.chip))return;$("amount").focus();return}
   const pay=e.target.closest("[data-pay]");
   if(pay){const b=items.find(i=>i.id===pay.dataset.pay);if(!(b.amount>0)){document.querySelector(`[data-bamt="${b.id}"]`)?.focus();return}
-    try{await payBill(b)}catch{}return}
+    billPart=null;try{await payBill(b)}catch{}return}
+  const bset=e.target.closest("[data-bset]");
+  if(bset){billOpen=billOpen===bset.dataset.bset?null:bset.dataset.bset;render();return}
+  const bp=e.target.closest("[data-bpart]");
+  if(bp){billPart=billPart===bp.dataset.bpart?null:bp.dataset.bpart;render();if(billPart)document.querySelector(`[data-bpartin="${billPart}"]`)?.focus();return}
+  const bpg=e.target.closest("[data-bpartgo]");
+  if(bpg){const b=items.find(i=>i.id===bpg.dataset.bpartgo),inp=document.querySelector(`[data-bpartin="${bpg.dataset.bpartgo}"]`),v=parseFloat(inp?.value)||0;
+    if(!b||!(v>0)){inp?.focus();return}billPart=null;try{await payBill(b,v)}catch{}return}
   const gp=e.target.closest("[data-gplan]");
   if(gp){goalEdit=goalEdit===gp.dataset.gplan?null:gp.dataset.gplan;renderGoals();const f=$("gpd-"+goalEdit);if(f)f.focus();return}
   if(e.target.closest("[data-gpclose]")){goalEdit=null;renderGoals();return}
@@ -2569,7 +2656,7 @@ $("modeSel").addEventListener("change",async e=>{const m=e.target.value;
     savePlan("business")}
   if(TEAM)await leaveTeam();
   const st=items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"};
-  applyMode(m);await put({...st,mode:m});teamUI();render();seedBills()});
+  applyMode(m);await put({...st,mode:m});teamUI();render();seedBills();autoPayBills()});
 $("prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
 $("next").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);render()};
 
@@ -2652,9 +2739,10 @@ function renderAlerts(bud){lastBud=bud;
     else if(bud.p>=R.budPct)out.push(["warn",L("⚠️ Waxaad isticmaashay "+Math.round(bud.p)+"% miisaaniyadda bishan. Waxaa kuu haray "+money(bud.left)+".","⚠️ You have used "+Math.round(bud.p)+"% of this month's budget. "+money(bud.left)+" left.","⚠️ استخدمت "+Math.round(bud.p)+"% من ميزانية هذا الشهر. المتبقي "+money(bud.left)+".","⚠️ Umetumia "+Math.round(bud.p)+"% ya bajeti ya mwezi huu. Kilichobaki "+money(bud.left)+".")]);
   }
   if(R.bills&&cur){const txs=mine("tx"),d=now.getDate();
-    for(const b of bills()){if(!b.due||!(b.amount>0)||paidTx(b,txs))continue;const k=b.due-d;
-      if(k<0)out.push(["bad",L("🔔 "+b.name+": waqtigii bixinta wuu dhaafay (maalinta "+b.due+" ee bisha). Qadarka: "+money(b.amount),"🔔 "+T(b.name)+": overdue (day "+b.due+" of the month). Amount: "+money(b.amount),"🔔 "+T(b.name)+": متأخر (اليوم "+b.due+" من الشهر). المبلغ: "+money(b.amount),"🔔 "+T(b.name)+": imechelewa (siku "+b.due+" ya mwezi). Kiasi: "+money(b.amount))]);
-      else if(k<=R.billDays)out.push(["warn",L("🔔 "+b.name+": waa in la bixiyaa "+whenText(k)+". Qadarka: "+money(b.amount),"🔔 "+T(b.name)+": due "+whenText(k)+". Amount: "+money(b.amount),"🔔 "+T(b.name)+": يستحق "+whenText(k)+". المبلغ: "+money(b.amount),"🔔 "+T(b.name)+": inadaiwa "+whenText(k)+". Kiasi: "+money(b.amount))])}}
+    for(const b of bills()){const x=billState(b,txs,now);if(!b.due||!(x.amt>0)||!x.due||!(x.left>0))continue;const k=billDay(b,now)-d,days=b.remind??R.billDays,nm=T(b.name),rest=x.paid?L(" (haray "," (left "," (المتبقي "," (kilichobaki ")+money(x.left)+")":"";
+      if(b.auto&&k>=0){if(k<=days)out.push(["warn",L("⚡ "+b.name+": si toos ah ayaa loo diiwaangelin doonaa "+whenText(k)+". Qadarka: "+money(x.left),"⚡ "+nm+": will be recorded automatically "+whenText(k)+". Amount: "+money(x.left),"⚡ "+nm+": سيُسجَّل تلقائيًا "+whenText(k)+". المبلغ: "+money(x.left),"⚡ "+nm+": itarekodiwa otomatiki "+whenText(k)+". Kiasi: "+money(x.left))]);continue}
+      if(k<0)out.push(["bad",L("⏰ "+b.name+": waqtigii bixinta wuu dhaafay "+(-k)+" maalmood (maalinta "+b.due+"). Lama bixin: "+money(x.left),"⏰ "+nm+": "+(-k)+" days late (day "+b.due+"). Unpaid: "+money(x.left),"⏰ "+nm+": متأخر "+(-k)+" أيام (اليوم "+b.due+"). غير مدفوع: "+money(x.left),"⏰ "+nm+": imechelewa siku "+(-k)+" (siku "+b.due+"). Haijalipwa: "+money(x.left))]);
+      else if(k<=days)out.push(["warn",L("🔔 "+b.name+": waa in la bixiyaa "+whenText(k)+". Qadarka: "+money(x.left)+rest,"🔔 "+nm+": due "+whenText(k)+". Amount: "+money(x.left)+rest,"🔔 "+nm+": يستحق "+whenText(k)+". المبلغ: "+money(x.left)+rest,"🔔 "+nm+": inadaiwa "+whenText(k)+". Kiasi: "+money(x.left)+rest)])}}
   if(R.goals&&cur&&now.getDate()>=R.goalDay&&!STAFF()){const tx=mine("tx");
     for(const g of mine("goal")){const p=goalPlan(g,tx);if(p.done||!(p.todo>0))continue;
       out.push(["warn",L("🎯 "+g.name+": bishan weli ku shub "+money(p.todo)+(g.due?" si aad u gaarto "+dueText(g.due):"")+".","🎯 "+g.name+": put in "+money(p.todo)+" more this month"+(g.due?" to reach it by "+dueText(g.due):"")+".","🎯 "+g.name+": أضف "+money(p.todo)+" هذا الشهر"+(g.due?" لتصل إليه بحلول "+dueText(g.due):"")+".","🎯 "+g.name+": weka "+money(p.todo)+" zaidi mwezi huu"+(g.due?" ili kufikia kabla ya "+dueText(g.due):"")+".")])}}
@@ -2914,7 +3002,7 @@ function mgCalc(){
   const late=ds.filter(d=>d.due&&debtLeft(d)>0&&d.due<today());
   /* staff: salaries paid this month, salary lines not yet paid, who is away today */
   const sal=mOut.filter(t=>ROLES.has(t.cat)),salT=amt(sal),roles=group(sal,t=>t.cat);
-  const bl=bills(),unpaid=bl.filter(b=>Number(b.amount||0)>0&&!paidTx(b,txs)),unpaidSal=unpaid.filter(b=>ROLES.has(b.name)),unpaidOther=unpaid.filter(b=>!ROLES.has(b.name));
+  const bl=bills(),unpaid=bl.filter(b=>{const x=billState(b,txs);return x.due&&x.amt>0&&x.left>0}),unpaidSal=unpaid.filter(b=>ROLES.has(b.name)),unpaidOther=unpaid.filter(b=>!ROLES.has(b.name));
   const t0=today(),away=mine("leave").filter(v=>v.status!=="no"&&v.status!=="wait"&&v.from<=t0&&v.to>=t0),waitLv=mine("leave").filter(v=>v.status==="wait");
   const recent=[...mIn,...mOut].sort((a,b)=>(b.date+(b.created||"")).localeCompare(a.date+(a.created||""))).slice(0,6);
   MG={k,label:mgMonthTxt(view),prevLabel:mgMonthTxt(pd),incT,outT,prof,pIn,pOut,inG,outG,inCats,outCats,sales,salesT,pSales,buys,buyT,custs,supp,prods,best,avg:days?salesT/days:0,
