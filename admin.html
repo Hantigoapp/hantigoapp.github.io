@@ -31,6 +31,9 @@ input{width:100%;border:1px solid var(--line);background:var(--surface);border-r
 .stat b{font:700 1.4rem var(--display)}
 .list{display:grid;gap:8px}
 .row{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:center}
+.grp-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 12px;margin:14px 0 2px;padding:8px 12px;border-radius:10px;font-size:1rem;border-left:4px solid #3ddc97;background:rgba(61,220,151,.08)}
+.grp-h.biz{border-left-color:#6aa5ff;background:rgba(106,165,255,.08)}.grp-h small{font-weight:500;opacity:.8;font-size:.82rem}
+.cinfo{display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:4px}.cinfo span{white-space:normal}
 .who{min-width:0}.who b{overflow-wrap:anywhere}.who div{color:var(--muted);font-size:.85rem;overflow-wrap:anywhere}
 .acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
 .pill{display:inline-block;padding:1px 9px;border-radius:99px;font-weight:600;font-size:.78rem;margin-left:6px}
@@ -130,7 +133,8 @@ h2{font-family:var(--display)}
       <button type="button" role="tab" data-tab="loc" aria-selected="false">📍 Meelaha</button>
     </div>
     <section id="tabCust" style="display:grid;gap:10px">
-      <input id="q" type="search" placeholder="Raadi email, lambar EVC ama magaalo…" aria-label="Raadi">
+      <input id="q" type="search" placeholder="Raadi magac, email, telefoon, shirkad ama magaalo…" aria-label="Raadi">
+      <div class="chips" id="grps" role="group" aria-label="Nooca akoonka"></div>
       <div class="chips" id="chips"></div>
       <div class="list" id="list"></div>
     </section>
@@ -158,7 +162,9 @@ function status(p){const now=new Date();
   if(p.paid_until&&new Date(p.paid_until)>now)return["Bixiyay ilaa "+fmt(p.paid_until),"ok"];
   if(new Date(p.trial_until)>now)return["Tijaabo ilaa "+fmt(p.trial_until),"trial"];
   return["Dhacay","warn"]}
-let filt="all",tab="cust";
+let filt="all",tab="cust",grp="all";
+const isBiz=p=>planOf(p)==="business";
+const GROUPS=[["person","👤 Shakhsi",p=>!isBiz(p)],["business","🏢 Shirkad",isBiz]];
 const isPaid=p=>p.paid_until&&new Date(p.paid_until)>new Date();
 const isTrial=p=>!isPaid(p)&&new Date(p.trial_until)>new Date();
 const isNew=p=>p.created_at&&Date.now()-new Date(p.created_at)<7*864e5;
@@ -175,7 +181,7 @@ function renderReqs(cust){
   document.title=(reqs.length?"("+reqs.length+") ":"")+"HantiGo · Maamul";
   $("reqs").hidden=!reqs.length;
   $("reqs").innerHTML=`<h2>⏳ Codsiyada lacagta · ${reqs.length}</h2><p class="msg" style="margin:0">Hubi in lacagta (👤 Shakhsi <b>$3</b> · 🏢 Shirkad <b>$7</b>) ay ka timid lambarkan, kadib riix <b>Ansixi</b>. Akoonka 30 maalmood ayuu u furmayaa.</p>`+
-    reqs.sort((a,b)=>String(b.pay_requested_at||"").localeCompare(String(a.pay_requested_at||""))).map(p=>`<div class="req"><div class="meta"><b>${esc(p.email)}</b>${planPill(p)}
+    reqs.sort((a,b)=>String(b.pay_requested_at||"").localeCompare(String(a.pay_requested_at||""))).map(p=>`<div class="req"><div class="meta"><div><b>${esc(nameOf(p)||p.email)}</b> ${planPill(p)}</div>${nameOf(p)?`<span>✉️ ${esc(p.email)}${phoneOf(p)&&phoneOf(p)!==p.phone?` · 📞 ${esc(phoneOf(p))}`:""}${coOf(p)?` · 🏢 ${esc(coOf(p))}`:""}</span>`:""}
       <span>📞 ${payWay(p)}: <b>${esc(p.phone||"—")}</b>${cleanRef(p.pay_ref)?` · 🧾 ${esc(cleanRef(p.pay_ref))}`:""}</span>
       <span>🕒 ${p.pay_requested_at?new Date(p.pay_requested_at).toLocaleString("en-GB",{dateStyle:"short",timeStyle:"short"}):"—"}</span>
       ${p.pay_shot?`<img src="${esc(p.pay_shot)}" alt="Sawirka fariinta EVC" data-zoom>`:""}</div>
@@ -188,14 +194,22 @@ function render(){
   $("chips").innerHTML=FILTERS.map(([k,t,f])=>`<button type="button" data-f="${k}" aria-pressed="${filt===k}">${t} · ${cust.filter(f).length}</button>`).join("");
   renderLocs(cust);renderReqs(cust);const nf=renderNew(cust);document.title=(nf?"🆕"+nf+" ":"")+document.title;
   const fn=FILTERS.find(x=>x[0]===filt)[2];const qd=q.replace(/\D/g,"");
-  const list=cust.filter(fn).filter(p=>!q||(p.email||"").toLowerCase().includes(q)||(p.city||"").toLowerCase().includes(q)||(qd&&(p.phone||"").replace(/\D/g,"").includes(qd)));
-  $("list").innerHTML=list.length?list.map(p=>{const [t,c]=status(p);return `<div class="row">
-    <div class="av" aria-hidden="true">${esc((p.email||"?")[0].toUpperCase())}</div>
-    <div class="who"><b>${esc(p.email)}</b><span class="pill ${c}">${esc(t)}</span>${planPill(p)}
-      <div>📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")} · 📅 ${fmt(p.created_at)}${startTxt(p)} · 📞 ${esc(p.phone||"—")}</div></div>
+  const list=cust.filter(fn).filter(p=>!q||[p.email,p.city,nameOf(p),coOf(p)].some(v=>String(v||"").toLowerCase().includes(q))||(qd&&[p.phone,phoneOf(p)].some(v=>String(v||"").replace(/\D/g,"").includes(qd))));
+  $("grps").innerHTML=[["all","Dhammaan",()=>true],...GROUPS].map(([k,t,f])=>`<button type="button" data-g="${k}" aria-pressed="${grp===k}">${t} · ${cust.filter(f).length}</button>`).join("");
+  const row=p=>{const [t,c]=status(p);return `<div class="row">
+    <div class="av" aria-hidden="true">${initial(p)}</div>
+    <div class="who"><b>${esc(nameOf(p)||p.email)}</b><span class="pill ${c}">${esc(t)}</span>${planPill(p)}
+      ${whoLines(p)}
+      <div>📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")} · 📅 ${fmt(p.created_at)}${startTxt(p)}</div></div>
     <div class="acts"><button class="primary" data-id="${p.id}" data-d="30">+30 maalmood</button><button data-id="${p.id}" data-d="365">+1 sano</button><button class="stop" data-id="${p.id}" data-d="0">Jooji</button>${"plan" in p?`<button data-plan="${p.id}" data-to="${planOf(p)==="business"?"person":"business"}">→ ${planOf(p)==="business"?"👤 Shakhsi $3":"🏢 Shirkad $7"}</button>`:""}</div>
-  </div>`}).join(""):`<p class="msg">Macmiil lama helin.</p>`}
+  </div>`};
+  /* customers split in two lists: Shakhsi and Shirkad, each with how many bought / are on trial */
+  const sect=([k,t,f])=>{const g=list.filter(f),pd=g.filter(isPaid).length,tr=g.filter(isTrial).length;
+    return `<h3 class="grp-h ${k==="business"?"biz":"per"}"><span>${t} · ${g.length}</span><small>✓ ${pd} bixiyay · ⏳ ${tr} tijaabo · ✕ ${g.length-pd-tr} dhacay</small></h3>`+(g.length?g.map(row).join(""):`<p class="msg">Macmiil ${t.slice(3)} ah lama helin.</p>`)};
+  $("list").innerHTML=list.length?GROUPS.filter(x=>grp==="all"||grp===x[0]).map(sect).join(""):`<p class="msg">Macmiil lama helin.</p>`;
+  if(!hasInfo&&cust.length)$("list").insertAdjacentHTML("afterbegin",'<p class="msg">Si aad u aragto magaca, telefoonka iyo shirkadda macmiil kasta, ku shub <b>supabase/customer_info.sql</b> gudaha Supabase (SQL Editor → Run).</p>')}
 document.addEventListener("click",e=>{const f=e.target.closest("[data-f]");if(f){filt=f.dataset.f;render();return}
+  const g=e.target.closest("[data-g]");if(g){grp=g.dataset.g;render();return}
   const t=e.target.closest("[data-tab]");if(t){tab=t.dataset.tab;document.querySelectorAll("[data-tab]").forEach(x=>x.setAttribute("aria-selected",x===t));$("tabCust").hidden=tab!=="cust";$("tabLoc").hidden=tab!=="loc";$("tabSales").hidden=tab!=="sales"}});
 async function load(){
   const {data,error}=await sb.from("profiles").select("*").order("created_at",{ascending:false});
@@ -240,10 +254,11 @@ async function subPdf(p,r){const J=await loadPdf();const doc=new J({unit:"mm",fo
   doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(40);doc.text("RASIID  "+r.no,W-M,y+2,{align:"right"});
   doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);doc.text("Taariikhda: "+dmy(r.date),W-M,y+8,{align:"right"});
   y+=24;doc.setDrawColor(200);doc.line(M,y,W-M,y);y+=8;
-  doc.setTextColor(90);doc.text("Macmiilka",M,y);doc.setTextColor(20);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(p.email||"",M,y+6);
-  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);
-  const info=[p.phone?"EVC: "+p.phone:"",cleanRef(p.pay_ref)?"Tix: "+cleanRef(p.pay_ref).replace(/^\s*tix[:\s]*/i,""):""].filter(Boolean).join("   ·   ");if(info)doc.text(info,M,y+11);
-  y+=22;doc.setFillColor(11,122,75);doc.rect(M,y-5,W-2*M,8,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");
+  doc.setTextColor(90);doc.text("Macmiilka",M,y);doc.setTextColor(20);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(nameOf(p)||p.email||"",M,y+6);
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(60);
+  const ph=phoneOf(p),cl=[nameOf(p)?"Email: "+p.email:"",ph?"Telefoon: "+ph:"",coOf(p)?"Shirkadda: "+coOf(p):""].filter(Boolean).join("   ·   ");let yy=y+11;if(cl){doc.text(cl,M,yy);yy+=5}
+  doc.setTextColor(90);const pinfo=[p.phone?"EVC: "+p.phone:"",cleanRef(p.pay_ref)?"Tix: "+cleanRef(p.pay_ref).replace(/^\s*tix[:\s]*/i,""):""].filter(Boolean).join("   ·   ");if(pinfo){doc.text(pinfo,M,yy);yy+=5}
+  y=Math.max(y+22,yy+6);doc.setFillColor(11,122,75);doc.rect(M,y-5,W-2*M,8,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");
   doc.text("Adeegga",M+2,y);doc.text("Muddada",128,y);doc.text("Qiimaha",W-M-2,y,{align:"right"});
   doc.setFont("helvetica","normal");doc.setTextColor(20);y+=8;
   doc.text("HantiGo "+planName(p)+" - rukunka app-ka",M+2,y);doc.text(r.days>=365?"1 sano":r.days+" maalmood",128,y);doc.text("$"+r.amount.toFixed(2),W-M-2,y,{align:"right"});y+=6;
@@ -264,14 +279,22 @@ async function sendSubReceipt(id,days,amount,no){const p=rows.find(x=>x.id===id)
   const r={no:no||rcNo(id),date:now,days,amount,until:p.paid_until||new Date(Date.now()+days*864e5)};
   toast("🧾 Rasiidka waa la dirayaa…");
   try{const blob=await subPdf(p,r);
-    const text=`Salaan,\n\nMahadsanid inaad iibsatay HantiGo.\n\nRasiid: ${r.no}\nTaariikhda: ${dmy(r.date)}\nAdeegga: HantiGo ${planName(p)} (${days>=365?"1 sano":days+" maalmood"})\nLacagta: $${amount.toFixed(2)} (${payWay(p)})\nAkoonkaagu wuu furan yahay ilaa: ${dmy(r.until)}\n\nRasiidka PDF-ka ah waa lifaaqan.\nCaawimaad: WhatsApp +46 76 715 79 15\n\nHantiGo`;
-    const {data,error}=await sb.functions.invoke("send-receipt",{body:{to:p.email,subject:"HantiGo · Rasiidka lacag-bixinta "+r.no,text,company:"HantiGo",filename:"HantiGo-Rasiid-"+r.no+".pdf",pdf:await b64(blob)}});
+    const who=[nameOf(p)?"Magaca: "+nameOf(p):"","Email: "+p.email,phoneOf(p)?"Telefoon: "+phoneOf(p):"",coOf(p)?"Shirkadda: "+coOf(p):""].filter(Boolean).join("\n");
+    const text=`Salaan${nameOf(p)?" "+nameOf(p):""},\n\nMahadsanid inaad iibsatay HantiGo.\n\n${who}\n\nRasiid: ${r.no}\nTaariikhda: ${dmy(r.date)}\nAdeegga: HantiGo ${planName(p)} (${days>=365?"1 sano":days+" maalmood"})\nLacagta: $${amount.toFixed(2)} (${payWay(p)})\nAkoonkaagu wuu furan yahay ilaa: ${dmy(r.until)}\n\nRasiidka PDF-ka ah waa lifaaqan.\nCaawimaad: WhatsApp +46 76 715 79 15\n\nHantiGo`;
+    const {data,error}=await sb.functions.invoke("send-receipt",{body:{to:p.email,subject:"HantiGo · Rasiidka lacag-bixinta "+r.no+(nameOf(p)?" · "+nameOf(p):""),text,company:"HantiGo",filename:"HantiGo-Rasiid-"+r.no+".pdf",pdf:await b64(blob)}});
     if(error||!data?.ok){let w=data?.error||error?.message||"";try{if(error?.context?.text)w=error.context.status+" "+await error.context.clone().text()}catch{}throw new Error(w)}
     toast("🧾 Rasiidka waa loo diray "+p.email+", nuqulna waa laguu soo diray.")}
   catch(e){toast("🧾 Rasiidka lama diri karin: "+String(e?.message||e).slice(0,160),true)}}
 
 /* ---------- 🆕 Macaamiil cusub: new sign-ups, newest first ---------- */
-let extra={},hasExtra=false,known=null,starts={},hasStarts=false;
+let extra={},hasExtra=false,known=null,starts={},hasStarts=false,info={},hasInfo=false;
+/* who the customer is: name + phone from the sign-up form, company (customer_info.sql, admin only) */
+const nameOf=p=>info[p.id]?.full_name||"";
+const phoneOf=p=>info[p.id]?.phone||p.phone||"";
+const coOf=p=>info[p.id]?.company||extra[p.id]?.company||"";
+const initial=p=>esc((nameOf(p)||p.email||"?")[0].toUpperCase());
+function whoLines(p){const ph=phoneOf(p),evc=p.phone&&String(p.phone).replace(/\D/g,"")!==String(ph).replace(/\D/g,"")?p.phone:"";
+  return `<div class="cinfo"><span>✉️ ${esc(p.email||"—")}</span><span>📞 ${esc(ph||"—")}</span>${evc?`<span>💳 EVC: ${esc(evc)}</span>`:""}${coOf(p)?`<span>🏢 ${esc(coOf(p))}</span>`:""}</div>`}
 const startTxt=p=>{const d=starts[p.id];return d?` · 🗓 Bilaabay: ${esc(d)}`:""};
 const SEEN_KEY="hantigo.admin.seen";
 function getSeen(){try{const v=Number(localStorage.getItem(SEEN_KEY));if(v)return v}catch{}return Date.now()-864e5}
@@ -293,11 +316,11 @@ function renderNew(cust){
     <div class="ncount"><div><b>${nToday}</b><small>Maanta</small></div><div><b>${nY}</b><small>Shalay</small></div><div><b>${n7}</b><small>7-dii maalmood</small></div><div><b>${nM}</b><small>${months[t0.getMonth()]}</small></div></div>
     ${fresh.length?`<div class="nbell"><span>🔔 ${fresh.length} macmiil cusub ayaa is-diiwaangeliyay tan iyo markii u dambaysay ee aad eegtay</span><button type="button" data-seen>✓ Waan arkay</button></div>`:""}
     ${recent.length?"":`<p class="msg" style="margin:0">Toddobaadkan weli qof cusub ma jiro.${show.length?" Kuwii ugu dambeeyay:":""}</p>`}
-    ${show.map(p=>{const x=extra[p.id]||{};const wa=String(p.phone||"").replace(/\D/g,"");return`<div class="nrow">
-      <div class="av" aria-hidden="true">${esc((p.email||"?")[0].toUpperCase())}</div>
-      <div class="who"><b>${esc(p.email)}</b>${at(p)>seen?'<span class="pill fresh">CUSUB</span>':""}${planPill(p)}${trialLeft(p)}
+    ${show.map(p=>{const x=extra[p.id]||{};const wa=String(phoneOf(p)).replace(/\D/g,"");return`<div class="nrow">
+      <div class="av" aria-hidden="true">${initial(p)}</div>
+      <div class="who"><b>${esc(nameOf(p)||p.email)}</b>${at(p)>seen?'<span class="pill fresh">CUSUB</span>':""}${planPill(p)}${trialLeft(p)}
         <div>🕒 ${p.created_at?`${ago(p.created_at)} · ${when(p.created_at)}`:"—"}${startTxt(p)}</div>
-        <div>${x.company?`🏢 ${esc(x.company)} · `:""}📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")}${p.phone?` · 📞 ${esc(p.phone)}`:""}</div>
+        ${whoLines(p)}<div>📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")}</div>
         ${hasExtra?`<div>${x.items>0?`✅ Wuu bilaabay isticmaalka (${x.items} xog)`:"⏳ Weli wax ma gelin"}${x.last_seen?` · Galay ${ago(x.last_seen)}`:""}</div>`:""}</div>
       <div class="acts">${wa?`<a href="https://wa.me/${wa}?text=${encodeURIComponent("Salaan, ku soo dhawoow HantiGo! Haddii aad caawimaad u baahato, halkan nagala soo xiriir.")}" target="_blank" rel="noopener">💬 WhatsApp</a>`:""}<a href="mailto:${esc(p.email)}?subject=${encodeURIComponent("Ku soo dhawoow HantiGo")}">✉️ Email</a></div></div>`}).join("")}
     ${hasStarts?"":`<p class="msg" style="margin:0;font-size:.85rem">Si aad u aragto taariikhda diiwaangelintu bilaabatay (🗓) ee macmiil kasta doortay, ku shub <b>supabase/start_date.sql</b> gudaha Supabase (SQL Editor → Run).</p>`}
@@ -315,7 +338,7 @@ async function loadAuto(){let data=null,error=null;try{({data,error}=await sb.fr
     <div class="ncount"><div><b>${sum(ok.filter(x=>+new Date(x.created_at)>=+t0))}</b><small>Maanta</small></div><div><b>${sum(ok.filter(x=>+new Date(x.created_at)>=mon))}</b><small>Bishan</small></div><div><b>${ok.length}</b><small>Wadarta</small></div></div>`+
     data.slice(0,8).map(x=>{const [c,t]=pill[x.status]||["",x.status];return `<div class="apay"><div><b>${esc(x.email||"")}</b> <span class="pill ${c}">${t}</span><br><span>${esc(x.method||"")} +${esc(x.phone||"")}${x.waafi_tx?" · Tix "+esc(x.waafi_tx):""}${x.status==="failed"&&x.error?" · "+esc(String(x.error).split(":")[0]):""}${x.receipt_no?" · 🧾 "+esc(x.receipt_no):""}</span></div>
       <div class="r"><b>$${Number(x.amount).toFixed(0)}</b><br><span>${new Date(x.created_at).toLocaleString("en-GB",{dateStyle:"short",timeStyle:"short"})}</span></div></div>`}).join("")}
-async function loadExtra(){loadAuto();sb.rpc("admin_start_dates").then(({data,error})=>{hasStarts=!error&&Array.isArray(data);starts={};if(hasStarts)data.forEach(r=>{if(r.start_date)starts[r.id]=r.start_date});if(hasStarts&&rows.length)render()},()=>{});const {data,error}=await sb.rpc("admin_signups");hasExtra=!error&&Array.isArray(data);extra={};if(hasExtra)data.forEach(r=>extra[r.id]=r)}
+async function loadExtra(){loadAuto();sb.rpc("admin_customer_info").then(({data,error})=>{hasInfo=!error&&Array.isArray(data);info={};if(hasInfo)data.forEach(r=>info[r.id]=r);if(rows.length)render()},()=>{});sb.rpc("admin_start_dates").then(({data,error})=>{hasStarts=!error&&Array.isArray(data);starts={};if(hasStarts)data.forEach(r=>{if(r.start_date)starts[r.id]=r.start_date});if(hasStarts&&rows.length)render()},()=>{});const {data,error}=await sb.rpc("admin_signups");hasExtra=!error&&Array.isArray(data);extra={};if(hasExtra)data.forEach(r=>extra[r.id]=r)}
 /* ---------- 💰 Iibka: every payment, by day and by month, download Excel / Word / PDF ---------- */
 let sales=[],salesOk=null,sPer="month",sGrp=null,sFrom="",sTo="";
 const WD=["Axad","Isniin","Talaado","Arbaco","Khamiis","Jimco","Sabti"];
