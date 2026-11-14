@@ -176,7 +176,9 @@ const fmt=d=>d?new Date(d).toLocaleDateString("en-GB"):"—";
 let rows=[];
 /* price by account type: Shakhsi $3, Shirkad $7 (Shirkad includes Shakhsi) */
 const PRICE={person:3,business:7};
-const planOf=p=>p.plan?(p.plan==="business"?"business":"person"):/\[Shirkad/i.test(p.pay_ref||"")?"business":/\[Shakhsi/i.test(p.pay_ref||"")?"person":null;
+// a pending request is priced by what the customer chose on the payment screen ([Shakhsi $3] / [Shirkad $7]); approving it sets profiles.plan to that choice
+const tagPlan=p=>/\[Shirkad/i.test(p.pay_ref||"")?"business":/\[Shakhsi/i.test(p.pay_ref||"")?"person":null;
+const planOf=p=>(p.pay_status==="pending"&&tagPlan(p))||(p.plan?(p.plan==="business"?"business":"person"):tagPlan(p));
 const priceOf=p=>PRICE[planOf(p)||"person"];
 const planName=p=>planOf(p)==="business"?"Shirkad":"Shakhsi";
 const accLink=p=>"https://hantigoapp.github.io/?open="+(planOf(p)==="business"?"business":"person");   // opens the customer's Shakhsi or Shirkad account
@@ -270,7 +272,9 @@ document.addEventListener("click",async e=>{const z=e.target.closest("[data-zoom
   b.disabled=true;let {error}=await sb.rpc("admin_pay_decide",{target:b.dataset.pay,approve:ok,days:30});
   if(error&&ok)({error}=await sb.rpc("admin_extend",{target:b.dataset.pay,days:30}));
   if(error){alert(ok?"Khalad: "+error.message:"Si aad u diiddo, marka hore ku shub faylka supabase/payment.sql gudaha Supabase.");b.disabled=false;return}
-  if(ok){const p=rows.find(x=>x.id===b.dataset.pay)||{},amt=priceOf(p),no=rcNo(b.dataset.pay);await recordSale(p,amt,30,payWay(p),cleanRef(p.pay_ref),no);
+  if(ok){const p=rows.find(x=>x.id===b.dataset.pay)||{},amt=priceOf(p),no=rcNo(b.dataset.pay);
+    const tp=tagPlan(p);if(tp&&tp!==p.plan){try{await sb.rpc("admin_set_plan",{target:p.id,p:tp})}catch{}}   // the plan follows what the customer paid for: 👤 $3 or 🏢 $7
+    await recordSale(p,amt,30,payWay(p),cleanRef(p.pay_ref),no);
     await load();sendSubReceipt(b.dataset.pay,30,amt,no)}else await load()});
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-id]");if(!b)return;
   const d=Number(b.dataset.d);
