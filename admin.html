@@ -179,6 +179,7 @@ const PRICE={person:3,business:7};
 const planOf=p=>p.plan?(p.plan==="business"?"business":"person"):/\[Shirkad/i.test(p.pay_ref||"")?"business":/\[Shakhsi/i.test(p.pay_ref||"")?"person":null;
 const priceOf=p=>PRICE[planOf(p)||"person"];
 const planName=p=>planOf(p)==="business"?"Shirkad":"Shakhsi";
+const accLink=p=>"https://hantigoapp.github.io/?open="+(planOf(p)==="business"?"business":"person");   // opens the customer's Shakhsi or Shirkad account
 const planPill=p=>{const k=planOf(p);return `<span class="pill ${k==="business"?"biz":"per"}">${k?(k==="business"?"🏢 Shirkad $7":"👤 Shakhsi $3"):"? Nooc lama oga"}</span>`};
 const cleanRef=r=>String(r||"").replace(/^(\[[^\]]*\]\s*)+/,"");
 const payWay=p=>/\[WaafiPay\]/i.test(p.pay_ref||"")?"WaafiPay":"EVC Plus";
@@ -311,7 +312,9 @@ async function subPdf(p,r){const J=await loadPdf();const doc=new J({unit:"mm",fo
   doc.setFontSize(11);doc.setTextColor(11,122,75);doc.text("Waa la bixiyay ("+payWay(p)+"). Mahadsanid!",M,y);y+=8;
   doc.setFont("helvetica","normal");doc.setTextColor(60);doc.setFontSize(10);
   doc.text("Akoonkaagu wuu furan yahay ilaa: "+dmy(r.until),M,y);y+=6;
-  doc.text("Caawimaad: WhatsApp +46 76 715 79 15",M,y);
+  doc.text("Caawimaad: WhatsApp +46 76 715 79 15",M,y);y+=10;
+  doc.setFont("helvetica","bold");doc.setTextColor(11,122,75);const gl="Gal akoonkaaga "+planName(p)+": ";doc.text(gl,M,y);const lx=M+doc.getTextWidth(gl);
+  doc.setFont("helvetica","normal");doc.setTextColor(30,90,200);doc.textWithLink(accLink(p),lx,y,{url:accLink(p)});
   doc.setTextColor(140);doc.setFontSize(8);doc.text("HantiGo · Maamul lacagtaada meel kasta oo aad joogto.",W/2,287,{align:"center"});
   return doc.output("blob")}
 function b64(blob){return new Promise((res,rej)=>{const f=new FileReader();f.onload=()=>res(String(f.result).split(",")[1]);f.onerror=rej;f.readAsDataURL(blob)})}
@@ -324,7 +327,7 @@ async function sendSubReceipt(id,days,amount,no){const p=rows.find(x=>x.id===id)
   toast("🧾 Rasiidka waa la dirayaa…");
   try{const blob=await subPdf(p,r);
     const who=[nameOf(p)?"Magaca: "+nameOf(p):"","Email: "+p.email,phoneOf(p)?"Telefoon: "+phoneOf(p):"",coOf(p)?"Shirkadda: "+coOf(p):""].filter(Boolean).join("\n");
-    const text=`Salaan${nameOf(p)?" "+nameOf(p):""},\n\nMahadsanid inaad iibsatay HantiGo.\n\n${who}\n\nRasiid: ${r.no}\nTaariikhda: ${dmy(r.date)}\nAdeegga: HantiGo ${planName(p)} (${days>=365?"1 sano":days+" maalmood"})\nLacagta: $${amount.toFixed(2)} (${payWay(p)})\nAkoonkaagu wuu furan yahay ilaa: ${dmy(r.until)}\n\nRasiidka PDF-ka ah waa lifaaqan.\nCaawimaad: WhatsApp +46 76 715 79 15\n\nHantiGo`;
+    const text=`Salaan${nameOf(p)?" "+nameOf(p):""},\n\nMahadsanid inaad iibsatay HantiGo.\n\n${who}\n\nRasiid: ${r.no}\nTaariikhda: ${dmy(r.date)}\nAdeegga: HantiGo ${planName(p)} (${days>=365?"1 sano":days+" maalmood"})\nLacagta: $${amount.toFixed(2)} (${payWay(p)})\nAkoonkaagu wuu furan yahay ilaa: ${dmy(r.until)}\n\n👉 Gal akoonkaaga ${planName(p)} halkan:\n${accLink(p)}\n(Ku gal email-kan iyo erayga sirta ah ee aad samaysay.)\n\nRasiidka PDF-ka ah waa lifaaqan.\nCaawimaad: WhatsApp +46 76 715 79 15\n\nHantiGo`;
     const {data,error}=await sb.functions.invoke("send-receipt",{body:{to:p.email,subject:"HantiGo · Rasiidka lacag-bixinta "+r.no+(nameOf(p)?" · "+nameOf(p):""),text,company:"HantiGo",filename:"HantiGo-Rasiid-"+r.no+".pdf",pdf:await b64(blob)}});
     if(error||!data?.ok){let w=data?.error||error?.message||"";try{if(error?.context?.text)w=error.context.status+" "+await error.context.clone().text()}catch{}throw new Error(w)}
     toast("🧾 Rasiidka waa loo diray "+p.email+", nuqulna waa laguu soo diray.")}
