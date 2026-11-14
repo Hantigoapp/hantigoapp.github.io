@@ -814,6 +814,57 @@ p.note.clamp.open{display:block;-webkit-line-clamp:unset}
   /* 6 short texts */
   .morebtn{display:inline-block;justify-self:start;align-self:start;background:none!important;border:0!important;color:var(--accent);font-weight:700;font-size:.82rem;padding:0!important;min-height:0!important;margin-top:-4px}
 }
+/* v133: one colour system, short landing page, service cards, clear dashboard sections, cleaner spacing
+   Colours (use only these): --in green = money in · --out red = money out · --warn amber = warning / goals
+   --accent = this account type (Shakhsi green, Shirkad blue) for buttons, links and the active tab · --violet = reports */
+:root{--violet:#b48cff;--sp:14px}
+html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
+.tile2 .dl.good{color:var(--in)}.tile2 .dl.bad{color:var(--out)}
+/* landing page */
+.gate .hero{gap:12px}
+.gate .hero-lead{font-size:.98rem}
+.gate .hero-h{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.gate .hero-list{gap:12px}
+.gate .hero-list button{position:relative;gap:4px;padding:14px 14px 15px;border-radius:16px;background:color-mix(in srgb,var(--fc,var(--accent)) 7%,var(--surface));border:1px solid color-mix(in srgb,var(--fc,var(--accent)) 26%,transparent);border-top:3px solid var(--fc,var(--accent));font-weight:500;box-shadow:0 6px 18px rgba(0,0,0,.14)}
+.gate .hero-list button:hover{background:color-mix(in srgb,var(--fc,var(--accent)) 14%,var(--surface))}
+.gate .hero-list button:focus-visible{outline-color:var(--fc,var(--accent))}
+.gate .hero-list i{width:40px;height:40px;border-radius:12px;font-size:1.2rem;margin-bottom:6px;background:color-mix(in srgb,var(--fc,var(--accent)) 18%,transparent)}
+.gate .hero-list b{font-size:.98rem;font-weight:800;line-height:1.25;color:var(--ink)}
+.gate .hero-list span{font-size:.84rem;line-height:1.35;color:var(--muted)}
+.gate .hero-list small{position:absolute;top:14px;inset-inline-end:14px;font-size:1.1rem;line-height:1;color:var(--fc,var(--accent))}
+[dir="rtl"] .gate .hero-list small{transform:scaleX(-1)}
+.t1note{margin:0!important;text-align:center}
+@media (max-width:639px){
+  .home-top .brand .sub{font-size:.9rem}
+  .gate .hero{padding:20px 16px;border-radius:20px}
+  .gate .hero h2{font-size:1.45rem}
+  .gate .hero-cta{gap:8px}
+  .gate .steps-panel{padding:18px 16px}
+  .typecard{padding:15px 16px}
+}
+/* dashboard: section titles split the home page into clear parts */
+.hsec{margin:10px 2px -4px;font:800 .74rem/1.2 var(--body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);grid-template-columns:auto 1fr;align-items:center;gap:10px}
+.hsec::after{content:"";height:1px;background:var(--line)}
+[dir="rtl"] .hsec{letter-spacing:0}
+@media (min-width:900px){.hsec{grid-column:1/-1}#appView[data-tab="home"] .panel.folded{grid-column:1/-1}}
+/* panel titles: one size everywhere */
+#appView .panel>h2,#appView .panel-head h2{font-size:1.08rem;line-height:1.3;font-weight:800}
+#appView .panel-head:not(:has(>:not(h2):not(.foldbtn))){flex-wrap:nowrap}
+/* a folded panel is one tidy row: title + Muuji */
+#appView .foldbtn{white-space:nowrap;flex:0 0 auto}
+#appView .panel.folded{padding-block:12px}
+#appView .panel.folded .panel-head{padding-bottom:0;border-bottom:0;flex-wrap:nowrap}
+#appView .panel.folded .panel-head h2{font-size:1rem;font-weight:700}
+/* reminders (name/phone, company logo): small card, only one at a time */
+#appView>#meAsk,#appView>#coAsk{background:var(--surface);border:1px solid var(--line);border-inline-start:4px solid var(--accent);border-radius:14px;padding:12px 14px;font-size:.86rem;line-height:1.4;color:var(--muted);gap:0}
+#appView>#meAsk b,#appView>#coAsk b{display:block;color:var(--ink);font-size:.92rem;margin-bottom:2px}
+#appView>#meAsk .goal-actions,#appView>#coAsk .goal-actions{margin-top:10px!important}
+#appView>#meAsk .goal-actions .primary,#appView>#coAsk .goal-actions .primary{padding:8px 14px;min-height:40px}
+#appView>#meAsk:not([hidden])~#coAsk{display:none!important}
+/* "all synced" is a small pill, not a big bar */
+#appView>#net.ok{justify-self:start;padding:4px 12px;font-size:.76rem;border-radius:999px;margin:0}
+@media (max-width:639px){#appView[data-tab="home"]{row-gap:var(--sp)}}
+
 </style>
 <script src="vendor/supabase.js"></script>
 
@@ -827,23 +878,22 @@ p.note.clamp.open{display:block;-webkit-line-clamp:unset}
 
 <section id="authView" class="gate gate-home" hidden>
   <div class="home-top">
-    <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub">Maamul lacagtaada meel kasta oo aad joogto.</p><p class="sub">Si shakhsiyadeed ama si shirkad ahaaneed.</p></div>
+    <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub">Maamul lacagtaada meel kasta oo aad joogto.</p></div>
     <div class="home-lang"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option><option value="ar">العربية</option><option value="sw">Kiswahili</option></select></label></div>
   </div>
   <div class="home-grid">
   <aside class="hero">
-    <p class="hero-eyebrow">⭐ Sababta ay dadku u dooranayaan HantiGo</p>
     <h2>Maamul dhaqaalahaaga.<br><span>Kobci mustaqbalkaaga.</span></h2>
-    <p class="hero-lead">Hal meel ku maamul dakhligaaga, kharashaadkaaga, kaydkaaga iyo dhaqaalaha ganacsigaaga.</p>
+    <p class="hero-lead">Dakhli, kharash, kayd iyo ganacsi: hal meel.</p>
     <div class="hero-chips"><span>🎁 <b>7 maalmood bilaash</b></span></div>
     <div class="hero-cta"><button type="button" class="primary" data-go="1">Bilow: 3 tallaabo oo fudud ↓</button><button type="button" class="ghost" data-go="3">Horay akoon u leedahay? Gal</button></div>
     <div class="hero-sep"></div>
-    <p class="hero-h">HantiGo wuxuu kuu fududeynayaa:</p>
+    <p class="hero-h">Adeegyada muhiimka ah</p>
     <div class="hero-list">
-      <button type="button" data-feat="0" aria-haspopup="dialog"><i aria-hidden="true">💰</i><span>La soco dakhliga iyo kharashaadkaaga.</span><small>Akhri wax badan →</small></button>
-      <button type="button" data-feat="1" aria-haspopup="dialog"><i aria-hidden="true">🎯</i><span>Samee miisaaniyad iyo yoolal kayd.</span><small>Akhri wax badan →</small></button>
-      <button type="button" data-feat="2" aria-haspopup="dialog"><i aria-hidden="true">🏢</i><span>Maamul iibka iyo shaqaalaha ganacsiga.</span><small>Akhri wax badan →</small></button>
-      <button type="button" data-feat="3" aria-haspopup="dialog"><i aria-hidden="true">📊</i><span>Hel warbixinno kooban oo cad.</span><small>Akhri wax badan →</small></button>
+      <button type="button" data-feat="0" aria-haspopup="dialog" style="--fc:var(--in)"><i aria-hidden="true">💰</i><b>Dakhli &amp; kharash</b><span>La soco lacagtaada.</span><small aria-hidden="true">→</small></button>
+      <button type="button" data-feat="1" aria-haspopup="dialog" style="--fc:var(--warn)"><i aria-hidden="true">🎯</i><b>Miisaaniyad &amp; kayd</b><span>Xad iyo yool u dhig.</span><small aria-hidden="true">→</small></button>
+      <button type="button" data-feat="2" aria-haspopup="dialog" style="--fc:var(--biz)"><i aria-hidden="true">🏢</i><b>Iib &amp; shaqaale</b><span>Ganacsigaaga maamul.</span><small aria-hidden="true">→</small></button>
+      <button type="button" data-feat="3" aria-haspopup="dialog" style="--fc:var(--violet)"><i aria-hidden="true">📊</i><b>Warbixinno</b><span>Excel, Word iyo PDF.</span><small aria-hidden="true">→</small></button>
     </div>
   </aside>
   <div class="home-side">
@@ -855,9 +905,9 @@ p.note.clamp.open{display:block;-webkit-line-clamp:unset}
     </ol>
     <div class="step" id="step1">
       <h2 class="step-h"><b>1</b><span>Dooro Shakhsi ama Shirkad</span></h2>
-      <button type="button" class="typecard" data-pick="person"><b>👤 Shakhsi</b><span>Lacagtaada gaarka ah: soo galay, kharash, miisaaniyad, biilal iyo kayd.</span><em class="tprice">$3 / bishii</em></button>
-      <button type="button" class="typecard" data-pick="business"><b>🏢 Shirkad</b><span>Ganacsigaaga: iib, kharash, shaqaale, deymo iyo warbixinno.</span><em class="tprice">$7 / bishii</em></button>
-      <p class="note" style="margin:0;text-align:center">🎁 Labaduba waxay helayaan 7 maalmood oo bilaash ah.</p>
+      <button type="button" class="typecard" data-pick="person"><b>👤 Shakhsi</b><span>Soo galay, kharash, miisaaniyad iyo kayd.</span><em class="tprice">$3 / bishii</em></button>
+      <button type="button" class="typecard" data-pick="business"><b>🏢 Shirkad</b><span>Iib, kharash, shaqaale iyo warbixinno.</span><em class="tprice">$7 / bishii</em></button>
+      <p class="note t1note">🎁 7 maalmood bilaash · labaduba</p>
       <p class="note paynote pay-only">💳 <span>Lacag-bixinta: EVC Plus ama WaafiPay</span> · <b dir="ltr">+252 61 373 5086</b></p>
       <p class="step-alt"><span>Horay akoon u leedahay?</span> <button type="button" class="linkbtn" data-go="3">Gal dashboard-kaaga →</button></p>
     </div>
@@ -1030,6 +1080,7 @@ p.note.clamp.open{display:block;-webkit-line-clamp:unset}
 
   <nav class="hjump no-staff" id="hJump" data-tab="home" aria-label="Qaybaha Guriga"></nav>
 
+  <h3 class="hsec no-staff" data-tab="home">Warbixinno</h3>
   <section class="panel no-staff wrpanel" aria-labelledby="wrH" data-tab="home" id="wrPanel" data-fold="wr" data-fold-ph="1">
     <div class="panel-head"><h2 id="wrH">📋 Warbixinta bishan</h2></div>
     <div id="wrBody" aria-live="polite"></div>
@@ -1040,6 +1091,7 @@ p.note.clamp.open{display:block;-webkit-line-clamp:unset}
     <div class="mc-grid" id="monthCompare" aria-live="polite"></div>
   </section>
 
+  <h3 class="hsec" data-tab="home">Diiwaanka maalinlaha</h3>
   <section class="panel daypanel" aria-labelledby="dyH" data-tab="home" id="dyPanel" data-fold="dy">
     <div class="panel-head"><h2 id="dyH">📅 Maalin-maalin</h2><span class="dynav"><button type="button" class="icon" data-dynav="-1" aria-label="Bishii hore">‹</button><b id="dyMonth"></b><button type="button" class="icon" data-dynav="1" aria-label="Bisha xigta">›</button></span></div>
     <details class="note helpd dyhelp"><summary>ℹ️ Sida loo isticmaalo</summary>
@@ -1049,6 +1101,7 @@ p.note.clamp.open{display:block;-webkit-line-clamp:unset}
     <div id="dyList" class="dylist"></div>
   </section>
 
+  <h3 class="hsec no-staff" data-tab="home">Falanqayn</h3>
   <section class="panel biz-only mgr-only mgpanel" aria-labelledby="mgH" data-tab="home" id="mgPanel" data-fold="mg" data-fold-def="1">
     <div class="panel-head"><h2 id="mgH">🏢 Dashboard-ka maamulaha</h2><span class="note" id="mgMonth"></span></div>
     <div id="mgBody"></div>
@@ -1599,6 +1652,9 @@ Object.assign(SW,{"← Back":"← Rudi","Next →":"Endelea →","ℹ️ How to 
 /* payment number card */Object.assign(EN,{"Lacagta u dir lambarkan":"Send the money to this number","Isku lambar ayaa labadaba ah.":"The same number for both.","📋 Koobiyee lambarka":"📋 Copy the number","Sidee u bixinaysaa?":"How will you pay?","Geli lambarka sare:":"Enter the number above:","Geli lacagta:":"Enter the amount:",", kadib PIN-kaaga":", then your PIN","Lacag-bixinta: EVC Plus ama WaafiPay":"Payment: EVC Plus or WaafiPay"});
 Object.assign(AR,{"Send the money to this number":"أرسل المال إلى هذا الرقم","The same number for both.":"نفس الرقم للاثنين.","📋 Copy the number":"📋 انسخ الرقم","How will you pay?":"كيف ستدفع؟","Enter the number above:":"أدخل الرقم أعلاه:","Enter the amount:":"أدخل المبلغ:",", then your PIN":"، ثم رمزك السري","Payment: EVC Plus or WaafiPay":"الدفع: EVC Plus أو WaafiPay"});
 Object.assign(SW,{"Send the money to this number":"Tuma pesa kwa namba hii","The same number for both.":"Namba moja kwa zote mbili.","📋 Copy the number":"📋 Nakili namba","How will you pay?":"Utalipaje?","Enter the number above:":"Weka namba iliyo juu:","Enter the amount:":"Weka kiasi:",", then your PIN":", kisha PIN yako","Payment: EVC Plus or WaafiPay":"Malipo: EVC Plus au WaafiPay"});
+/* v133 clean landing + dashboard sections */Object.assign(EN,{"Dakhli, kharash, kayd iyo ganacsi: hal meel.":"Income, spending, savings and business: one place.","Adeegyada muhiimka ah":"Key services","Dakhli & kharash":"Income & spending","La soco lacagtaada.":"Track your money.","Miisaaniyad & kayd":"Budget & savings","Xad iyo yool u dhig.":"Set limits and goals.","Iib & shaqaale":"Sales & staff","Ganacsigaaga maamul.":"Run your business.","Warbixinno":"Reports","Excel, Word iyo PDF.":"Excel, Word and PDF.","Soo galay, kharash, miisaaniyad iyo kayd.":"Income, spending, budget and savings.","Iib, kharash, shaqaale iyo warbixinno.":"Sales, spending, staff and reports.","🎁 7 maalmood bilaash · labaduba":"🎁 7 days free · both","Diiwaanka maalinlaha":"Daily record","Falanqayn":"Analysis"});
+Object.assign(AR,{"Income, spending, savings and business: one place.":"الدخل والمصروفات والادخار والعمل: في مكان واحد.","Key services":"الخدمات الرئيسية","Income & spending":"الدخل والمصروفات","Track your money.":"تابع أموالك.","Budget & savings":"الميزانية والادخار","Set limits and goals.":"ضع حدودًا وأهدافًا.","Sales & staff":"المبيعات والموظفون","Run your business.":"أدر عملك.","Reports":"التقارير","Excel, Word and PDF.":"Excel وWord وPDF.","Income, spending, budget and savings.":"الدخل والمصروفات والميزانية والادخار.","Sales, spending, staff and reports.":"المبيعات والمصروفات والموظفون والتقارير.","🎁 7 days free · both":"🎁 7 أيام مجانًا · للاثنين","Daily record":"السجل اليومي","Analysis":"التحليل"});
+Object.assign(SW,{"Income, spending, savings and business: one place.":"Mapato, matumizi, akiba na biashara: mahali pamoja.","Key services":"Huduma muhimu","Income & spending":"Mapato na matumizi","Track your money.":"Fuatilia pesa zako.","Budget & savings":"Bajeti na akiba","Set limits and goals.":"Weka mipaka na malengo.","Sales & staff":"Mauzo na wafanyakazi","Run your business.":"Endesha biashara yako.","Reports":"Ripoti","Excel, Word and PDF.":"Excel, Word na PDF.","Income, spending, budget and savings.":"Mapato, matumizi, bajeti na akiba.","Sales, spending, staff and reports.":"Mauzo, matumizi, wafanyakazi na ripoti.","🎁 7 days free · both":"🎁 Siku 7 bure · zote mbili","Daily record":"Rekodi ya kila siku","Analysis":"Uchambuzi"});
 const T=s=>LANG==="so"||!Object.prototype.hasOwnProperty.call(EN,s)?s:LANG==="en"?EN[s]:XL(EN[s]);
 function trText(n){const p=n.parentNode;if(!p||p.nodeName==="SCRIPT"||p.nodeName==="STYLE")return;
   const v=n.nodeValue,t=v.trim();if(!t)return;const x=T(t);if(x!==t)n.nodeValue=v.replace(t,x)}
