@@ -194,6 +194,11 @@ em.paid{background:var(--in)}em.part{background:#d49a1b}em.unpaid{background:#8a
 .ab-spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:abspin .8s linear infinite;vertical-align:-2px;margin-inline-end:6px}@keyframes abspin{to{transform:rotate(360deg)}}
 .ab-man{justify-self:center;background:none;border:0;color:var(--muted,#9aa7b4);text-decoration:underline;font-size:.88rem;cursor:pointer;padding:4px}
 .pway{display:grid;gap:10px}.pway[hidden],.paypick[hidden]{display:none}.paypick{display:grid;grid-template-columns:1fr 1fr;gap:8px}.paypick label{cursor:pointer;position:relative}.paypick input{position:absolute;opacity:0}.paypick span{display:block;text-align:center;padding:12px 8px;border-radius:12px;border:2px solid var(--line,#2a3440);font-weight:700}.paypick input:checked+span{border-color:#1f9d55;background:rgba(31,157,85,.18)}.paypick input:focus-visible+span{outline:2px solid #1f9d55}
+.paynum{display:grid;gap:6px;justify-items:center;text-align:center;padding:14px 12px;border:2px solid var(--accent);border-radius:14px;background:var(--accent-soft)}.paynum[hidden]{display:none}
+.pn-lbl{font-weight:700}.pn-num{font-size:1.65rem;font-weight:800;letter-spacing:.04em;user-select:all;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.pn-ways{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.pn-ways i{font-style:normal;font-weight:600;font-size:.88rem;padding:4px 10px;border-radius:999px;background:rgba(127,127,127,.18)}
+.pn-copy{min-width:220px;padding:12px 16px;border-radius:12px;font-weight:700;font-size:1rem}.pn-msg:empty{display:none}
+.paynote{text-align:center;margin:0}.pp-code{direction:ltr;unicode-bidi:isolate;display:inline-block}.paynote b{direction:ltr;unicode-bidi:isolate;white-space:nowrap}
 .evc b{font-size:1.1rem;letter-spacing:.02em;user-select:all;overflow-wrap:anywhere}
 .methods{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:6px;font-size:.88rem}
 .methods span{opacity:.85}.methods b{font-weight:600}
@@ -748,6 +753,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
       <button type="button" class="typecard" data-pick="person"><b>👤 Shakhsi</b><span>Lacagtaada gaarka ah: soo galay, kharash, miisaaniyad, biilal iyo kayd.</span><em class="tprice">$3 / bishii</em></button>
       <button type="button" class="typecard" data-pick="business"><b>🏢 Shirkad</b><span>Ganacsigaaga: iib, kharash, shaqaale, deymo iyo warbixinno.</span><em class="tprice">$7 / bishii</em></button>
       <p class="note" style="margin:0;text-align:center">🎁 Labaduba waxay helayaan 7 maalmood oo bilaash ah.</p>
+      <p class="note paynote pay-only">💳 <span>Lacag-bixinta: EVC Plus ama WaafiPay</span> · <b dir="ltr">+252 61 373 5086</b></p>
       <p class="step-alt"><span>Horay akoon u leedahay?</span> <button type="button" class="linkbtn" data-go="3">Gal dashboard-kaaga →</button></p>
     </div>
     <h2 class="step-h" id="step2h"><b>2</b><span>Samee akoon</span></h2>
@@ -771,6 +777,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
       <button class="primary" type="submit" id="aBtn">Gal</button>
       <p class="note" id="aNote" style="margin:0">Akoon cusub wuxuu helayaa 7 maalmood oo bilaash ah.</p>
       <p class="note" id="aPriceNote" style="margin:0" hidden>Kadib 7-da maalmood: Shakhsi $3 bishii, Shirkad $7 bishii. Shirkaddu waxay ku jirtaa Shakhsi.</p>
+      <p class="note paynote pay-only" id="aPayNote" style="text-align:start" hidden>💳 <span>Lacag-bixinta: EVC Plus ama WaafiPay</span> · <b dir="ltr">+252 61 373 5086</b></p>
       <p class="note privacy-note" style="margin:0">🔒 <span>Xogtaada waa ammaan oo lama iibiyo.</span> <a href="privacy.html">Siyaasadda asturnaanta</a></p>
       <button type="button" id="forgot" class="del" style="justify-self:center">Ma illowday erayga sirta ah?</button>
       <p class="step-alt" id="altIn"><span>Horay akoon u leedahay?</span> <button type="button" class="linkbtn" data-go="3">Gal</button></p>
@@ -843,6 +850,15 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
     <p id="nativeNote" style="margin:0" hidden>Akoonkaagu hadda ma furna. Marka la furo, riix "Hubi mar kale".</p>
     <p class="pay-only pp-lead" style="margin:0"></p>
     <div class="pay-only" data-autoslot="pay" hidden></div>
+    <div class="paynum pay-only manual">
+      <span class="pn-lbl">Lacagta u dir lambarkan</span>
+      <b class="pn-num" dir="ltr">+252 61 373 5086</b>
+      <span class="pn-ways"><i>📱 EVC Plus</i><i>💳 WaafiPay</i></span>
+      <span class="note pn-same">Isku lambar ayaa labadaba ah.</span>
+      <button type="button" class="pn-copy" data-copynum>📋 Koobiyee lambarka</button>
+      <span class="note pn-msg" role="status"></span>
+    </div>
+    <p class="note pay-only manual" style="margin:0">Sidee u bixinaysaa?</p>
     <div class="pay-only paypick manual" role="radiogroup" aria-label="Habka lacag-bixinta">
       <label><input type="radio" name="pway" value="evc" checked><span>📱 EVC Plus</span></label>
       <label><input type="radio" name="pway" value="waafi"><span>💳 WaafiPay</span></label>
@@ -852,9 +868,8 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
       <div class="evc"><span class="note">Ku garaac taleefankaaga</span><b class="pp-code">*712*613735086*3#</b></div>
     </div>
     <div class="pay-only pway manual" id="pwWaafi" hidden>
-      <ol class="note" style="margin:0;padding-left:20px;line-height:1.6"><li>Fur app-ka <b>WaafiPay</b></li><li>Dooro <b>Lacag dir</b></li><li>Geli lambarka hoose iyo <b class="pp">$3</b>, kadib PIN-kaaga</li></ol>
+      <ol class="note" style="margin:0;padding-left:20px;line-height:1.6"><li>Fur app-ka <b>WaafiPay</b></li><li>Dooro <b>Lacag dir</b></li><li>Geli lambarka sare: <b dir="ltr">+252 61 373 5086</b></li><li><span>Geli lacagta:</span> <b class="pp">$3</b><span>, kadib PIN-kaaga</span></li></ol>
     </div>
-    <div class="evc pay-only manual"><span class="note">Lambarka lacagta loo dirayo</span><b>+252 61 373 5086</b></div>
     <form id="phoneForm" class="pay-only manual" novalidate>
       <p class="note" style="margin:0"><b>Kadib markaad bixiso:</b> buuxi foomkan si aan si dhakhso ah u xaqiijinno.</p>
       <label class="field"><span id="pPhoneLbl">1. Lambarka aad lacagta ka soo dirtay</span><input id="pPhone" type="tel" inputmode="tel" placeholder="61xxxxxxx" maxlength="20"></label>
@@ -1242,11 +1257,18 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
         <p class="planline" id="accPlan"></p>
         <div data-autoslot="acc" hidden></div>
         <p class="manual" style="margin:0">Ku bixi EVC Plus ama WaafiPay lambarka hoose, kadibna fariinta lacagta u gudbi (forward) isla lambarkaas.</p>
-        <div class="evc manual"><span class="note">Lambarka EVC Plus</span><b id="evcNum">+252 61 373 5086</b></div>
+        <div class="paynum manual">
+          <span class="pn-lbl">Lacagta u dir lambarkan</span>
+          <b class="pn-num" dir="ltr">+252 61 373 5086</b>
+          <span class="pn-ways"><i>📱 EVC Plus</i><i>💳 WaafiPay</i></span>
+          <span class="note pn-same">Isku lambar ayaa labadaba ah.</span>
+          <button type="button" class="pn-copy" data-copynum>📋 Koobiyee lambarka</button>
+          <span class="note pn-msg" role="status"></span>
+        </div>
         <div class="evc manual"><span class="note">Ku garaac taleefankaaga</span><b id="evcCode" class="pp-code">*712*613735086*3#</b></div>
         <a class="dial manual" href="tel:*712*613735086*3%23"><span>📞</span><span><span class="pp-now">Bixi hadda $3</span><small>Riix, kadib geli PIN-ka EVC</small></span></a>
         <div class="goal-actions manual"><button type="button" id="copyCode">Koobiyee koodhka</button><span class="note" id="copyMsg" role="status"></span></div>
-        <div class="evc manual"><span class="note">💳 WaafiPay</span><span><span>Fur app-ka</span> WaafiPay → <b>Lacag dir</b> → +252 61 373 5086 → <b class="pp">$3</b></span></div>
+        <div class="evc manual"><span class="note">💳 WaafiPay</span><span><span>Fur app-ka</span> WaafiPay → <b>Lacag dir</b> → <b dir="ltr">+252 61 373 5086</b> → <b class="pp">$3</b></span></div>
       </section>
 
       <section class="panel" aria-labelledby="remH" data-tab="more" id="remPanel">
@@ -1480,6 +1502,9 @@ Object.assign(SW,{"Track your income and expenses.":"Fuatilia mapato na matumizi
 /* recurring bills: schedule, auto, part payments */Object.assign(EN,{"⚙ Jadwal: dooro inta jeer (bil kasta, 3 biloodba, sannad kasta), digniinta iyo ⚡ bixin toos ah. “½ Bixi qayb” waxay bixisaa qayb ka mid ah biilka.":"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.","Joogto · qayb":"Recurring · part","Joogto · toos":"Recurring · auto","Joogto":"Recurring","Qaybaha":"Categories","Jadwalka bisha":"Month calendar","Dib u dhacay":"Late","Saadaal":"Forecast"});
 Object.assign(AR,{"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.":"⚙ الجدول: اختر كم مرة (كل شهر، كل 3 أشهر، كل سنة)، والتذكير و⚡ الدفع التلقائي. “½ ادفع جزءًا” يدفع جزءًا فقط من الفاتورة.","Recurring · part":"ثابت · جزء","Recurring · auto":"ثابت · تلقائي","Recurring":"ثابت","Categories":"الفئات","Month calendar":"تقويم الشهر","Late":"متأخر","Forecast":"التوقعات"});
 Object.assign(SW,{"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.":"⚙ Ratiba: chagua mara ngapi (kila mwezi, kila miezi 3, kila mwaka), kikumbusho na ⚡ malipo ya otomatiki. “½ Lipa sehemu” hulipa sehemu tu ya bili.","Recurring · part":"Ya kawaida · sehemu","Recurring · auto":"Ya kawaida · otomatiki","Recurring":"Ya kawaida","Categories":"Aina","Month calendar":"Kalenda ya mwezi","Late":"Zimechelewa","Forecast":"Utabiri"});
+/* payment number card */Object.assign(EN,{"Lacagta u dir lambarkan":"Send the money to this number","Isku lambar ayaa labadaba ah.":"The same number for both.","📋 Koobiyee lambarka":"📋 Copy the number","Sidee u bixinaysaa?":"How will you pay?","Geli lambarka sare:":"Enter the number above:","Geli lacagta:":"Enter the amount:",", kadib PIN-kaaga":", then your PIN","Lacag-bixinta: EVC Plus ama WaafiPay":"Payment: EVC Plus or WaafiPay"});
+Object.assign(AR,{"Send the money to this number":"أرسل المال إلى هذا الرقم","The same number for both.":"نفس الرقم للاثنين.","📋 Copy the number":"📋 انسخ الرقم","How will you pay?":"كيف ستدفع؟","Enter the number above:":"أدخل الرقم أعلاه:","Enter the amount:":"أدخل المبلغ:",", then your PIN":"، ثم رمزك السري","Payment: EVC Plus or WaafiPay":"الدفع: EVC Plus أو WaafiPay"});
+Object.assign(SW,{"Send the money to this number":"Tuma pesa kwa namba hii","The same number for both.":"Namba moja kwa zote mbili.","📋 Copy the number":"📋 Nakili namba","How will you pay?":"Utalipaje?","Enter the number above:":"Weka namba iliyo juu:","Enter the amount:":"Weka kiasi:",", then your PIN":", kisha PIN yako","Payment: EVC Plus or WaafiPay":"Malipo: EVC Plus au WaafiPay"});
 const T=s=>LANG==="so"||!Object.prototype.hasOwnProperty.call(EN,s)?s:LANG==="en"?EN[s]:XL(EN[s]);
 function trText(n){const p=n.parentNode;if(!p||p.nodeName==="SCRIPT"||p.nodeName==="STYLE")return;
   const v=n.nodeValue,t=v.trim();if(!t)return;const x=T(t);if(x!==t)n.nodeValue=v.replace(t,x)}
@@ -2057,7 +2082,7 @@ let addSpace=false,signUp=false,pendingMode=null,pendingCity="",pendingCountry="
 function coRowSync(){$("aCoRow").hidden=$("aTypeRow").hidden||!$("atB").checked}
 document.querySelectorAll("input[name=atype]").forEach(r=>r.addEventListener("change",coRowSync));
 function setTab(up){signUp=up;
-  $("aBtn").textContent=up?"Samee akoon":"Gal";$("aTypeRow").hidden=true;$("aPriceNote").hidden=!up;coRowSync();$("aCoRow").hidden=!up||!$("atB").checked;$("aCityRow").hidden=!up;$("aStartRow").hidden=!up;$("aNameRow").hidden=!up;$("aPhoneRow").hidden=!up;if(up&&!$("aStart").value)$("aStart").value=today();$("aCountryRow").hidden=!up;$("aPass").autocomplete=up?"new-password":"current-password";$("aErr").textContent=""}
+  $("aBtn").textContent=up?"Samee akoon":"Gal";$("aTypeRow").hidden=true;$("aPriceNote").hidden=!up;if(!NATIVE)$("aPayNote").hidden=!up;coRowSync();$("aCoRow").hidden=!up||!$("atB").checked;$("aCityRow").hidden=!up;$("aStartRow").hidden=!up;$("aNameRow").hidden=!up;$("aPhoneRow").hidden=!up;if(up&&!$("aStart").value)$("aStart").value=today();$("aCountryRow").hidden=!up;$("aPass").autocomplete=up?"new-password":"current-password";$("aErr").textContent=""}
 /* landing page: 3 steps — 1 choose Shakhsi/Shirkad, 2 create account, 3 enter the dashboard (existing users log in here) */
 let stepNow=1,typeChosen=false;
 function goStep(n,focus){if(n===2&&!typeChosen)n=1;stepNow=n;const pn=$("stepsPanel");pn.dataset.step=n;$("authForm").hidden=n===1;
@@ -3582,6 +3607,13 @@ $("copyCode").addEventListener("click",()=>{const t=$("evcCode").textContent;
   const ok=()=>{$("copyMsg").textContent="Waa la koobiyeeyay"};
   const fail=()=>{const r=document.createRange();r.selectNodeContents($("evcCode"));const s=getSelection();s.removeAllRanges();s.addRange(r);$("copyMsg").textContent="Dooro oo koobiyee"};
   try{navigator.clipboard.writeText(t).then(ok,fail)}catch{fail()}});
+
+/* ---------- copy the payment number (EVC Plus + WaafiPay, same number) ---------- */
+const PAY_NUM="+252613735086";
+document.querySelectorAll("[data-copynum]").forEach(b=>b.addEventListener("click",()=>{const box=b.closest(".paynum"),msg=box.querySelector(".pn-msg"),num=box.querySelector(".pn-num");
+  const ok=()=>{msg.innerHTML=L("✓ Lambarka waa la koobiyeeyay: ","✓ Number copied: ","✓ تم نسخ الرقم: ","✓ Namba imenakiliwa: ")+'<bdi dir="ltr">'+PAY_NUM+'</bdi>'};
+  const fail=()=>{const r=document.createRange();r.selectNodeContents(num);const s=getSelection();s.removeAllRanges();s.addRange(r);msg.textContent=L("Dooro oo koobiyee","Select and copy","حدّده وانسخه","Chagua na unakili")};
+  try{navigator.clipboard.writeText(PAY_NUM).then(ok,fail)}catch{fail()}}));
 
 /* ---------- delete own account (store requirement) ---------- */
 $("delAcc").addEventListener("click",()=>{$("delBox").hidden=!$("delBox").hidden;if(!$("delBox").hidden)$("delConfirm").focus()});
