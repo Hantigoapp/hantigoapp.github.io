@@ -862,8 +862,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
   <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub" id="payWho"></p></div>
   <div class="panel sub-panel">
     <div class="panel-head"><h2>Muddadaadu way dhammaatay</h2><span class="price pay-only pp-m">$3 / bishii</span></div>
-    <div class="pay-only paytabs manual" id="payTabs" role="group" aria-label="Nooca akoonka aad bixinayso"></div>
-    <p class="pay-only planline" id="payPlan"></p>
+        <p class="pay-only planline" id="payPlan"></p>
     <p id="nativeNote" style="margin:0" hidden>Akoonkaagu hadda ma furna. Marka la furo, riix "Hubi mar kale".</p>
     <p class="pay-only pp-lead" style="margin:0"></p>
     <div class="pay-only" data-autoslot="pay" hidden></div>
@@ -1577,7 +1576,7 @@ const B_STAFF=["Macallin","Maamulaha iskuulka","Maamulaha jaamacadda","Maamulaha
 let MODE="person",DAILY=P_DAILY,CATS=P_CATS;
 const mine=k=>items.filter(i=>i.kind===k&&(i.mode||"person")===MODE);
 const ownCats=t=>mine("cat").filter(c=>c.type===t&&!CATS[t].includes(c.name));
-function applyMode(m){MODE=m==="business"?"business":"person";if(!TEAM){payFor=MODE;try{fillPrice()}catch{}}DAILY=MODE==="business"?B_DAILY:P_DAILY;CATS=MODE==="business"?B_CATS:P_CATS;
+function applyMode(m){MODE=m==="business"?"business":"person";if(!TEAM){payFor=LOCKED()?myType():MODE;try{fillPrice()}catch{}}DAILY=MODE==="business"?B_DAILY:P_DAILY;CATS=MODE==="business"?B_CATS:P_CATS;
   document.documentElement.dataset.mode=MODE;
   if($("modeSel"))$("modeSel").value=TEAM?"team:"+TEAM:MODE;
   renderModeTabs();
@@ -1731,7 +1730,7 @@ async function loadCompanies(){const k="hantigo.cos."+(me?.id||"");try{const {da
       return data}}catch{}
   try{return JSON.parse(localStorage.getItem(k)||"[]")||[]}catch{return []}}
 function fillModeSel(){const sel=$("modeSel");const own=hasAccess(profile);
-  sel.innerHTML=(own?`<option value="person">👤 Shakhsi</option><option value="business">🏢 Shirkad</option>`:"")
+  sel.innerHTML=(own?(LOCKED()?(myType()==="business"?`<option value="business">🏢 Shirkad</option>`:`<option value="person">👤 Shakhsi</option>`):`<option value="person">👤 Shakhsi</option><option value="business">🏢 Shirkad</option>`):"")
     +companies.filter(c=>c.active).map(c=>`<option value="team:${esc(c.owner_id)}">👥 ${esc((TEAM===c.owner_id&&coName())||c.owner_email||"Shirkad")}</option>`).join("");
   sel.value=TEAM?"team:"+TEAM:MODE;renderModeTabs()}
 function teamUI(){ROLE=TEAM?roleOf(TEAM):"owner";const h=document.documentElement.classList;
@@ -1772,19 +1771,21 @@ function myPlan(){if(profile&&"plan" in profile)return profile.plan==="business"
   if(me?.user_metadata?.mode==="business")return "business";
   return (typeof items!=="undefined"&&Array.isArray(items)&&items.some(x=>x&&x.mode==="business"))?"business":"person"}
 const myPrice=()=>PRICE[myPlan()];
+/* HARD RULE (AM 2026-11-14): one account = one type. A Shakhsi sign-up sees only Shakhsi ($3), a Shirkad sign-up only Shirkad ($7).
+   profiles.plan decides it; only the admin can see both. Data of the other type stays stored but is never shown. */
+const LOCKED=()=>!!profile&&!profile.is_admin;
+const myType=()=>myPlan();
 /* the plan this payment screen is for: in the app it follows the open account (👤 Shakhsi $3 / 🏢 Shirkad $7), on the paywall the customer picks it (or ?pay=person|business) */
 let payFor="";
 const payPlan=()=>payFor||myPlan(),payPrice=()=>PRICE[payPlan()];
-function setPayFor(p){payFor=p==="business"?"business":"person";fillPrice()}
 function fillPrice(){const pl=payPlan(),n=PRICE[pl],code="*712*613735086*"+n+"#";
-  const pt=$("payTabs");if(pt)pt.innerHTML=["person","business"].map(k=>`<button type="button" class="pt-b${k===pl?" on":""}" data-payfor="${k}" aria-pressed="${k===pl}"><b>${k==="business"?"🏢 "+L("Shirkad","Business","شركة","Biashara"):"👤 "+L("Shakhsi","Personal","شخصي","Binafsi")}</b><span dir="ltr">$${PRICE[k]}</span></button>`).join("");
   document.querySelectorAll(".pp").forEach(e=>e.textContent="$"+n);
   document.querySelectorAll(".pp-m").forEach(e=>e.textContent=L(`$${n} / bishii`,`$${n} / month`,`${n}$ / شهريًا`,`$${n} / kwa mwezi`));
   document.querySelectorAll(".pp-now").forEach(e=>e.textContent=L(`Bixi hadda $${n}`,`Pay $${n} now`,`ادفع ${n}$ الآن`,`Lipa $${n} sasa`));
   document.querySelectorAll(".pp-code").forEach(e=>e.textContent=code);
   document.querySelectorAll("a.dial").forEach(a=>a.href="tel:"+code.replace("#","%23"));
   document.querySelectorAll(".pp-lead").forEach(e=>e.textContent=L(`Ku bixi $${n} EVC Plus ama WaafiPay. Marka la xaqiijiyo, akoonkaaga waa la furayaa 30 maalmood.`,`Pay $${n} with EVC Plus or WaafiPay. Once confirmed, your account opens for 30 days.`,`ادفع ${n}$ عبر EVC Plus أو WaafiPay. بعد التأكيد يُفتح حسابك لمدة 30 يومًا.`,`Lipa $${n} kwa EVC Plus au WaafiPay. Ikithibitishwa, akaunti yako itafunguliwa kwa siku 30.`));
-  const line=pl==="business"?L("Waxaad bixinaysaa: <b>🏢 Shirkad</b> · $7 bishii (Shakhsi-na waa ku jiraa)","You are paying for: <b>🏢 Business</b> · $7 a month (Personal included)","أنت تدفع مقابل: <b>🏢 شركة</b> · 7$ شهريًا (يشمل الحساب الشخصي)","Unalipia: <b>🏢 Biashara</b> · $7 kwa mwezi (Binafsi imejumuishwa)")
+  const line=pl==="business"?L("Waxaad bixinaysaa: <b>🏢 Shirkad</b> · $7 bishii","You are paying for: <b>🏢 Business</b> · $7 a month","أنت تدفع مقابل: <b>🏢 شركة</b> · 7$ شهريًا","Unalipia: <b>🏢 Biashara</b> · $7 kwa mwezi")
     :L("Waxaad bixinaysaa: <b>👤 Shakhsi</b> · $3 bishii","You are paying for: <b>👤 Personal</b> · $3 a month","أنت تدفع مقابل: <b>👤 شخصي</b> · 3$ شهريًا","Unalipia: <b>👤 Binafsi</b> · $3 kwa mwezi");
   ["payPlan","accPlan"].forEach(id=>{const e=$(id);if(e)e.innerHTML=line});renderPayBoxes();if(me&&profile)showAuto()}
 async function savePlan(p){if(p!=="business")return;if(profile)profile={...profile,plan:"business"};planHint="business";fillPrice();try{await sb.rpc("set_my_plan",{p})}catch{}}
@@ -1819,7 +1820,7 @@ async function enter(user){
     $("payWho").textContent=me.email;$("pPhone").value=profile.phone||me?.user_metadata?.phone||"";
     $("pRef").value=(profile.pay_ref||"").replace(/^(\[[^\]]*\]\s*)+/,"");$("pErr").textContent="";payStatus(profile);
     planHint=null;if(!("plan" in profile)){try{const r=await sb.from("user_data").select("items").eq("user_id",me.id).maybeSingle();const its=r.data?.items;if(Array.isArray(its)&&its.some(x=>x?.mode==="business"))planHint="business"}catch{}}
-    payFor=PAY_PICK||myPlan();fillPrice();showView("payView");payPoll();return;
+    payFor=myType();fillPrice();showView("payView");payPoll();return;
   }
   $("accEmail").textContent=me.email;
   const d=daysLeft(profile);
@@ -1847,7 +1848,8 @@ async function enter(user){
   if(!st?.mode&&(chosen==="person"||chosen==="business")){st={...(st||{id:"settings",kind:"settings"}),mode:chosen};try{await put(st)}catch{}}
   const co=pendingCo||user?.user_metadata?.company||"";if(co&&!st?.coName){st={...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),coName:co};pendingCo="";try{await put(st)}catch{}}
   if(OPEN_MODE&&st?.mode){const om=OPEN_MODE;OPEN_MODE="";try{history.replaceState(null,"",location.pathname+location.hash)}catch{}   // link from the receipt email: open that account
-    if(om!==st.mode&&(om==="person"||myPlan()==="business"||profile.is_admin)){st={...st,mode:om};try{await put(st)}catch{}}}
+    if(om!==st.mode&&!LOCKED()){st={...st,mode:om};try{await put(st)}catch{}}}
+  if(LOCKED()&&st?.mode!==myType()){st={...(st||{id:"settings",kind:"settings"}),mode:myType()};try{await put(st)}catch{}}
   if(!st?.mode){showView("modeView");return}
   await migrateNames();
   if(addSpace&&pendingMode==="business")savePlan("business");
@@ -2116,6 +2118,7 @@ $("authForm").addEventListener("submit",async e=>{e.preventDefault();
       /* with "Confirm email" ON, Supabase answers an already-used email with no error and a user without identities, and saves nothing */
       const dup=!error&&data?.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0;
       if(dup||error&&/already registered|already exists/i.test(String(error.message||""))){
+        $("aErr").textContent=L("Email-kan horay ayaa loo diiwaangeliyay. Akoon Shakhsi iyo akoon Shirkad waa kala gooni: mid kasta email kale u isticmaal, ama riix “Gal” si aad u gasho akoonkaagii.","This email is already registered. Personal and Business accounts are separate: use another email for each, or tap “Log in” to open your account.","هذا البريد مسجّل بالفعل. الحساب الشخصي وحساب الشركة منفصلان: استخدم بريدًا آخر لكل منهما، أو اضغط «تسجيل الدخول» لفتح حسابك.","Barua pepe hii tayari imesajiliwa. Akaunti ya Binafsi na ya Biashara ni tofauti: tumia barua pepe nyingine kwa kila moja, au gusa “Ingia” kufungua akaunti yako.");$("aBtn").disabled=false;return;
         addSpace=true;const r=await sb.auth.signInWithPassword({email,password});
         if(r.error){addSpace=false;$("aErr").textContent=L("Email-kan horay ayaa loo diiwaangeliyay. Si aad "+(am==="business"?"Shirkad":"Shakhsi")+" ugu darto isla akoonka, geli erayga sirta ah ee akoonkaagii hore.","This email is already registered. To add "+(am==="business"?"a Business":"Personal")+" to the same account, enter your existing password.","هذا البريد مسجّل بالفعل. لإضافة "+(am==="business"?"حساب شركة":"حساب شخصي")+" إلى الحساب نفسه، أدخل كلمة مرورك الحالية.","Barua pepe hii tayari imesajiliwa. Ili kuongeza "+(am==="business"?"Biashara":"Binafsi")+" kwenye akaunti hiyo hiyo, weka nenosiri lako la zamani.");$("aBtn").disabled=false;return}
         $("aBtn").disabled=false;return}
@@ -2153,7 +2156,6 @@ document.querySelectorAll(".logout").forEach(b=>b.addEventListener("click",async
 let payShot=null,payTimer=null,payWay="",payAsked=false,PAY_DONE=false;
 const PAY_PICK=(()=>{try{const m=new URLSearchParams(location.search).get("pay");return m==="business"||m==="person"?m:""}catch{return ""}})();   // ?pay=person ($3) / ?pay=business ($7): separate payment links
 let OPEN_MODE=(()=>{try{const m=new URLSearchParams(location.search).get("open");return m==="business"||m==="person"?m:PAY_PICK}catch{return ""}})();
-document.addEventListener("click",e=>{const b=e.target.closest("[data-payfor]");if(b)setPayFor(b.dataset.payfor)});
 /* ---------- 💳 payment box: tap EVC Plus or WaafiPay, follow that method's steps, then "✓ Waan bixiyay" ---------- */
 const PAY_SHOW="+252 61 373 5086";
 function payBoxHtml(k){const n=payPrice(),code="*712*613735086*"+n+"#";
@@ -2879,10 +2881,11 @@ function renderChart(txs){
 let rsz;window.addEventListener("resize",()=>{clearTimeout(rsz);rsz=setTimeout(()=>renderChart(mine("tx")),150)});
 
 document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",async()=>{
-  const m=b.dataset.mode;const st=items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"};
+  const m=LOCKED()?myType():b.dataset.mode;const st=items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"};
   applyMode(m);await put({...st,mode:m});teamUI();showView("appView");render();seedBills();loadStaff()}));
 $("modeSel").addEventListener("change",async e=>{const m=e.target.value;
   if(m.startsWith("team:")){await enterTeam(m.slice(5));return}
+  if(LOCKED()&&m!==myType()){e.target.value=MODE;renderModeTabs();return}
   if(m==="business"&&myPlan()!=="business"&&!profile?.is_admin){
     if(!confirm(L("🏢 Shirkad waa $7 bishii (halkii $3). Shakhsi-na waa ku jiraa, labadaba hal lacag ayaad ku bixinaysaa.\n\nMa sii wadaa?","🏢 Business is $7 a month (instead of $3). Personal is included, one payment covers both.\n\nContinue?","🏢 حساب الشركة 7$ شهريًا (بدلًا من 3$). يشمل الحساب الشخصي، ودفعة واحدة تغطي الاثنين.\n\nهل تريد المتابعة؟","🏢 Biashara ni $7 kwa mwezi (badala ya $3). Binafsi imejumuishwa, malipo moja yanatosha kwa zote.\n\nUnaendelea?"))){e.target.value=TEAM?"team:"+TEAM:MODE;return}
     savePlan("business")}
