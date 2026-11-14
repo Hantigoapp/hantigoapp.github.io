@@ -149,7 +149,7 @@ async function sendReceipt(admin: any, pay: Record<string, any>, until: Date) {
   const text = `Salaan${name ? " " + name : ""},\n\nMahadsanid inaad iibsatay HantiGo. Lacagtaada si toos ah ayaa loo helay, akoonkaaguna waa furan yahay.\n\n${who}\n\n` +
     `Rasiid: ${no}\nTaariikhda: ${dmy(now)}\nAdeegga: HantiGo ${planName(pay.plan)} (${pay.days} maalmood)\n` +
     `Lacagta: $${Number(pay.amount).toFixed(2)} (${pay.method}, +${pay.phone})\nTix: ${pay.waafi_tx ?? "-"}\n` +
-    `Akoonkaagu wuu furan yahay ilaa: ${dmy(until)}\n\nRasiidka PDF-ka ah waa lifaaqan.\n` +
+    `Akoonkaagu wuu furan yahay ilaa: ${dmy(until)}\n\n👉 Gal akoonkaaga ${planName(pay.plan)} halkan:\n${SITE}/?open=${pay.plan === "business" ? "business" : "person"}\n(Ku gal email-kan iyo erayga sirta ah ee aad samaysay.)\n\nRasiidka PDF-ka ah waa lifaaqan.\n` +
     `Ma u baahan tahay caawimaad? Nala soo xiriir ${SUPPORT}\nErayga sirta ah ma illowday? Bogga gelitaanka riix "Ma illowday erayga sirta ah?".\n\nHantiGo\n${SITE}`;
   const tr = nodemailer.createTransport({ host: "smtp.gmail.com", port: 465, secure: true, auth: { user: env("SMTP_USER"), pass: env("SMTP_PASS") } });
   const att = [{ filename: `HantiGo-Rasiid-${no}.pdf`, content: btoaBytes(pdf), encoding: "base64", contentType: "application/pdf" }];
