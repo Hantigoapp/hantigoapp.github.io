@@ -865,6 +865,17 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
 #appView>#net.ok{justify-self:start;padding:4px 12px;font-size:.76rem;border-radius:999px;margin:0}
 @media (max-width:639px){#appView[data-tab="home"]{row-gap:var(--sp)}}
 
+/* chart: day-by-day / 6 months switch */
+.chseg{display:inline-grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--bg);justify-self:start;max-width:100%}
+.chseg button{border:0;background:none;border-radius:9px;padding:7px 12px;font-size:.84rem;font-weight:700;color:var(--muted);min-height:0;white-space:nowrap}
+.chseg button.on{background:var(--accent-soft);color:var(--ink)}
+.chsum{margin:0;display:grid;gap:6px;font-size:.86rem;line-height:1.45;color:var(--muted)}.chsum[hidden]{display:none}
+.chsum>span{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:baseline}.chsum b{color:var(--ink)}
+[data-chv-on="d"] .legend .sw{width:10px;height:10px;border:0;border-radius:3px}[data-chv-on="d"] .legend .sw.in{background:var(--ch-in)}[data-chv-on="d"] .legend .sw.out{background:var(--ch-out)}
+.chsum .sw{flex:0 0 auto;width:10px;height:10px;border:0;border-radius:3px;display:inline-block;transform:translateY(1px)}
+.chsum .sw.in{background:var(--ch-in)}.chsum .sw.out{background:var(--ch-out)}
+.tip .cin{color:var(--in);font-weight:700}.tip .cout{color:var(--out);font-weight:700}
+@media (max-width:639px){.chseg{display:grid;justify-self:stretch}.chseg button{padding:8px 6px;font-size:.8rem}}
 </style>
 <script src="vendor/supabase.js"></script>
 
@@ -1110,7 +1121,9 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
   <section class="panel no-staff" aria-labelledby="chartH" data-tab="home" data-fold="ch" data-fold-ph="1">
     <div class="panel-head"><h2 id="chartH">Soo galay iyo ka baxay: 6-dii bilood ee u dambeeyay</h2>
       <div class="legend" aria-hidden="true"><span><i class="sw in"></i>Soo galay</span><span><i class="sw out"></i>Ka baxay</span></div></div>
+    <div class="chseg" role="group" aria-label="Muddada jaantuska"><button type="button" data-chv="d">📅 Bishan · maalin kasta</button><button type="button" data-chv="m">🗓️ 6 bilood</button></div>
     <div id="chart" class="chart" role="img" aria-label="Garaafka lacagta soo gashay iyo tan baxday"></div>
+    <p class="chsum" id="chSum" hidden></p>
     <div id="chartTip" class="tip" hidden></div>
     <details class="note"><summary>Eeg tirooyinka</summary><div style="overflow-x:auto"><table class="ctable" id="chartTable"></table></div></details>
   </section>
@@ -1655,6 +1668,7 @@ Object.assign(SW,{"Send the money to this number":"Tuma pesa kwa namba hii","The
 /* v133 clean landing + dashboard sections */Object.assign(EN,{"Dakhli, kharash, kayd iyo ganacsi: hal meel.":"Income, spending, savings and business: one place.","Adeegyada muhiimka ah":"Key services","Dakhli & kharash":"Income & spending","La soco lacagtaada.":"Track your money.","Miisaaniyad & kayd":"Budget & savings","Xad iyo yool u dhig.":"Set limits and goals.","Iib & shaqaale":"Sales & staff","Ganacsigaaga maamul.":"Run your business.","Warbixinno":"Reports","Excel, Word iyo PDF.":"Excel, Word and PDF.","Soo galay, kharash, miisaaniyad iyo kayd.":"Income, spending, budget and savings.","Iib, kharash, shaqaale iyo warbixinno.":"Sales, spending, staff and reports.","🎁 7 maalmood bilaash · labaduba":"🎁 7 days free · both","Diiwaanka maalinlaha":"Daily record","Falanqayn":"Analysis"});
 Object.assign(AR,{"Income, spending, savings and business: one place.":"الدخل والمصروفات والادخار والعمل: في مكان واحد.","Key services":"الخدمات الرئيسية","Income & spending":"الدخل والمصروفات","Track your money.":"تابع أموالك.","Budget & savings":"الميزانية والادخار","Set limits and goals.":"ضع حدودًا وأهدافًا.","Sales & staff":"المبيعات والموظفون","Run your business.":"أدر عملك.","Reports":"التقارير","Excel, Word and PDF.":"Excel وWord وPDF.","Income, spending, budget and savings.":"الدخل والمصروفات والميزانية والادخار.","Sales, spending, staff and reports.":"المبيعات والمصروفات والموظفون والتقارير.","🎁 7 days free · both":"🎁 7 أيام مجانًا · للاثنين","Daily record":"السجل اليومي","Analysis":"التحليل"});
 Object.assign(SW,{"Income, spending, savings and business: one place.":"Mapato, matumizi, akiba na biashara: mahali pamoja.","Key services":"Huduma muhimu","Income & spending":"Mapato na matumizi","Track your money.":"Fuatilia pesa zako.","Budget & savings":"Bajeti na akiba","Set limits and goals.":"Weka mipaka na malengo.","Sales & staff":"Mauzo na wafanyakazi","Run your business.":"Endesha biashara yako.","Reports":"Ripoti","Excel, Word and PDF.":"Excel, Word na PDF.","Income, spending, budget and savings.":"Mapato, matumizi, bajeti na akiba.","Sales, spending, staff and reports.":"Mauzo, matumizi, wafanyakazi na ripoti.","🎁 7 days free · both":"🎁 Siku 7 bure · zote mbili","Daily record":"Rekodi ya kila siku","Analysis":"Uchambuzi"});
+/* v134 chart day view */Object.assign(EN,{"📅 Bishan · maalin kasta":"📅 This month · each day","🗓️ 6 bilood":"🗓️ 6 months","Muddada jaantuska":"Chart period"});Object.assign(AR,{"📅 This month · each day":"📅 هذا الشهر · كل يوم","🗓️ 6 months":"🗓️ 6 أشهر","Chart period":"مدة الرسم"});Object.assign(SW,{"📅 This month · each day":"📅 Mwezi huu · kila siku","🗓️ 6 months":"🗓️ Miezi 6","Chart period":"Kipindi cha chati"});
 const T=s=>LANG==="so"||!Object.prototype.hasOwnProperty.call(EN,s)?s:LANG==="en"?EN[s]:XL(EN[s]);
 function trText(n){const p=n.parentNode;if(!p||p.nodeName==="SCRIPT"||p.nodeName==="STYLE")return;
   const v=n.nodeValue,t=v.trim();if(!t)return;const x=T(t);if(x!==t)n.nodeValue=v.replace(t,x)}
@@ -3137,8 +3151,48 @@ $("currency").addEventListener("change",async e=>{const s=items.find(i=>i.kind==
 let chartData=[];
 function niceMax(v){if(v<=0)return 10;const e=Math.pow(10,Math.floor(Math.log10(v)));for(const m of [1,2,2.5,5,10])if(m*e>=v)return m*e;return 10*e}
 function compact(n){const c=currency();return SYM[c]+new Intl.NumberFormat("en",{notation:"compact",maximumFractionDigits:1}).format(n)}
+/* chart view: d = this month day by day (when money came in / went out), m = last 6 months */
+let CHV="d";try{CHV=localStorage.getItem("hantigo.chv")==="m"?"m":"d"}catch{}
+document.querySelectorAll("[data-chv]").forEach(b=>b.addEventListener("click",()=>{CHV=b.dataset.chv;try{localStorage.setItem("hantigo.chv",CHV)}catch{}if(me)renderChart(mine("tx"))}));
+function chTitle(){const h=$("chartH");const pn=h?.closest(".panel");if(pn)pn.dataset.chvOn=CHV;if(h)h.textContent=CHV==="d"?L("Goorta lacagtu soo gashay iyo goorta ay baxday","When money came in and when it went out","متى دخل المال ومتى خرج","Pesa ilipoingia na ilipotoka"):L("Soo galay iyo ka baxay: 6-dii bilood ee u dambeeyay","Money in and out: the last 6 months","الدخل والمصروفات: آخر 6 أشهر","Pesa iliyoingia na kutoka: miezi 6 iliyopita");
+  document.querySelectorAll("[data-chv]").forEach(b=>{b.classList.toggle("on",b.dataset.chv===CHV);b.setAttribute("aria-pressed",String(b.dataset.chv===CHV))})}
+function renderDayChart(txs){
+  const box=$("chart");const real=t=>t.cat!=="Kayd";const Y=view.getFullYear(),M=view.getMonth(),n=new Date(Y,M+1,0).getDate();
+  const ym=Y+"-"+String(M+1).padStart(2,"0"),iso=d=>ym+"-"+String(d).padStart(2,"0");
+  const days=[];for(let d=1;d<=n;d++){const list=txs.filter(t=>real(t)&&t.date===iso(d));
+    days.push({d,iso:iso(d),list,inn:list.filter(t=>t.type==="in").reduce((a,t)=>a+Number(t.amount),0),out:list.filter(t=>t.type==="out").reduce((a,t)=>a+Number(t.amount),0)})}
+  chartData=days;
+  const W=Math.max(280,box.clientWidth||600),H=220,pl=52,pr=10,pt=12,pb=26,iw=W-pl-pr,ih=H-pt-pb,cw=iw/n,bw=Math.max(2,Math.min(12,cw*.38));
+  const max=niceMax(Math.max(1,...days.map(r=>Math.max(r.inn,r.out))));
+  const cx=i=>pl+cw*(i+.5),y=v=>pt+ih-v/max*ih;
+  let g="";for(let k=0;k<=4;k++){const v=max*k/4,yy=y(v).toFixed(1);
+    g+=`<line x1="${pl}" x2="${W-pr}" y1="${yy}" y2="${yy}" stroke="var(--grid)" stroke-width="1"/><text x="${pl-8}" y="${+yy+4}" text-anchor="end">${compact(v)}</text>`}
+  const td=today(),tdd=td.startsWith(ym)?+td.slice(8):0,show=new Set([1,5,10,15,20,25,n].filter(d=>!tdd||Math.abs(d-tdd)>2||d===tdd));
+  const lab=days.map((r,i)=>show.has(r.d)||r.iso===td?`<text x="${cx(i)}" y="${H-6}" text-anchor="middle"${r.iso===td?' style="fill:var(--ink);font-weight:700"':""}>${r.d}</text>`:"").join("");
+  const bars=days.map((r,i)=>(r.inn?`<rect x="${(cx(i)-bw-.5).toFixed(1)}" y="${y(r.inn).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(2,pt+ih-y(r.inn)).toFixed(1)}" rx="2" fill="var(--ch-in)"/>`:"")
+    +(r.out?`<rect x="${(cx(i)+.5).toFixed(1)}" y="${y(r.out).toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(2,pt+ih-y(r.out)).toFixed(1)}" rx="2" fill="var(--ch-out)"/>`:"")).join("");
+  const ti=days.findIndex(r=>r.iso===td);
+  const tmark=ti>=0?`<rect x="${(pl+cw*ti).toFixed(1)}" y="${pt}" width="${cw.toFixed(1)}" height="${ih}" fill="var(--accent)" opacity=".08"/>`:"";
+  const hits=days.map((r,i)=>`<rect class="hit" data-i="${i}" x="${(pl+cw*i).toFixed(1)}" y="${pt}" width="${cw.toFixed(1)}" height="${ih}" fill="transparent"/>`).join("");
+  box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${g}${tmark}${lab}${bars}${hits}</svg>`;
+  const tip=$("chartTip");
+  box.querySelectorAll(".hit").forEach(h=>{const sh=()=>{const r=days[+h.dataset.i],dd=dayDate(r.iso);
+      const ent=r.list.slice(0,5).map(t=>`<span class="r"><span>${t.type==="in"?"➕":"➖"} ${esc(T(t.cat||""))}</span><span class="${t.type==="in"?"cin":"cout"}">${money(Number(t.amount))}</span></span>`).join("")+(r.list.length>5?`<span class="r"><span>+${r.list.length-5}</span></span>`:"");
+      tip.innerHTML=`<b>${dd.wd}, ${dd.full}${dd.rel?" · "+dd.rel:""}</b>`+(r.list.length?`<span class="r"><span>${L("Soo galay","Money in","دخل","Iliingia")}</span><span class="cin">${money(r.inn)}</span></span><span class="r"><span>${L("Ka baxay","Money out","خرج","Ilitoka")}</span><span class="cout">${money(r.out)}</span></span>${ent}`:`<span class="r"><span>${L("Maalintan waxba lama qorin.","Nothing recorded this day.","لم يُسجَّل شيء في هذا اليوم.","Hakuna kilichorekodiwa siku hii.")}</span></span>`);
+      tip.hidden=false;const left=Math.min(Math.max(box.offsetLeft+cx(+h.dataset.i)-90,8),box.offsetLeft+W-190);tip.style.left=left+"px";tip.style.top=(box.offsetTop+pt)+"px"};
+    h.addEventListener("pointerenter",sh);h.addEventListener("click",sh)});
+  box.onpointerleave=()=>{tip.hidden=true};
+  const act=days.filter(r=>r.list.length),din=days.filter(r=>r.inn).length,dout=days.filter(r=>r.out).length;
+  const big=[...days].sort((a,b)=>b.out-a.out)[0],bigIn=[...days].sort((a,b)=>b.inn-a.inn)[0];
+  const sm=$("chSum");sm.hidden=false;
+  sm.innerHTML=act.length?`<span><i class="sw in"></i><span>${L(`Lacag ayaa soo gashay <b>${din}</b> maalmood`,`Money came in on <b>${din}</b> days`,`دخل المال في <b>${din}</b> أيام`,`Pesa iliingia siku <b>${din}</b>`)}${bigIn.inn?` · ${L("ugu badnayd","most on","الأكثر في","nyingi zaidi")} <b>${dayDate(bigIn.iso).full}</b> (${money(bigIn.inn)})`:""}</span></span><span><i class="sw out"></i><span>${L(`Lacag ayaa baxday <b>${dout}</b> maalmood`,`Money went out on <b>${dout}</b> days`,`خرج المال في <b>${dout}</b> أيام`,`Pesa ilitoka siku <b>${dout}</b>`)}${big.out?` · ${L("ugu badnayd","most on","الأكثر في","nyingi zaidi")} <b>${dayDate(big.iso).full}</b> (${money(big.out)})`:""}</span></span>`
+    :L("Bishan weli lacag lama qorin.","Nothing recorded this month yet.","لم يُسجَّل شيء هذا الشهر بعد.","Bado hakuna kilichorekodiwa mwezi huu.");
+  $("chartTable").innerHTML=`<tr><th>${L("Maalinta","Day","اليوم","Siku")}</th><th>${L("Soo galay","Money in","دخل","Iliingia")}</th><th>${L("Ka baxay","Money out","خرج","Ilitoka")}</th><th>${L("Farqiga","Difference","الفرق","Tofauti")}</th></tr>`+(act.length?act.map(r=>{const dd=dayDate(r.iso);return `<tr><td>${dd.wd} ${dd.full}</td><td>${money(r.inn)}</td><td>${money(r.out)}</td><td>${money(r.inn-r.out)}</td></tr>`}).join(""):`<tr><td colspan="4">—</td></tr>`);
+}
 function renderChart(txs){
-  const box=$("chart");if(!box)return;
+  const box=$("chart");if(!box)return;chTitle();
+  if(CHV==="d"){renderDayChart(txs);return}
+  if($("chSum"))$("chSum").hidden=true;
   const real=t=>t.cat!=="Kayd";
   chartData=[];for(let k=5;k>=0;k--){const d=new Date(view.getFullYear(),view.getMonth()-k,1);
     const m=txs.filter(t=>{const x=new Date(t.date+"T00:00");return real(t)&&x.getFullYear()===d.getFullYear()&&x.getMonth()===d.getMonth()});
