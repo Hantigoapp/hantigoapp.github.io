@@ -390,6 +390,20 @@ html[data-mode="business"] .person-only{display:none!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .al.warn{background:#3a2f12;color:#f3d38a}}
 :root[data-theme="dark"] .al.warn{background:#3a2f12;color:#f3d38a}
 .bar.bud i{background:var(--in)}.bar.bud.near i{background:#c98a00}.bar.bud.over i{background:var(--out)}
+/* phase 1: Mobile Money list, quick repeat, daily allowance, topic limits, savings streak, hide amounts */
+.mmq{display:grid;gap:8px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.mmrow{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}.mmrow.off{opacity:.55}
+.mmrow select{grid-column:1/-1;width:100%;min-width:0}.mmchk{display:flex;gap:8px;align-items:center;font-weight:700}.mmchk input{width:20px!important;height:20px;margin:0}
+.mmwho{font-size:.86rem;color:var(--muted);min-width:0;overflow-wrap:anywhere}
+#qRep{flex-wrap:nowrap!important}.glance .gl-top{flex-wrap:nowrap}.glance .gl-top .glmode{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.glance .gl-top .glst{flex:none}
+.qrep{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:2px;scrollbar-width:thin}.qrep .chip{white-space:nowrap;flex:none}.qrep>.note{flex:none;align-self:center}
+.bsafe{display:grid;gap:4px;padding:10px 12px;border-radius:12px;background:var(--accent-soft,rgba(61,220,151,.1));margin-top:8px;font-size:.92rem}
+.bcat{display:grid;gap:4px;margin-top:6px}.bcatset summary{cursor:pointer;color:var(--accent);font-weight:600;padding:6px 0}
+.bcatgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:6px 0}.bcatgrid small{font-weight:400}
+.glsafe{margin:0;font-size:.88rem;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.08)}.glsafe a{color:inherit;text-decoration:underline}
+.glhide{flex:none;background:rgba(255,255,255,.1);border:0;border-radius:999px;padding:2px 8px;font-size:1rem;cursor:pointer;color:inherit;min-height:30px}
+.gtop{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:.92rem;padding:8px 10px;border-radius:12px;background:var(--surface)}.gtop .streak{font-weight:700;color:#e8a33a}
+html.hidem #appView :is(.summary .val,.summary .note,.methods b,.glpl .plv,.glpl .pld,.pldet,.glsum,.glsafe b,.glsafe span,.amt,.mc-item b,#budView b,.goal-top>span:last-child,.gtop b,.bstat b){filter:blur(7px);user-select:none}
 .bud-over{color:var(--out);font-weight:600}.bud-near{color:#9a6a00;font-weight:600}.bud-ok{color:var(--in);font-weight:600}
 .bill .name{display:grid;gap:2px}
 .due{display:flex;align-items:center;gap:4px;font-size:.75rem;color:var(--muted);font-weight:500}
@@ -741,7 +755,7 @@ body:has(#appView:not([hidden])) .wafab svg{width:25px;height:25px}
 #actMore{width:auto;justify-self:center;background:transparent;border:1px solid var(--line);border-radius:10px;padding:6px 14px}
 @media (max-width:420px){.act{grid-template-columns:auto minmax(0,1fr)}.acta{grid-column:2;text-align:start}}
 /* v131: phone dashboard + simple money report */
-.glance>.gl-top{order:0}.glance>.lbl{order:1}.glance>.val{order:2}.glance>.glbar{order:3}.glance>.glsum{order:4}.glance>.glact{order:5}.glance>.glpl{order:6}.glance>.pldet{order:7}.glance>.methods{order:8}
+.glance>.gl-top{order:0}.glance>.lbl{order:1}.glance>.val{order:2}.glance>.glbar{order:3}.glance>.glsum{order:4}.glance>.glsafe{order:4}.glance>.glact{order:5}.glance>.glpl{order:6}.glance>.pldet{order:7}.glance>.methods{order:8}
 @media (max-width:639px){
   #appView .summary{grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
   #appView .summary>.stat{grid-column:span 6}
@@ -1136,11 +1150,11 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
 
   <section class="summary no-staff" aria-label="Kooban" data-tab="home">
     <div class="stat bal glance">
-      <div class="gl-top"><span class="glmode" id="glMode"></span><span class="glst" id="glState"></span></div>
+      <div class="gl-top"><span class="glmode" id="glMode"></span><span class="glst" id="glState"></span><button type="button" class="glhide" id="glHide" aria-pressed="false" aria-label="Qari lacagta">👁</button></div>
       <div class="glpl" id="glPL"></div>
       <div class="pldet" id="glPLd" aria-live="polite" hidden></div>
       <span class="lbl">Lacagta akoonkaaga</span><span class="val" id="sBal">0</span>
-      <div class="glbar" aria-hidden="true"><i id="glBar"></i></div><p class="glsum" id="glSum"></p>
+      <div class="glbar" aria-hidden="true"><i id="glBar"></i></div><p class="glsum" id="glSum"></p><p class="glsafe" id="glSafe" hidden></p>
       <div class="methods" id="sMethods"></div>
       <div class="glact" id="glAct"></div></div>
     <div class="stat in"><span class="lbl">Soo galay</span><span class="val" id="sIn">0</span></div>
@@ -1241,7 +1255,9 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
           <div class="mm"><button type="button" class="chip mmbtn" id="mmBtn">📋 Ku dheji fariinta EVC</button><span class="note" id="mmMsg" role="status"></span>
             <div class="newcat" id="mmBox" hidden><span class="note">Koobiyee fariinta EVC Plus (ama ZAAD, Sahal, eDahab), halkan ku dheji, kadib riix “Buuxi”.</span>
               <textarea id="mmText" rows="3" placeholder="[-EVCPlus-] $5 ayaad u dirtay ..."></textarea>
-              <button type="button" id="mmGo" class="primary" style="justify-self:start">Buuxi</button></div></div>
+              <button type="button" id="mmGo" class="primary" style="justify-self:start">Buuxi</button></div>
+            <div id="mmList" class="mmq" hidden></div></div>
+          <div class="chips qrep" id="qRep" hidden></div>
           <div class="chips" id="daily" aria-label="Kharashka maalinlaha" hidden></div>
           <div class="row">
             <label class="field"><span>Qadarka</span><input id="amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" required></label>
@@ -1319,6 +1335,7 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
           </div>
         </form>
         <p class="note" style="margin:0">Digniin ayaad helaysaa marka aad u dhowaato xadka.</p>
+        <div id="budMore"></div>
       </section>
 
       <section class="panel no-staff" aria-labelledby="billH" data-tab="expenses">
@@ -1447,6 +1464,7 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
 
       <section class="panel no-staff" aria-labelledby="goalH" data-tab="plan" id="goalPanel">
         <h2 id="goalH">Kaydka iyo kayd degdeg</h2>
+        <div id="goalTop" class="gtop" hidden></div>
         <div id="goals" style="display:grid;gap:10px"></div>
         <form id="goalForm" novalidate>
           <label class="field"><span>Dooro fikrad yool kayd ah (ikhtiyaari)</span>
@@ -1875,7 +1893,7 @@ const myMail=()=>String(me?.email||"").toLowerCase();
 const isMine=x=>[x?.by,x?.who].some(v=>String(v||"").toLowerCase()===myMail());
 /* staff only keep what they entered themselves (the server does the same once roles.sql is run) */
 function teamScope(d,role){if(!Array.isArray(d)||(role||ROLE)==="manager")return d;
-  return d.filter(e=>e&&(e.kind==="settings"||e.kind==="cat"||((e.kind==="tx"||e.kind==="leave")&&isMine(e)))).map(e=>e.kind==="settings"?(({budgets,...r})=>r)(e):e)}
+  return d.filter(e=>e&&(e.kind==="settings"||e.kind==="cat"||((e.kind==="tx"||e.kind==="leave")&&isMine(e)))).map(e=>e.kind==="settings"?(({budgets,catBud,...r})=>r)(e):e)}
 async function teamLoad(owner){const r=await sb.rpc("team_load",{owner});if(!r.error)r.data=teamScope(r.data,roleOf(owner));return r}
 const dirty=new Set(),gone=new Set();
 const settings=()=>items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"};
@@ -2106,7 +2124,7 @@ async function enter(user){
   await migrateNames();
   if(addSpace&&pendingMode==="business")savePlan("business");
   fillPrice();
-  applyMode(st.mode);teamUI();showView("appView");render();if(PAY_PICK&&!PAY_DONE){PAY_DONE=true;goTab("more");setTimeout(()=>$("subH")?.scrollIntoView({block:"start"}),300)}if(profile.pay_status==="pending"&&!profile.is_admin){payStatus(profile);payPoll()}seedBills();loadStaff();if(online())checkLocation();netState();setTimeout(autoPayBills,1500);accAfterEnter();
+  applyMode(st.mode);teamUI();showView("appView");render();if(PAY_PICK&&!PAY_DONE){PAY_DONE=true;goTab("more");setTimeout(()=>$("subH")?.scrollIntoView({block:"start"}),300)}if(profile.pay_status==="pending"&&!profile.is_admin){payStatus(profile);payPoll()}seedBills();loadStaff();if(online())checkLocation();netState();setTimeout(autoPayBills,1500);accAfterEnter();try{window.mmShareCheck&&mmShareCheck()}catch{}
   if(!data&&!error&&items.length){items.forEach(i=>dirty.add(i.id));scheduleSync()}
   else if(dirty.size||gone.size)scheduleSync();
 }
@@ -2814,7 +2832,7 @@ function render(){
   renderDays(month);
   renderBills(txs);
   renderChart(txs);
-  const bud=renderBudget(spent);
+  const bud=renderBudget(spent);try{window.phase1Render&&phase1Render(month,bud,spent)}catch(e){console.error(e)}
   renderDebts();renderLeaves();lvRepSummary();renderStats();try{renderMgr()}catch(e){console.error(e)}renderPStats();renderCo();renderMyName();try{renderYearSum()}catch(e){console.error(e)}
   renderAlerts(bud);
   renderGoals();
@@ -2959,6 +2977,7 @@ function goalPlanHtml(g,p){
     const tm=p.todo>0?`<span class="bud-near">🔔 ${L("Bishan weli ku shub","Still to put in this month","المتبقي لهذا الشهر","Bado weka mwezi huu")}: <b>${money(p.todo)}</b></span>`:`<span class="bud-ok">✓ ${L("Bishan qaybtii waad dhigtay","This month's part is done","تم ادخار حصة هذا الشهر","Sehemu ya mwezi huu imekamilika")}</span>`;
     bits.push(tm);
     if(p.eta!=null)bits.push(`<span>🎯 ${L("Waxaad gaaraysaa","You reach it","ستصل إليه","Utafikia")}: <b>${esc(ymText(p.eta))}</b></span>`)}
+  if(g.auto&&Number(g.monthly)>0)bits.push(`<span class="bud-ok">⚡ ${L("Si toos ah: "+money(g.monthly)+" maalinta "+(g.autoDay||1)+" bil kasta","Automatic: "+money(g.monthly)+" on day "+(g.autoDay||1)+" each month","تلقائي: "+money(g.monthly)+" في اليوم "+(g.autoDay||1)+" كل شهر","Otomatiki: "+money(g.monthly)+" siku ya "+(g.autoDay||1)+" kila mwezi")}</span>`);
   if(!bits.length)return "";
   return `<div class="gplan">${bits.join("")}${st}</div>`}
 let goalEdit=null;var GP;
@@ -2981,6 +3000,7 @@ function renderGoals(){
       ${goalEdit===g.id?`<div class="gpedit"><div class="row">
         <label class="field"><span>${L("📅 Taariikhda la doonayo in la gaaro","📅 Date you want to reach it","📅 التاريخ المطلوب للوصول","📅 Tarehe unayotaka kufikia")}</span><input type="date" id="gpd-${id}" value="${esc(g.due||"")}"></label>
         <label class="field"><span>${L("💵 Inta bil kasta la kaydinayo","💵 Amount saved each month","💵 المبلغ الشهري","💵 Kiasi kila mwezi")}</span><input type="number" inputmode="decimal" min="0" step="0.01" id="gpm-${id}" value="${g.monthly>0?esc(g.monthly):""}" placeholder="${p<100&&pl.need?esc(Math.ceil(pl.need)):"0.00"}"></label></div>
+        ${goalAutoHtml(g)}
         <div class="goal-actions"><button type="button" class="primary" data-gpsave="${id}">${L("Kaydi","Save","حفظ","Hifadhi")}</button><button type="button" data-gpclose="1">${L("Jooji","Cancel","إلغاء","Ghairi")}</button></div></div>`:""}
       <div class="goal-actions">${p>=100?`<span class="done">✓ Yoolka waa la gaaray</span><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="Qadar" id="gin-${id}" aria-label="Qadarka">`:`<input type="number" min="0" step="0.01" inputmode="decimal" placeholder="${pl.todo>0?esc(Math.round(pl.todo*100)/100):"Qadar"}" id="gin-${id}" aria-label="Qadarka lagu shubayo"><button data-dep="${id}">Ku shub</button>`}${g.saved>0?`<button data-wd="${id}">Ka qaado</button>`:""}
       ${p<100?`<button type="button" data-gplan="${id}">📅 ${L("Qorshe","Plan","الخطة","Mpango")}</button>`:""}<button class="del" data-del="${id}">Tirtir</button></div></div>`}).join("")
@@ -3157,7 +3177,7 @@ async function autoPayBills(){
       const id="ab-"+b.id+"-"+k;if(items.some(i=>i.id===id)||gone.has(id))continue;
       const x=billState(b,txs,now);if(x.pays.length||!(x.left>0))continue;
       await put({id,kind:"tx",method:b.method||"EVC Plus",type:"out",amount:x.left,cat:b.name,billId:b.id,date:k+"-"+String(d).padStart(2,"0"),note:"Joogto · toos",auto:1,created:new Date().toISOString()})}
-  }catch{}finally{autoBusy=false}}
+  }catch{}finally{autoBusy=false;try{window.autoSaveGoals&&autoSaveGoals()}catch{}}}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoPayBills()});
 const RENAME={"Iskuul / waxbarasho":"Iskuul","Lacag-celin / celin":"Lacag-celin","Gunno / bonus":"Gunno","Hawlgab / pension":"Hawlgab","Biyo caafimaad (cabitaan)":"Biyo-caafi","Biyo caafi":"Biyo-caafi","Fiidmo ardayda":"Fiiga ardayda","Fiidmo iskuul (lacagta bisha)":"Fiiga iskuulka (lacagta bisha)","Caafimaad dhimirka":"Caafimaadka dhimirka","Dawooyin & qalab caafimaad":"Daawooyin & qalab caafimaad","Lacag-celin alaab-qeybiye":"Lacag-celin alaab-qaybiye","Xayeysiis & suuqgeyn":"Xayeysiis & suuq-geyn","Iib (sales)":"Iib","Iib jumlad (wholesale)":"Iib jumlad","Iib tafaariiq (retail)":"Iib tafaariiq","Qandaraas (contract)":"Qandaraas","La-talin (consulting)":"La-talin","Funaanad (T-shirt)":"Funaanad","Dhar dhaqid (laundry)":"Dhar dhaqid","Raajo & sawir (X-ray)":"Raajo & sawir","Cabitaan tamar (energy)":"Cabitaan tamar","Alaab (stock)":"Alaab","Gunno shaqaale (bonus)":"Gunno shaqaale","Xisaab-hubin (audit)":"Xisaab-hubin","Sadaqo & zakaad":"Sadaqo & Zakaad","Fiiga ardayga":"Fiiga ardayda","Fiiga ardayga":"Fiiga ardayda"};
 const newName=n=>RENAME[n]||(typeof n==="string"&&n.startsWith("Mushahar: ")?n.slice(10):null);
@@ -3252,8 +3272,8 @@ $("txForm").addEventListener("submit",async e=>{e.preventDefault();
   if(!$("date").value){$("txErr").textContent="Dooro taariikhda.";return}
   $("txErr").textContent="";
   const old=editing&&items.find(i=>i.id===editing);
-  const doc={...(old||{}),id:old?old.id:uid(),kind:"tx",method:payMethod(),type:document.querySelector('input[name=type]:checked').value,amount,cat:$("cat").value,date:$("date").value,note:$("note").value.trim(),place:$("place").value.trim(),created:new Date().toISOString()};
-  try{await put(doc);$("amount").value="";$("note").value="";$("place").value="";stopEdit();
+  const doc={...(old||{}),id:old?old.id:uid(),kind:"tx",method:payMethod(),type:document.querySelector('input[name=type]:checked').value,amount,cat:$("cat").value,date:$("date").value,note:$("note").value.trim(),place:$("place").value.trim(),created:new Date().toISOString(),...(MM_REF&&!old?{ref:MM_REF,src:"sms"}:{})};
+  try{await put(doc);MM_REF="";$("amount").value="";$("note").value="";$("place").value="";stopEdit();
     const d=new Date(doc.date+"T00:00");view=new Date(d.getFullYear(),d.getMonth(),1);render()}
   catch(err){$("txErr").textContent="Lama kaydin karo hadda. Isku day mar kale."}
 });
@@ -3317,7 +3337,8 @@ document.addEventListener("click",async e=>{
   if(e.target.closest("[data-gpclose]")){goalEdit=null;renderGoals();return}
   const gs=e.target.closest("[data-gpsave]");
   if(gs){const g=items.find(i=>i.id===gs.dataset.gpsave);if(!g)return;const due=$("gpd-"+g.id).value,mo=Math.max(0,parseFloat($("gpm-"+g.id).value)||0);
-    const {due:_d,monthly:_m,...rest}=g;goalEdit=null;try{await put({...rest,...(due?{due}:{}),...(mo?{monthly:mo}:{})})}catch{}renderGoals();return}
+    const au=!!$("gpa-"+g.id)?.checked,ad=Math.min(28,Math.max(1,parseInt($("gpad-"+g.id)?.value)||1));
+    const {due:_d,monthly:_m,auto:_a,autoDay:_ad,...rest}=g;goalEdit=null;try{await put({...rest,...(due?{due}:{}),...(mo?{monthly:mo}:{}),...(au&&mo?{auto:1,autoDay:ad}:{})})}catch{}renderGoals();if(au&&mo)autoSaveGoals();return}
   const dep=e.target.closest("[data-dep]");
   if(dep){const g=items.find(i=>i.id===dep.dataset.dep);const inp=$("gin-"+g.id);const v=parseFloat(inp.value);if(!(v>0)){inp.focus();return}
     try{await put({...g,saved:Number(g.saved)+v});
@@ -3503,6 +3524,7 @@ function renderAlerts(bud){lastBud=bud;
     if(bud.p>=100)out.push(["bad",L("⚠️ Waad dhaaftay miisaaniyadda bishan. Waxaad dhaaftay "+money(-bud.left)+".","⚠️ You are over this month's budget by "+money(-bud.left)+".","⚠️ تجاوزت ميزانية هذا الشهر بـ "+money(-bud.left)+".","⚠️ Umezidi bajeti ya mwezi huu kwa "+money(-bud.left)+".")]);
     else if(bud.p>=R.budPct)out.push(["warn",L("⚠️ Waxaad isticmaashay "+Math.round(bud.p)+"% miisaaniyadda bishan. Waxaa kuu haray "+money(bud.left)+".","⚠️ You have used "+Math.round(bud.p)+"% of this month's budget. "+money(bud.left)+" left.","⚠️ استخدمت "+Math.round(bud.p)+"% من ميزانية هذا الشهر. المتبقي "+money(bud.left)+".","⚠️ Umetumia "+Math.round(bud.p)+"% ya bajeti ya mwezi huu. Kilichobaki "+money(bud.left)+".")]);
   }
+  if(R.budget&&cur&&!STAFF())try{out.push(...catBudAlerts(R.budPct))}catch{}
   if(R.bills&&cur){const txs=mine("tx"),d=now.getDate();
     for(const b of bills()){const x=billState(b,txs,now);if(!b.due||!(x.amt>0)||!x.due||!(x.left>0))continue;const k=billDay(b,now)-d,days=b.remind??R.billDays,nm=T(b.name),rest=x.paid?L(" (haray "," (left "," (المتبقي "," (kilichobaki ")+money(x.left)+")":"";
       if(b.auto&&k>=0){if(k<=days)out.push(["warn",L("⚡ "+b.name+": si toos ah ayaa loo diiwaangelin doonaa "+whenText(k)+". Qadarka: "+money(x.left),"⚡ "+nm+": will be recorded automatically "+whenText(k)+". Amount: "+money(x.left),"⚡ "+nm+": سيُسجَّل تلقائيًا "+whenText(k)+". المبلغ: "+money(x.left),"⚡ "+nm+": itarekodiwa otomatiki "+whenText(k)+". Kiasi: "+money(x.left))]);continue}
@@ -4131,6 +4153,7 @@ $("repCsv").addEventListener("click",()=>{const {txs,title,yr,y}=reportData();
   exportSheet(L("Warbixin","Report")+": "+title+" · "+modeLabel(),[
     {title:L("Kooban","Summary"),colorFirst:1,head:[L("Soo galay","Income"),L("Ka baxay","Expenses"),L("Deyn la bixiyay","Debt paid"),L("Kayd","Savings"),L("Lacagta haray","Left over")],rows:[[S.si,-S.so,-S.debt,S.sav,S.left]]},
     ...(yr?yearSheets(yearData(y)):[]),
+    ...repExtra(txs,yr),
     ...(true?[{title:L("Kharashka mowduuc kasta","Spending by topic"),head:[L("Mowduuca","Topic"),L("Qaybta","Category"),L("Qadarka","Amount")],rows:(()=>{const gt={};txs.filter(t=>t.type==="out"&&t.cat!=="Kayd").forEach(t=>{const g=grpOf(t.cat);(gt[g]=gt[g]||{v:0,c:{}}).v+=Number(t.amount);gt[g].c[t.cat]=(gt[g].c[t.cat]||0)+Number(t.amount)});
       return Object.entries(gt).sort((a,b)=>b[1].v-a[1].v).flatMap(([g,o])=>[[grpLabel(g),L("Wadarta","Total"),o.v],...Object.entries(o.c).sort((a,b)=>b[1]-a[1]).map(([c,v])=>["",T(c),v])])})()}]:[]),
     {title:L("📅 Maalin-maalin","📅 Day by day","📅 يومًا بيوم","📅 Siku kwa siku"),head:dayHeadX(),rows:dayRows(txs)},
@@ -4149,6 +4172,7 @@ function buildReport(){const {txs,title,yr,y}=reportData();const S=repSums(txs);
   <table><tr><th>${L("Soo galay","Income")}</th><th>${L("Ka baxay","Expenses")}</th><th>${L("Deyn la bixiyay","Debt paid")}</th><th>${L("Kayd","Savings")}</th><th>${L("Lacagta haray","Left over")}</th></tr>
   <tr><td class="n">${money(S.si)}</td><td class="n">${money(S.so)}</td><td class="n">${money(S.debt)}</td><td class="n">${money(S.sav)}</td><td class="n">${money(S.left)}</td></tr></table>
   ${yr?yearHtml(yearData(y)):""}
+  ${repExtraHtml(txs,yr)}
   <h2>${L("Kharashka qayb kasta","Spending by category")}</h2>
   ${catTable||`<table><tr><th>${L("Qaybta","Category")}</th><th>${L("Qadarka","Amount")}</th></tr>${cats.map(([c,v])=>`<tr><td>${esc(T(c))}</td><td class="n">${money(v)}</td></tr>`).join("")||`<tr><td colspan="2">—</td></tr>`}</table>`}
   <h2>${L("📅 Maalin-maalin","📅 Day by day","📅 يومًا بيوم","📅 Siku kwa siku")}</h2>
@@ -4395,7 +4419,7 @@ function parseMM(raw){
     if(!who){const p=s.match(/\b(\+?252\d{8,9}|0?6\d{8}|[67]\d{7,8})\b/);if(p)who=p[1]}}
   who=who.replace(/^.*\b(dirtay|wareejisay|heshay|helay|iibsatay|bixisay|sent to|paid to|to|from)\s+/i,"").replace(/\s+(ayaad|waxaad|tar|lacag)\b.*$/i,"").trim().slice(0,40);
   const ref=s.match(/(?:Tix(?:raac)?|Ref(?:erence)?|TID|Transaction ID|Trans ID)\s*[:#.]?\s*([A-Z0-9]{4,})/i);
-  let net="EVC";if(/zaad/i.test(s))net="ZAAD";else if(/sahal/i.test(s))net="Sahal";else if(/e-?dahab/i.test(s))net="eDahab";else if(/premier|wallet|salaam|amal|bank/i.test(s)&&!/evc/i.test(s))net="Bangi";
+  let net="EVC";if(/zaad/i.test(s))net="ZAAD";else if(/sahal/i.test(s))net="Sahal";else if(/e-?dahab/i.test(s))net="eDahab";else if(/jeeb/i.test(s))net="JEEB";else if(/m-?pesa/i.test(s))net="M-Pesa";else if(/premier|wallet|salaam|amal|bank/i.test(s)&&!/evc/i.test(s))net="Bangi";
   return {amount,type,date,who,ref:ref?ref[1]:"",net}}
 function fillFromMM(p){
   if(!p){$("mmMsg").textContent=L("Fariintan lama fahmin. Hubi inaad koobiyeysay fariinta oo dhan.","Could not read this message. Make sure you copied the whole message.");$("mmMsg").className="err";return false}
@@ -4404,17 +4428,21 @@ function fillFromMM(p){
   const meth=p.net==="Bangi"?"Bangi":"EVC Plus";const mr=document.querySelector(`input[name=method][value="${meth}"]`);if(mr)mr.checked=true;
   $("amount").value=p.amount;if(p.date)$("date").value=p.date;
   if(p.who)$("place").value=p.who;
+  const ac=autoCat(p);if(ac){if(useGroups()){$("grp").value=grpOf(ac.cat,p.type);fillCats()}$("cat").value=ac.cat;markChip()}
+  MM_REF=p.ref||"";const dup=refSeen(p.ref);
   const nt=[p.net!=="EVC"&&p.net!=="Bangi"?p.net:"",p.ref?"Tix "+p.ref:""].filter(Boolean).join(" · ");if(nt&&!$("note").value)$("note").value=nt;
   $("mmMsg").className="note ok";
   $("mmMsg").textContent="✓ "+L(`Waa la buuxiyay: ${p.type==="in"?"Soo galay":"Ka baxay"} ${money(p.amount)}${p.who?" · "+p.who:""}. Dooro qaybta, kadib riix Kaydi.`,
     `Filled in: ${p.type==="in"?"Income":"Expense"} ${money(p.amount)}${p.who?" · "+p.who:""}. Choose the category, then tap Save.`,`تمت التعبئة: ${p.type==="in"?"دخل":"مصروف"} ${money(p.amount)}${p.who?" · "+p.who:""}. اختر الفئة ثم اضغط حفظ.`,`Imejazwa: ${p.type==="in"?"Mapato":"Matumizi"} ${money(p.amount)}${p.who?" · "+p.who:""}. Chagua kundi, kisha bonyeza Hifadhi.`);
-  $("mmBox").hidden=true;$("mmText").value="";setTimeout(()=>$("cat").focus(),100);return true}
+  if(ac)$("mmMsg").textContent="✓ "+L(`Waa la buuxiyay: ${p.type==="in"?"Soo galay":"Ka baxay"} ${money(p.amount)}${p.who?" · "+p.who:""} · Qaybta: ${T(ac.cat)}. Hubi, kadib riix Kaydi.`,`Filled in: ${p.type==="in"?"Income":"Expense"} ${money(p.amount)}${p.who?" · "+p.who:""} · Category: ${T(ac.cat)}. Check it, then tap Save.`,`تمت التعبئة: ${p.type==="in"?"دخل":"مصروف"} ${money(p.amount)}${p.who?" · "+p.who:""} · الفئة: ${T(ac.cat)}. تحقق ثم اضغط حفظ.`,`Imejazwa: ${p.type==="in"?"Mapato":"Matumizi"} ${money(p.amount)}${p.who?" · "+p.who:""} · Kundi: ${T(ac.cat)}. Kagua, kisha bonyeza Hifadhi.`);
+  if(dup){$("mmMsg").className="err";$("mmMsg").textContent="⚠️ "+L("Fariintan hore ayaa loo qoray (isla tixraac). Ha labo jeer kaydin.","This message was already saved (same reference). Don't save it twice.","تم حفظ هذه الرسالة من قبل (نفس المرجع). لا تحفظها مرتين.","Ujumbe huu tayari umehifadhiwa (kumbukumbu ileile). Usihifadhi mara mbili.")+" "+$("mmMsg").textContent}
+  $("mmBox").hidden=true;$("mmList").hidden=true;$("mmText").value="";setTimeout(()=>(ac?$("txSave"):$("cat")).focus(),100);return true}
 $("mmBtn").addEventListener("click",async()=>{$("mmMsg").textContent="";let t="";
   try{if(navigator.clipboard?.readText)t=await navigator.clipboard.readText()}catch{}
-  const p=t&&parseMM(t);if(p){fillFromMM(p);return}
+  if(t&&splitMM(t).some(x=>parseMM(x))){mmHandle(t);return}
   $("mmBox").hidden=false;$("mmText").focus()});
-$("mmGo").addEventListener("click",()=>fillFromMM(parseMM($("mmText").value)));
-$("mmText").addEventListener("paste",()=>setTimeout(()=>{const p=parseMM($("mmText").value);if(p)fillFromMM(p)},50));
+$("mmGo").addEventListener("click",()=>mmHandle($("mmText").value));
+$("mmText").addEventListener("paste",()=>setTimeout(()=>{const v=$("mmText").value;if(splitMM(v).some(x=>parseMM(x)))mmHandle(v)},50));
 
 /* ================= 2. PIN lock (per device, per account) ================= */
 const pinKey=()=>"hantigo.pin."+(me?.id||"x");
@@ -4743,6 +4771,173 @@ document.addEventListener("click",async e=>{
   run()})();
 </script>
 <div id="printArea"></div>
+<script>
+/* ================= Shakhsi phase 1 (also Shirkad where it fits): Mobile Money several messages + automatic category + share, budget per topic + daily allowance, automatic savings + streak, "Mar kale" quick repeat, hide amounts, fuller reports ================= */
+var MM_REF="",MMQ=[];
+const L4=(so,en,ar,sw)=>L(so,en,ar,sw);
+/* --- Mobile Money --- */
+function splitMM(raw){const s=String(raw||"").replace(/\r/g,"").trim();if(!s)return [];
+  let parts=s.split(/\n\s*\n+/).map(x=>x.trim()).filter(Boolean);
+  if(parts.length<2){const t=s.split(/(?=\[-?\s*(?:EVC|ZAAD|SAHAL|E-?DAHAB|JEEB|WAAFI)[^\]]*\])/i).map(x=>x.trim()).filter(Boolean);if(t.length>1)parts=t}
+  if(parts.length<2){const lines=s.split(/\n+/).map(x=>x.trim()).filter(Boolean);if(lines.length>1&&lines.filter(l=>parseMM(l)).length>1)parts=lines}
+  return parts}
+const pmm=r=>{const p=parseMM(r);if(p)p.raw=r;return p};
+const normWho=s=>String(s||"").toLowerCase().replace(/\(.*?\)/g," ").replace(/\+?\d{6,}/g," ").replace(/\s+/g," ").trim();
+const phoneOf=s=>{const m=String(s||"").replace(/[\s-]/g,"").match(/\d{7,}/);return m?m[0].slice(-9):""};
+const sameWho=(a,b)=>{const pa=phoneOf(a),pb=phoneOf(b),na=normWho(a),nb=normWho(b);return (!!pa&&pa===pb)||(!!na&&na===nb)};
+const refSeen=ref=>!!ref&&mine("tx").some(t=>t.ref===ref||String(t.note||"").includes("Tix "+ref));
+const MM_KEYS=[[/airtime|kaarka|anfac|bundle|data plan|xidhmo|xirmo/i,"out",["Kaarka taleefanka","Internet","Taleefan"]],
+  [/internet|wifi|fiber/i,"out",["Internet"]],[/koronto|electric|beco|blue ?sky/i,"out",["Koronto"]],[/\bbiyo\b|water/i,"out",["Biyo"]],
+  [/\bkiro\b|\brent\b/i,"out",["Kiro guri","Kiro dukaan"]],[/iskuul|school|jaamacad|university/i,"out",["Waxbarasho","Iskuul"]],
+  [/farmashiye|pharmacy|isbitaal|hospital|daawo/i,"out",["Daawo","Caafimaad"]],[/xawaalad|dahabshiil|amal|taaj|remit/i,"out",["Qoys (xawaalad)"]],
+  [/mushahar|salary|payroll/i,"in",["Mushahar"]],[/xawaalad|dahabshiil|amal|taaj|remit/i,"in",["Xawaalad la helay"]]];
+function catOK(c,t){return GROUPS(t).length?GROUPS(t).some(g=>g[2].includes(c))||ownCats(t).some(x=>x.name===c):(CATS[t]||[]).includes(c)||ownCats(t).some(x=>x.name===c)}
+function autoCat(p){const t=p.type,w=normWho(p.who);
+  if(w||phoneOf(p.who)){const hit=mine("tx").filter(x=>x.type===t&&x.cat!=="Kayd"&&!x.billId&&!x.debtId&&x.place&&sameWho(x.place,p.who)).sort((a,b)=>(b.date+(b.created||"")).localeCompare(a.date+(a.created||"")))[0];
+    if(hit&&catOK(hit.cat,t))return {cat:hit.cat,why:"who"}}
+  const txt=(p.raw||"")+" "+(p.who||"");
+  for(const [re,tt,cs] of MM_KEYS)if(tt===t&&re.test(txt)){const c=cs.find(c=>catOK(c,t));if(c)return {cat:c,why:"key"}}
+  return null}
+const defCat=t=>(MODE==="business"&&t==="in"&&catOK("Iib","in")?"Iib":null)||["Kale","Dakhliga kale"].find(c=>catOK(c,t))||(GROUPS(t)[0]?.[2][0])||(CATS[t]||["Kale"])[0];
+function catOptions(t,sel){const o=c=>`<option value="${esc(c)}"${c===sel?" selected":""}>${esc(T(c))}</option>`,own=ownCats(t).map(c=>c.name);
+  const ownG=own.length?`<optgroup label="${esc(L4("Kuwa aad adigu ku dartay","Your own","الخاصة بك","Zako mwenyewe"))}">${own.map(o).join("")}</optgroup>`:"";
+  if(GROUPS(t).length)return GROUPS(t).map(g=>`<optgroup label="${esc(grpLabel(g[0]))}">${g[2].filter(c=>c!=="Kayd").map(o).join("")}</optgroup>`).join("")+ownG;
+  return (CATS[t]||[]).filter(c=>c!=="Kayd").map(o).join("")+ownG}
+const mmNote=p=>[p.net!=="EVC"&&p.net!=="Bangi"?p.net:"",p.ref?"Tix "+p.ref:""].filter(Boolean).join(" · ");
+function mmHandle(raw){const ps=splitMM(raw).map(pmm).filter(Boolean);
+  if(ps.length>1){mmMulti(ps);return true}
+  return fillFromMM(ps[0]||pmm(raw))}
+function mmMulti(ps){const seen=new Set();
+  MMQ=ps.map(p=>{const dup=refSeen(p.ref)||(p.ref&&seen.has(p.ref));if(p.ref)seen.add(p.ref);return {...p,dup,on:!dup,cat:(autoCat(p)||{}).cat||defCat(p.type)}});
+  $("mmBox").hidden=true;$("mmMsg").textContent="";mmDraw()}
+function mmDraw(){const n=MMQ.filter(x=>x.on).length,box=$("mmList");box.hidden=false;
+  box.innerHTML=`<b>📥 ${L4(MMQ.length+" fariimood ayaa la helay",MMQ.length+" messages found","تم العثور على "+MMQ.length+" رسائل","Jumbe "+MMQ.length+" zimepatikana")}</b>
+  <span class="note">${L4("Qaybta waxaa loo doortay sida aad hore u qortay. Hubi, kadib riix Kaydi.","Categories are picked from what you entered before. Check them, then tap Save.","اختيرت الفئات بناءً على ما أدخلته سابقًا. تحقق ثم اضغط حفظ.","Makundi yamechaguliwa kulingana na ulichoingiza awali. Kagua, kisha bonyeza Hifadhi.")}</span>
+  ${MMQ.map((p,i)=>`<div class="mmrow${p.on?"":" off"}"><label class="mmchk"><input type="checkbox" data-mmon="${i}"${p.on?" checked":""} aria-label="${esc(L4("Dooro","Select","اختيار","Chagua"))}"><span class="amt ${p.type}">${p.type==="in"?"+":"−"}${money(p.amount)}</span></label>
+    <span class="mmwho">${esc(p.who||p.net)}${p.date?" · "+esc(fmtD(p.date)):""}${p.dup?` · <b class="bud-over">${L4("hore ayaa loo qoray","already saved","محفوظة مسبقًا","imeshahifadhiwa")}</b>`:""}</span>
+    <select data-mmcat="${i}" aria-label="${esc(L4("Qaybta","Category","الفئة","Kundi"))}">${catOptions(p.type,p.cat)}</select></div>`).join("")}
+  <div class="goal-actions"><button type="button" class="primary" id="mmSaveAll"${n?"":" disabled"}>${L4("Kaydi","Save","حفظ","Hifadhi")} (${n})</button><button type="button" id="mmCancel">${L4("Jooji","Cancel","إلغاء","Ghairi")}</button></div>`}
+document.addEventListener("change",e=>{const on=e.target.closest("[data-mmon]"),c=e.target.closest("[data-mmcat]");
+  if(on){MMQ[+on.dataset.mmon].on=on.checked;mmDraw()}if(c)MMQ[+c.dataset.mmcat].cat=c.value});
+document.addEventListener("click",async e=>{
+  if(e.target.id==="mmCancel"){MMQ=[];$("mmList").hidden=true;return}
+  if(e.target.id!=="mmSaveAll")return;const list=MMQ.filter(x=>x.on);if(!list.length)return;e.target.disabled=true;const base=Date.now();
+  try{for(let k=0;k<list.length;k++){const p=list[k];
+      await put({id:uid(),kind:"tx",method:p.net==="Bangi"?"Bangi":"EVC Plus",type:p.type,amount:p.amount,cat:p.cat,date:p.date||today(),place:(p.who||"").slice(0,40),note:mmNote(p),...(p.ref?{ref:p.ref}:{}),src:"sms",created:new Date(base+k).toISOString()})}
+    MMQ=[];$("mmList").hidden=true;$("mmText").value="";$("mmMsg").className="note ok";
+    $("mmMsg").textContent="✓ "+L4(list.length+" waa la kaydiyay.",list.length+" saved.","تم حفظ "+list.length+".",list.length+" zimehifadhiwa.")}
+  catch{$("mmMsg").className="err";$("mmMsg").textContent=L4("Lama kaydin karo hadda. Isku day mar kale.","Could not save now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Imeshindikana kuhifadhi sasa. Jaribu tena.");e.target.disabled=false}});
+/* share an SMS from the phone's Messages app straight into HantiGo (installed app on Android) */
+const MM_SHARE=(()=>{try{const q=new URLSearchParams(location.search);return [q.get("mmshare"),q.get("mmtitle")].filter(Boolean).join("\n")}catch{return ""}})();
+let mmShared=false;
+function mmShareCheck(){if(!MM_SHARE||mmShared||STAFF())return;mmShared=true;
+  try{const u=new URL(location.href);u.searchParams.delete("mmshare");u.searchParams.delete("mmtitle");history.replaceState(null,"",u.pathname+u.search+u.hash)}catch{}
+  goTab("add");setTimeout(()=>{if(!mmHandle(MM_SHARE)){$("mmBox").hidden=false;$("mmText").value=MM_SHARE}},200)}
+
+/* --- budget per topic + daily allowance --- */
+const catLims=()=>{const o=settings().catBud?.[MODE];return o&&typeof o==="object"?o:{}};
+const isCurView=()=>{const n=new Date();return view.getFullYear()===n.getFullYear()&&view.getMonth()===n.getMonth()};
+function grpSpent(month){const g={};month.filter(t=>t.type==="out"&&t.cat!=="Kayd").forEach(t=>{const k=grpOf(t.cat);g[k]=(g[k]||0)+Number(t.amount||0)});return g}
+function catBudAlerts(pct){const lim=catLims(),now=new Date(),sp=grpSpent(mine("tx").filter(t=>sameMonth(t,now))),out=[];
+  for(const [g,v] of Object.entries(lim)){if(!(v>0))continue;const s=sp[g]||0,p=s/v*100,nm=grpLabel(g);
+    if(p>=100)out.push(["bad",L4(`⚠️ ${nm}: waad dhaaftay xadka bishan (${money(s)} / ${money(v)}).`,`⚠️ ${nm}: over this month's limit (${money(s)} / ${money(v)}).`,`⚠️ ${nm}: تجاوزت حد هذا الشهر (${money(s)} / ${money(v)}).`,`⚠️ ${nm}: umezidi kikomo cha mwezi huu (${money(s)} / ${money(v)}).`)]);
+    else if(p>=pct)out.push(["warn",L4(`⚠️ ${nm}: ${Math.round(p)}% xadka ayaa la isticmaalay. Haray ${money(v-s)}.`,`⚠️ ${nm}: ${Math.round(p)}% of the limit used. ${money(v-s)} left.`,`⚠️ ${nm}: استُخدم ${Math.round(p)}% من الحد. المتبقي ${money(v-s)}.`,`⚠️ ${nm}: ${Math.round(p)}% ya kikomo imetumika. Imebaki ${money(v-s)}.`)])}
+  return out}
+const budCls=p=>p>=100?"over":p>=80?"near":"ok";
+function renderBudMore(month,bud){const box=$("budMore");if(!box)return;const cur=isCurView(),now=new Date(),dim=dimOf(view);let h="";
+  if(bud&&cur){const dl=dim-now.getDate()+1,spent=bud.b-bud.left,safe=Math.max(0,bud.left)/dl,fc=now.getDate()>=3?spent/now.getDate()*dim:null;
+    h+=`<div class="bsafe"><span>🛡️ ${L4("Maalin kasta waxaad ku bixin kartaa","You can spend per day","يمكنك أن تنفق يوميًا","Unaweza kutumia kwa siku")}: <b>${money(safe)}</b></span>
+      <span class="note">${L4(dl+" maalmood ayaa ka haray bisha",dl+" days left this month","تبقى "+dl+" يومًا في الشهر","Siku "+dl+" zimebaki mwezi huu")}</span>
+      ${fc!=null?`<span class="${fc>bud.b?"bud-over":"bud-ok"}">🔮 ${fc>bud.b?L4(`Haddii aad sidan ku socoto, bisha waxaad ku dhammaynaysaa ${money(fc)}: xadka waad dhaafaysaa ${money(fc-bud.b)}.`,`At this pace you will spend ${money(fc)} this month: ${money(fc-bud.b)} over the limit.`,`بهذا المعدل ستنفق ${money(fc)} هذا الشهر: أكثر من الحد بـ ${money(fc-bud.b)}.`,`Kwa kasi hii utatumia ${money(fc)} mwezi huu: ${money(fc-bud.b)} juu ya kikomo.`)
+        :L4(`Sidan haddii aad ku socoto: ${money(fc)} dhammaadka bisha, xadka gudihiisa.`,`At this pace: ${money(fc)} by month end, within the limit.`,`بهذا المعدل: ${money(fc)} بنهاية الشهر، ضمن الحد.`,`Kwa kasi hii: ${money(fc)} mwisho wa mwezi, ndani ya kikomo.`)}</span>`:""}</div>`}
+  const lim=catLims(),sp=grpSpent(month),gs=GROUPS("out").map(g=>g[0]);
+  const set=gs.filter(g=>lim[g]>0);
+  h+=`<h3 class="sth">🎯 ${L4("Xadka mowduuc kasta","Limit for each topic","حد لكل فئة","Kikomo kwa kila kundi")}</h3>`;
+  h+=set.length?set.map(g=>{const v=lim[g],s=sp[g]||0,p=s/v*100;return `<div class="bcat"><div class="goal-top"><span>${esc(grpLabel(g))}</span><span>${money(s)} / ${money(v)}</span></div>
+      <div class="bar bud ${budCls(p)}" role="progressbar" aria-valuenow="${Math.round(p)}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(grpLabel(g))}"><i style="width:${Math.min(100,p)}%"></i></div>
+      <span class="note bud-${budCls(p)}">${p>=100?L4("Waad dhaaftay: ","Over by: ","تجاوزت بـ: ","Umezidi: ")+money(s-v):L4("Haray: ","Left: ","المتبقي: ","Imebaki: ")+money(v-s)}</span></div>`}).join("")
+    :`<p class="note" style="margin:0">${MODE==="business"?L4("Tusaale: Kirada $500, Gaadiid $100. Digniin ayaad helaysaa marka mowduuc uu u dhowaado xadkiisa.","Example: Rent $500, Transport $100. You get a warning when a topic gets close to its limit.","مثال: الإيجار 500$، المواصلات 100$. ستصلك تنبيهات عند الاقتراب من الحد.","Mfano: Kodi $500, Usafiri $100. Utapata tahadhari kundi likikaribia kikomo."):L4("Tusaale: Cunto $150, Gaadiid $40. Digniin ayaad helaysaa marka mowduuc uu u dhowaado xadkiisa.","Example: Food $150, Transport $40. You get a warning when a topic gets close to its limit.","مثال: الطعام 150$، المواصلات 40$. ستصلك تنبيهات عند الاقتراب من الحد.","Mfano: Chakula $150, Usafiri $40. Utapata tahadhari kundi likikaribia kikomo.")}</p>`;
+  h+=`<details class="bcatset owner-only"><summary>${set.length?L4("✏️ Beddel xadyada","✏️ Change limits","✏️ تعديل الحدود","✏️ Badilisha vikomo"):L4("➕ Xad u dhig mowduucyada","➕ Set topic limits","➕ ضع حدودًا للفئات","➕ Weka vikomo vya makundi")}</summary>
+    <div class="bcatgrid">${gs.filter(g=>g!=="Deyn").map(g=>`<label class="field"><span>${esc(grpLabel(g))}${sp[g]?` <small class="note">(${L4("bishan","this month","هذا الشهر","mwezi huu")} ${money(sp[g])})</small>`:""}</span><input type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" data-cblim="${esc(g)}" value="${lim[g]>0?esc(lim[g]):""}"></label>`).join("")}</div>
+    <div class="goal-actions"><button type="button" class="primary" id="cbSave">${L4("Kaydi xadyada","Save limits","حفظ الحدود","Hifadhi vikomo")}</button><span class="note ok" id="cbMsg" role="status"></span></div></details>`;
+  const op=box.querySelector("details.bcatset")?.open,focus=document.activeElement?.dataset?.cblim;
+  if(box.contains(document.activeElement)&&focus)return;   // don't redraw while typing
+  box.innerHTML=h;if(op!=null&&set.length)box.querySelector("details.bcatset").open=op}
+document.addEventListener("click",async e=>{if(e.target.id!=="cbSave")return;const o={};
+  document.querySelectorAll("[data-cblim]").forEach(i=>{const v=Math.max(0,parseFloat(i.value)||0);if(v>0)o[i.dataset.cblim]=Math.round(v*100)/100});
+  const st=settings();try{await put({...st,catBud:{...(st.catBud||{}),[MODE]:o}})}catch{}
+  const m=$("cbMsg");if(m)m.textContent="✓ "+L4("Waa la kaydiyay","Saved","تم الحفظ","Imehifadhiwa")});
+function renderSafe(bud){const el=$("glSafe");if(!el)return;
+  if(!isCurView()||STAFF()){el.hidden=true;return}
+  if(bud){const dl=dimOf(view)-new Date().getDate()+1,safe=Math.max(0,bud.left)/dl;el.hidden=false;
+    el.innerHTML=bud.left>0?`🛡️ ${L4("Maanta waxaad ku bixin kartaa ilaa","Today you can spend up to","يمكنك اليوم إنفاق حتى","Leo unaweza kutumia hadi")} <b>${money(safe)}</b> · <span>${L4("miisaaniyadda waxaa ka haray","budget left","المتبقي من الميزانية","bajeti iliyobaki")} ${money(bud.left)}</span>`
+      :`⚠️ ${L4("Miisaaniyadda bishan waad dhaaftay","You are over this month's budget","تجاوزت ميزانية هذا الشهر","Umezidi bajeti ya mwezi huu")} (${money(-bud.left)})`;return}
+  if(MODE==="person"&&MGR()){el.hidden=false;el.innerHTML=`🛡️ <a href="#" data-gobud="1">${L4("Deji miisaaniyad si aad u ogaato inta aad maalin kasta bixin karto →","Set a budget to see how much you can spend each day →","ضع ميزانية لتعرف كم يمكنك إنفاقه يوميًا ←","Weka bajeti ujue unaweza kutumia kiasi gani kila siku →")}</a>`;return}
+  el.hidden=true}
+document.addEventListener("click",e=>{const a=e.target.closest("[data-gobud]");if(!a)return;e.preventDefault();goTab("plan");setTimeout(()=>{$("budH")?.scrollIntoView({block:"start"});$("budAmt")?.focus()},250)});
+
+/* --- savings: automatic monthly saving + streak --- */
+function goalAutoHtml(g){const id=esc(g.id),d=Number(g.autoDay)||1;
+  return `<label class="chk"><input type="checkbox" id="gpa-${id}"${g.auto?" checked":""}> ⚡ ${L4("Si toos ah u dhig qadarka bishii","Put the monthly amount aside automatically","ادّخر المبلغ الشهري تلقائيًا","Weka kiasi cha mwezi kiotomatiki")}</label>
+    <label class="field"><span>${L4("Maalinta bisha","Day of the month","يوم الشهر","Siku ya mwezi")}</span><select id="gpad-${id}">${Array.from({length:28},(_,i)=>`<option value="${i+1}"${i+1===d?" selected":""}>${i+1}</option>`).join("")}</select></label>
+    <p class="note" style="margin:0">${L4("Maalintaas HantiGo wuxuu kaydka u dhigayaa qadarka bishii (haddii bishan aadan horay u dhigin). Waad tirtiri kartaa.","On that day HantiGo puts the monthly amount into this goal (if you have not already this month). You can delete it.","في ذلك اليوم يضيف HantiGo المبلغ الشهري إلى هذا الهدف (إن لم تضفه هذا الشهر). يمكنك حذفه.","Siku hiyo HantiGo inaweka kiasi cha mwezi kwenye lengo hili (kama bado hujaweka mwezi huu). Unaweza kufuta.")}</p>`}
+let asBusy=false;
+async function autoSaveGoals(){if(asBusy||!me||STAFF()||!items.length)return;asBusy=true;
+  try{const now=new Date(),k=ym(now);
+    for(const g of mine("goal")){if(!g.auto||!(Number(g.monthly)>0))continue;const day=Math.min(Number(g.autoDay)||1,dimOf(now));if(now.getDate()<day)continue;
+      const id="as-"+g.id+"-"+k;if(items.some(i=>i.id===id)||gone.has(id))continue;
+      const pl=goalPlan(g,mine("tx"));if(pl.done)continue;const v=Math.round(Math.min(pl.todo,pl.left)*100)/100;if(!(v>0))continue;
+      const cur=items.find(i=>i.id===g.id);if(!cur)continue;await put({...cur,saved:Number(cur.saved||0)+v});
+      await put({id,kind:"tx",method:g.method||"EVC Plus",type:"out",amount:v,cat:"Kayd",goalId:g.id,date:k+"-"+String(day).padStart(2,"0"),note:"Loo dhigay: "+g.name,auto:1,created:new Date().toISOString()})}}
+  catch{}finally{asBusy=false}}
+function saveStreak(){const by={};mine("tx").filter(t=>t.cat==="Kayd").forEach(t=>{const k=String(t.date).slice(0,7);by[k]=(by[k]||0)+(t.type==="out"?1:-1)*Number(t.amount||0)});
+  const now=new Date();let d=new Date(now.getFullYear(),now.getMonth(),1);if(!(by[ym(d)]>0))d=new Date(d.getFullYear(),d.getMonth()-1,1);
+  let n=0;while(by[ym(d)]>0&&n<240){n++;d=new Date(d.getFullYear(),d.getMonth()-1,1)}
+  return {n,thisM:by[ym(now)]||0}}
+function renderSaveTop(){const el=$("goalTop");if(!el)return;const gs=mine("goal");if(!gs.length||STAFF()){el.hidden=true;return}
+  const s=saveStreak(),tot=gs.reduce((a,g)=>a+Number(g.saved||0),0);el.hidden=false;
+  el.innerHTML=`<span>💰 ${L4("Wadarta kaydka","Total saved","إجمالي المدخرات","Jumla ya akiba")}: <b>${money(tot)}</b></span>`+
+    (s.n?`<span class="streak">🔥 ${s.n===1?L4("Bishan waad kaydisay","You saved this month","ادّخرت هذا الشهر","Umeweka akiba mwezi huu"):L4(s.n+" bilood oo isku xiga ayaad kaydisay",s.n+" months in a row saved","ادّخرت "+s.n+" أشهر متتالية","Miezi "+s.n+" mfululizo ya akiba")}</span>`
+      :`<span class="note">💡 ${L4("Bishan weli wax ma kaydin. Xitaa qadar yar ayaa bilow fiican ah.","Nothing saved this month yet. Even a small amount is a good start.","لم تدّخر شيئًا هذا الشهر بعد. حتى مبلغ صغير بداية جيدة.","Bado hujaweka akiba mwezi huu. Hata kiasi kidogo ni mwanzo mzuri.")}</span>`)}
+
+/* --- "Mar kale": repeat a recent entry with one tap --- */
+function recentTx(){const seen=new Set(),out=[];
+  for(const t of mine("tx").filter(t=>t.cat!=="Kayd"&&!t.billId&&!t.debtId&&!t.auto&&(!STAFF()||isMine(t))).sort((a,b)=>(b.date+(b.created||"")).localeCompare(a.date+(a.created||"")))){
+    const k=[t.type,t.cat,t.amount,normWho(t.place)].join("|");if(seen.has(k))continue;seen.add(k);out.push(t);if(out.length>=6)break}
+  return out}
+function renderQRep(){const el=$("qRep");if(!el)return;const r=editing?[]:recentTx();el.hidden=!r.length;if(!r.length)return;
+  el.innerHTML=`<span class="note">⚡ ${L4("Mar kale","Again","مرة أخرى","Tena")}:</span>`+r.map(t=>`<button type="button" class="chip" data-qrep="${esc(t.id)}" title="${esc([T(t.cat),t.place].filter(Boolean).join(" · "))}">${t.type==="in"?"+":"−"}${esc(T(t.cat))} ${money(t.amount)}</button>`).join("")}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-qrep]");if(!b)return;const t=items.find(i=>i.id===b.dataset.qrep);if(!t)return;
+  if(MULTI_ON){MULTI_ON=false}
+  const r=document.querySelector(`input[name=type][value="${t.type}"]`);if(r)r.checked=true;fillCats();
+  if(useGroups()){$("grp").value=grpOf(t.cat,t.type);fillCats()}$("cat").value=t.cat;if($("cat").value!==t.cat){$("cat").value="__new"}
+  const mr=document.querySelector(`input[name=method][value="${t.method||"Kaash"}"]`);if(mr)mr.checked=true;
+  $("amount").value=t.amount;$("place").value=t.place||"";$("note").value="";$("date").value=today();markChip();
+  $("mmMsg").className="note ok";$("mmMsg").textContent="✓ "+L4("Diyaar: hubi qadarka, kadib riix Kaydi.","Ready: check the amount, then tap Save.","جاهز: تحقق من المبلغ ثم اضغط حفظ.","Tayari: kagua kiasi, kisha bonyeza Hifadhi.");
+  $("amount").focus();$("amount").select?.()});
+
+/* --- hide amounts (for when others can see your screen) --- */
+const HIDE_K="hantigo.hide";
+function applyHide(on){document.documentElement.classList.toggle("hidem",on);const b=$("glHide");if(b){b.setAttribute("aria-pressed",on);b.textContent=on?"🙈":"👁";
+  b.setAttribute("aria-label",on?L4("Muuji lacagta","Show amounts","إظهار المبالغ","Onyesha kiasi"):L4("Qari lacagta","Hide amounts","إخفاء المبالغ","Ficha kiasi"));b.title=b.getAttribute("aria-label")}}
+try{applyHide(localStorage.getItem(HIDE_K)==="1")}catch{applyHide(false)}
+$("glHide")?.addEventListener("click",()=>{const on=!document.documentElement.classList.contains("hidem");try{localStorage.setItem(HIDE_K,on?"1":"0")}catch{}applyHide(on)});
+
+/* --- reports: payment methods, budget per topic, savings goals (Excel, Word, PDF) --- */
+function repExtra(txs,yr){const sec=[];
+  const mt=METHODS.map(m=>{const ts=txs.filter(t=>t.cat!=="Kayd"&&(t.method||"Kaash")===m),a=k=>ts.filter(t=>t.type===k).reduce((s,t)=>s+Number(t.amount||0),0);return [T(m),a("in"),-a("out"),a("in")-a("out"),ts.length]}).filter(r=>r[4]);
+  if(mt.length)sec.push({title:L4("📱 Habka lacag-bixinta (EVC Plus, Bangi, Kaash)","📱 Payment method (EVC Plus, Bank, Cash)","📱 طريقة الدفع (EVC Plus، بنك، نقدًا)","📱 Njia ya malipo (EVC Plus, Benki, Taslimu)"),head:[L4("Habka","Method","الطريقة","Njia"),L4("Soo galay","Income","الدخل","Mapato"),L4("Ka baxay","Expenses","المصروف","Matumizi"),L4("Farqiga","Difference","الفرق","Tofauti"),L4("Qoraal","Entries","المعاملات","Miamala")],rows:mt.map(r=>[r[0],r[1],r[2],r[3],String(r[4])])});
+  if(!yr){const b=budgetVal(),lim=catLims(),sp=grpSpent(txs),tot=Object.values(sp).reduce((a,v)=>a+v,0),rows=[];
+    if(b>0)rows.push([L4("Wadarta bisha","Whole month","الشهر كله","Mwezi mzima"),b,-tot,b-tot,Math.round(tot/b*100)+"%"]);
+    Object.entries(lim).filter(([,v])=>v>0).forEach(([g,v])=>{const s=sp[g]||0;rows.push([grpLabel(g),v,-s,v-s,Math.round(s/v*100)+"%"])});
+    if(rows.length)sec.push({title:L4("🎯 Miisaaniyadda","🎯 Budget","🎯 الميزانية","🎯 Bajeti"),head:[L4("Mowduuca","Topic","الفئة","Kundi"),L4("Xadka","Limit","الحد","Kikomo"),L4("La isticmaalay","Spent","المُنفق","Imetumika"),L4("Haray","Left","المتبقي","Imebaki"),"%"],rows})}
+  const gl=mine("goal");if(gl.length)sec.push({title:L4("💰 Kaydka iyo yoolalka","💰 Savings goals","💰 أهداف الادخار","💰 Malengo ya akiba"),head:[L4("Yoolka","Goal","الهدف","Lengo"),L4("La kaydiyay","Saved","المُدّخر","Imewekwa"),L4("Hadafka","Target","المستهدف","Lengo la kiasi"),"%",L4("Muddadan","This period","هذه الفترة","Kipindi hiki")],
+    rows:gl.map(g=>{const per=txs.filter(t=>t.cat==="Kayd"&&goalOfTx(t)===g).reduce((a,t)=>a+(t.type==="out"?1:-1)*Number(t.amount||0),0);return [g.name,Number(g.saved||0),Number(g.target||0),Math.round(Number(g.saved||0)/(Number(g.target)||1)*100)+"%",per]})});
+  return sec}
+function repExtraHtml(txs,yr){return repExtra(txs,yr).map(s=>`<h2>${esc(s.title)}</h2><table><tr>${s.head.map(h=>`<th>${esc(h)}</th>`).join("")}</tr>${s.rows.map(r=>`<tr>${r.map((c,j)=>typeof c==="number"?`<td class="n">${c<0?"−":""}${money(Math.abs(c))}</td>`:`<td${j?' class="n"':""}>${esc(c)}</td>`).join("")}</tr>`).join("")}</table>`).join("")}
+
+function phase1Render(month,bud){try{renderBudMore(month,bud)}catch(e){console.error(e)}renderSafe(bud);renderSaveTop();renderQRep()}
+</script>
 <script>(()=>{const fv=document.getElementById('featView');if(!fv)return;let opener=null,pushed=false;
 const show=i=>{fv.querySelectorAll('[data-fv]').forEach(a=>a.hidden=a.dataset.fv!==String(i));fv.hidden=false;document.body.classList.add('fv-open');fv.scrollTop=0;
   const h=fv.querySelector('[data-fv="'+i+'"] h2');if(h){h.id='fvTitle';fv.querySelectorAll('.fv-card h2').forEach(x=>{if(x!==h)x.removeAttribute('id')})}
