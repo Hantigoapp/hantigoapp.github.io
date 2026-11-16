@@ -174,9 +174,9 @@ em.paid{background:var(--in)}em.part{background:#d49a1b}em.unpaid{background:#8a
 .bh-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}.bh-list li{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px dashed var(--line);font-size:.85rem}
 .bh-list li:first-child{border-top:0}.bh-list li>span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}.bh-list li button{min-height:34px;padding:4px 12px}
 .bhist{display:grid;gap:4px}.bh-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px}.bad-t{color:var(--out)}
-.bfc{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.bfc>div{display:grid;gap:1px;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);min-width:0}
-.bfc>div.cur{border-color:var(--accent)}.bfc b{font-size:.95rem;overflow-wrap:anywhere}
-@media (max-width:420px){.bfc{grid-template-columns:repeat(2,1fr)}}
+.bfc{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:4px;scrollbar-width:thin}
+.bfc>button{flex:0 0 calc((100% - 18px)/4);min-width:118px;scroll-snap-align:start;display:grid;gap:1px;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:inherit;text-align:start;cursor:pointer;font:inherit}
+.bfc>button.cur{border-style:dashed}.bfc>button[aria-selected="true"]{border:2px solid var(--accent);background:var(--surface);box-shadow:0 1px 6px rgba(0,0,0,.2)}.bfc b{font-size:.95rem;overflow-wrap:anywhere}
 .bill-total{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;font-weight:600}
 @media (max-width:420px){.bill{grid-template-columns:minmax(0,1fr) 96px auto;gap:6px}.bill .del{padding:6px 2px}}
 .done{color:var(--in);font-weight:600;font-size:.85rem}
@@ -3080,7 +3080,7 @@ const bcats=()=>MODE==="business"?BCAT_B:BCAT_P;
 function bcatOf(b){const c=bcats();if(b.grp&&c.some(x=>x[0]===b.grp))return b.grp;
   if(MODE==="business")return ROLES.has(b.name)?"staff":BCAT_BNAME[b.name]||"other";return BCAT_NAME[b.name]||"other"}
 const bcatLabel=k=>{const x=bcats().find(c=>c[0]===k)||bcats()[bcats().length-1];return x[1]+" "+L(...x[2])};
-let billTab="list",calDay=null,billHist=null;
+let billTab="list",calDay=null,billHist=null,fcSel=0;
 try{const v=localStorage.getItem("hantigo.billTab");if(["list","cal","late","fc"].includes(v))billTab=v}catch{}
 const isoOf=(d,day)=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(day).padStart(2,"0");
 const BWDAYS=()=>LANG==="ar"?["إث","ثل","أر","خم","جم","سب","أح"]:LANG==="en"?["Mo","Tu","We","Th","Fr","Sa","Su"]:LANG==="sw"?["Jtt","Jnn","Jtn","Alh","Iju","Jms","Jpl"]:["Isn","Tal","Arb","Kha","Jim","Sab","Axd"];
@@ -3116,13 +3116,16 @@ function renderBillView(txs,late){
     box.innerHTML=late.length?`<ul class="bh-list blate">${late.map(({b,d,x,days})=>`<li><span><b>${esc(T(b.name))}</b><br><small class="note">${MONTHS[d.getMonth()]} ${d.getFullYear()} · ⏰ ${days} ${L("maalmood dib u dhac","days late","أيام تأخير","siku za kuchelewa")}${x.paid?` · ${L("la bixiyay","paid","مدفوع","imelipwa")} ${money(x.paid)}`:""}</small></span><b class="bad-t">${money(x.left)}</b><button data-paylate="${esc(b.id)}" data-pm="${ym(d)}">${L("Bixi","Pay","ادفع","Lipa")}</button></li>`).join("")}</ul>
       <p class="bill-total" style="margin:6px 0 0"><span>${L("Wadarta dib u dhacday:","Total late:","إجمالي المتأخر:","Jumla iliyochelewa:")}</span><b class="bad-t">${money(late.reduce((a,l)=>a+l.x.left,0))}</b></p>`
       :`<p class="empty" style="margin:0">✓ ${L("Ma jiro biil dib u dhacay. Si fiican!","No late bills. Well done!","لا توجد فواتير متأخرة. أحسنت!","Hakuna bili zilizochelewa. Hongera!")}</p>`;return}
-  if(billTab==="fc"){const months=[0,1,2,3].map(k=>{const d=new Date(view.getFullYear(),view.getMonth()+k,1);let t=0,c=0;
-      for(const b of bs){if(!billDueIn(b,d))continue;const x=billState(b,txs,d),v=k===0?x.left:Number(b.amount);if(v>0){t+=v;c++}}return {d,t,c}});
-    const now=new Date(),cur=view.getFullYear()===now.getFullYear()&&view.getMonth()===now.getMonth();
-    const up=bs.map(b=>[b,billState(b,txs)]).filter(([,x])=>x.due&&x.left>0).sort((a,c)=>billDay(a[0])-billDay(c[0]));
-    box.innerHTML=`<div class="bfc">${months.map((m,i)=>`<div class="${i===0?"cur":""}"><span class="note">${i===0?L("Bishan weli","Still this month","المتبقي هذا الشهر","Bado mwezi huu"):MONTHS[m.d.getMonth()]+(m.d.getFullYear()!==view.getFullYear()?" "+m.d.getFullYear():"")}</span><b>${money(m.t)}</b><small class="note">${m.c} ${L("biil","bills","فواتير","bili")}</small></div>`).join("")}</div>
-      ${up.length?`<p class="note" style="margin:6px 0 0">${L("Biilasha soo socda bishan:","Coming up this month:","القادمة هذا الشهر:","Zinazokuja mwezi huu:")}</p><ul class="bh-list">${up.map(([b,x])=>`<li><span>${b.due?billDay(b)+" "+MONTHS[view.getMonth()].slice(0,3):"—"} · ${esc(T(b.name))}${b.auto?" ⚡":""}</span>${billPill(x)}<b>${money(x.left)}</b></li>`).join("")}</ul>`:`<p class="empty" style="margin:6px 0 0">✓ ${L("Biilasha bishan dhammaan waa la bixiyay.","All of this month's bills are paid.","تم دفع جميع فواتير هذا الشهر.","Bili zote za mwezi huu zimelipwa.")}</p>`}
-      ${cur&&months[1].t>0?`<p class="note" style="margin:6px 0 0">💡 ${L("Bisha xigta u diyaari ugu yaraan ","Set aside at least ","خصّص على الأقل ","Tenga angalau ")}<b>${money(months[1].t)}</b>${L(" biilasha.","  for next month's bills."," لفواتير الشهر القادم."," kwa bili za mwezi ujao.")}</p>`:""}`;return}
+  /* forecast: always starts from the real current month (earlier months count as zero), 12 months; tap a month = its bills */
+  if(billTab==="fc"){const now=new Date(),months=Array.from({length:12},(_,k)=>{const d=new Date(now.getFullYear(),now.getMonth()+k,1);const l=[];let t=0;
+      for(const b of bs){if(!billDueIn(b,d))continue;const x=billState(b,txs,d),v=k===0?x.left:Number(b.amount);if(k===0?x.due&&x.amt>0:v>0)l.push([b,x,v]);if(v>0)t+=v}
+      l.sort((a,c)=>(k===0?(a[2]>0?0:1)-(c[2]>0?0:1):0)||(a[0].due?billDay(a[0],d):32)-(c[0].due?billDay(c[0],d):32));return {d,t,c:l.filter(r=>r[2]>0).length,l}});
+    const sel=fcSel!=null&&fcSel<12?months[fcSel]:null,mName=d=>MONTHS[d.getMonth()]+(d.getFullYear()!==now.getFullYear()?" "+d.getFullYear():"");
+    box.innerHTML=`<div class="bfc" role="tablist">${months.map((m,i)=>`<button type="button" role="tab" data-fcm="${i}" aria-selected="${fcSel===i}" class="${i===0?"cur":""}"><span class="note">${i===0?L("Bishan weli","Still this month","المتبقي هذا الشهر","Bado mwezi huu"):mName(m.d)}</span><b>${money(m.t)}</b><small class="note">${m.c} ${L("biil","bills","فواتير","bili")}</small></button>`).join("")}</div>
+      ${!sel?`<p class="note" style="margin:6px 0 0">👆 ${L("Riix bil si aad u aragto biilasheeda.","Tap a month to see its bills.","اضغط على شهر لرؤية فواتيره.","Gusa mwezi kuona bili zake.")}</p>`
+      :sel.l.length?`<p class="bh-day" style="margin:6px 0 0"><b>📅 ${mName(sel.d)}</b> <span class="note">· ${sel.c} ${L("biil","bills","فواتير","bili")} · <b>${money(sel.t)}</b></span></p><ul class="bh-list">${sel.l.map(([b,x,v])=>`<li><span>${b.due?billDay(b,sel.d)+" "+MONTHS[sel.d.getMonth()].slice(0,3):"—"} · ${esc(T(b.name))}${b.auto?" ⚡":""}${(Number(b.freq)||1)>1?` <small class="note">🔁 ${freqTxt(Number(b.freq))}</small>`:""}</span>${fcSel===0?billPill(x):""}<b>${money(fcSel===0&&!(v>0)?x.paid:v)}</b></li>`).join("")}</ul>`
+      :`<p class="empty" style="margin:6px 0 0">${fcSel===0?"✓ "+L("Biilasha bishan dhammaan waa la bixiyay.","All of this month's bills are paid.","تم دفع جميع فواتير هذا الشهر.","Bili zote za mwezi huu zimelipwa."):L("Bishan biil lagama bixinayo.","No bills due this month.","لا فواتير مستحقة في هذا الشهر.","Hakuna bili mwezi huu.")}</p>`}
+      ${months[1].t>0?`<p class="note" style="margin:6px 0 0">💡 ${L("Bisha xigta u diyaari ugu yaraan ","Set aside at least ","خصّص على الأقل ","Tenga angalau ")}<b>${money(months[1].t)}</b>${L(" biilasha.","  for next month's bills."," لفواتير الشهر القادم."," kwa bili za mwezi ujao.")}</p>`:""}`;return}
   box.innerHTML=""}
 function billDate(d=view){const t=new Date();return (t.getFullYear()===d.getFullYear()&&t.getMonth()===d.getMonth())?today():`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-01`}
 /* pay a bill: the rest of this month's amount, or only a part of it */
@@ -3281,6 +3284,8 @@ document.addEventListener("click",async e=>{
   if(e.target.closest("[data-ball]")){billAll=!billAll;billNew=null;render();if(!billAll)$("billFold").scrollIntoView({block:"nearest"});return}
   const bt=e.target.closest("[data-btab]");
   if(bt){billTab=billTab===bt.dataset.btab&&bt.dataset.btab!=="list"?"list":bt.dataset.btab;calDay=null;try{localStorage.setItem("hantigo.billTab",billTab)}catch{}render();return}
+  const fm=e.target.closest("[data-fcm]");
+  if(fm){const v=Number(fm.dataset.fcm),sl=fm.parentElement.scrollLeft;fcSel=fcSel===v?null:v;render();const r=document.querySelector(".bfc");if(r)r.scrollLeft=sl;return}
   const cd=e.target.closest("[data-cday]");
   if(cd){const v=Number(cd.dataset.cday);calDay=calDay===v?null:v;render();return}
   const bh=e.target.closest("[data-bhist]");
