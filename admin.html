@@ -186,15 +186,15 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=d=>d?new Date(d).toLocaleDateString("en-GB"):"—";
 let rows=[];
-/* price by account type: Shakhsi $3, Shirkad $7 (Shirkad includes Shakhsi) */
-const PRICE={person:3,business:7};
-// a pending request is priced by what the customer chose on the payment screen ([Shakhsi $3] / [Shirkad $7]); approving it sets profiles.plan to that choice
+/* price by account type: Shakhsi $3, Shirkad $12 */
+const PRICE={person:3,business:12};
+// a pending request is priced by what the customer chose on the payment screen ([Shakhsi $3] / [Shirkad $12]); approving it sets profiles.plan to that choice
 const tagPlan=p=>/\[Shirkad/i.test(p.pay_ref||"")?"business":/\[Shakhsi/i.test(p.pay_ref||"")?"person":null;
 const planOf=p=>(p.pay_status==="pending"&&tagPlan(p))||(p.plan?(p.plan==="business"?"business":"person"):tagPlan(p));
 const priceOf=p=>PRICE[planOf(p)||"person"];
 const planName=p=>planOf(p)==="business"?"Shirkad":"Shakhsi";
 const accLink=p=>"https://hantigoapp.github.io/?open="+(planOf(p)==="business"?"business":"person");   // opens the customer's Shakhsi or Shirkad account
-const planPill=p=>{const k=planOf(p);return `<span class="pill ${k==="business"?"biz":"per"}">${k?(k==="business"?"🏢 Shirkad $7":"👤 Shakhsi $3"):"? Nooc lama oga"}</span>`};
+const planPill=p=>{const k=planOf(p);return `<span class="pill ${k==="business"?"biz":"per"}">${k?(k==="business"?"🏢 Shirkad $12":"👤 Shakhsi $3"):"? Nooc lama oga"}</span>`};
 const cleanRef=r=>String(r||"").replace(/^(\[[^\]]*\]\s*)+/,"");
 const payWay=p=>/\[WaafiPay\]/i.test(p.pay_ref||"")?"WaafiPay":"EVC Plus";
 function status(p){const now=new Date();
@@ -219,7 +219,7 @@ function custRow(p){const [t,c]=status(p);return `<div class="row">
     <div class="who"><b>${esc(nameOf(p)||p.email)}</b><span class="pill ${c}">${esc(t)}</span>${planPill(p)}
       ${whoLines(p)}
       <div>📍 ${esc([p.city,p.country].filter(Boolean).join(", ")||"lama oga")} · 📅 ${fmt(p.created_at)}${startTxt(p)}</div>${seenLine(p)}</div>
-    <div class="acts"><button class="primary" data-id="${p.id}" data-d="30">+30 maalmood</button><button data-id="${p.id}" data-d="365">+1 sano</button><button class="stop" data-id="${p.id}" data-d="0">Jooji</button>${"plan" in p?`<button data-plan="${p.id}" data-to="${planOf(p)==="business"?"person":"business"}">→ ${planOf(p)==="business"?"👤 Shakhsi $3":"🏢 Shirkad $7"}</button>`:""}</div>
+    <div class="acts"><button class="primary" data-id="${p.id}" data-d="30">+30 maalmood</button><button data-id="${p.id}" data-d="365">+1 sano</button><button class="stop" data-id="${p.id}" data-d="0">Jooji</button>${"plan" in p?`<button data-plan="${p.id}" data-to="${planOf(p)==="business"?"person":"business"}">→ ${planOf(p)==="business"?"👤 Shakhsi $3":"🏢 Shirkad $12"}</button>`:""}</div>
   </div>`}
 function renderLocs(cust){
   if(cust.length&&!("city" in cust[0])){$("locs").innerHTML='<p class="msg">Si aad u aragto meelaha ay dadku joogaan, ku shub faylka <b>supabase/location.sql</b> gudaha Supabase (SQL Editor → Run).</p>';return}
@@ -240,7 +240,7 @@ function renderReqs(cust){
   const reqs=cust.filter(p=>hasCol?p.pay_status==="pending":(p.phone&&!isPaid(p)));
   document.title=(reqs.length?"("+reqs.length+") ":"")+"HantiGo · Maamul";
   $("reqs").hidden=!reqs.length;
-  $("reqs").innerHTML=`<h2>⏳ Codsiyada lacagta · ${reqs.length}</h2><p class="msg" style="margin:0">Hubi in lacagta (👤 Shakhsi <b>$3</b> · 🏢 Shirkad <b>$7</b>) ay ka timid lambarkan, kadib riix <b>Ansixi</b>. Akoonka 30 maalmood ayuu u furmayaa.</p>`+
+  $("reqs").innerHTML=`<h2>⏳ Codsiyada lacagta · ${reqs.length}</h2><p class="msg" style="margin:0">Hubi in lacagta (👤 Shakhsi <b>$3</b> · 🏢 Shirkad <b>$12</b>) ay ka timid lambarkan, kadib riix <b>Ansixi</b>. Akoonka 30 maalmood ayuu u furmayaa.</p>`+
     reqs.sort((a,b)=>String(b.pay_requested_at||"").localeCompare(String(a.pay_requested_at||""))).map(p=>`<div class="req"><div class="meta"><div><b>${esc(nameOf(p)||p.email)}</b> ${planPill(p)}</div>${nameOf(p)?`<span>✉️ ${esc(p.email)}${phoneOf(p)&&phoneOf(p)!==p.phone?` · 📞 ${esc(phoneOf(p))}`:""}${coOf(p)?` · 🏢 ${esc(coOf(p))}`:""}</span>`:""}
       <span>📞 ${payWay(p)}: <b>${esc(p.phone||"—")}</b>${cleanRef(p.pay_ref)?` · 🧾 ${esc(cleanRef(p.pay_ref))}`:""}</span>
       <span>🕒 ${p.pay_requested_at?new Date(p.pay_requested_at).toLocaleString("en-GB",{dateStyle:"short",timeStyle:"short"}):"—"}</span>
@@ -285,7 +285,7 @@ document.addEventListener("click",async e=>{const z=e.target.closest("[data-zoom
   if(error&&ok)({error}=await sb.rpc("admin_extend",{target:b.dataset.pay,days:30}));
   if(error){alert(ok?"Khalad: "+error.message:"Si aad u diiddo, marka hore ku shub faylka supabase/payment.sql gudaha Supabase.");b.disabled=false;return}
   if(ok){const p=rows.find(x=>x.id===b.dataset.pay)||{},amt=priceOf(p),no=rcNo(b.dataset.pay);
-    const tp=tagPlan(p);if(tp&&tp!==p.plan){try{await sb.rpc("admin_set_plan",{target:p.id,p:tp})}catch{}}   // the plan follows what the customer paid for: 👤 $3 or 🏢 $7
+    const tp=tagPlan(p);if(tp&&tp!==p.plan){try{await sb.rpc("admin_set_plan",{target:p.id,p:tp})}catch{}}   // the plan follows what the customer paid for: 👤 $3 or 🏢 $12
     await recordSale(p,amt,30,payWay(p),cleanRef(p.pay_ref),no);
     await load();sendSubReceipt(b.dataset.pay,30,amt,no)}else await load()});
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-id]");if(!b)return;
@@ -484,7 +484,7 @@ function renderSales(){const box=$("tabSales");if(!box)return;
     <div class="scount"><div><b>${usd(T.all)}</b><small>Wadarta iibka</small><em>${T.n} iib · ${T.cust} macmiil</em></div>
       <div><b>${T.n}</b><small>Tirada iibka</small><em>${Object.entries(d.ways).map(([k,o])=>k+" "+o.n).join(" · ")||"—"}</em></div>
       <div><b>${usd(T.per)}</b><small>👤 Shakhsi ($3)</small><em>${T.nPer} iib</em></div>
-      <div><b>${usd(T.biz)}</b><small>🏢 Shirkad ($7)</small><em>${T.nBiz} iib</em></div></div>
+      <div><b>${usd(T.biz)}</b><small>🏢 Shirkad ($12)</small><em>${T.nBiz} iib</em></div></div>
     <div class="sdl"><button type="button" class="xl" data-sdl="xlsx">📊 Excel</button><button type="button" class="wd" data-sdl="doc">📝 Word</button><button type="button" class="pd" data-sdl="pdf">📄 PDF</button></div>
   </div>
   <div class="sbox"><h2 style="display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center"><span>${grp==="day"?"📅 Maalin-maalin":"🗓 Bil-bil"}</span>

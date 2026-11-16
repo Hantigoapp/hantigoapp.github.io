@@ -1,7 +1,7 @@
 // HantiGo: automatic payment with EVC Plus / WaafiPay (WaafiPay API, "API_PURCHASE").
 //
 // The app sends the customer's phone number. This function:
-//   1. works out the price from the customer's plan (Shakhsi $3, Shirkad $7) — never from the app,
+//   1. works out the price from the customer's plan (Shakhsi $3, Shirkad $12) — never from the app,
 //   2. asks WaafiPay to charge that number; the customer gets a PIN prompt on the phone,
 //   3. when WaafiPay answers APPROVED, opens the account for 30 days (rpc autopay_grant),
 //   4. emails a PDF receipt to the customer, with a copy to the admin(s).
@@ -17,7 +17,7 @@ import nodemailer from "npm:nodemailer@6.9.14";
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
 
-const PRICE: Record<string, number> = { person: 3, business: 7 };
+const PRICE: Record<string, number> = { person: 3, business: 12 };
 const DAYS = 30;
 const SUPPORT = "WhatsApp +46 76 715 79 15";
 const SITE = "https://hantigoapp.github.io";

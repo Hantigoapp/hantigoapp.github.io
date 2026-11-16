@@ -40,28 +40,28 @@ function welcomeMail(lang: string, plan: string, email: string, company: string,
       s: "Ku soo dhawoow HantiGo · Akoonkaaga cusub waa diyaar",
       t: `Salaan,\n\nKu soo dhawoow HantiGo! Akoonkaaga ${biz ? "🏢 Shirkad" : "👤 Shakhsi"}${company ? ` (${company})` : ""} waa la furay.\n\n` +
         `Sida aad u gasho:\n1) Fur ${SITE}/?open=${biz ? "business" : "person"}\n2) Riix "Gal"\n3) Email: ${email}\n4) Erayga sirta ah ee aad dooratay\n\n` +
-        (trial ? `Tijaabada bilaashka ah waxay socotaa ilaa ${trial}. ` : "") + `Qiimaha kadib: ${biz ? "$7" : "$3"} bishii.\n\n` +
+        (trial ? `Tijaabada bilaashka ah waxay socotaa ilaa ${trial}. ` : "") + `Qiimaha kadib: ${biz ? "$12" : "$3"} bishii.\n\n` +
         `Haddii aad illowdo erayga sirta ah, bogga gelitaanka riix "Ma illowday erayga sirta ah?".\nCaawimaad: WhatsApp ${SUPPORT}\n\nHantiGo`,
     },
     en: {
       s: "Welcome to HantiGo · Your new account is ready",
       t: `Hello,\n\nWelcome to HantiGo! Your ${biz ? "🏢 Business" : "👤 Personal"} account${company ? ` (${company})` : ""} is open.\n\n` +
         `How to sign in:\n1) Open ${SITE}/?open=${biz ? "business" : "person"}\n2) Tap "Log in"\n3) Email: ${email}\n4) The password you chose\n\n` +
-        (trial ? `Your free trial runs until ${trial}. ` : "") + `After that: ${biz ? "$7" : "$3"} per month.\n\n` +
+        (trial ? `Your free trial runs until ${trial}. ` : "") + `After that: ${biz ? "$12" : "$3"} per month.\n\n` +
         `Forgot your password? Tap "Forgot your password?" on the sign-in page.\nHelp: WhatsApp ${SUPPORT}\n\nHantiGo`,
     },
     ar: {
       s: "مرحبًا بك في HantiGo · حسابك الجديد جاهز",
       t: `مرحبًا،\n\nأهلًا بك في HantiGo! تم فتح حسابك ${biz ? "🏢 للشركة" : "👤 الشخصي"}${company ? ` (${company})` : ""}.\n\n` +
         `طريقة الدخول:\n1) افتح ${SITE}/?open=${biz ? "business" : "person"}\n2) اضغط "تسجيل الدخول"\n3) البريد: ${email}\n4) كلمة المرور التي اخترتها\n\n` +
-        (trial ? `التجربة المجانية حتى ${trial}. ` : "") + `بعد ذلك: ${biz ? "7$" : "3$"} شهريًا.\n\n` +
+        (trial ? `التجربة المجانية حتى ${trial}. ` : "") + `بعد ذلك: ${biz ? "12$" : "3$"} شهريًا.\n\n` +
         `نسيت كلمة المرور؟ اضغط "نسيت كلمة المرور؟" في صفحة الدخول.\nالمساعدة: واتساب ${SUPPORT}\n\nHantiGo`,
     },
     sw: {
       s: "Karibu HantiGo · Akaunti yako mpya iko tayari",
       t: `Habari,\n\nKaribu HantiGo! Akaunti yako ${biz ? "🏢 ya Biashara" : "👤 Binafsi"}${company ? ` (${company})` : ""} imefunguliwa.\n\n` +
         `Jinsi ya kuingia:\n1) Fungua ${SITE}/?open=${biz ? "business" : "person"}\n2) Bonyeza "Ingia"\n3) Barua pepe: ${email}\n4) Nenosiri ulilochagua\n\n` +
-        (trial ? `Majaribio ya bure hadi ${trial}. ` : "") + `Baada ya hapo: ${biz ? "$7" : "$3"} kwa mwezi.\n\n` +
+        (trial ? `Majaribio ya bure hadi ${trial}. ` : "") + `Baada ya hapo: ${biz ? "$12" : "$3"} kwa mwezi.\n\n` +
         `Umesahau nenosiri? Bonyeza "Umesahau nenosiri?" kwenye ukurasa wa kuingia.\nMsaada: WhatsApp ${SUPPORT}\n\nHantiGo`,
     },
   };
@@ -110,7 +110,7 @@ Deno.serve(async (req) => {
 
     const um = (user.user_metadata ?? {}) as Record<string, unknown>;
     const plan = p.plan === "business" || (!p.plan && um.mode === "business") ? "business" : "person";
-    const planTxt = plan === "business" ? "🏢 Shirkad ($7 bishii)" : "👤 Shakhsi ($3 bishii)";
+    const planTxt = plan === "business" ? "🏢 Shirkad ($12 bishii)" : "👤 Shakhsi ($3 bishii)";
     const company = String(um.company ?? "").trim().slice(0, 60);
     const fullName = String(um.full_name ?? "").trim().slice(0, 60), contact = String(um.phone ?? "").trim().slice(0, 20);
     const whoTxt = `${fullName ? `Magaca: ${fullName}\n` : ""}Email: ${p.email}${contact ? `\nTelefoon: ${contact}` : ""}`;
