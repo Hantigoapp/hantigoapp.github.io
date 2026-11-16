@@ -1,6 +1,6 @@
 -- HantiGo: price by account type.
 --   Shakhsi (person)   = $3 / month
---   Shirkad (business) = $7 / month  (includes Shakhsi when one email has both)
+--   Shirkad (business) = $12 / month (changed from $12 on 2026-11-16; one account = one type)
 -- Adds profiles.plan so the app and the admin page know which price applies.
 -- Run once in Supabase: SQL Editor -> New query -> paste this file -> Run.
 
