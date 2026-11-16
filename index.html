@@ -3013,7 +3013,7 @@ function billPill(x){
   return x.s==="paid"?`<span class="bpill ok">✓ ${L("La bixiyay","Paid","مدفوع","Imelipwa")}</span>`
     :x.s==="part"?`<span class="bpill part">½ ${L("Qayb la bixiyay","Part paid","مدفوع جزئيًا","Imelipwa sehemu")}</span>`
     :x.s==="unpaid"?`<span class="bpill">○ ${L("Lama bixin","Unpaid","غير مدفوع","Haijalipwa")}</span>`:""}
-/* bills list: open/closed (remembered), Shakhsi short list of 3 or all */
+/* bills list: open/closed (remembered), short list of 3 or all */
 const BILL_SHORT=3;let billAll=false,billNew=null,billFoldOpen=true;
 try{billFoldOpen=localStorage.getItem("hantigo.billsOpen")!=="0"}catch{}
 /* what needs paying first: late, then still to pay (by day), then paid, not this month, no amount yet */
@@ -3025,13 +3025,13 @@ function renderBills(txs){
   const ae=document.activeElement,ka=ae?.dataset?.bamt?"bamt":ae?.dataset?.bdue?"bdue":ae?.dataset?.bpartin?"bpartin":null,keep=ka?{a:ka,id:ae.dataset[ka],v:ae.value}:null;
   const st=new Map(bs.map(b=>[b.id,billState(b,txs)]));
   for(const b of bs){const x=st.get(b.id);if(x.due)total+=x.amt;if(x.due&&x.left>0&&x.amt>0)left++;if(cnt[x.s]!=null)cnt[x.s]++;if(x.late)cnt.late++;if(x.due&&x.amt>0)rest+=x.left}
-  /* Shirkad: always every bill by due date, late ones on top. Shakhsi: the next 3 by date, "Eeg dhammaan" = every bill by category */
+  /* both: the next 3 by date (late on top), "Eeg dhammaan" = every bill (Shirkad by date in sections, Shakhsi by category) */
   const byDate=MODE==="business"||!billAll,all=bs.length;
   const ord=bcats().map(c=>c[0]),gsum={};let lastG=null;
   if(byDate)bs.sort((a,c)=>{const xa=st.get(a.id),xc=st.get(c.id);return billSec(xa)-billSec(xc)||(a.due?billDay(a):32)-(c.due?billDay(c):32)});
   else bs.sort((a,c)=>ord.indexOf(bcatOf(a))-ord.indexOf(bcatOf(c)));
-  if(MODE!=="business"&&!billAll){const keepIds=new Set([billNew,billOpen,billHist,billPart].filter(Boolean));bs=bs.filter((b,i)=>i<BILL_SHORT||keepIds.has(b.id))}
   const secSum={};for(const b of bs){const x=st.get(b.id),k=billSec(x);secSum[k]=(secSum[k]||0)+(x.late||x.s==="unpaid"||x.s==="part"?x.left:x.s==="paid"?x.paid:x.amt)}
+  if(!billAll){const keepIds=new Set([billNew,billOpen,billHist,billPart].filter(Boolean));bs=bs.filter((b,i)=>i<BILL_SHORT||keepIds.has(b.id))}
   for(const b of bs){const x=st.get(b.id),g=bcatOf(b);gsum[g]=(gsum[g]||0)+(x.due?x.amt:0)}
   const shortP=MODE!=="business"&&!billAll;
   $("bills").innerHTML=bs.length?bs.map(b=>{const x=st.get(b.id),id=esc(b.id),f=Number(b.freq)||1,g=byDate?billSec(x):bcatOf(b);
@@ -3060,7 +3060,7 @@ function renderBills(txs){
       <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${id}" aria-label="${L("Qadarka ","Amount for ")}${esc(b.name)}">
       <button class="del" data-del="${id}">Tirtir</button>${line2}${bar}${part}${set}${hist}</div>`}).join("")
     :`<p class="empty" style="margin:0">Weli ma jiro kharash joogto ah. Hoos ka ku dar.</p>`;
-  $("billMore").innerHTML=MODE!=="business"&&all>BILL_SHORT?`<button type="button" data-ball>${billAll?"▲ "+L("Muuji 3-da soo socda oo kaliya","Show only the next 3","أظهر القادمة الثلاث فقط","Onyesha 3 zinazofuata tu"):"▼ "+L("Eeg dhammaan","See all","عرض الكل","Ona zote")+" ("+all+")"}</button>`:"";
+  $("billMore").innerHTML=all>BILL_SHORT?`<button type="button" data-ball>${billAll?"▲ "+L("Muuji 3-da soo socda oo kaliya","Show only the next 3","أظهر القادمة الثلاث فقط","Onyesha 3 zinazofuata tu"):"▼ "+L("Eeg dhammaan","See all","عرض الكل","Ona zote")+" ("+all+")"}</button>`:"";
   $("billFold").setAttribute("aria-expanded",String(billFoldOpen));$("billList").hidden=!billFoldOpen;
   $("billFoldT").textContent=L("Liiska biilasha","Bills list","قائمة الفواتير","Orodha ya bili");
   $("billFoldN").innerHTML=all?`${all} ${L("biil","bills","فواتير","bili")}${cnt.late?` · <b class="bad-t">⏰ ${cnt.late}</b>`:""}`:"";
