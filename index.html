@@ -422,6 +422,16 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .invlines{display:grid;gap:6px}.invrow{display:grid;grid-template-columns:minmax(0,1fr) 64px 92px 32px;gap:6px;align-items:center}.invrow input{min-width:0;width:100%;box-sizing:border-box}
 .invh{font-size:.8rem;color:var(--muted)}.chk{display:flex!important;gap:8px;align-items:center;font-size:.92rem;justify-content:flex-start}.chk input{width:auto!important;flex:none;margin:0}
 .wa-bg{background:#1faa53!important;border-color:#1faa53!important}.invlist{display:grid;gap:6px}
+.invf{margin:4px 0}.invf button.on,.cuf button.on{background:var(--accent);color:#fff;border-color:transparent}
+.invli .invst{display:flex;gap:6px;align-items:center;flex-wrap:wrap;width:100%}#appView .invlist .txa{flex-direction:row;flex-wrap:wrap;gap:6px;width:100%;justify-content:flex-start;align-items:center}.invli .invpay{display:flex;gap:6px;align-items:center;width:100%}.invli .invpay input{max-width:120px}
+.invli .amt.q{color:#d49a1b}.invsum{font-size:.88rem;margin:0}
+.cusum{grid-template-columns:repeat(3,minmax(0,1fr))}#cuQ{width:100%;box-sizing:border-box}
+.culist{display:grid;gap:0}.cu{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.cu:first-child{border-top:0}
+.cu>button.cuh{all:unset;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center}
+.cu .cun{font-weight:700;overflow-wrap:anywhere}.cu .cum{font-size:.8rem;color:var(--muted)}.cu .cuo{text-align:right}
+.cu .cud{display:grid;gap:8px;padding:6px 0 2px}.cu .cuacts{display:flex;flex-wrap:wrap;gap:6px}.cu .cupay{display:flex;gap:6px;align-items:center}.cu .cupay input{max-width:130px}
+.cu .cuh2{display:grid;gap:2px;font-size:.84rem}.cu .cuh2 div{display:flex;justify-content:space-between;gap:8px;border-top:1px dashed var(--line);padding-top:3px}
+@media (max-width:639px){.cusum{grid-template-columns:1fr 1fr}.cusum .ext:last-child{grid-column:1/-1}}
 .invli{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);font-size:.9rem}
 
 @media print{body.printing{background:#fff}body.printing>*:not(#printArea){display:none!important}
@@ -1287,6 +1297,14 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
         <span class="note ok" id="invMsg" role="status"></span>
         <p class="note" style="margin:0">PDF-ka waxaa loo dirayaa macmiilka, nuqulna waxaa laguu soo dirayaa email-kaaga.</p>
         <div id="invList" class="invlist"></div>
+      </section>
+
+      <section class="panel biz-only mgr-only" aria-labelledby="cuH" data-tab="add" id="cuPanel">
+        <div class="panel-head"><h2 id="cuH">👥 Macaamiisha</h2><span class="note" id="cuCount"></span></div>
+        <div class="extremes cusum" id="cuSum"></div>
+        <input id="cuQ" type="search" maxlength="40" autocomplete="off" aria-label="Raadi macmiil" placeholder="🔍 Raadi macmiil">
+        <div class="chips cuf" id="cuF" role="group"></div>
+        <div id="cuList" class="culist"></div>
       </section>
     </div>
 
@@ -3544,10 +3562,10 @@ function renderDebts(){
   $("debtSum").innerHTML=`<div class="ext lo"><span class="lbl">${L("Lacag naloo hayo","Owed to us")}</span><b>${money(tin)}</b></div><div class="ext hi"><span class="lbl">${L("Lacag aan u hayno dad kale","We owe others")}</span><b>${money(tout)}</b></div>`;
   $("debts").innerHTML=ds.length?ds.map(d=>{const r=debtLeft(d),late=d.due&&r>0&&d.due<today(),id=esc(d.id);
     return `<div class="debt"><div class="goal-top"><b>${esc(d.name)}</b><span class="amt ${d.dir}">${money(r)}</span></div>
-      <span class="note">${d.dir==="in"?L("Naloo hayo","Owed to us"):L("Aan u hayno","We owe")} · ${L("Wadarta","Total")}: ${money(d.amount)}${d.due?` · <span class="${late?"late":""}">${L("Taariikhda","Due")}: ${esc(d.due)}${late?L(" (way dhaaftay)"," (overdue)"):""}</span>`:""}</span>
+      <span class="note">${d.dir==="in"?L("Naloo hayo","Owed to us"):L("Aan u hayno","We owe")} · ${L("Wadarta","Total")}: ${money(d.amount)}${d.due?` · <span class="${late?"late":""}">${L("Taariikhda","Due")}: ${fmtD(d.due)}${late?L(" (way dhaaftay)"," (overdue)"):""}</span>`:""}</span>
       <div class="goal-actions">${r>0?`<input type="number" min="0" step="0.01" inputmode="decimal" placeholder="${L("Qadar","Amount")}" id="din-${id}" aria-label="${L("Qadarka","Amount")}"><button data-dpay="${id}">${d.dir==="in"?L("Lacag ayaa la helay","Received"):L("Bixi","Pay")}</button>`:`<span class="done">${L("✓ Waa la dhammeeyay","✓ Settled")}</span>`}
       ${items.some(i=>i.kind==="tx"&&i.debtId===d.id)?`<button class="del" data-dundo="${id}">${L("↩ Ka noqo lacagtii u dambeysay","↩ Undo last payment")}</button>`:""}
-      <button class="del" data-del="${id}">Tirtir</button></div></div>`}).join("")
+      ${d.dir==="in"&&r>0?`<button type="button" class="del" data-dwa="${id}">💬 ${L("Xusuusin","Remind","تذكير","Kumbusha")}</button>`:""}<button class="del" data-del="${id}">Tirtir</button></div></div>`}).join("")
     :`<p class="empty" style="margin:0">${L("Weli deyn lama qorin.","No debts recorded yet.")}</p>`}
 $("debtForm").addEventListener("submit",async e=>{e.preventDefault();
   const name=$("dName").value.trim(),amount=parseFloat($("dAmt").value),dir=document.querySelector('input[name=ddir]:checked').value,due=$("dDue").value||null;
@@ -4486,14 +4504,14 @@ function invHtml(d){const k=d.k,co=coName()||"HantiGo",lg=coLogo();
   <table><tr><th>${L("Shayga / adeegga","Item / service")}</th><th>${L("Tirada","Qty")}</th><th>${L("Qiimaha","Price")}</th><th>${L("Wadarta","Total")}</th></tr>
   ${d.lines.map(l=>`<tr><td>${esc(l.n)}</td><td class="n">${l.q}</td><td class="n">${money(l.p)}</td><td class="n">${money(l.q*l.p)}</td></tr>`).join("")}
   <tr><td colspan="3"><b>${L("Wadarta guud","Grand total")}</b></td><td class="n"><b>${money(d.total)}</b></td></tr></table>
-  <p><b>${k==="r"?L("✓ Waa la bixiyay. Mahadsanid!","✓ Paid. Thank you!"):L("Fadlan bixi lacagtan","Please pay this amount")+(d.due?" "+L("ugu dambayn","by")+" "+fmtD(d.due):"")+"."}</b></p>
+  <p><b>${invFoot(d)}</b></p>
   ${d.note?`<p>${esc(d.note)}</p>`:""}
   <p style="color:#666;font-size:11px">${L("Waxaa lagu sameeyay","Made with")} HantiGo · ${dlStamp()}</p></div>`}
 function waPhone(p){let n=String(p||"").replace(/[^\d+]/g,"");if(n.startsWith("+"))return n.slice(1);if(n.startsWith("00"))return n.slice(2);
   if(/^0?6\d{8}$/.test(n)||/^0?7\d{8}$/.test(n))return "252"+n.replace(/^0/,"");return n}
 function invText(d){const k=d.k;return `*${coName()||"HantiGo"}*\n${invLabel(k)} ${invNoTxt(d)} · ${fmtD(d.date)}\n${L("Macmiil","Customer")}: ${d.cust}\n\n`+
   d.lines.map(l=>`• ${l.n}${l.q!==1?" ×"+l.q:""} = ${money(l.q*l.p)}`).join("\n")+`\n\n*${L("Wadarta","Total")}: ${money(d.total)}*\n`+
-  (k==="r"?L("✓ Waa la bixiyay. Mahadsanid!","✓ Paid. Thank you!"):L("Fadlan bixi","Please pay")+(d.due?" "+L("ugu dambayn","by")+" "+fmtD(d.due):"")+". "+L("Mahadsanid!","Thank you!"))+(d.note?"\n"+d.note:"")}
+  invFoot(d)+(d.note?"\n"+d.note:"")}
 function invWa(d){const ph=waPhone(d.phone);window.open("https://wa.me/"+(ph||"")+"?text="+encodeURIComponent(invText(d)),"_blank","noopener")}
 let pdfLib=null;
 function loadPdf(){return pdfLib||(pdfLib=new Promise((res,rej)=>{if(window.jspdf)return res(window.jspdf.jsPDF);const sc=document.createElement("script");sc.src="vendor/jspdf.umd.min.js";
@@ -4525,8 +4543,8 @@ async function invPdf(d){const J=await loadPdf();const doc=new J({unit:"mm",form
     doc.text(doc.splitTextToSize(l.n,95)[0],cx[0]+2,y);doc.text(String(l.q),cx[1]+14,y,{align:"right"});doc.text(pm(l.p),cx[2]+22,y,{align:"right"});doc.text(pm(l.q*l.p),cx[3]-2,y,{align:"right"});y+=8});
   doc.setDrawColor(11,122,75);doc.line(M,y-3,W-M,y-3);y+=4;doc.setFont("helvetica","bold");doc.setFontSize(13);
   doc.text(L("Wadarta guud","Grand total"),cx[2]-20,y);doc.text(pm(d.total),cx[3]-2,y,{align:"right"});y+=12;
-  doc.setFontSize(11);if(d.k==="r")doc.setTextColor(11,122,75);else doc.setTextColor(179,64,42);
-  doc.text(d.k==="r"?L("Waa la bixiyay. Mahadsanid!","Paid. Thank you!"):L("Fadlan bixi lacagtan","Please pay this amount")+(d.due?" "+L("ugu dambayn","by")+" "+fmtD(d.due):"")+".",M,y);
+  doc.setFontSize(11);const paidAll=d.k==="r"||invState(d).left<=0;if(paidAll)doc.setTextColor(11,122,75);else doc.setTextColor(179,64,42);
+  doc.text(doc.splitTextToSize(invFoot(d).replace(/^✓ /,""),W-2*M),M,y);
   doc.setFont("helvetica","normal");doc.setTextColor(60);doc.setFontSize(10);if(d.note){y+=8;doc.text(doc.splitTextToSize(d.note,W-2*M),M,y)}
   doc.setTextColor(140);doc.setFontSize(8);doc.text(`${L("Waxaa lagu sameeyay","Made with")} HantiGo · hantigoapp.github.io`,W/2,287,{align:"center"});
   const name=`${coName()?coName().replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"-")+"-":""}${invNoTxt(d)}.pdf`;
@@ -4569,8 +4587,6 @@ $("invShare").addEventListener("click",async()=>{const d=await invSave();if(!d)r
       invBusy(false,"✓ "+L("Dooro macmiilka WhatsApp-ka, kadib dir. Nuqul ayaa email-kaaga laguu diray.","Pick the customer in WhatsApp, then send. A copy was emailed to you."));return}}
   catch(e){if(e&&e.name==="AbortError"){invBusy(false,"");return}}
   dlBlob(p.blob,p.name);invWa(d);invBusy(false,"✓ "+L("PDF-ka waa la soo dejiyay. WhatsApp-ka ku lifaaq (📎) PDF-ka, kadib dir.","PDF downloaded. Attach it in WhatsApp (📎), then send."))});
-function renderInvList(){const box=$("invList");if(!box)return;const l=mine("inv").sort((a,b)=>(b.created||"").localeCompare(a.created||"")).slice(0,8);
-  box.innerHTML=l.length?`<p class="note" style="margin:0">${L("Kuwii u dambeeyay","Recent")}</p>`+l.map(d=>`<div class="invli"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)} · ${fmtD(d.date)}${d.sentTo?" · ✉️ "+esc(d.sentTo):""}</span><span class="amt in">${money(d.total)}</span><span class="txa"><button type="button" class="del" data-invp="${esc(d.id)}">⬇ PDF</button><button type="button" class="del" data-invw="${esc(d.id)}">📤 ${L("Dir mar kale","Send again")}</button><button type="button" class="del" data-invd="${esc(d.id)}">${L("Tirtir","Delete")}</button></span></div>`).join(""):""}
 document.addEventListener("click",async e=>{
   const p=e.target.closest("[data-invp]");if(p){const d=items.find(i=>i.id===p.dataset.invp);if(d){try{const f=await invPdf(d);dlBlob(f.blob,f.name)}catch{}}return}
   const w=e.target.closest("[data-invw]");if(w){const d=items.find(i=>i.id===w.dataset.invw);if(d){invLoad(d);$("invShare").click()}return}
@@ -4585,6 +4601,131 @@ const _render=render;
 render=function(){_render();try{renderInvList()}catch{}try{renderPin()}catch{}};
 invReset();renderPin();
 if(!$("appView").hidden&&!pinUnlocked)pinLock();
+/* ================= 6. Shirkad: invoice payment status + customers (v140) =================
+   Only Shirkad items are used (mine() = this mode), so nothing from Shakhsi is mixed in. */
+const ckey=s=>String(s||"").trim().toLowerCase().replace(/\s+/g," ");
+const invDebt=d=>d&&d.k==="q"&&d.debtId?items.find(i=>i.id===d.debtId&&i.kind==="debt"):null;
+function invState(d){if(d.k==="r")return {s:"rcpt",paid:Number(d.total)||0,left:0,due:null};
+  const db=invDebt(d),total=Number(db?db.amount:d.total)||0,paid=Number(db?db.paid||0:0),left=Math.max(0,total-paid),due=(db&&db.due)||d.due||null;
+  return {s:left<=0?"paid":due&&due<today()?"late":paid>0?"part":"open",paid,left,due,db}}
+const INV_S={paid:["✓ La bixiyay","✓ Paid","✓ مدفوع","✓ Imelipwa"],part:["Qayb ayaa la bixiyay","Part paid","مدفوع جزئيًا","Imelipwa sehemu"],open:["Lama bixin","Not paid","غير مدفوع","Haijalipwa"],late:["⏰ Dib u dhacay","⏰ Overdue","⏰ متأخر","⏰ Imechelewa"],rcpt:["✓ Rasiid","✓ Receipt","✓ إيصال","✓ Risiti"]};
+const invPill=st=>`<span class="bpill ${st.s==="paid"||st.s==="rcpt"?"ok":st.s==="late"?"late":st.s==="part"?"part":""}">${L(...INV_S[st.s])}</span>`;
+/* what the invoice says at the bottom (PDF, WhatsApp, email): paid, part paid or please pay */
+function invFoot(d){if(d.k==="r")return L("✓ Waa la bixiyay. Mahadsanid!","✓ Paid. Thank you!","✓ تم الدفع. شكرًا لك!","✓ Imelipwa. Asante!");
+  const st=invState(d);if(st.s==="paid")return L("✓ Waa la bixiyay. Mahadsanid!","✓ Paid. Thank you!","✓ تم الدفع. شكرًا لك!","✓ Imelipwa. Asante!");
+  const by=st.due?" "+L("ugu dambayn","by","قبل","kufikia")+" "+fmtD(st.due):"";
+  if(st.paid>0)return L(`La bixiyay: ${money(st.paid)} · Waxaa haray: ${money(st.left)}. Fadlan bixi inta haray${by}.`,`Paid: ${money(st.paid)} · Left: ${money(st.left)}. Please pay the rest${by}.`,`المدفوع: ${money(st.paid)} · المتبقي: ${money(st.left)}. يرجى دفع الباقي${by}.`,`Imelipwa: ${money(st.paid)} · Imebaki: ${money(st.left)}. Tafadhali lipa kilichobaki${by}.`);
+  return L("Fadlan bixi lacagtan","Please pay this amount","يرجى دفع هذا المبلغ","Tafadhali lipa kiasi hiki")+by+"."}
+/* money received on a debt: the debt goes down and the money is written as income (same as Deymaha) */
+async function debtReceive(d,v,date){v=Math.min(v,debtLeft(d));if(!(v>0))return 0;
+  await put({...d,paid:Number(d.paid||0)+v});
+  await put({id:uid(),kind:"tx",method:payMethod(),type:d.dir==="in"?"in":"out",amount:v,cat:d.dir==="in"?"Deyn la soo celiyay":"Deyn bixin",debtId:d.id,date:date||today(),place:d.name,note:d.note||L("Deyn","Debt"),created:new Date().toISOString()});return v}
+/* an invoice saved without a debt gets one now, so payments, undo and reports all work the same way */
+async function invEnsureDebt(d){let db=invDebt(d);if(db)return db;
+  db={id:uid(),kind:"debt",name:d.cust,amount:Number(d.total)||0,dir:"in",due:d.due||null,paid:0,note:invNoTxt(d),created:new Date().toISOString()};
+  await put(db);await put({...d,debtId:db.id,linked:1,auto:1});return items.find(i=>i.id===db.id)||db}
+let invF="all",invAll=false;
+function renderInvList(){const box=$("invList");if(!box)return;
+  const all=mine("inv").sort((a,b)=>(b.created||"").localeCompare(a.created||"")),st=new Map(all.map(d=>[d.id,invState(d)]));
+  const open=all.filter(d=>d.k==="q"&&st.get(d.id).left>0),late=open.filter(d=>st.get(d.id).s==="late"),owe=open.reduce((a,d)=>a+st.get(d.id).left,0);
+  const f=invF==="open"?open:invF==="paid"?all.filter(d=>st.get(d.id).left<=0):all,l=invAll?f:f.slice(0,8);
+  if(!all.length){box.innerHTML="";return}
+  const fb=(k,t)=>`<button type="button" data-invf="${k}" class="${invF===k?"on":""}" aria-pressed="${invF===k}">${t}</button>`;
+  box.innerHTML=`<p class="invsum">${open.length?L(`🧾 Qaansheegyo aan la bixin: <b>${open.length}</b> · <b>${money(owe)}</b>`,`🧾 Unpaid invoices: <b>${open.length}</b> · <b>${money(owe)}</b>`,`🧾 فواتير غير مدفوعة: <b>${open.length}</b> · <b>${money(owe)}</b>`,`🧾 Ankara ambazo hazijalipwa: <b>${open.length}</b> · <b>${money(owe)}</b>`)+(late.length?` · <span class="late">${L(`${late.length} dib u dhacay`,`${late.length} overdue`,`${late.length} متأخرة`,`${late.length} zimechelewa`)}</span>`:""):L("✓ Qaansheeg kasta waa la bixiyay.","✓ Every invoice is paid.","✓ كل الفواتير مدفوعة.","✓ Kila ankara imelipwa.")}</p>
+  <div class="chips invf" role="group">${fb("all",L("Dhammaan","All","الكل","Zote")+` (${all.length})`)}${fb("open",L("Aan la bixin","Unpaid","غير مدفوعة","Hazijalipwa")+` (${open.length})`)}${fb("paid",L("La bixiyay","Paid","مدفوعة","Zimelipwa"))}</div>`+
+  (l.length?l.map(d=>{const s=st.get(d.id),id=esc(d.id);
+    return `<div class="invli"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)} · ${fmtD(d.date)}${d.sentTo?" · ✉️ "+esc(d.sentTo):""}</span><span class="amt ${d.k==="q"&&s.left>0?"q":"in"}">${money(d.total)}</span>
+    <span class="invst">${invPill(s)}${d.k==="q"&&s.left>0&&s.paid>0?`<span class="note">${L("Haray","Left","المتبقي","Imebaki")}: <b>${money(s.left)}</b></span>`:""}${d.k==="q"&&s.due&&s.left>0?`<span class="note ${s.s==="late"?"late":""}">${L("Ugu dambayn","Due","الاستحقاق","Mwisho")}: ${fmtD(s.due)}</span>`:""}</span>
+    <span class="txa"><button type="button" class="del" data-invp="${id}">⬇ PDF</button><button type="button" class="del" data-invw="${id}">📤 ${L("Dir mar kale","Send again","أرسل مرة أخرى","Tuma tena")}</button><button type="button" class="del" data-invd="${id}">${L("Tirtir","Delete","حذف","Futa")}</button></span>
+    ${d.k==="q"&&s.left>0?`<span class="invpay"><input type="number" min="0" step="0.01" inputmode="decimal" id="ivp-${id}" value="${s.left}" aria-label="${esc(L("Qadarka la helay","Amount received","المبلغ المستلم","Kiasi kilichopokelewa"))}"><button type="button" data-invpay="${id}">💵 ${L("Lacag la helay","Received","تم الاستلام","Imepokelewa")}</button></span>`:""}</div>`}).join("")
+   :`<p class="empty" style="margin:0">${L("Halkan wax ma yaallaan.","Nothing here.","لا يوجد شيء هنا.","Hakuna kitu hapa.")}</p>`)+
+  (f.length>8?`<button type="button" class="del" data-invall="1">${invAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${f.length}) ▾`,`See all (${f.length}) ▾`,`عرض الكل (${f.length}) ▾`,`Ona zote (${f.length}) ▾`)}</button>`:"")}
+
+/* ---------- customers: built from Shirkad receipts, invoices, debts and income ---------- */
+function customers(){const m=new Map();if(MODE!=="business")return [];
+  const g=n=>{const k=ckey(n);if(!k)return null;if(!m.has(k))m.set(k,{k,name:String(n).trim(),phone:"",email:"",bought:0,paid:0,owed:0,late:0,inv:0,last:"",acts:[],debts:[]});return m.get(k)};
+  const seen=(c,dt)=>{if(dt&&dt>c.last)c.last=dt};
+  for(const t of mine("tx")){if(t.type!=="in"||t.debtId||t.cat==="Kayd"||!String(t.place||"").trim())continue;const c=g(t.place),a=Number(t.amount)||0;
+    c.bought+=a;c.paid+=a;seen(c,t.date);c.acts.push({date:t.date,txt:T(t.cat)+(t.note?" · "+t.note:""),amt:a,k:"in"})}
+  for(const d of mine("debt")){if(d.dir!=="in")continue;const c=g(d.name);if(!c)continue;const iv=items.find(i=>i.kind==="inv"&&i.debtId===d.id),a=Number(d.amount)||0,l=debtLeft(d),dt=(iv&&iv.date)||(d.created||"").slice(0,10);
+    c.bought+=a;c.owed+=l;c.paid+=a-l;if(l>0&&d.due&&d.due<today())c.late+=l;c.debts.push(d);seen(c,dt);
+    c.acts.push({date:dt,txt:L("Deyn","On credit","بالدين","Kwa mkopo")+(d.note?" · "+d.note:""),amt:a,k:"debt"});
+    for(const t of items.filter(i=>i.kind==="tx"&&i.debtId===d.id)){seen(c,t.date);c.acts.push({date:t.date,txt:L("Lacag la helay","Payment received","دفعة مستلمة","Malipo yamepokelewa")+(d.note?" · "+d.note:""),amt:Number(t.amount)||0,k:"pay"})}}
+  for(const v of mine("inv").sort((a,b)=>(b.created||"").localeCompare(a.created||""))){const c=g(v.cust);if(!c)continue;c.inv++;if(!c.phone&&v.phone)c.phone=v.phone;if(!c.email&&v.email)c.email=v.email;seen(c,v.date)}
+  m.forEach(c=>c.acts.sort((a,b)=>(b.date||"").localeCompare(a.date||"")));
+  return [...m.values()].sort((a,b)=>(b.late>0)-(a.late>0)||b.owed-a.owed||(b.last||"").localeCompare(a.last||""))}
+const custOf=name=>customers().find(c=>c.k===ckey(name));
+function remindText(c){const co=coName()||"HantiGo",late=c.late>0;
+  return L(`Salaan ${c.name},\n${co} ayaa ku soo qoraysa. Waxaa naga kuu maqan *${money(c.owed)}*${late?" (waqtigii wuu dhaafay)":""}.\nFadlan noo soo bixi markii kuu suurtagasho. Mahadsanid!`,
+    `Hello ${c.name},\nThis is ${co}. You have an open balance of *${money(c.owed)}*${late?" (past due)":""}.\nPlease pay when you can. Thank you!`,
+    `مرحبًا ${c.name}،\nمعك ${co}. لديك رصيد مستحق قدره *${money(c.owed)}*${late?" (متأخر)":""}.\nيرجى الدفع عندما يتيسر لك. شكرًا لك!`,
+    `Habari ${c.name},\nHii ni ${co}. Una salio la *${money(c.owed)}*${late?" (limechelewa)":""}.\nTafadhali lipa unapoweza. Asante!`)}
+function custWa(c,remind){window.open("https://wa.me/"+(waPhone(c.phone)||"")+"?text="+encodeURIComponent(remind?remindText(c):`${L("Salaan","Hello","مرحبًا","Habari")} ${c.name},\n`),"_blank","noopener")}
+/* customer statement PDF: every sale, credit and payment, with what is still owed */
+async function custPdf(c){const J=await loadPdf();const doc=new J({unit:"mm",format:"a4"});const W=210,M=16;let y=18;
+  if(RTL||hasArabic([coName(),c.name,...c.acts.map(a=>a.txt)].join(" "))){try{const [fn,fb]=await loadUniFont();
+    doc.addFileToVFS("hg.ttf",fn);doc.addFont("hg.ttf","hg","normal");doc.addFileToVFS("hgb.ttf",fb);doc.addFont("hgb.ttf","hg","bold");
+    const sf=doc.setFont.bind(doc);doc.setFont=(f,st)=>sf("hg",st||"normal");doc.setFont("hg","normal")}catch{}}
+  const lg=coLogo();let tx=M;if(lg){try{doc.addImage(lg,/^data:image\/png/.test(lg)?"PNG":"JPEG",M,y-6,22,22);tx=M+27}catch{}}
+  doc.setFont("helvetica","bold");doc.setFontSize(18);doc.setTextColor(11,122,75);doc.text(coName()||"HantiGo",tx,y+2);
+  doc.setFontSize(13);doc.setTextColor(40);doc.text(L("BAYAANKA MACMIILKA","CUSTOMER STATEMENT","كشف حساب العميل","TAARIFA YA MTEJA"),W-M,y+2,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);doc.text(`${L("Taariikhda","Date","التاريخ","Tarehe")}: ${fmtD(today())}`,W-M,y+8,{align:"right"});
+  y+=24;doc.setDrawColor(200);doc.line(M,y,W-M,y);y+=8;doc.setTextColor(90);doc.text(L("Macmiilka","Customer","العميل","Mteja"),M,y);
+  doc.setTextColor(20);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(c.name,M,y+6);doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);
+  const ct=[c.phone,c.email].filter(Boolean).join("  ·  ");if(ct)doc.text(ct,M,y+11);y+=20;
+  const cx=[M,44,W-M];doc.setFillColor(11,122,75);doc.rect(M,y-5,W-2*M,8,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");
+  doc.text(L("Taariikhda","Date","التاريخ","Tarehe"),cx[0]+2,y);doc.text(L("Faahfaahin","Details","التفاصيل","Maelezo"),cx[1],y);doc.text(L("Qadarka","Amount","المبلغ","Kiasi"),cx[2]-2,y,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setTextColor(20);y+=8;
+  [...c.acts].reverse().forEach((a,i)=>{if(y>262){doc.addPage();y=20}if(i%2){doc.setFillColor(242,246,244);doc.rect(M,y-5,W-2*M,8,"F")}
+    doc.text(fmtD(a.date),cx[0]+2,y);doc.text(doc.splitTextToSize(a.txt,110)[0],cx[1],y);doc.text((a.k==="pay"?"- ":"")+pm(a.amt),cx[2]-2,y,{align:"right"});y+=8});
+  doc.setDrawColor(11,122,75);doc.line(M,y-3,W-M,y-3);y+=4;doc.setFontSize(11);
+  [[L("Wadarta iibka","Total sales","إجمالي المبيعات","Jumla ya mauzo"),c.bought],[L("La bixiyay","Paid","المدفوع","Imelipwa"),c.paid],[L("Waxaa haray","Still owed","المتبقي","Kinachodaiwa"),c.owed]].forEach(([k,v],i)=>{
+    doc.setFont("helvetica",i===2?"bold":"normal");if(i===2)doc.setTextColor(v>0?179:11,v>0?64:122,v>0?42:75);doc.text(k,120,y);doc.text(pm(v),cx[2]-2,y,{align:"right"});y+=7});
+  doc.setTextColor(140);doc.setFont("helvetica","normal");doc.setFontSize(8);doc.text(`${L("Waxaa lagu sameeyay","Made with","أُنشئ بواسطة","Imetengenezwa kwa")} HantiGo · hantigoapp.github.io`,W/2,287,{align:"center"});
+  const nm=`${L("Bayaan","Statement","كشف","Taarifa")}-${c.name.replace(/[^\p{L}\p{N}\- ]+/gu,"").trim().replace(/\s+/g,"-")||"macmiil"}-${today()}.pdf`;dlBlob(doc.output("blob"),nm)}
+let cuF="all",cuOpen=null,cuAll=false;
+function renderCustomers(){if(!$("cuPanel"))return;if(MODE!=="business"){$("cuList").innerHTML="";return}
+  const all=customers(),q=ckey($("cuQ").value);
+  $("cuH").textContent="👥 "+L("Macaamiisha","Customers","العملاء","Wateja");$("cuQ").placeholder="🔍 "+L("Raadi macmiil","Search customer","ابحث عن عميل","Tafuta mteja");
+  $("cuCount").textContent=all.length?L(`${all.length} macmiil`,`${all.length} customers`,`${all.length} عميل`,`wateja ${all.length}`):"";
+  const owe=all.reduce((a,c)=>a+c.owed,0),late=all.filter(c=>c.late>0),ms=today().slice(0,7);
+  const month=all.reduce((a,c)=>a+c.acts.filter(x=>x.k!=="pay"&&(x.date||"").startsWith(ms)).reduce((s,x)=>s+x.amt,0),0);
+  $("cuSum").innerHTML=`<div class="ext"><span class="lbl">${L("Iibka bishan","Sales this month","مبيعات هذا الشهر","Mauzo mwezi huu")}</span><b>${money(month)}</b></div><div class="ext ${owe>0?"hi":""}"><span class="lbl">${L("Lacag naloo hayo","Owed to us","مستحق لنا","Tunadai")}</span><b>${money(owe)}</b></div><div class="ext ${late.length?"hi":""}"><span class="lbl">${L("Dib u dhacay","Overdue","متأخر","Imechelewa")}</span><b>${late.length}</b></div>`;
+  const fb=(k,t)=>`<button type="button" data-cuf="${k}" class="${cuF===k?"on":""}" aria-pressed="${cuF===k}">${t}</button>`;
+  $("cuF").innerHTML=fb("all",L("Dhammaan","All","الكل","Wote"))+fb("owe",L("Deyn leh","Owing","عليهم دين","Wanaodaiwa")+` (${all.filter(c=>c.owed>0).length})`)+fb("late",L("Dib u dhacay","Overdue","متأخرون","Wamechelewa")+` (${late.length})`);
+  let l=all.filter(c=>(!q||c.k.includes(q)||ckey(c.phone).includes(q))&&(cuF==="all"||(cuF==="owe"?c.owed>0:c.late>0)));const n=l.length;if(!cuAll&&!q)l=l.slice(0,12);
+  $("cuList").innerHTML=!all.length?`<p class="empty" style="margin:0">${L("Weli macmiil ma jiro. Marka aad qorto iib, rasiid, qaansheeg ama deyn magac leh, macmiilka halkan ayuu ka soo muuqanayaa.","No customers yet. When you record a sale, receipt, invoice or debt with a name, the customer appears here.","لا يوجد عملاء بعد. عند تسجيل بيع أو إيصال أو فاتورة أو دين باسم، يظهر العميل هنا.","Bado hakuna wateja. Ukirekodi mauzo, risiti, ankara au deni lenye jina, mteja ataonekana hapa.")}</p>`
+   :!n?`<p class="empty" style="margin:0">${L("Lama helin.","Not found.","لا توجد نتائج.","Haikupatikana.")}</p>`
+   :l.map(c=>{const id=esc(c.k),op=cuOpen===c.k;
+    return `<div class="cu"><button type="button" class="cuh" data-cuo="${id}" aria-expanded="${op}"><span class="cun">${esc(c.name)}</span><span class="cuo amt ${c.owed>0?"out":"in"}">${c.owed>0?money(c.owed):"✓"}</span>
+      <span class="cum">${L("Iibsaday","Bought","اشترى","Alinunua")} ${money(c.bought)}${c.inv?` · 🧾 ${c.inv}`:""}${c.last?` · ${fmtD(c.last)}`:""}</span><span class="cum cuo">${c.late>0?`<span class="late">${L("Dib u dhacay","Overdue","متأخر","Imechelewa")}</span>`:c.owed>0?L("Na hayo","Owes us","مدين لنا","Anadaiwa"):""}</span></button>
+      ${op?`<div class="cud">${c.phone||c.email?`<span class="note">${[c.phone&&"📞 "+esc(c.phone),c.email&&"✉️ "+esc(c.email)].filter(Boolean).join(" · ")}</span>`:""}
+        <div class="cuacts">${c.owed>0&&c.phone?`<button type="button" class="primary wa-bg" data-cuwa="${id}" data-r="1">💬 ${L("Xusuusin WhatsApp","WhatsApp reminder","تذكير واتساب","Kikumbusho WhatsApp")}</button>`:c.phone?`<button type="button" class="wa-bg primary" data-cuwa="${id}">💬 WhatsApp</button>`:""}
+          <button type="button" data-cuinv="${id}">🧾 ${L("Rasiid / qaansheeg cusub","New receipt / invoice","إيصال / فاتورة جديدة","Risiti / ankara mpya")}</button><button type="button" data-cupdf="${id}">⬇ ${L("Bayaan PDF","Statement PDF","كشف PDF","Taarifa PDF")}</button></div>
+        ${c.owed>0?`<div class="cupay"><input type="number" min="0" step="0.01" inputmode="decimal" id="cup-${id}" value="${c.owed}" aria-label="${esc(L("Qadarka la helay","Amount received","المبلغ المستلم","Kiasi kilichopokelewa"))}"><button type="button" data-cupay="${id}">💵 ${L("Lacag la helay","Received","تم الاستلام","Imepokelewa")}</button></div>
+          <span class="note" style="margin:0">${L("Lacagta waxaa laga jarayaa deynta ugu horreysay.","The money pays the oldest debt first.","يُخصم المبلغ من أقدم دين أولًا.","Pesa hulipa deni la zamani kwanza.")}</span>`:""}
+        <div class="cuh2">${c.acts.slice(0,8).map(a=>`<div><span>${fmtD(a.date)} · ${esc(a.txt)}</span><span class="amt ${a.k==="pay"||a.k==="in"?"in":"q"}">${a.k==="pay"?"− ":""}${money(a.amt)}</span></div>`).join("")}</div></div>`:""}</div>`}).join("")+
+   (n>12&&!q?`<button type="button" class="del" data-cuall="1">${cuAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${n}) ▾`,`See all (${n}) ▾`,`عرض الكل (${n}) ▾`,`Ona wote (${n}) ▾`)}</button>`:"")}
+$("cuQ").addEventListener("input",()=>{cuAll=false;renderCustomers()});
+document.addEventListener("click",async e=>{
+  const f=e.target.closest("[data-invf]");if(f){invF=f.dataset.invf;invAll=false;renderInvList();return}
+  if(e.target.closest("[data-invall]")){invAll=!invAll;renderInvList();return}
+  const ip=e.target.closest("[data-invpay]");if(ip){const d=items.find(i=>i.id===ip.dataset.invpay);if(!d)return;const inp=$("ivp-"+d.id),v=parseFloat(inp?.value);if(!(v>0)){inp?.focus();return}
+    ip.disabled=true;try{const db=await invEnsureDebt(d);const got=await debtReceive(db,v);$("invMsg").textContent="✓ "+L(`${money(got)} waa la qoray (${invNoTxt(d)}).`,`${money(got)} recorded (${invNoTxt(d)}).`,`تم تسجيل ${money(got)} (${invNoTxt(d)}).`,`${money(got)} imerekodiwa (${invNoTxt(d)}).`)}catch{ip.disabled=false}return}
+  const cf=e.target.closest("[data-cuf]");if(cf){cuF=cf.dataset.cuf;cuAll=false;renderCustomers();return}
+  if(e.target.closest("[data-cuall]")){cuAll=!cuAll;renderCustomers();return}
+  const co=e.target.closest("[data-cuo]");if(co){cuOpen=cuOpen===co.dataset.cuo?null:co.dataset.cuo;renderCustomers();return}
+  const cw=e.target.closest("[data-cuwa]");if(cw){const c=custOf(cw.dataset.cuwa);if(c)custWa(c,!!cw.dataset.r);return}
+  const cp=e.target.closest("[data-cupdf]");if(cp){const c=custOf(cp.dataset.cupdf);if(c){cp.disabled=true;try{await custPdf(c)}catch{}cp.disabled=false}return}
+  const ci=e.target.closest("[data-cuinv]");if(ci){const c=custOf(ci.dataset.cuinv);if(!c)return;invReset();$("invCust").value=c.name;$("invPhone").value=c.phone||"";$("invEmail").value=c.email||"";
+    $("invPanel").scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>document.querySelector('[data-il="0"][data-f="n"]')?.focus(),300);return}
+  const cy=e.target.closest("[data-cupay]");if(cy){const c=custOf(cy.dataset.cupay);if(!c)return;const inp=$("cup-"+cy.dataset.cupay.replace(/"/g,""))||document.getElementById("cup-"+c.k);let v=parseFloat(inp?.value);if(!(v>0)){inp?.focus();return}
+    cy.disabled=true;try{const ds=c.debts.filter(d=>debtLeft(d)>0).sort((a,b)=>(a.due||a.created||"9").localeCompare(b.due||b.created||"9"));
+      for(const d of ds){if(v<=0)break;v-=await debtReceive(items.find(i=>i.id===d.id)||d,v)}}catch{}cy.disabled=false;return}
+  const dw=e.target.closest("[data-dwa]");if(dw){const d=items.find(i=>i.id===dw.dataset.dwa);if(!d)return;const c=custOf(d.name)||{name:d.name,phone:"",owed:debtLeft(d),late:d.due&&d.due<today()?1:0};
+    custWa({...c,owed:c.owed||debtLeft(d)},true);return}
+});
+{const _r2=render;render=function(){_r2();try{renderCustomers()}catch(e){console.warn(e)}}}
 /* ---------- v132 phone: tables as cards, long notes folded to 2 lines ---------- */
 (()=>{const PH=matchMedia("(max-width:639px)");
   /* every cell gets its column name, so a row can be shown as a card on a phone */
