@@ -32,7 +32,7 @@ const json = (b: unknown, s = 200) =>
 const env = (k: string) => (Deno.env.get(k) ?? "").trim();
 const ready = () => !!(env("WAAFI_MERCHANT_UID") && env("WAAFI_API_USER_ID") && env("WAAFI_API_KEY"));
 const planName = (p: string) => (p === "business" ? "Shirkad" : "Shakhsi");
-const dmy = (d: Date) => d.toLocaleDateString("en-GB", { timeZone: "Africa/Mogadishu" });
+const dmy = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: "Africa/Mogadishu" }); // 2026-11-16
 const hms = (d: Date) => d.toLocaleTimeString("en-GB", { timeZone: "Africa/Mogadishu", hour12: false });
 const somDay = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Mogadishu", year: "2-digit", month: "2-digit", day: "2-digit" }).format(d).replace(/\D/g, "");
 

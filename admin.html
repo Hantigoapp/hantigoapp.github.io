@@ -307,7 +307,7 @@ function loadPdf(){return pdfLib||(pdfLib=new Promise((res,rej)=>{if(window.jspd
   sc.onload=()=>window.jspdf?res(window.jspdf.jsPDF):rej();sc.onerror=()=>{pdfLib=null;rej()};document.head.appendChild(sc)}))}
 let logoUrl=null;
 async function logo(){if(logoUrl!==null)return logoUrl;try{const b=await (await fetch("icon-192.png")).blob();logoUrl=await new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}catch{logoUrl=""}return logoUrl}
-const dmy=d=>new Date(d).toLocaleDateString("en-GB",{timeZone:"Africa/Mogadishu"});
+const dmy=d=>new Date(d).toLocaleDateString("en-CA",{timeZone:"Africa/Mogadishu"});   // 2026-11-16
 async function subPdf(p,r){const J=await loadPdf();const doc=new J({unit:"mm",format:"a4"});const W=210,M=16;let y=18;
   const lg=await logo();if(lg){try{doc.addImage(lg,"PNG",M,y-6,20,20)}catch{}}
   doc.setFont("helvetica","bold");doc.setFontSize(20);doc.setTextColor(11,122,75);doc.text("HantiGo",M+25,y+3);
