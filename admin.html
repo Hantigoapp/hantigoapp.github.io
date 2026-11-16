@@ -336,7 +336,7 @@ async function subPdf(p,r){const J=await loadPdf();const doc=new J({unit:"mm",fo
 function b64(blob){return new Promise((res,rej)=>{const f=new FileReader();f.onload=()=>res(String(f.result).split(",")[1]);f.onerror=rej;f.readAsDataURL(blob)})}
 function toast(t,bad){let el=$("toast");if(!el){el=document.createElement("div");el.id="toast";el.style.cssText="position:fixed;left:50%;bottom:20px;transform:translateX(-50%);max-width:92vw;padding:12px 16px;border-radius:12px;color:#fff;font-weight:600;z-index:99;box-shadow:0 6px 20px rgba(0,0,0,.3)";document.body.appendChild(el)}
   el.style.background=bad?"#b3402a":"#16794a";el.textContent=t;el.hidden=false;clearTimeout(el._t);el._t=setTimeout(()=>el.hidden=true,bad?15000:7000)}
-/* receipt number: HG-YYMMDD-001, 002 … counted per day (Somalia time) in the database (supabase/receipt_no.sql) */
+/* receipt number: HG-YYMMDD-001, 002 … the date is Somalia time, the number keeps counting and never restarts (supabase/receipt_no.sql) */
 const TZ="Africa/Mogadishu";
 const somDay=d=>new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"2-digit",month:"2-digit",day:"2-digit"}).format(d).replace(/\D/g,"");
 async function rcNo(id){try{const {data,error}=await sb.rpc("next_receipt_no");if(!error&&typeof data==="string"&&data)return data}catch{}

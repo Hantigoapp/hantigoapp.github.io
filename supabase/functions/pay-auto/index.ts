@@ -142,7 +142,7 @@ export async function receiptPdf(r: {
 // deno-lint-ignore no-explicit-any
 async function sendReceipt(admin: any, pay: Record<string, any>, until: Date) {
   if (!env("SMTP_USER") || !env("SMTP_PASS")) return false;
-  // HG-YYMMDD-001, 002 … counted per day in the database (supabase/receipt_no.sql); old style until that file is run
+  // HG-YYMMDD-001, 002 … one running number that never restarts, made in the database (supabase/receipt_no.sql); old style until that file is run
   let rn: unknown = null;
   try { ({ data: rn } = await admin.rpc("next_receipt_no")); } catch { /* old style below */ }
   const now = new Date();
