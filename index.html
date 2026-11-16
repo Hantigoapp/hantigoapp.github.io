@@ -889,6 +889,17 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
 .sdates .cin,.sdd .cin{color:var(--in);font-weight:800}.sdates .cout,.sdd .cout{color:var(--out);font-weight:800}
 .sdmore{justify-self:center;border-radius:999px!important;padding:6px 14px;font-size:.84rem;color:var(--accent);background:var(--bg)}
 @media (max-width:420px){.sdd>summary{flex-wrap:wrap}.sdv{margin-inline-start:auto}}
+/* 👥 several accounts on one email */
+.acv-list{display:grid;gap:10px}
+.acv-item.on{border-color:var(--accent);background:var(--accent-soft)}
+.acv-item small{color:var(--muted);font-size:.85rem}
+.acv-tags{display:flex;flex-wrap:wrap;gap:6px}
+.acv-types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.acv-types label{position:relative;display:grid;gap:2px;padding:12px;border:1px solid var(--line);border-radius:12px;cursor:pointer}
+.acv-types label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.acv-types input{position:absolute;opacity:0;pointer-events:none}
+.acv-types small{color:var(--muted)}
+#accSwRow{align-items:center}
 </style>
 <script src="vendor/supabase.js"></script>
 
@@ -1047,7 +1058,30 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
       <a class="wa" id="pWa" href="#" target="_blank" rel="noopener" hidden>📲 U sheeg WhatsApp inaad bixisay</a>
     </form>
     <a class="wa" data-wa href="#" target="_blank" rel="noopener">💬 Caawimaad? Nagala soo xiriir WhatsApp</a>
-    <div class="goal-actions"><button type="button" id="recheck">Hubi mar kale</button><button type="button" class="logout">Ka bax</button></div>
+    <div class="goal-actions"><button type="button" id="recheck">Hubi mar kale</button><button type="button" class="acvOpen" id="paySwBtn"></button><button type="button" class="logout">Ka bax</button></div>
+  </div>
+</section>
+
+<section id="accView" class="gate" hidden>
+  <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub" id="acvWho"></p></div>
+  <div class="panel">
+    <h2 id="acvH"></h2>
+    <p class="note" id="acvLead" style="margin:0"></p>
+    <div id="acvList" class="acv-list" aria-live="polite"></div>
+    <div class="err" id="acvErr" role="alert"></div>
+    <button type="button" id="acvAdd"></button>
+    <form id="acvForm" class="newcat" novalidate hidden>
+      <b id="acvFH"></b>
+      <div class="acv-types">
+        <label><input type="radio" name="acvType" value="person" checked><b id="acvTP"></b><small id="acvTPs"></small></label>
+        <label><input type="radio" name="acvType" value="business"><b id="acvTB"></b><small id="acvTBs"></small></label>
+      </div>
+      <label class="field" id="acvCoRow" hidden><span id="acvCoL"></span><input id="acvCo" type="text" maxlength="60" autocomplete="organization"></label>
+      <label class="field"><span id="acvLabL"></span><input id="acvLab" type="text" maxlength="40"></label>
+      <p class="note" id="acvFNote" style="margin:0"></p>
+      <div class="goal-actions"><button type="submit" class="primary" id="acvMake"></button><button type="button" id="acvCancel"></button></div>
+    </form>
+    <button type="button" id="acvBack"></button>
   </div>
 </section>
 
@@ -1338,6 +1372,7 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
       <section class="panel" aria-labelledby="accH" data-tab="more">
         <h2 id="accH">Akoonkaaga</h2>
       <div class="account acc-panel"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option><option value="ar">العربية</option><option value="sw">Kiswahili</option></select></label><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a> <a id="educationLink" href="education.html" hidden>Waxbarasho</a></div>
+        <div class="goal-actions" id="accSwRow" style="font-size:.92rem"><span id="accSwTxt"></span><button type="button" class="acvOpen" id="accSwBtn"></button></div>
         <div class="goal-actions" style="font-size:.92rem"><span>👤 <span id="accName">—</span> · 📞 <span id="accPhone">—</span></span><button type="button" class="del" id="meEdit">Beddel</button></div>
         <div id="meForm" class="newcat" hidden><p class="note" style="margin:0">Magacaaga iyo telefoonkaaga waxay ka muuqanayaan rasiidka lacag-bixinta.</p><div class="row">
           <label class="field"><span>Magacaaga oo buuxa</span><input id="meName" type="text" maxlength="60" autocomplete="name"></label>
@@ -1821,7 +1856,7 @@ async function teamLoad(owner){const r=await sb.rpc("team_load",{owner});if(!r.e
 const dirty=new Set(),gone=new Set();
 const settings=()=>items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"};
 
-function showView(v){["loadingView","authView","resetView","modeView","payView","appView"].forEach(id=>$(id).hidden=id!==v)}
+function showView(v){["loadingView","authView","resetView","modeView","payView","accView","appView"].forEach(id=>$(id).hidden=id!==v)}
 let recovering=/type=recovery/.test(location.hash);
 const cacheKey=()=>"hantigo.cache."+(me?.id||"x")+(TEAM?".team."+TEAM:"");
 function loadLocal(){try{return JSON.parse(localStorage.getItem(cacheKey())||"null")}catch{return null}}
@@ -2006,16 +2041,16 @@ async function enter(user){
   companies=await loadCompanies();TEAM=null;ownItems=null;dirty.clear();gone.clear();
   notifyAdmin("signup");
   if(!hasAccess(profile)&&companies.some(c=>c.active)){
-    $("accEmail").textContent=me.email;$("accStatus").innerHTML=`<span class="pill ok">${L("Shaqaale","Staff")}</span>`;$("adminLink").hidden=true;
-    items=[];if(await enterTeam(companies.find(c=>c.active).owner_id)){showView("appView");return}
+    $("accEmail").textContent=realMail();$("accStatus").innerHTML=`<span class="pill ok">${L("Shaqaale","Staff")}</span>`;$("adminLink").hidden=true;
+    items=[];if(await enterTeam(companies.find(c=>c.active).owner_id)){showView("appView");accAfterEnter();return}
   }
   if(!hasAccess(profile)){
-    $("payWho").textContent=me.email;$("pPhone").value=profile.phone||me?.user_metadata?.phone||"";
+    $("payWho").textContent=realMail()+accTag();$("pPhone").value=profile.phone||me?.user_metadata?.phone||"";
     $("pRef").value=(profile.pay_ref||"").replace(/^(\[[^\]]*\]\s*)+/,"");$("pErr").textContent="";payStatus(profile);
     planHint=null;if(!("plan" in profile)){try{const r=await sb.from("user_data").select("items").eq("user_id",me.id).maybeSingle();const its=r.data?.items;if(Array.isArray(its)&&its.some(x=>x?.mode==="business"))planHint="business"}catch{}}
-    payFor=myType();fillPrice();showView("payView");payPoll();return;
+    payFor=myType();fillPrice();showView("payView");payPoll();accAfterEnter();return;
   }
-  $("accEmail").textContent=me.email;
+  $("accEmail").textContent=realMail();
   const d=daysLeft(profile);
   $("accStatus").innerHTML=profile.is_admin?`<span class="pill ok">Maamule</span>`
     :`<span class="pill ${d<=3?"warn":"ok"}">${profile.paid_until&&new Date(profile.paid_until)>new Date()?L("La bixiyay: "+d+" maalmood ayaa haray","Paid: "+d+" days left","مدفوع: متبقٍ "+d+" يوم","Imelipwa: zimebaki siku "+d):L("Tijaabo: "+d+" maalmood ayaa haray","Trial: "+d+" days left","تجربة: متبقٍ "+d+" يوم","Majaribio: zimebaki siku "+d)}</span>`;
@@ -2047,7 +2082,7 @@ async function enter(user){
   await migrateNames();
   if(addSpace&&pendingMode==="business")savePlan("business");
   fillPrice();
-  applyMode(st.mode);teamUI();showView("appView");render();if(PAY_PICK&&!PAY_DONE){PAY_DONE=true;goTab("more");setTimeout(()=>$("subH")?.scrollIntoView({block:"start"}),300)}if(profile.pay_status==="pending"&&!profile.is_admin){payStatus(profile);payPoll()}seedBills();loadStaff();if(online())checkLocation();netState();setTimeout(autoPayBills,1500);
+  applyMode(st.mode);teamUI();showView("appView");render();if(PAY_PICK&&!PAY_DONE){PAY_DONE=true;goTab("more");setTimeout(()=>$("subH")?.scrollIntoView({block:"start"}),300)}if(profile.pay_status==="pending"&&!profile.is_admin){payStatus(profile);payPoll()}seedBills();loadStaff();if(online())checkLocation();netState();setTimeout(autoPayBills,1500);accAfterEnter();
   if(!data&&!error&&items.length){items.forEach(i=>dirty.add(i.id));scheduleSync()}
   else if(dirty.size||gone.size)scheduleSync();
 }
@@ -2057,6 +2092,7 @@ async function init(){
   sb.auth.onAuthStateChange((ev,session)=>{
     if(ev==="SIGNED_OUT"){me=null;items=[];goStep(3);showView("authView");return}
     if(ev==="PASSWORD_RECOVERY"){recovering=true;me=session?.user||me;showView("resetView");return}
+    if(SWITCHING)return;
     if(session?.user&&(!me||me.id!==session.user.id)){const u=session.user;me=u;setTimeout(()=>enter(u),0)}
   });
   let ses=null;try{({data:{session:ses}}=await sb.auth.getSession())}catch{}
@@ -2267,6 +2303,92 @@ initFold();
 
 (()=>{let t="home";try{t=sessionStorage.getItem("hantigo.tab")||"home"}catch{}$("appView").dataset.tab=t;markTab(t)})();
 
+/* ---------- 👥 several separate accounts on ONE email (Edge Function "accounts") ----------
+   Each account has its own type, data, staff, trial and payment. Sign in with the normal email + password
+   (= the first account), then switch here. An extra account's login email is name+hgN@… (never shown). */
+let SWITCHING=false,ACC_PICK=false,ACC_NEW=null,ACCS=null,acvBackTo="appView";
+const realMail=()=>String(me?.app_metadata?.hg_email||me?.email||"");
+const accLinked=()=>!!me?.app_metadata?.hg_owner||(Array.isArray(me?.app_metadata?.hg_accounts)&&me.app_metadata.hg_accounts.length>0);
+const accType=t=>t==="business"?L("🏢 Shirkad","🏢 Business","🏢 شركة","🏢 Biashara"):L("👤 Shakhsi","👤 Personal","👤 شخصي","👤 Binafsi");
+const accPrice=t=>t==="business"?L("$12 bishii","$12 a month","12$ شهريًا","$12 kwa mwezi"):L("$3 bishii","$3 a month","3$ شهريًا","$3 kwa mwezi");
+function accName(a){return a.company||a.label||(a.type==="business"?L("Shirkad","Business","شركة","Biashara"):(a.name||L("Shakhsi","Personal","شخصي","Binafsi")))}
+/* which account is open now, for the paywall line (only when the email has several) */
+function accTag(){if(!accLinked())return "";const st=items.find?.(i=>i.kind==="settings");const t=myTypeSafe();
+  const n=t==="business"?(st?.coName||me?.user_metadata?.company||""):(me?.user_metadata?.hg_label||"");return " · "+accType(t)+(n?" · "+n:"")}
+function myTypeSafe(){try{return myType()}catch{return profile?.plan==="business"?"business":"person"}}
+async function accCall(body){
+  if(!online())return {ok:false,error:"offline"};
+  try{const {data,error}=await sb.functions.invoke("accounts",{body});
+    if(error){let m="";try{m=(await error.context?.json?.())?.error||""}catch{}return {ok:false,error:m||(error.context?.status===404?"missing":"net")}}
+    return data||{ok:false,error:"net"}}catch(e){return {ok:false,error:"net"}}}
+function accErr(e,max){return e==="offline"?L("Internet ma jiro. Akoon kale u gudubka internet ayuu u baahan yahay.","No internet. Switching accounts needs internet.","لا يوجد إنترنت. التبديل بين الحسابات يحتاج إلى إنترنت.","Hakuna intaneti. Kubadili akaunti kunahitaji intaneti.")
+  :e==="max"?L(`Hal email waxaa lagu yeelan karaa ugu badnaan ${max||5} akoon.`,`One email can hold at most ${max||5} accounts.`,`يمكن أن يحمل البريد الواحد ${max||5} حسابات كحد أقصى.`,`Barua pepe moja inaweza kuwa na akaunti ${max||5} tu.`)
+  :e==="company"?L("Ku qor magaca shirkadda.","Enter the company name.","اكتب اسم الشركة.","Andika jina la kampuni.")
+  :e==="limit"?L("Isku day badan ayaa dhacay. Sug in yar kadibna mar kale isku day.","Too many tries. Wait a little and try again.","محاولات كثيرة. انتظر قليلًا ثم حاول مرة أخرى.","Majaribio mengi. Subiri kidogo kisha ujaribu tena.")
+  :e==="missing"?L("Adeeggan weli lama shidin. Nagala soo xiriir WhatsApp.","This service is not switched on yet. Contact us on WhatsApp.","هذه الخدمة غير مفعّلة بعد. تواصل معنا عبر واتساب.","Huduma hii bado haijawashwa. Wasiliana nasi kwa WhatsApp.")
+  :L("Khalad ayaa dhacay. Mar kale isku day.","Something went wrong. Try again.","حدث خطأ. حاول مرة أخرى.","Hitilafu imetokea. Jaribu tena.")}
+function accTexts(){
+  $("acvWho").textContent=realMail();
+  $("acvH").textContent=L("👥 Akoonnadaada","👥 Your accounts","👥 حساباتك","👥 Akaunti zako");
+  $("acvLead").textContent=ACC_NEW?L("Email-kan horay ayuu akoon ugu jiray. Fur akoonkaagii hore, ama hoos ka samee akoonka cusub.","This email already had an account. Open your existing account, or create the new one below.","هذا البريد لديه حساب بالفعل. افتح حسابك الحالي أو أنشئ الحساب الجديد أدناه.","Barua pepe hii tayari ilikuwa na akaunti. Fungua akaunti yako ya zamani, au fungua mpya hapa chini.")
+    :L("Hal email, akoono kala gooni ah: mid kasta xogtiisa, shaqaalihiisa iyo lacag-bixintiisa ayuu leeyahay. Riix akoonka aad rabto.","One email, separate accounts: each has its own data, staff and payment. Tap the account you want.","بريد واحد وحسابات منفصلة: لكل حساب بياناته وموظفوه ودفعه. اضغط الحساب الذي تريده.","Barua pepe moja, akaunti tofauti: kila moja ina data, wafanyakazi na malipo yake. Gusa akaunti unayotaka.");
+  $("acvAdd").textContent=L("➕ Samee akoon kale isla email-kan","➕ Make another account on this email","➕ أنشئ حسابًا آخر بهذا البريد","➕ Fungua akaunti nyingine kwa barua pepe hii");
+  $("acvFH").textContent=L("Akoon cusub","New account","حساب جديد","Akaunti mpya");
+  $("acvTP").textContent=accType("person");$("acvTPs").textContent=accPrice("person");
+  $("acvTB").textContent=accType("business");$("acvTBs").textContent=accPrice("business");
+  $("acvCoL").textContent=L("Magaca shirkadda","Company name","اسم الشركة","Jina la kampuni");
+  $("acvLabL").textContent=L("Magac kale oo aad ku garanayso (ikhtiyaari)","A name to recognise it (optional)","اسم لتمييزه (اختياري)","Jina la kuitambua (si lazima)");
+  $("acvLab").placeholder=L("Tusaale: Dukaanka 2","Example: Shop 2","مثال: المتجر 2","Mfano: Duka 2");
+  $("acvFNote").textContent=L("Akoonka cusub wuxuu helayaa 7 maalmood oo bilaash ah, kadibna lacagtiisa gooni ayaa loo bixiyaa. Xogta akoonnada kale lama taabanayo.","The new account gets 7 free days, then it is paid for separately. Your other accounts are not touched.","يحصل الحساب الجديد على 7 أيام مجانية، ثم يُدفع له بشكل منفصل. حساباتك الأخرى لا تتأثر.","Akaunti mpya inapata siku 7 bure, kisha inalipiwa peke yake. Akaunti zako nyingine haziguswi.");
+  $("acvMake").textContent=L("Samee akoonka","Create the account","أنشئ الحساب","Fungua akaunti");
+  $("acvCancel").textContent=L("Jooji","Cancel","إلغاء","Ghairi");
+  $("acvBack").textContent=L("← Ku noqo","← Back","→ رجوع","← Rudi");
+  const sw=L("👥 Akoonnadayda","👥 My accounts","👥 حساباتي","👥 Akaunti zangu");
+  $("accSwBtn").textContent=accLinked()?sw:L("➕ Akoon kale","➕ Another account","➕ حساب آخر","➕ Akaunti nyingine");
+  $("paySwBtn").textContent=sw;$("paySwBtn").hidden=!accLinked();
+  $("accSwTxt").textContent=accLinked()?accType(myTypeSafe())+" · "+L("akoonka hadda furan","open now","الحساب المفتوح الآن","imefunguliwa sasa"):L("Hal email, akoono badan","One email, several accounts","بريد واحد، حسابات عدة","Barua pepe moja, akaunti nyingi")}
+function accRender(){const box=$("acvList");box.textContent="";
+  if(!ACCS){box.innerHTML=`<p class="note" style="margin:0">${L("Waa la soo raraya…","Loading…","جارٍ التحميل…","Inapakia…")}</p>`;return}
+  ACCS.forEach(a=>{const b=document.createElement("button");b.type="button";b.className="modecard acv-item"+(a.current?" on":"");
+    const st=a.open?`<span class="pill ok">${a.paid?L("La bixiyay","Paid","مدفوع","Imelipwa"):L("Tijaabo","Trial","تجربة","Majaribio")} · ${L(a.days+" maalmood",a.days+" days",a.days+" يوم","siku "+a.days)}</span>`
+      :`<span class="pill warn">${L("Xiran · bixi","Closed · pay","مغلق · ادفع","Imefungwa · lipa")}</span>`;
+    b.innerHTML=`<b>${esc(accType(a.type))} · ${esc(accName(a))}</b><small>${esc(accPrice(a.type))}${a.label&&a.label!==accName(a)?" · "+esc(a.label):""}</small><span class="acv-tags">${st}${a.current?`<span class="pill ok">✓ ${L("Hadda furan","Open now","مفتوح الآن","Imefunguliwa sasa")}</span>`:""}${a.main?`<span class="pill">${L("Akoonka koowaad","First account","الحساب الأول","Akaunti ya kwanza")}</span>`:""}</span>`;
+    b.addEventListener("click",()=>a.current?accClose():accSwitch(a.id));box.appendChild(b)});
+  $("acvAdd").hidden=!$("acvForm").hidden}
+async function accLoad(){ACCS=null;accRender();const r=await accCall({action:"list"});
+  if(r.ok&&Array.isArray(r.accounts)){ACCS=r.accounts;accRender();if(r.accounts.length>=(r.max||5)){$("acvAdd").hidden=true}}
+  else{ACCS=[];accRender();$("acvErr").textContent=accErr(r.error)}}
+function accOpen(prefill){acvBackTo=["payView","appView"].find(v=>!$(v).hidden)||"appView";accTexts();$("acvErr").textContent="";
+  const f=$("acvForm");f.hidden=!prefill;if(prefill){f.querySelector(`input[name=acvType][value=${prefill.type==="business"?"business":"person"}]`).checked=true;$("acvCo").value=prefill.company||"";$("acvLab").value=""}
+  accCoSync();showView("accView");window.scrollTo(0,0);accLoad()}
+function accClose(){ACC_NEW=null;showView(acvBackTo)}
+function accCoSync(){$("acvCoRow").hidden=!$("acvForm").querySelector("input[value=business]").checked}
+async function accSwitch(id){$("acvErr").textContent="";if(!online()){$("acvErr").textContent=accErr("offline");return}
+  $("acvList").querySelectorAll("button").forEach(b=>b.disabled=true);$("acvErr").textContent=L("Akoonka waa la furayaa…","Opening the account…","جارٍ فتح الحساب…","Inafungua akaunti…");
+  try{clearTimeout(syncTimer);if(me&&(dirty.size||gone.size))await syncNow()}catch{}
+  const r=await accCall({action:"switch",to:id});
+  if(!r.ok||!r.token_hash){$("acvErr").textContent=accErr(r.error);$("acvList").querySelectorAll("button").forEach(b=>b.disabled=false);return}
+  SWITCHING=true;const {error}=await sb.auth.verifyOtp({token_hash:r.token_hash,type:"magiclink"});
+  if(error){SWITCHING=false;$("acvErr").textContent=accErr("net");$("acvList").querySelectorAll("button").forEach(b=>b.disabled=false);return}
+  try{sessionStorage.setItem("hantigo.tab","home")}catch{}location.reload()}
+async function accCreate(e){e.preventDefault();$("acvErr").textContent="";
+  const type=$("acvForm").querySelector("input[name=acvType]:checked").value,company=$("acvCo").value.trim().slice(0,60),label=$("acvLab").value.trim().slice(0,40);
+  if(type==="business"&&company.length<2){$("acvErr").textContent=accErr("company");$("acvCo").focus();return}
+  $("acvMake").disabled=true;const want=ACC_NEW||{};
+  const r=await accCall({action:"create",type,company,label,lang:LANG,full_name:want.full_name||"",phone:want.phone||"",city:want.city||"",country:want.country||"",start_date:want.start_date||""});
+  $("acvMake").disabled=false;
+  if(!r.ok||!r.id){$("acvErr").textContent=accErr(r.error,r.max);return}
+  ACC_NEW=null;accSwitch(r.id)}
+/* after entering: a fresh sign-in on an email with several accounts shows the list; a sign-up on a used email offers the new account */
+function accAfterEnter(){accTexts();
+  if(ACC_NEW){const w=ACC_NEW;ACC_PICK=false;setTimeout(()=>accOpen(w),50);return}
+  if(ACC_PICK){ACC_PICK=false;if(accLinked())setTimeout(()=>accOpen(null),50)}}
+document.querySelectorAll(".acvOpen").forEach(b=>b.addEventListener("click",()=>accOpen(null)));
+$("acvAdd").addEventListener("click",()=>{$("acvForm").hidden=false;$("acvAdd").hidden=true;accCoSync();$("acvForm").querySelector("input[name=acvType]:checked").focus()});
+$("acvCancel").addEventListener("click",()=>{$("acvForm").hidden=true;$("acvAdd").hidden=false;ACC_NEW=null;accTexts()});
+$("acvForm").querySelectorAll("input[name=acvType]").forEach(r=>r.addEventListener("change",accCoSync));
+$("acvForm").addEventListener("submit",accCreate);
+$("acvBack").addEventListener("click",accClose);
 /* WhatsApp support */
 const WA_NUM="46767157915";
 document.querySelectorAll("[data-wa]").forEach(a=>{a.href="https://wa.me/"+WA_NUM+"?text="+encodeURIComponent(L("Salaan, HantiGo caawimaad ayaan rabaa","Hi, I need help with HantiGo"))});
@@ -2329,14 +2451,16 @@ $("authForm").addEventListener("submit",async e=>{e.preventDefault();
       /* with "Confirm email" ON, Supabase answers an already-used email with no error and a user without identities, and saves nothing */
       const dup=!error&&data?.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0;
       if(dup||error&&/already registered|already exists/i.test(String(error.message||""))){
-        $("aErr").textContent=L("Email-kan horay ayaa loo diiwaangeliyay. Akoon Shakhsi iyo akoon Shirkad waa kala gooni: mid kasta email kale u isticmaal, ama riix “Gal” si aad u gasho akoonkaagii.","This email is already registered. Personal and Business accounts are separate: use another email for each, or tap “Log in” to open your account.","هذا البريد مسجّل بالفعل. الحساب الشخصي وحساب الشركة منفصلان: استخدم بريدًا آخر لكل منهما، أو اضغط «تسجيل الدخول» لفتح حسابك.","Barua pepe hii tayari imesajiliwa. Akaunti ya Binafsi na ya Biashara ni tofauti: tumia barua pepe nyingine kwa kila moja, au gusa “Ingia” kufungua akaunti yako.");$("aBtn").disabled=false;return;
-        addSpace=true;const r=await sb.auth.signInWithPassword({email,password});
-        if(r.error){addSpace=false;$("aErr").textContent=L("Email-kan horay ayaa loo diiwaangeliyay. Si aad "+(am==="business"?"Shirkad":"Shakhsi")+" ugu darto isla akoonka, geli erayga sirta ah ee akoonkaagii hore.","This email is already registered. To add "+(am==="business"?"a Business":"Personal")+" to the same account, enter your existing password.","هذا البريد مسجّل بالفعل. لإضافة "+(am==="business"?"حساب شركة":"حساب شخصي")+" إلى الحساب نفسه، أدخل كلمة مرورك الحالية.","Barua pepe hii tayari imesajiliwa. Ili kuongeza "+(am==="business"?"Biashara":"Binafsi")+" kwenye akaunti hiyo hiyo, weka nenosiri lako la zamani.");$("aBtn").disabled=false;return}
-        $("aBtn").disabled=false;return}
+        /* the email already has an account: with its password, open it and offer a NEW separate account on the same email */
+        const want={type:am,company:pendingCo,full_name:fullName,phone:phoneNo,city:pendingCity,country:pendingCountry,start_date:startDate};
+        pendingMode=null;pendingCo="";addSpace=false;try{localStorage.removeItem("hantigo.pendingMe")}catch{}
+        const r=await sb.auth.signInWithPassword({email,password});
+        if(r.error){$("aErr").textContent=L("Email-kan horay ayaa akoon loogu sameeyay. Waxaad isla email-kan ku samayn kartaa akoon kale oo gooni ah: geli erayga sirta ah ee akoonkaagii hore, kadibna riix “Samee akoon” mar kale.","This email already has an account. You can make another, separate account on the same email: enter the password of your existing account, then tap “Create account” again.","هذا البريد لديه حساب بالفعل. يمكنك إنشاء حساب آخر منفصل بالبريد نفسه: أدخل كلمة مرور حسابك الحالي ثم اضغط «إنشاء حساب» مرة أخرى.","Barua pepe hii tayari ina akaunti. Unaweza kufungua akaunti nyingine tofauti kwa barua pepe hiyo hiyo: weka nenosiri la akaunti yako ya zamani, kisha gusa “Fungua akaunti” tena.");$("aBtn").disabled=false;return}
+        ACC_NEW=want;$("aBtn").disabled=false;return}
       if(error)throw error;
       if(!data.session){goStep(3);$("aErr").textContent="Akoonka waa la sameeyay. Fur email-kaaga, riix xiriirka, kadibna gal."}
       else{goStep(3);$("aBtn").disabled=true;$("aBtn").textContent="✓ Akoonkaaga waa diyaar. Dashboard-kaaga ayaa la furayaa…";return}}
-    else{const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error}
+    else{ACC_PICK=true;const {error}=await sb.auth.signInWithPassword({email,password});if(error){ACC_PICK=false;throw error}}
   }catch(err){const m=String(err.message||"");
     $("aErr").textContent=/Invalid login/i.test(m)?"Email-ka ama erayga sirta ah waa khalad.":/already registered/i.test(m)?"Email-kan horay ayaa akoon loogu sameeyay. Dooro \"Gal\".":/not confirmed/i.test(m)?"Marka hore xaqiiji emailkaaga (eeg sanduuqa fariimaha).":L("Khalad ayaa dhacay: ","Something went wrong: ")+m}
   $("aBtn").disabled=false;
@@ -2415,7 +2539,7 @@ function payStatus(pr){const st=pr?.pay_status||(pr?.phone&&!$("payView").hidden
     :st==="pending"?L("⏳ Waa la helay. Waxaan hubinaynaa lacagta. Marka la ansixiyo, akoonkaagu si toos ah ayuu u furmayaa, rasiidka iyo link-ga akoonkaagana email-kaaga ayaa loo dirayaa.","⏳ Received. We are checking the payment. Once approved, your account opens by itself and the receipt and your account link are sent to your email.","⏳ تم الاستلام. نتحقق من الدفع. بعد الموافقة يُفتح حسابك تلقائيًا ويُرسل الإيصال ورابط حسابك إلى بريدك.","⏳ Imepokelewa. Tunaangalia malipo. Yakiidhinishwa, akaunti yako inafunguka yenyewe na risiti pamoja na kiungo cha akaunti vinatumwa kwenye barua pepe yako.")
     :st==="ok"?L("✅ Lacagta waa la ansixiyay. Rasiidka iyo link-ga akoonkaaga email-kaaga ayaa loo diray.","✅ Payment approved. The receipt and your account link were sent to your email.","✅ تمت الموافقة على الدفع. أُرسل الإيصال ورابط حسابك إلى بريدك.","✅ Malipo yameidhinishwa. Risiti na kiungo cha akaunti yako vimetumwa kwenye barua pepe yako."):"";
   $("phoneForm").querySelector(".pb-ok").hidden=st==="pending"||(st==="ok"&&payAsked);
-  if(st==="pending"&&me){$("pWa").hidden=false;$("pWa").href="https://wa.me/"+WA_NUM+"?text="+encodeURIComponent(`Salaan, waxaan ku bixiyay HantiGo $${payPrice()} (${payPlan()==="business"?"Shirkad":"Shakhsi"}) ${payWay==="waafi"?"WaafiPay":"EVC Plus"}.\nEmail: ${me.email}\nLambarka: ${pr.phone||$("pPhone").value}${pr.pay_ref?"\nTix: "+pr.pay_ref:""}`)}else $("pWa").hidden=true}
+  if(st==="pending"&&me){$("pWa").hidden=false;$("pWa").href="https://wa.me/"+WA_NUM+"?text="+encodeURIComponent(`Salaan, waxaan ku bixiyay HantiGo $${payPrice()} (${payPlan()==="business"?"Shirkad":"Shakhsi"}) ${payWay==="waafi"?"WaafiPay":"EVC Plus"}.\nEmail: ${realMail()}\nLambarka: ${pr.phone||$("pPhone").value}${pr.pay_ref?"\nTix: "+pr.pay_ref:""}`)}else $("pWa").hidden=true}
 function payPoll(){clearTimeout(payTimer);payTimer=setTimeout(async()=>{if(!me)return;const inApp=$("payView").hidden;
   if(inApp&&profile?.pay_status!=="pending")return;
   const {data}=await sb.from("profiles").select("*").eq("id",me.id).maybeSingle();
@@ -3629,7 +3753,7 @@ function renderMgr(){const panel=$("mgPanel");if(!panel||MODE!=="business"||!MGR
     {ic:"📦",lb:L("Waxa la soo iibsaday","Purchases","المشتريات","Manunuzi"),v:money(r.buyT),c:ST_OTH},
     {ic:"🤝",lb:L("Lacag naloo hayo","Owed to us","مستحق لنا","Tunadai"),v:money(r.owedIn),c:ST_LV},
     {ic:"💳",lb:L("Lacag aan dad u hayno","We owe","مستحق علينا","Tunadaiwa"),v:money(r.owedOut),c:ST_SAL}]);
-  box.innerHTML=`<div class="mghead">${lg?`<img src="${lg}" alt="">`:""}<div style="min-width:0"><b>${esc(coName()||L("Shirkaddaada","Your company","شركتك","Kampuni yako"))}</b><small>${esc(me?.email||"")} · ${L("Shaqaale","Staff","الموظفون","Wafanyakazi")}: ${staff.length}</small></div></div>
+  box.innerHTML=`<div class="mghead">${lg?`<img src="${lg}" alt="">`:""}<div style="min-width:0"><b>${esc(coName()||L("Shirkaddaada","Your company","شركتك","Kampuni yako"))}</b><small>${esc(realMail())} · ${L("Shaqaale","Staff","الموظفون","Wafanyakazi")}: ${staff.length}</small></div></div>
   <div class="mglock">🔒 ${L("Halkan waxaa ku jira xogta shirkaddaada oo kaliya. Shirkad kale ma arki karto, shaqaalahaaguna ma arkaan bogan.","Only your company's data is here. No other company can see it, and your staff cannot see this page.","هنا بيانات شركتك فقط. لا يمكن لأي شركة أخرى رؤيتها، ولا يرى موظفوك هذه الصفحة.","Hapa kuna data ya kampuni yako tu. Hakuna kampuni nyingine inayoweza kuiona, na wafanyakazi wako hawaoni ukurasa huu.")}</div>
   <div class="mgtiles">${tiles}</div>
   <div class="stin">${tips.map(t=>`<p>${t}</p>`).join("")||`<p>${L("Weli xog kuma filna bishan. Ku dar iibka iyo kharashka.","Not enough data this month yet. Add sales and spending.","لا توجد بيانات كافية هذا الشهر بعد. أضف المبيعات والمصاريف.","Bado hakuna data ya kutosha mwezi huu. Ongeza mauzo na matumizi.")}</p>`}</div>
@@ -3670,7 +3794,7 @@ function mgTables(){const r=MG,row=(c)=>`<tr>${c.map((x,i)=>`<td${i?' class="n"'
   <h2>${L("Waxa la soo iibsaday","What was bought","ما تم شراؤه","Kilichonunuliwa")}</h2><table>${th([L("Taariikhda","Date"),L("Qaybta","Category"),L("Macmiil ama alaab-qaybiye","Customer or supplier","العميل أو المورد","Mteja au msambazaji"),L("Qadarka","Amount")])}${r.buys.map(t=>`<tr><td>${fmtD(t.date)}</td><td>${esc(T(t.cat))}${t.note?" · "+esc(t.note):""}</td><td>${esc(t.place||"")}</td><td class="n">${money(t.amount)}</td></tr>`).join("")||dash(4)}</table>
   <h2>${L("Shaqaalaha","Staff","الموظفون","Wafanyakazi")}</h2><table>${th([L("Shaqada","Role"),L("Mushaharka","Salaries")])}${r.roles.map(([n,v])=>row([esc(T(n)),money(v)])).join("")||dash(2)}</table>
   <h2>${L("Deymaha","Debts","الديون","Madeni")}</h2><table>${th([L("Lacag naloo hayo","Owed to us"),L("Lacag aan dad u hayno","We owe","مستحق علينا","Tunadaiwa")])}${rowN([money(r.owedIn),money(r.owedOut)])}</table>`}
-const mgHead=()=>`${coHead()}<p>${L("Dashboard-ka maamulaha","Manager dashboard","لوحة المدير","Dashibodi ya meneja")}: <b>${esc(MG.label)}</b> · ${esc(me?.email||"")}</p>`;
+const mgHead=()=>`${coHead()}<p>${L("Dashboard-ka maamulaha","Manager dashboard","لوحة المدير","Dashibodi ya meneja")}: <b>${esc(MG.label)}</b> · ${esc(realMail())}</p>`;
 const mgFile=ext=>`HantiGo-${brandName()}-dashboard-${MG.k}.${ext}`.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_");
 function mgPrint(){renderMgr();$("printArea").innerHTML=mgHead()+mgTables()+stFoot();
   document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
@@ -3785,7 +3909,7 @@ function stTables(withBars){const r=ST,pct=(v,t)=>t?Math.round(v/t*100)+"%":"",b
   <h2>${L("Meesha lacagtu ku baxday","Where the money went")}</h2><table><tr><th>${L("Qaybta","Category")}</th><th>${L("Qadarka","Amount")}</th><th>%</th>${withBars?"<th></th>":""}</tr>
   ${r.cats.map(([n,v])=>`<tr><td>${esc(T(n))}</td><td class="n">${money(v)}</td><td class="n">${pct(v,r.allT)}</td>${withBars?`<td style="width:40%">${bar(v,r.cats[0][1],n===salName?ST_SAL:ST_OTH)}</td>`:""}</tr>`).join("")||`<tr><td colspan="4">—</td></tr>`}</table>
   ${withBars?`<h2>${L("Xanuunka iyo fasaxa bil kasta (maalmo)","Sick and leave days per month")}</h2><p>🟥 ${L("Xanuun","Sick")} · 🟦 ${L("Fasax","Leave")}</p>${$("stLeave").innerHTML}`:""}${dateTable(r.days||[])}`}
-const stHead=()=>`${coHead()}<p>${L("Tirakoobka shirkadda","Company statistics")}: <b>${esc(stTitle())}</b> · ${esc(modeLabel())} · ${esc(me?.email||"")}</p>`;
+const stHead=()=>`${coHead()}<p>${L("Tirakoobka shirkadda","Company statistics")}: <b>${esc(stTitle())}</b> · ${esc(modeLabel())} · ${esc(realMail())}</p>`;
 const stFoot=()=>`<p>${L("Waxaa la sameeyay","Created")} ${dlStamp()} · HantiGo</p>`;
 const stFile=ext=>`HantiGo-tirakoob-${ST.from}-${ST.to}.${ext}`;
 $("stPdf").addEventListener("click",()=>{if(!ST)return;$("printArea").innerHTML=stHead()+stTables(true)+stFoot();
@@ -3810,7 +3934,7 @@ if(NATIVE)$("stPdf").hidden=true;
 const coName=()=>settings().coName||"";const coLogo=()=>settings().coLogo||"";
 const myName=()=>settings().myName||"";
 const dlStamp=()=>{const d=new Date(),z=n=>String(n).padStart(2,"0");return `${z(d.getDate())}/${z(d.getMonth()+1)}/${d.getFullYear()} ${z(d.getHours())}:${z(d.getMinutes())}`};
-const brandName=()=>MODE==="business"?(coName()||"HantiGo"):(myName()||me?.email||"HantiGo");
+const brandName=()=>MODE==="business"?(coName()||"HantiGo"):(myName()||realMail()||"HantiGo");
 function coHead(){const n=brandName(),lg=MODE==="business"?coLogo():"";
   return `<div class="rhead">${lg?`<img src="${lg}" alt="" width="56" height="56" style="max-height:56px">`:""}<div><h1 style="margin:0">${esc(n)}</h1><small style="color:#666">${L("La soo dejiyay","Downloaded")}: ${dlStamp()} · HantiGo</small></div></div>`}
 function renderCo(){const n=coName(),lg=coLogo();
@@ -3833,14 +3957,14 @@ $("coAskNo").addEventListener("click",async()=>{await put({...settings(),coAskNo
 $("teamForm").addEventListener("submit",async e=>{e.preventDefault();
   const email=$("tEmail").value.trim().toLowerCase();
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){$("tErr").textContent="Geli email sax ah.";return}
-  if(email===String(me?.email||"").toLowerCase()){$("tErr").textContent=L("Kani waa email-kaaga. Geli email-ka shaqaalaha.","That is your own email. Enter the staff member's email.");return}
+  if(email===String(me?.email||"").toLowerCase()||email===realMail().toLowerCase()){$("tErr").textContent=L("Kani waa email-kaaga. Geli email-ka shaqaalaha.","That is your own email. Enter the staff member's email.");return}
   if(staff.includes(email)){$("tErr").textContent=L("Shaqaalahan horay ayaa loogu daray.","This staff member is already added.");return}
   $("tErr").textContent="";
   await flush();
   const {error}=await sb.from("team_members").insert({owner_id:me.id,member_email:email});
   if(error){$("tErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Cannot save right now. Try again.");return}
   $("tEmail").value="";await loadStaff();
-  $("tErr").textContent=L("Waa la daray. Shaqaaluhu ha isku diiwaangeliyo HantiGo isla email-kan, kadibna badhanka sare ha ka doorto 👥 "+me.email+".","Added. The staff member should sign up to HantiGo with this email, then choose 👥 "+me.email+" in the top menu.","تمت الإضافة. على الموظف أن يسجّل في HantiGo بهذا البريد، ثم يختار 👥 "+me.email+" من القائمة العلوية.","Imeongezwa. Mfanyakazi ajisajili kwenye HantiGo kwa barua pepe hii, kisha achague 👥 "+me.email+" kwenye menyu ya juu.")});
+  $("tErr").textContent=L("Waa la daray. Shaqaaluhu ha isku diiwaangeliyo HantiGo isla email-kan, kadibna badhanka sare ha ka doorto 👥 "+realMail()+".","Added. The staff member should sign up to HantiGo with this email, then choose 👥 "+realMail()+" in the top menu.","تمت الإضافة. على الموظف أن يسجّل في HantiGo بهذا البريد، ثم يختار 👥 "+realMail()+" من القائمة العلوية.","Imeongezwa. Mfanyakazi ajisajili kwenye HantiGo kwa barua pepe hii, kisha achague 👥 "+realMail()+" kwenye menyu ya juu.")});
 
 /* ---------- reports (CSV for Excel, PDF via print) ---------- */
 const repYearNow=()=>Number($("repYear").value)||view.getFullYear();
@@ -3977,7 +4101,7 @@ function buildReport(){const {txs,title,yr,y}=reportData();const S=repSums(txs);
   const cats=Object.entries(by).sort((a,b)=>b[1]-a[1]);
   const gt={};cats.forEach(([c,v])=>{const g=grpOf(c);(gt[g]=gt[g]||{v:0,l:[]}).v+=v;gt[g].l.push([c,v])});
   const catTable=cats.length?`<table><tr><th>${L("Mowduuca","Topic")}</th><th>${L("Qaybta","Category")}</th><th>${L("Qadarka","Amount")}</th></tr>${Object.entries(gt).sort((a,b)=>b[1].v-a[1].v).map(([g,o])=>`<tr><td><b>${esc(grpLabel(g))}</b></td><td></td><td class="n"><b>${money(o.v)}</b></td></tr>`+o.l.map(([c,v])=>`<tr><td></td><td>${esc(T(c))}</td><td class="n">${money(v)}</td></tr>`).join("")).join("")}</table>`:null;
-  return `${coHead()}<p>${L("Warbixin","Report")}: <b>${esc(title)}</b> · ${esc(modeLabel())} · ${esc(me?.email||"")}</p>
+  return `${coHead()}<p>${L("Warbixin","Report")}: <b>${esc(title)}</b> · ${esc(modeLabel())} · ${esc(realMail())}</p>
   <table><tr><th>${L("Soo galay","Income")}</th><th>${L("Ka baxay","Expenses")}</th><th>${L("Deyn la bixiyay","Debt paid")}</th><th>${L("Kayd","Savings")}</th><th>${L("Lacagta haray","Left over")}</th></tr>
   <tr><td class="n">${money(S.si)}</td><td class="n">${money(S.so)}</td><td class="n">${money(S.debt)}</td><td class="n">${money(S.sav)}</td><td class="n">${money(S.left)}</td></tr></table>
   ${yr?yearHtml(yearData(y)):""}
@@ -4003,7 +4127,7 @@ if(NATIVE){$("repPdf").hidden=true;$("repNote").hidden=true;$("lvPdf").hidden=tr
 /* ---------- backup ---------- */
 const BK_KINDS=["tx","goal","bill","cat","debt","leave","inv","settings","rem"];
 $("bkOut").addEventListener("click",async()=>{await flush();
-  saveFile(`HantiGo-backup-${today()}.json`,JSON.stringify({app:"HantiGo",version:1,exported:new Date().toISOString(),email:me?.email||"",items},null,1),"application/json");
+  saveFile(`HantiGo-backup-${today()}.json`,JSON.stringify({app:"HantiGo",version:1,exported:new Date().toISOString(),email:realMail(),items},null,1),"application/json");
   $("bkMsg").textContent=L("Backup-ka waa la soo dejiyay. Meel ammaan ah ku kaydi.","Backup downloaded. Keep it somewhere safe.")});
 $("bkIn").addEventListener("change",async e=>{const f=e.target.files?.[0];e.target.value="";if(!f)return;
   let data;try{data=JSON.parse(await f.text())}catch{data=null}
@@ -4044,6 +4168,9 @@ $("delAcc").addEventListener("click",()=>{$("delBox").hidden=!$("delBox").hidden
 $("delGo").addEventListener("click",async()=>{const v=$("delConfirm").value.trim().toUpperCase();
   if(v!=="TIRTIR"&&v!=="DELETE"){$("delErr").textContent=L("Ku qor TIRTIR si aad u xaqiijiso.","Type DELETE to confirm.");return}
   $("delGo").disabled=true;$("delErr").textContent="";
+  /* the first account opens the others (same email): delete those first, or they could not be reached any more */
+  if(!me?.app_metadata?.hg_owner&&accLinked()){const r=await accCall({action:"list"});
+    if(!r.ok||(r.accounts||[]).length>1){$("delGo").disabled=false;$("delErr").textContent=r.ok?L("Email-kan akoono kale ayuu leeyahay. Marka hore fur mid kasta (👥 Akoonnadayda) oo halkaas ka tirtir, kadibna kan tirtir.","This email has other accounts. First open each one (👥 My accounts) and delete it there, then delete this one.","لهذا البريد حسابات أخرى. افتح كل حساب أولًا (👥 حساباتي) واحذفه، ثم احذف هذا الحساب.","Barua pepe hii ina akaunti nyingine. Kwanza fungua kila moja (👥 Akaunti zangu) uifute, kisha ufute hii."):accErr(r.error);return}}
   const {error}=await sb.rpc("delete_my_account");
   if(error){$("delGo").disabled=false;$("delErr").textContent=L("Lama tirtiri karo hadda. Isku day mar kale ama nala soo xiriir.","Could not delete right now. Try again or contact us.");return}
   try{Object.keys(localStorage).filter(k=>k.startsWith("hantigo.cache."+me.id)).forEach(k=>localStorage.removeItem(k))}catch{}
@@ -4115,7 +4242,7 @@ async function actLoad(){const box=$("actPanel");if(!box||!sb||!me)return;
   actRender()}
 function actSoft(){if(!me||$("appView").dataset.tab!=="more")return;if(ACT.key!==actKey())actLoad();}
 function actAfterSync(){if(!me||$("appView").dataset.tab!=="more")return;clearTimeout(ACT.t);ACT.t=setTimeout(actLoad,1500)}
-const actWho=e=>!e?L("Nidaamka","System","النظام","Mfumo"):me&&e.toLowerCase()===String(me.email||"").toLowerCase()?L("Adiga","You","أنت","Wewe"):e.split("@")[0];
+const actWho=e=>!e?L("Nidaamka","System","النظام","Mfumo"):me&&(e.toLowerCase()===String(me.email||"").toLowerCase()||e.toLowerCase()===realMail().toLowerCase())?L("Adiga","You","أنت","Wewe"):e.split("@")[0];
 const actWhen=iso=>{const d=new Date(iso);if(isNaN(d))return"";const z=n=>String(n).padStart(2,"0");return `${z(d.getDate())}/${z(d.getMonth()+1)}/${d.getFullYear()} ${z(d.getHours())}:${z(d.getMinutes())}`};
 const actVerb=a=>a==="add"?L("La daray","Added","أُضيف","Imeongezwa"):a==="edit"?L("La saxay","Corrected","تم التصحيح","Imesahihishwa"):a==="delete"?L("La tirtiray","Deleted","حُذف","Imefutwa"):L("Mar qura la geliyay","Added at once","أُضيف دفعة واحدة","Imeongezwa kwa pamoja");
 const actIcon=a=>a==="add"?"➕":a==="edit"?"✏️":a==="delete"?"🗑":"📦";
@@ -4380,7 +4507,7 @@ async function invPdf(d){const J=await loadPdf();const doc=new J({unit:"mm",form
   const blob=doc.output("blob");return {blob,name,file:new File([blob],name,{type:"application/pdf"})}}
 function dlBlob(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
 function b64(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]);r.onerror=rej;r.readAsDataURL(blob)})}
-const ownerEmail=()=>me?.email||"";
+const ownerEmail=()=>realMail();
 async function mailPdf(d,p,to){
   const {data,error}=await sb.functions.invoke("send-receipt",{body:{to:to||"",copy:ownerEmail(),subject:`${invLabel(d.k)} ${invNoTxt(d)} · ${coName()||"HantiGo"}`,
     text:invText(d).replace(/\*/g,""),company:coName()||"HantiGo",filename:p.name,pdf:await b64(p.blob)}});

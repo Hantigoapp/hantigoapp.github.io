@@ -26,6 +26,8 @@ Deno.serve(async (req) => {
     });
     const { data: { user } } = await sb.auth.getUser();
     if (!user?.email) return json({ ok: false, error: "auth" }, 401);
+    // an extra account on the same email (functions/accounts) has a "+hgN" login email: use the real one
+    const myEmail = String(user.app_metadata?.hg_email || user.email);
 
     // Only a paid / trial Business account (or staff of an active company) may send receipts.
     // Stops a free sign-up from using HantiGo's Gmail to send mail to strangers.
@@ -58,14 +60,14 @@ Deno.serve(async (req) => {
     const att = [{ filename, content: pdf, encoding: "base64", contentType: "application/pdf" }];
     const from = `"${company.replace(/"/g, "")} via HantiGo" <${Deno.env.get("SMTP_USER")}>`;
     if (to) {
-      await tr.sendMail({ from, to, replyTo: user.email, subject, text, attachments: att });
+      await tr.sendMail({ from, to, replyTo: myEmail, subject, text, attachments: att });
     }
     // copy always goes to the signed-in owner's own email, never to an address from the request
     await tr.sendMail({
-      from, to: user.email, subject: (to ? "Nuqul / Copy: " : "") + subject,
+      from, to: myEmail, subject: (to ? "Nuqul / Copy: " : "") + subject,
       text: (to ? `Waxaa loo diray / Sent to: ${to}\n\n` : "") + text, attachments: att,
     });
-    return json({ ok: true, to, copy: user.email });
+    return json({ ok: true, to, copy: myEmail });
   } catch (e) {
     return json({ ok: false, error: String(e?.message ?? e).slice(0, 200) }, 500);
   }
