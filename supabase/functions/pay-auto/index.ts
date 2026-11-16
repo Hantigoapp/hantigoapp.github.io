@@ -33,6 +33,8 @@ const env = (k: string) => (Deno.env.get(k) ?? "").trim();
 const ready = () => !!(env("WAAFI_MERCHANT_UID") && env("WAAFI_API_USER_ID") && env("WAAFI_API_KEY"));
 const planName = (p: string) => (p === "business" ? "Shirkad" : "Shakhsi");
 const dmy = (d: Date) => d.toLocaleDateString("en-GB", { timeZone: "Africa/Mogadishu" });
+const hms = (d: Date) => d.toLocaleTimeString("en-GB", { timeZone: "Africa/Mogadishu", hour12: false });
+const somDay = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Mogadishu", year: "2-digit", month: "2-digit", day: "2-digit" }).format(d).replace(/\D/g, "");
 
 /** Somali mobile number → "2526XXXXXXXX" (12 digits), or null. */
 export function normPhone(raw: unknown): string | null {
@@ -110,6 +112,7 @@ export async function receiptPdf(r: {
   txt("hantigoapp.github.io", M + 25, y + 9, { size: 9, color: grey(110) });
   txt("RASIID  " + r.no, W - M, y + 2, { size: 13, bold: true, color: grey(40), right: true });
   txt("Taariikhda: " + dmy(r.date), W - M, y + 8, { color: grey(90), right: true });
+  txt("Saacadda: " + hms(r.date) + " (Muqdisho)", W - M, y + 13, { color: grey(90), right: true });
   y += 24; page.drawLine({ start: { x: mm(M), y: H - mm(y) }, end: { x: mm(W - M), y: H - mm(y) }, color: grey(200), thickness: 0.6 }); y += 8;
   txt("Macmiilka", M, y, { color: grey(90) });
   txt(r.name || r.email, M, y + 6, { size: 12, bold: true });
@@ -139,15 +142,18 @@ export async function receiptPdf(r: {
 // deno-lint-ignore no-explicit-any
 async function sendReceipt(admin: any, pay: Record<string, any>, until: Date) {
   if (!env("SMTP_USER") || !env("SMTP_PASS")) return false;
-  const now = new Date(), z = (n: number) => String(n).padStart(2, "0");
-  const no = "HG-" + String(now.getFullYear()).slice(2) + z(now.getMonth() + 1) + z(now.getDate()) + "-" + String(pay.id).replace(/-/g, "").slice(0, 4).toUpperCase();
+  // HG-YYMMDD-001, 002 … counted per day in the database (supabase/receipt_no.sql); old style until that file is run
+  let rn: unknown = null;
+  try { ({ data: rn } = await admin.rpc("next_receipt_no")); } catch { /* old style below */ }
+  const now = new Date();
+  const no = typeof rn === "string" && rn ? rn : "HG-" + somDay(now) + "-" + String(pay.id).replace(/-/g, "").slice(0, 4).toUpperCase();
   let logo: Uint8Array | null = null;
   try { const r = await fetch(SITE + "/icon-192.png"); if (r.ok) logo = new Uint8Array(await r.arrayBuffer()); } catch { /* skip logo */ }
   const name = String(pay.name ?? "").trim(), contact = String(pay.contact ?? "").trim(), company = String(pay.company ?? "").trim();
   const pdf = await receiptPdf({ no, date: now, email: pay.email, phone: pay.phone, method: pay.method, tx: pay.waafi_tx ?? "", plan: pay.plan, days: pay.days, amount: Number(pay.amount), until, logo, name, contact, company });
   const who = [name ? "Magaca: " + name : "", "Email: " + pay.email, contact ? "Telefoon: " + contact : "", company ? "Shirkadda: " + company : ""].filter(Boolean).join("\n");
   const text = `Salaan${name ? " " + name : ""},\n\nMahadsanid inaad iibsatay HantiGo. Lacagtaada si toos ah ayaa loo helay, akoonkaaguna waa furan yahay.\n\n${who}\n\n` +
-    `Rasiid: ${no}\nTaariikhda: ${dmy(now)}\nAdeegga: HantiGo ${planName(pay.plan)} (${pay.days} maalmood)\n` +
+    `Rasiid: ${no}\nTaariikhda: ${dmy(now)}\nSaacadda: ${hms(now)} (waqtiga Muqdisho)\nAdeegga: HantiGo ${planName(pay.plan)} (${pay.days} maalmood)\n` +
     `Lacagta: $${Number(pay.amount).toFixed(2)} (${pay.method}, +${pay.phone})\nTix: ${pay.waafi_tx ?? "-"}\n` +
     `Akoonkaagu wuu furan yahay ilaa: ${dmy(until)}\n\n👉 Gal akoonkaaga ${planName(pay.plan)} halkan:\n${SITE}/?open=${pay.plan === "business" ? "business" : "person"}\n(Ku gal email-kan iyo erayga sirta ah ee aad samaysay.)\n\nRasiidka PDF-ka ah waa lifaaqan.\n` +
     `Ma u baahan tahay caawimaad? Nala soo xiriir ${SUPPORT}\nErayga sirta ah ma illowday? Bogga gelitaanka riix "Ma illowday erayga sirta ah?".\n\nHantiGo\n${SITE}`;
