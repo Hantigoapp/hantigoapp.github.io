@@ -426,6 +426,9 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .invli .invst{display:flex;gap:6px;align-items:center;flex-wrap:wrap;width:100%}#appView .invlist .txa{flex-direction:row;flex-wrap:wrap;gap:6px;width:100%;justify-content:flex-start;align-items:center}.invli .invpay{display:flex;gap:6px;align-items:center;width:100%}.invli .invpay input{max-width:120px}
 .invli .amt.q{color:#d49a1b}.invsum{font-size:.88rem;margin:0}
 .cusum{grid-template-columns:repeat(3,minmax(0,1fr))}
+.prt{width:100%;border-collapse:collapse;font-size:.9rem}.prt td{padding:5px 4px;border-top:1px solid var(--line)}.prt .n{text-align:right;white-space:nowrap}.prt .pc{color:var(--muted);font-size:.78rem;width:44px}
+.prt .pr-h td{font-weight:700;border-top:0;padding-top:12px}.prt .pr-s td:first-child{padding-left:14px}.prt .pr-t td{font-weight:700}.prt .pr-n td{font-weight:800;font-size:1.02rem;border-top:2px solid var(--accent)}
+.prtips{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.88rem}.prm{width:100%}
 .emplist{display:grid}.emp{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.emp:first-child{border-top:0}
 .emph{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.empr{display:grid;justify-items:end;gap:3px}
 .empa{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.empa input{max-width:120px}#pyAll{justify-self:start}#cuQ{width:100%;box-sizing:border-box}
@@ -1193,6 +1196,17 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
     <details class="note"><summary>Eeg tirooyinka</summary><div style="overflow-x:auto"><table class="ctable" id="chartTable"></table></div></details>
   </section>
 
+  <section class="panel biz-only mgr-only" aria-labelledby="prH" data-tab="home" id="prPanel" data-fold="pr" data-fold-def="1">
+    <div class="panel-head"><h2 id="prH">📈 Warbixinta faa'iidada</h2>
+      <select id="prPer" aria-label="Muddada" style="width:auto"><option value="m">Bishan</option><option value="pm">Bishii hore</option><option value="q">3-dii bilood</option><option value="y">Sannadkan</option><option value="12">12-kii bilood</option></select></div>
+    <p class="note" id="prTitle" style="margin:0"></p>
+    <div class="goal-actions"><button type="button" id="prCsv">⬇ Excel</button><button type="button" id="prDoc">⬇ Word</button><button type="button" id="prPdf">🖨 PDF</button></div>
+    <div class="sttiles" id="prTiles"></div>
+    <div id="prStmt"></div>
+    <ul class="prtips" id="prTips"></ul>
+    <div id="prMonths"></div>
+    <div id="prCust"></div>
+  </section>
   <section class="panel biz-only mgr-only" aria-labelledby="stH" data-tab="home" id="stPanel" data-fold="st" data-fold-def="1">
     <div class="panel-head"><h2 id="stH">📊 Tirakoobka shirkadda</h2>
       <select id="stPer" aria-label="Muddada" style="width:auto"><option value="1">Bishan</option><option value="3">3-dii bilood</option><option value="12">12-kii bilood</option></select></div>
@@ -2946,7 +2960,7 @@ function wrExport(k){if(!WR)return;
 function renderJump(){const nav=$("hJump");if(!nav||$("appView").dataset.tab!=="home")return;
   const biz=MODE==="business";
   const list=[["wrPanel","📋 "+L("Warbixin","Report","تقرير","Ripoti")],["dyPanel","📅 "+L("Maalmaha","Days","الأيام","Siku")],["chartH","📈 "+L("Jaantus","Chart","رسم بياني","Chati")],
-    [biz?"stPanel":"catH",biz?"📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu"):"🍕 "+L("Kharashka","Spending","المصاريف","Matumizi")],["psPanel","📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu")],["mgPanel","🏢 "+L("Maamul","Manage","إدارة","Usimamizi")]];
+    [biz?"stPanel":"catH",biz?"📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu"):"🍕 "+L("Kharashka","Spending","المصاريف","Matumizi")],["psPanel","📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu")],["mgPanel","🏢 "+L("Maamul","Manage","إدارة","Usimamizi")],["prPanel",biz?"📈 "+L("Faa'iido","Profit","الربح","Faida"):""]];
   const sec=id=>{const e=$(id);return e?(e.tagName==="SECTION"?e:e.closest("section")):null};
   const vis=list.filter(([id,t])=>{const s=sec(id);return t&&s&&!s.hidden&&getComputedStyle(s).display!=="none"});
   const key=vis.map(v=>v[0]).join()+LANG;if(nav.dataset.k===key)return;nav.dataset.k=key;
@@ -4827,6 +4841,89 @@ document.addEventListener("click",async e=>{
     empEdit=null;try{await remove(pd.dataset.pydel)}catch{}return}
 });
 {const _r3=render;render=function(){_r3();try{renderPayroll()}catch(e){console.warn(e)}}}
+/* ================= 8. Shirkad: profit report (Warbixinta faa'iidada) (v142) =================
+   Shirkad entries only. Profit = business income − every expense (Kayd excluded everywhere).
+   Owner money, bank loans and grants ("Maalgelin & kaalmo") are cash that came in, not profit, so they are shown apart. */
+const PR_INVEST="Maalgelin & kaalmo",PR_COGS="Alaab & iibsi",PR_SAL="Mushaharka shaqaalaha",PR_DEBT="Deyn";
+let PR_IN=null,PR_OUT=null,PRD=null;
+const prIdx=G=>{const m=new Map();G.forEach(([g,,cs])=>cs.forEach(c=>m.set(c,g)));return m};
+function prGrp(t){PR_IN=PR_IN||prIdx(B_IN_GROUPS);PR_OUT=PR_OUT||prIdx(B_GROUPS);
+  if(t.type==="out"&&ROLES.has(t.cat))return PR_SAL;const g=(t.type==="in"?PR_IN:PR_OUT).get(t.cat);if(g)return g;
+  if(t.type==="out"&&t.billId){const b=items.find(i=>i.id===t.billId);if(b&&b.emp)return PR_SAL}return "Kale"}
+const prIso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+function prRange(k){const Y=view.getFullYear(),M=view.getMonth();let a,b;
+  if(k==="pm"){a=new Date(Y,M-1,1);b=new Date(Y,M,0)}else if(k==="q"){a=new Date(Y,M-2,1);b=new Date(Y,M+1,0)}else if(k==="y"){a=new Date(Y,0,1);b=new Date(Y,11,31)}
+  else if(k==="12"){a=new Date(Y,M-11,1);b=new Date(Y,M+1,0)}else{a=new Date(Y,M,1);b=new Date(Y,M+1,0)}
+  const n=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth()+1;
+  return {k,n,a,b,from:prIso(a),to:prIso(b),pfrom:prIso(new Date(a.getFullYear(),a.getMonth()-n,1)),pto:prIso(new Date(a.getFullYear(),a.getMonth(),0))}}
+function prSum(from,to){const ts=mine("tx").filter(t=>t.cat!=="Kayd"&&t.date>=from&&t.date<=to);const inG={},outG={},cust={},cat={};let sales=0,invest=0,out=0;
+  for(const t of ts){const v=Number(t.amount)||0,g=prGrp(t);
+    if(t.type==="in"){if(g===PR_INVEST){invest+=v;continue}sales+=v;inG[g]=(inG[g]||0)+v;const p=String(t.place||"").trim();if(p){const k=ckey(p);cust[k]=cust[k]||{name:p,v:0,n:0};cust[k].v+=v;cust[k].n++}}
+    else{out+=v;outG[g]=(outG[g]||0)+v;cat[t.cat]=(cat[t.cat]||0)+v}}
+  const cogs=outG[PR_COGS]||0,gross=sales-cogs,net=sales-out;
+  return {ts,inG,outG,cust,cat,sales,invest,out,cogs,gross,net,margin:sales?net/sales:null,cash:sales+invest-out}}
+function prData(k){const R=prRange(k),S=prSum(R.from,R.to),P=prSum(R.pfrom,R.pto);
+  const months=[];if(R.n>1)for(let i=0;i<R.n;i++){const a=new Date(R.a.getFullYear(),R.a.getMonth()+i,1),b=new Date(a.getFullYear(),a.getMonth()+1,0),m=prSum(prIso(a),prIso(b));
+    months.push({name:MONTHS[a.getMonth()]+" "+a.getFullYear(),sales:m.sales,out:m.out,net:m.net,margin:m.margin})}
+  const owed=mine("debt").filter(d=>d.dir==="in").reduce((a,d)=>a+debtLeft(d),0),weOwe=mine("debt").filter(d=>d.dir==="out").reduce((a,d)=>a+debtLeft(d),0);
+  const title=R.n===1?MONTHS[R.a.getMonth()]+" "+R.a.getFullYear():R.k==="y"?L("Sannadka ","Year ","سنة ","Mwaka ")+R.a.getFullYear():`${MONTHS[R.a.getMonth()]} ${R.a.getFullYear()} – ${MONTHS[R.b.getMonth()]} ${R.b.getFullYear()}`;
+  return {R,S,P,months,owed,weOwe,title}}
+const prPct=v=>v==null?"—":Math.round(v*100)+"%";
+const gName=g=>T(g);
+/* the statement lines: [label, amount, kind] kind: h=heading, s=sub line, t=total */
+function prLines(d){const S=d.S,ord=(o,skip)=>Object.entries(o).filter(([g])=>!skip.includes(g)).sort((a,b)=>b[1]-a[1]);const r=[];
+  r.push(["💰 "+L("Dakhliga ganacsiga","Business income","إيرادات النشاط","Mapato ya biashara"),null,"h"]);
+  ord(S.inG,[]).forEach(([g,v])=>r.push([gName(g),v,"s"]));r.push([L("Wadarta dakhliga","Total income","إجمالي الإيرادات","Jumla ya mapato"),S.sales,"t"]);
+  if(S.cogs){r.push(["📦 "+L("Kharashka alaabta (iibsi)","Cost of goods (buying)","تكلفة البضاعة","Gharama ya bidhaa"),-S.cogs,"s"]);r.push([L("Faa'iidada guud (ka hor kharashka kale)","Gross profit (before other costs)","إجمالي الربح (قبل المصاريف الأخرى)","Faida ghafi (kabla ya gharama nyingine)"),S.gross,"t"]);}
+  r.push(["💸 "+L("Kharashka shaqada","Running costs","مصاريف التشغيل","Gharama za uendeshaji"),null,"h"]);
+  ord(S.outG,[PR_COGS]).forEach(([g,v])=>r.push([gName(g)+(g===PR_DEBT?" ("+L("deyn la bixiyay","debts paid","ديون مدفوعة","madeni yaliyolipwa")+")":""),-v,"s"]));
+  r.push(S.cogs?[L("Wadarta kharashka shaqada","Total running costs","إجمالي مصاريف التشغيل","Jumla ya gharama za uendeshaji"),-(S.out-S.cogs),"t"]:[L("Wadarta kharashka","Total costs","إجمالي المصاريف","Jumla ya gharama"),-S.out,"t"]);
+  r.push([(S.net>=0?"📈 ":"📉 ")+(S.net>=0?L("FAA'IIDADA SAAFIGA AH","NET PROFIT","صافي الربح","FAIDA HALISI"):L("KHASAARE","NET LOSS","صافي الخسارة","HASARA")),S.net,"n"]);
+  return r}
+function prRender(){const P=$("prPanel");if(!P)return;if(MODE!=="business"||!MGR()){return}
+  $("prH").textContent="📈 "+L("Warbixinta faa'iidada","Profit report","تقرير الأرباح","Ripoti ya faida");
+  const sel=$("prPer"),lab={m:L("Bishan","This month","هذا الشهر","Mwezi huu"),pm:L("Bishii hore","Last month","الشهر الماضي","Mwezi uliopita"),q:L("3-dii bilood","3 months","3 أشهر","Miezi 3"),y:L("Sannadkan","This year","هذه السنة","Mwaka huu"),12:L("12-kii bilood","12 months","12 شهرًا","Miezi 12")};
+  [...sel.options].forEach(o=>o.textContent=lab[o.value]);
+  const d=PRD=prData(sel.value),S=d.S,Pv=d.P;
+  $("prTitle").textContent=d.title;
+  $("prTiles").innerHTML=tiles2([{ic:"💰",lb:L("Dakhliga","Income","الإيرادات","Mapato"),v:money(S.sales),c:ST_INC,cur:S.sales,prev:Pv.sales,goodUp:1},
+    {ic:"💸",lb:L("Kharashka","Costs","المصاريف","Gharama"),v:money(S.out),c:ST_OTH,cur:S.out,prev:Pv.out},
+    {ic:S.net>=0?"📈":"📉",lb:S.net>=0?L("Faa'iido saafi ah","Net profit","صافي الربح","Faida halisi"):L("Khasaare","Loss","خسارة","Hasara"),v:money(S.net),c:S.net>=0?"#2f6fc4":ST_SAL,cur:S.net,prev:Pv.net,goodUp:1},
+    {ic:"％",lb:L("Heerka faa'iidada","Profit margin","هامش الربح","Kiwango cha faida"),v:prPct(S.margin),c:"#7b4fb0"}]);
+  $("prStmt").innerHTML=`<table class="prt"><tbody>${prLines(d).map(([lb,v,k])=>`<tr class="pr-${k}"><td>${esc(lb)}</td><td class="n">${v==null?"":money(v)}</td><td class="n pc">${v==null||!S.sales||k==="h"?"":Math.round(Math.abs(v)/S.sales*100)+"%"}</td></tr>`).join("")}</tbody></table>`;
+  const tips=[];
+  if(!S.sales&&!S.out)tips.push(L("Muddadan wax lacag ah lama qorin.","Nothing was recorded in this period.","لم يُسجَّل شيء في هذه الفترة.","Hakuna kilichorekodiwa katika kipindi hiki."));
+  else{if(Pv.sales||Pv.out)tips.push(S.net>=Pv.net?L(`📈 Faa'iidadu way ka badan tahay muddadii hore <b>${money(S.net-Pv.net)}</b>.`,`📈 Profit is <b>${money(S.net-Pv.net)}</b> higher than the previous period.`,`📈 الربح أعلى من الفترة السابقة بـ <b>${money(S.net-Pv.net)}</b>.`,`📈 Faida iko juu kwa <b>${money(S.net-Pv.net)}</b> kuliko kipindi kilichopita.`)
+      :L(`📉 Faa'iidadu way ka yar tahay muddadii hore <b>${money(Pv.net-S.net)}</b>.`,`📉 Profit is <b>${money(Pv.net-S.net)}</b> lower than the previous period.`,`📉 الربح أقل من الفترة السابقة بـ <b>${money(Pv.net-S.net)}</b>.`,`📉 Faida iko chini kwa <b>${money(Pv.net-S.net)}</b> kuliko kipindi kilichopita.`));
+    const big=Object.entries(S.outG).sort((a,b)=>b[1]-a[1])[0];if(big&&S.out)tips.push(L(`💸 Kharashka ugu badan: <b>${esc(gName(big[0]))}</b> (${Math.round(big[1]/S.out*100)}% kharashka).`,`💸 Biggest cost: <b>${esc(gName(big[0]))}</b> (${Math.round(big[1]/S.out*100)}% of costs).`,`💸 أكبر مصروف: <b>${esc(gName(big[0]))}</b> (${Math.round(big[1]/S.out*100)}% من المصاريف).`,`💸 Gharama kubwa zaidi: <b>${esc(gName(big[0]))}</b> (${Math.round(big[1]/S.out*100)}% ya gharama).`));
+    if(S.invest)tips.push(L(`🏦 ${money(S.invest)} oo maalgelin / amaah ah ayaa soo gashay. Faa'iido lagama dhigin.`,`🏦 ${money(S.invest)} came in as investment / loans. It is not counted as profit.`,`🏦 دخل ${money(S.invest)} كاستثمار / قروض. لا يُحتسب ربحًا.`,`🏦 ${money(S.invest)} iliingia kama uwekezaji / mikopo. Haihesabiwi kama faida.`));
+    if(d.owed)tips.push(L(`🧾 Macaamiishu weli waxay na hayaan <b>${money(d.owed)}</b>. Marka ay bixiyaan ayay faa'iidada ku darsamaysaa.`,`🧾 Customers still owe us <b>${money(d.owed)}</b>. It joins the profit when they pay.`,`🧾 لا يزال العملاء مدينين لنا بـ <b>${money(d.owed)}</b>. يُضاف إلى الربح عند الدفع.`,`🧾 Wateja bado wanadaiwa <b>${money(d.owed)}</b>. Itaongezwa kwenye faida watakapolipa.`))}
+  $("prTips").innerHTML=tips.map(t=>`<li>${t}</li>`).join("");
+  const top=Object.values(S.cust).sort((a,b)=>b.v-a.v).slice(0,5);
+  $("prCust").innerHTML=top.length?`<h3 class="sth">🏆 ${L("Macaamiisha ugu iibka badan","Top customers","أفضل العملاء","Wateja wakuu")}</h3><ul class="bh-list">${top.map(c=>`<li><span>${esc(c.name)} <small class="note">· ${c.n}×</small></span><b>${money(c.v)}</b></li>`).join("")}</ul>`:"";
+  $("prMonths").innerHTML=d.months.length?`<h3 class="sth">📅 ${L("Bil kasta","Month by month","شهريًا","Kila mwezi")}</h3><table class="ctable prm"><tr><th>${L("Bisha","Month","الشهر","Mwezi")}</th><th class="n">${L("Dakhli","Income","الإيرادات","Mapato")}</th><th class="n">${L("Kharash","Costs","المصاريف","Gharama")}</th><th class="n">${L("Faa'iido","Profit","الربح","Faida")}</th><th class="n">%</th></tr>${d.months.map(m=>`<tr><td>${esc(m.name)}</td><td class="n">${money(m.sales)}</td><td class="n">${money(m.out)}</td><td class="n amt ${m.net>=0?"in":"out"}">${money(m.net)}</td><td class="n">${prPct(m.margin)}</td></tr>`).join("")}</table>`:""}
+const prFile=ext=>`HantiGo-${brandName()}-faaiido-${PRD.R.from.slice(0,7)}${PRD.R.n>1?"-"+PRD.R.to.slice(0,7):""}.${ext}`.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_");
+function prHtml(){const d=PRD,S=d.S;return `${coHead()}<h2>${L("Warbixinta faa'iidada","Profit report","تقرير الأرباح","Ripoti ya faida")}: ${esc(d.title)}</h2>
+  <table><tr><th>${L("Qaybta","Item","البند","Kipengele")}</th><th class="n">${L("Qadarka","Amount","المبلغ","Kiasi")}</th><th class="n">% ${L("dakhliga","of income","من الإيرادات","ya mapato")}</th></tr>${prLines(d).map(([lb,v,k])=>`<tr><td>${k==="h"||k==="t"||k==="n"?"<b>"+esc(lb)+"</b>":"&nbsp;&nbsp;"+esc(lb)}</td><td class="n">${v==null?"":(k==="t"||k==="n"?"<b>"+money(v)+"</b>":money(v))}</td><td class="n">${v==null||!S.sales||k==="h"?"":Math.round(Math.abs(v)/S.sales*100)+"%"}</td></tr>`).join("")}</table>
+  <p>${L("Heerka faa'iidada","Profit margin","هامش الربح","Kiwango cha faida")}: <b>${prPct(S.margin)}</b> · ${L("Muddadii hore","Previous period","الفترة السابقة","Kipindi kilichopita")}: ${money(d.P.net)}</p>
+  ${S.invest?`<p>${L("Maalgelin / amaah (faa'iido maaha)","Investment / loans (not profit)","استثمار / قروض (ليست ربحًا)","Uwekezaji / mikopo (si faida)")}: ${money(S.invest)}</p>`:""}
+  ${d.owed?`<p>${L("Lacag macaamiishu na hayaan","Owed to us by customers","مستحق لنا من العملاء","Wateja wanadaiwa")}: ${money(d.owed)}</p>`:""}
+  ${d.months.length?`<h2>${L("Bil kasta","Month by month","شهريًا","Kila mwezi")}</h2><table><tr><th>${L("Bisha","Month","الشهر","Mwezi")}</th><th class="n">${L("Dakhli","Income","الإيرادات","Mapato")}</th><th class="n">${L("Kharash","Costs","المصاريف","Gharama")}</th><th class="n">${L("Faa'iido","Profit","الربح","Faida")}</th><th class="n">%</th></tr>${d.months.map(m=>`<tr><td>${esc(m.name)}</td><td class="n">${money(m.sales)}</td><td class="n">${money(m.out)}</td><td class="n">${money(m.net)}</td><td class="n">${prPct(m.margin)}</td></tr>`).join("")}</table>`:""}
+  ${Object.keys(S.cust).length?`<h2>${L("Macaamiisha ugu iibka badan","Top customers","أفضل العملاء","Wateja wakuu")}</h2><table>${Object.values(S.cust).sort((a,b)=>b.v-a.v).slice(0,10).map(c=>`<tr><td>${esc(c.name)}</td><td class="n">${c.n}×</td><td class="n">${money(c.v)}</td></tr>`).join("")}</table>`:""}${stFoot()}`}
+function prExport(k){if(!PRD)prRender();if(!PRD)return;
+  if(k==="p"){$("printArea").innerHTML=prHtml();document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
+    window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50);return}
+  if(k==="w"){const doc=`<html${RTL?' dir="rtl"':""} xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
+<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b}h2{font-size:13pt;margin-top:14pt}table{border-collapse:collapse;width:100%;margin:6pt 0}th,td{border:1px solid #999;padding:4pt 6pt;text-align:${RTL?"right":"left"}}th{background:#e8f5ee}.n{text-align:right}</style></head><body>${prHtml()}</body></html>`;
+    saveFile(prFile("doc"),"﻿"+doc,"application/msword");return}
+  const d=PRD,S=d.S,H=[L("Qaybta","Item","البند","Kipengele"),L("Qadarka","Amount","المبلغ","Kiasi"),"%"];
+  const secs=[{title:L("Warbixinta faa'iidada","Profit report","تقرير الأرباح","Ripoti ya faida")+": "+d.title,colorFirst:1,head:H,rows:prLines(d).map(([lb,v,k])=>[k==="s"?"   "+lb:lb,v==null?"":v,v==null||!S.sales||k==="h"?"":Math.abs(v)/S.sales])}];
+  if(d.months.length)secs.push({title:L("Bil kasta","Month by month","شهريًا","Kila mwezi"),head:[L("Bisha","Month","الشهر","Mwezi"),L("Dakhli","Income","الإيرادات","Mapato"),L("Kharash","Costs","المصاريف","Gharama"),L("Faa'iido","Profit","الربح","Faida"),"%"],rows:d.months.map(m=>[m.name,m.sales,-m.out,m.net,m.margin==null?"":m.margin])});
+  const tc=Object.values(S.cust).sort((a,b)=>b.v-a.v).slice(0,10);if(tc.length)secs.push({title:L("Macaamiisha ugu iibka badan","Top customers","أفضل العملاء","Wateja wakuu"),head:[L("Macmiilka","Customer","العميل","Mteja"),L("Jeer","Times","مرات","Mara"),L("Qadarka","Amount","المبلغ","Kiasi")],rows:tc.map(c=>[c.name,c.n,c.v])});
+  exportSheet(L("Warbixinta faa'iidada","Profit report","تقرير الأرباح","Ripoti ya faida")+": "+d.title,secs,prFile("x").slice(0,-2))}
+$("prPer").addEventListener("change",prRender);
+$("prCsv").addEventListener("click",()=>prExport("x"));$("prDoc").addEventListener("click",()=>prExport("w"));$("prPdf").addEventListener("click",()=>prExport("p"));
+{const _r4=render;render=function(){_r4();try{prRender()}catch(e){console.warn(e)}}}
 /* ---------- v132 phone: tables as cards, long notes folded to 2 lines ---------- */
 (()=>{const PH=matchMedia("(max-width:639px)");
   /* every cell gets its column name, so a row can be shown as a card on a phone */
