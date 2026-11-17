@@ -466,6 +466,7 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .zb{display:block;font-size:.74rem;color:var(--muted)}.zb.z0{color:var(--out);font-weight:700}
 #irTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}#irTabs button{justify-content:center;font-weight:700;padding:10px 8px}.irnew button{width:100%}
 .invli .invfx{grid-column:1/-1;flex-basis:100%;order:9}.invfx summary{cursor:pointer;color:var(--muted,#9aa7b8);font-size:13px}
+.irtodo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 10px}.irtodo .todo{display:grid;justify-items:center;gap:2px;padding:10px 6px;border-radius:12px;border:1px solid var(--line,#2a3446);text-align:center;font-size:12px;line-height:1.25}.irtodo .todo b{font-size:20px}.irtodo .todo .ic{font-size:18px}.irtodo .todo.ok{opacity:.55}.irtodo .todo.hot{border-color:var(--accent,#6aa5ff);background:color-mix(in srgb,var(--accent,#6aa5ff) 14%,transparent)}.irtodo .todo.bad{border-color:var(--out,#ff6b6b);background:color-mix(in srgb,var(--out,#ff6b6b) 12%,transparent)}.irtodo .todo.warn{border-color:var(--warn,#f0b429);background:color-mix(in srgb,var(--warn,#f0b429) 12%,transparent)}@media(max-width:420px){.irtodo{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .invno{margin:-4px 0 8px;font-size:14px}.invlink:empty{display:none}.ilbox{margin:10px 0;padding:10px 12px;border:1px solid var(--line,#2a3446);border-radius:12px;display:grid;gap:6px}.ilbox.warn{border-color:var(--warn,#f0b429)}.ilbox button{justify-self:start}.ilrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line,#2a3446)}.ilacts{display:flex;flex-wrap:wrap;gap:6px}.ilnums{margin:6px 0}
 .invrev{margin:10px 0;padding:10px 12px;border:1px solid var(--line,#2a3446);border-radius:12px}.invrev .irh{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between}.revt{width:100%;border-collapse:collapse;margin:6px 0;font-size:14px}.revt th,.revt td{padding:5px 4px;border-bottom:1px solid var(--line,#2a3446);text-align:start}.revt .n{text-align:end;white-space:nowrap}.revt tr.bad td{color:var(--out,#ff6b6b)}.revt tr.tot td{border-bottom:0}.invrev .late{color:var(--out,#ff6b6b)}#invFixInfo{margin:22px 0 0}
 .invpick{margin:4px 0 10px;padding:10px;border:1px dashed var(--line,#2a3446);border-radius:12px}.invpick .field{margin:0}.invpick select{font-weight:600}#invPickInfo{margin:6px 0 0}#invPickInfo.warn{color:var(--warn,#f0b429)}
@@ -1265,6 +1266,7 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
   </section>
   <section class="panel biz-only mgr-only" aria-labelledby="irH" data-tab="home" id="irPanel" hidden>
     <div class="panel-head"><h2 id="irH">🧾 Xusuusinta qaansheegga</h2></div>
+    <div class="irtodo" id="irTodo"></div>
     <div class="extremes cusum" id="irSum"></div>
     <div class="chips invf" id="irTabs" role="group"></div>
     <div id="irNew" class="irnew"></div>
@@ -4884,9 +4886,9 @@ $("invShare").addEventListener("click",async()=>{const d=await invSave();if(!d)r
   try{p=await invPdf(d)}catch{invBusy(false,"");$("invErr").textContent=L("PDF-ka lama samayn karo hadda. Hubi internetka.","Could not make the PDF. Check the internet.");return}
   mailPdf(d,p,"").catch(()=>{});
   try{if(navigator.canShare&&navigator.canShare({files:[p.file]})){await navigator.share({files:[p.file],title:p.name,text:invText(d).replace(/\*/g,"")});
-      invBusy(false,"✓ "+L("Dooro macmiilka WhatsApp-ka, kadib dir. Nuqul ayaa email-kaaga laguu diray.","Pick the customer in WhatsApp, then send. A copy was emailed to you."));return}}
+      invBusy(false,"✓ "+L("Dooro macmiilka WhatsApp-ka, kadib dir. Nuqul ayaa email-kaaga laguu diray.","Pick the customer in WhatsApp, then send. A copy was emailed to you."));try{await invSentStamp(d,"wa")}catch{}return}}
   catch(e){if(e&&e.name==="AbortError"){invBusy(false,"");return}}
-  dlBlob(p.blob,p.name);invWa(d);invBusy(false,"✓ "+L("PDF-ka waa la soo dejiyay. WhatsApp-ka ku lifaaq (📎) PDF-ka, kadib dir.","PDF downloaded. Attach it in WhatsApp (📎), then send."))});
+  dlBlob(p.blob,p.name);invWa(d);invBusy(false,"✓ "+L("PDF-ka waa la soo dejiyay. WhatsApp-ka ku lifaaq (📎) PDF-ka, kadib dir.","PDF downloaded. Attach it in WhatsApp (📎), then send."));try{await invSentStamp(d,"wa")}catch{}});
 document.addEventListener("click",async e=>{
   const p=e.target.closest("[data-invp]");if(p){const d=items.find(i=>i.id===p.dataset.invp);if(d){try{const f=await invPdf(d);dlBlob(f.blob,f.name)}catch{}}return}
   const w=e.target.closest("[data-invw]");if(w){const d=items.find(i=>i.id===w.dataset.invw);if(d){invLoad(d);$("invShare").click()}return}
@@ -5241,7 +5243,11 @@ function renderInvRem(){const P=$("irPanel");if(!P)return;const l=irList();
   if(!allInv.length){P.hidden=true;return}P.hidden=false;
   const paidL=allInv.map(d=>({d,s:invState(d)})).filter(x=>x.s.left<=0).sort((a,b)=>(b.d.date||"").localeCompare(a.d.date||"")||(b.d.created||"").localeCompare(a.d.created||""));
   const tb=(k,t)=>`<button type="button" data-irtab="${k}" class="${irTab===k?"on":""}" aria-pressed="${irTab===k}">${t}</button>`;
-  $("irTabs").innerHTML=tb("open","⏳ "+L("Aan weli la bixin","Not paid yet","غير مدفوعة بعد","Bado hazijalipwa")+` (${l.length})`)+tb("paid","✓ "+L("La bixiyay","Paid","مدفوعة","Zimelipwa")+` (${paidL.length})`);
+  const uns=invUnsent();
+  $("irTabs").innerHTML=tb("send","📤 "+L("Aan la dirin","Not sent","غير مرسلة","Hazijatumwa")+` (${uns.length})`)+tb("open","⏳ "+L("Aan weli la bixin","Not paid yet","غير مدفوعة بعد","Bado hazijalipwa")+` (${l.length})`)+tb("paid","✓ "+L("La bixiyay","Paid","مدفوعة","Zimelipwa")+` (${paidL.length})`);
+  renderIrTodo(l,uns);
+  if(irTab==="send"){$("irNew").innerHTML="";$("irList").innerHTML=uns.length?uns.slice(0,irAll?999:8).map(irSendRow).join("")+(uns.length>8?`<button type="button" class="del" data-irall="1">${irAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${uns.length}) ▾`,`See all (${uns.length}) ▾`,`عرض الكل (${uns.length}) ▾`,`Ona zote (${uns.length}) ▾`)}</button>`:"")
+      :`<p class="empty" style="margin:0">✓ ${L("Qaansheeg kasta waa loo diray macmiilka.","Every invoice was sent to the customer.","أُرسلت كل الفواتير إلى العملاء.","Kila ankara imetumwa kwa mteja.")}</p>`;$("irMsg").textContent=irMsgT;return}
   const late=l.filter(x=>x.g===0),soon=l.filter(x=>x.g===1),sum=a=>a.reduce((s,x)=>s+x.s.left,0);
   $("irSum").innerHTML=`<div class="ext ${late.length?"hi":""}"><span class="lbl">${L("Dib u dhacay","Overdue","متأخرة","Zimechelewa")}</span><b>${late.length} · ${money(sum(late))}</b></div><div class="ext"><span class="lbl">${L("Dhowaan la gaarayo","Due soon","تستحق قريبًا","Zinakaribia")}</span><b>${soon.length} · ${money(sum(soon))}</b></div><div class="ext"><span class="lbl">${L("Dhammaan aan la bixin","All unpaid","كل غير المدفوعة","Zote hazijalipwa")}</span><b>${l.length} · ${money(sum(l))}</b></div>`;
   $("irH").textContent="🧾 "+L("Qaansheegyada","Invoices","الفواتير","Ankara");
@@ -5262,6 +5268,26 @@ function renderInvRem(){const P=$("irPanel");if(!P)return;const l=irList();
     (l.length>vis.length||irAll?`<button type="button" class="del" data-irall="1">${irAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${l.length}) ▾`,`See all (${l.length}) ▾`,`عرض الكل (${l.length}) ▾`,`Ona zote (${l.length}) ▾`)}</button>`:"");
   $("irMsg").textContent=irMsgT}
 let irMsgT="",irTab="open";
+/* v155: what needs doing, at a glance on Guriga — not sent yet, overdue, number problems, money not linked */
+function invUnsent(){return mine("inv").filter(d=>!d.sentAt&&!d.sharedAt&&!d.remAt&&!d.noSend).sort((a,b)=>(b.created||"").localeCompare(a.created||""))}
+async function invSentStamp(d,how,to){const x=items.find(i=>i.id===d.id)||d;await put({...x,sharedAt:new Date().toISOString(),sentHow:how,...(to?{sentTo:to,sentAt:new Date().toISOString()}:{})})}
+function renderIrTodo(l,uns){const box=$("irTodo");if(!box)return;const late=l.filter(x=>x.g===0),chk=typeof invNumCheck==="function"?invNumCheck():[],nb=chk.reduce((a,c)=>a+c.dup.length+c.miss.length,0),dupN=chk.reduce((a,c)=>a+c.dup.length,0),un=typeof invUnlinked==="function"?invUnlinked().length:0;
+  const t=(go,ic,n,lb,cls)=>`<button type="button" class="todo ${n?cls:"ok"}" data-irgo="${go}"><span class="ic">${ic}</span><b>${n}</b><span>${lb}</span></button>`;
+  box.innerHTML=t("send","📤",uns.length,L("U baahan in la diro","Need sending","تحتاج إرسال","Zinahitaji kutumwa"),"hot")+t("open","⏰",late.length,L("Dib u dhacay","Overdue","متأخرة","Zimechelewa"),"bad")+
+    t("nums","🔢",nb,dupN?L("Lambar isku mid ah","Same number","رقم مكرر","Namba moja"):L("Lambar maqan","Missing number","رقم مفقود","Namba inakosekana"),dupN?"bad":"warn")+t("link","💡",un,L("Lacag aan la xirin","Money not linked","مبالغ غير مربوطة","Pesa haijaunganishwa"),"warn")}
+function irSendRow(d){const id=esc(d.id),ph=irPhone(d),em=d.email||(custOf(d.cust)||{}).email||"",s=invState(d);
+  return `<div class="irow"><div class="irh"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)}<br><small class="note">${fmtD(d.date)} · ${esc(invLabel(d.k))}${em?" · ✉ "+esc(em):""}${ph?" · 💬 "+esc(ph):""}</small>${!em&&!ph?`<br><small class="note late">⚠ ${L("Email ama taleefan ma laha","No email or phone","لا بريد ولا هاتف","Hakuna barua pepe wala simu")}</small>`:""}${invItems(d)}</span><span class="irr"><b class="amt ${d.k==="q"&&s.left>0?"q":"in"}">${money(d.total)}</b>${invPill(s)}</span></div>
+  <div class="ira">${em?`<button type="button" class="primary" data-irsend="${id}">📧 ${L("Dir email","Send email","إرسال بريد","Tuma barua pepe")}</button>`:""}<button type="button" class="${em?"":"primary "}wa-bg" data-invw="${id}">💬 WhatsApp</button>${!em&&!ph?`<button type="button" data-irfix="${id}">✏ ${L("Ku dar email / taleefan","Add email / phone","أضف بريدًا / هاتفًا","Ongeza barua pepe / simu")}</button>`:""}<button type="button" class="del" data-irdone="${id}">✓ ${L("Waan diray","I sent it","أرسلتها","Nimeituma")}</button></div></div>`}
+document.addEventListener("click",async e=>{
+  const g=e.target.closest("[data-irgo]");if(g){const v=g.dataset.irgo;if(v==="send"||v==="open"){irTab=v;irAll=false;renderInvRem();$("irList").scrollIntoView({behavior:"smooth",block:"nearest"});return}
+    goTab("add");setTimeout(()=>{$("invLink").scrollIntoView({behavior:"smooth",block:"start"})},80);return}
+  const dn=e.target.closest("[data-irdone]");if(dn){const d=items.find(i=>i.id===dn.dataset.irdone);if(d)try{await invSentStamp(d,"hand")}catch{}return}
+  const fx=e.target.closest("[data-irfix]");if(fx){const d=items.find(i=>i.id===fx.dataset.irfix);if(!d)return;goTab("add");invLoad(d);setTimeout(()=>{$("invPanel").scrollIntoView({behavior:"smooth",block:"start"});$("invEmail").focus({preventScroll:true})},80);return}
+  const sd=e.target.closest("[data-irsend]");if(sd){const d0=items.find(i=>i.id===sd.dataset.irsend);if(!d0)return;const to=d0.email||(custOf(d0.cust)||{}).email||"";if(!to)return;sd.disabled=true;irMsgT=L("Waa la dirayaa…","Sending…","جارٍ الإرسال…","Inatuma…");$("irMsg").textContent=irMsgT;
+    try{const d={...d0,email:to},p=await invPdf(d);await mailPdf(d,p,to);await put({...(items.find(i=>i.id===d0.id)||d0),email:to,sentTo:to,sentAt:new Date().toISOString()});irMsgT="✓ "+L(`${invNoTxt(d)} waa loo diray ${to}.`,`${invNoTxt(d)} sent to ${to}.`,`أُرسلت ${invNoTxt(d)} إلى ${to}.`,`${invNoTxt(d)} imetumwa kwa ${to}.`)}
+    catch(err){irMsgT=L("Email-ka looma diri karo hadda.","The email could not be sent right now.","تعذّر إرسال البريد الآن.","Barua pepe haikuweza kutumwa sasa.")+" "+mailWhy(err?.why||err?.message||"")}
+    sd.disabled=false;renderInvRem();return}
+});
 /* the services / goods on an invoice, short: "Sonkor 50kg ×3 · Saliid ×10" */
 function invItems(d){const ls=(d.lines||[]).filter(l=>l&&l.n);if(!ls.length)return "";const t=ls.slice(0,3).map(l=>l.n+(Number(l.q)!==1?" ×"+l.q:"")).join(" · ")+(ls.length>3?` +${ls.length-3}`:"");
   return `<br><small class="note iritems">🛒 ${esc(t)}</small>`}
