@@ -466,6 +466,7 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .zb{display:block;font-size:.74rem;color:var(--muted)}.zb.z0{color:var(--out);font-weight:700}
 #irTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}#irTabs button{justify-content:center;font-weight:700;padding:10px 8px}.irnew button{width:100%}
 .invli .invfx{grid-column:1/-1;flex-basis:100%;order:9}.invfx summary{cursor:pointer;color:var(--muted,#9aa7b8);font-size:13px}
+.invno{margin:-4px 0 8px;font-size:14px}.invlink:empty{display:none}.ilbox{margin:10px 0;padding:10px 12px;border:1px solid var(--line,#2a3446);border-radius:12px;display:grid;gap:6px}.ilbox.warn{border-color:var(--warn,#f0b429)}.ilbox button{justify-self:start}.ilrow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line,#2a3446)}.ilacts{display:flex;flex-wrap:wrap;gap:6px}.ilnums{margin:6px 0}
 .invrev{margin:10px 0;padding:10px 12px;border:1px solid var(--line,#2a3446);border-radius:12px}.invrev .irh{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between}.revt{width:100%;border-collapse:collapse;margin:6px 0;font-size:14px}.revt th,.revt td{padding:5px 4px;border-bottom:1px solid var(--line,#2a3446);text-align:start}.revt .n{text-align:end;white-space:nowrap}.revt tr.bad td{color:var(--out,#ff6b6b)}.revt tr.tot td{border-bottom:0}.invrev .late{color:var(--out,#ff6b6b)}#invFixInfo{margin:22px 0 0}
 .invpick{margin:4px 0 10px;padding:10px;border:1px dashed var(--line,#2a3446);border-radius:12px}.invpick .field{margin:0}.invpick select{font-weight:600}#invPickInfo{margin:6px 0 0}#invPickInfo.warn{color:var(--warn,#f0b429)}
 #regTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}#regTabs button{justify-content:center;font-weight:700;padding:10px 8px}#regPanel #regMsg .del{margin-left:6px}
@@ -1370,6 +1371,7 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
 
       <section class="panel biz-only mgr-only" aria-labelledby="invH" data-tab="add" id="invPanel">
         <div class="panel-head"><h2 id="invH">🧾 Rasiid / Qaansheeg</h2><button type="button" class="del" id="invNew">+ Mid cusub</button></div>
+        <p class="invno" id="invNoLbl"></p>
         <div class="seg" role="radiogroup" aria-label="Nooca">
           <input type="radio" name="invk" id="invR" value="r" checked><label for="invR" class="l-in">Rasiid (waa la bixiyay)</label>
           <input type="radio" name="invk" id="invQ" value="q"><label for="invQ" class="l-out">Qaansheeg (weli lama bixin)</label>
@@ -1397,6 +1399,7 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
         <div class="goal-actions"><button type="button" class="primary" id="invSend">📧 Email u dir (PDF)</button><button type="button" class="primary wa-bg" id="invShare">💬 WhatsApp u dir (PDF)</button><button type="button" id="invDl">⬇ PDF</button></div>
         <span class="note ok" id="invMsg" role="status"></span>
         <p class="note" style="margin:0">PDF-ka waxaa loo dirayaa macmiilka, nuqulna waxaa laguu soo dirayaa email-kaaga.</p>
+        <div id="invLink" class="invlink"></div>
         <div id="invList" class="invlist"></div>
       </section>
 
@@ -4762,7 +4765,8 @@ function invLoad(d){invReset();invLines=d.lines.map(l=>({...l}));document.queryS
   invCur={sig:JSON.stringify([d.k,d.cust,d.phone||"",d.email||"",d.date,d.lines,d.note||"",d.due||"",d.adj||0]),doc:d}}
 function invReset(){invCur=null;invLines=[];invTx=null;$("invFix").value="";$("invFixRow").hidden=true;$("invCust").value="";$("invPhone").value="";$("invEmail").value="";$("invNote").value="";$("invDate").value=today();$("invDue").value="";$("invRec").checked=true;$("invErr").textContent="";$("invMsg").textContent="";renderInvLines();invKindUI()}
 $("invNew").addEventListener("click",invReset);
-function invNextNo(k){const s=settings();const n=TEAM?Math.max(0,...mine("inv").filter(x=>x.k===k).map(x=>Number(x.no)||0))+1:Number((s.invNo||{})[k]||0)+1;return [n,{...s,invNo:{...(s.invNo||{}),[k]:n}}]}
+{const _ir=invReset;invReset=function(){_ir();try{invNoUI()}catch{}};const _il=invLoad;invLoad=function(d){_il(d);try{invNoUI()}catch{}}}
+function invNextNo(k){const s=settings();const mx=Math.max(0,...mine("inv").filter(x=>x.k===k).map(x=>Number(x.no)||0));const n=Math.max(mx,TEAM?0:Number((s.invNo||{})[k]||0))+1;return [n,{...s,invNo:{...(s.invNo||{}),[k]:n}}]}
 const invLabel=k=>k==="r"?L("Rasiid","Receipt"):L("Qaansheeg","Invoice");
 const invNoTxt=d=>(d.k==="r"?"R-":"Q-")+String(d.no).padStart(4,"0");
 let invCur=null;
@@ -4789,7 +4793,7 @@ async function invSave(){const lines=invLines.map(l=>({n:String(l.n||"").trim(),
         if(k==="r"){const tid=uid();await put({id:tid,kind:"tx",method:payMethod(),type:"in",amount:total,cat:"Iib",date,place:cust,note:invNoTxt(doc),created:new Date().toISOString()});doc.txId=tid}
         else{const did=uid();await put({id:did,kind:"debt",name:cust,amount:total,dir:"in",due:doc.due,paid:0,note:invNoTxt(doc),created:new Date().toISOString()});doc.debtId=did}
         doc.linked=1;doc.auto=1}}
-    await put(doc);invCur={sig,doc};try{await invLearn(k,lines)}catch(e){console.warn(e)}$("invMsg").textContent="✓ "+L(`${invLabel(k)} ${invNoTxt(doc)} waa la kaydiyay.`,`${invLabel(k)} ${invNoTxt(doc)} saved.`,`تم حفظ ${invLabel(k)} ${invNoTxt(doc)}.`,`${invLabel(k)} ${invNoTxt(doc)} imehifadhiwa.`);return doc}
+    await put(doc);invCur={sig,doc};try{invNoUI()}catch{}try{await invLearn(k,lines)}catch(e){console.warn(e)}$("invMsg").textContent="✓ "+L(`${invLabel(k)} ${invNoTxt(doc)} waa la kaydiyay.`,`${invLabel(k)} ${invNoTxt(doc)} saved.`,`تم حفظ ${invLabel(k)} ${invNoTxt(doc)}.`,`${invLabel(k)} ${invNoTxt(doc)} imehifadhiwa.`);return doc}
   catch{$("invErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.");return null}}
 function invHtml(d){const k=d.k,co=coName()||"HantiGo",lg=coLogo();
   return `<div class="inv"><div class="rhead">${lg?`<img src="${lg}" alt="" width="56" height="56" style="max-height:56px">`:""}<div><h1 style="margin:0">${esc(co)}</h1><small style="color:#666">${esc(invLabel(k))} · ${esc(invNoTxt(d))}</small></div></div>
@@ -5405,6 +5409,53 @@ async function invLearn(k,lines){const by=new Map();
     if(known.has(ckey(l.n)))continue;if(!by.has(l.t))by.set(l.t,[]);if(!by.get(l.t).some(n=>ckey(n)===ckey(l.n)))by.get(l.t).push(l.n)}
   for(const [tid,add] of by){const doc=invExt(k).find(c=>c.tid===tid);
     if(doc)await put({...doc,items:[...(doc.items||[]),...add].slice(-80)});else await put({id:uid(),kind:"cat",type:"invt",k,tid,items:add,created:new Date().toISOString()})}}
+/* ================= v154: numbers in order + money that came in for an unpaid invoice =================
+   R-0001, R-0002… and Q-0001, Q-0002… each count on their own. The next number is shown before saving.
+   Doubles (two phones saving at once offline) are found and can be fixed; missing numbers are named.
+   Income from a customer who has an unpaid invoice is found and can be linked to it (the invoice then shows paid). */
+function invNoUI(){const b=$("invNoLbl");if(!b)return;const k=invKind(),cur=invCur&&invCur.doc&&invCur.doc.k===k?invCur.doc:null;
+  const no=cur?invNoTxt(cur):invNoTxt({k,no:invNextNo(k)[0]});
+  b.innerHTML=`🔢 ${esc(L("Lambarka","Number","الرقم","Namba"))}: <b>${esc(no)}</b>${cur?"":` <span class="note">(${esc(L("kan xiga","next","التالي","inayofuata"))})</span>`}`}
+function invNumCheck(){const out=[];
+  for(const k of ["r","q"]){const ds=mine("inv").filter(d=>d.k===k),by=new Map();for(const d of ds){const n=Number(d.no)||0;if(!by.has(n))by.set(n,[]);by.get(n).push(d)}
+    const dup=[...by].filter(([,a])=>a.length>1).map(([n])=>n),mx=Math.max(0,...by.keys()),miss=[];for(let n=1;n<=mx&&miss.length<20;n++)if(!by.has(n))miss.push(n);
+    out.push({k,count:ds.length,mx,dup,miss})}return out}
+function renderInvLink(){const box=$("invLink");if(!box)return;if(MODE!=="business"||!MGR()){box.innerHTML="";return}
+  const chk=invNumCheck(),tag=(k,n)=>invNoTxt({k,no:n});let h="";
+  const bad=chk.filter(c=>c.dup.length);
+  if(bad.length)h+=`<div class="ilbox warn"><b>⚠ ${esc(L("Lambar isku mid ah","Same number twice","رقم مكرر","Namba moja mara mbili"))}:</b> ${bad.flatMap(c=>c.dup.map(n=>esc(tag(c.k,n)))).join(", ")}
+    <button type="button" data-invrenum="1">🔢 ${esc(L("Sax lambarada","Fix the numbers","تصحيح الأرقام","Rekebisha namba"))}</button></div>`;
+  const miss=chk.filter(c=>c.miss.length);
+  h+=`<p class="note ilnums">🔢 ${chk.filter(c=>c.count).map(c=>`${esc(c.k==="r"?L("Rasiid","Receipts","إيصالات","Risiti"):L("Qaansheeg","Invoices","فواتير","Ankara"))}: ${esc(tag(c.k,1))} → ${esc(tag(c.k,c.mx))}`).join(" · ")||esc(L("Weli lambar lama bixin.","No numbers yet.","لا أرقام بعد.","Bado hakuna namba."))}${chk.every(c=>!c.dup.length&&!c.miss.length)&&chk.some(c=>c.count)?" · ✓ "+esc(L("way isku xigaan","in order","متسلسلة","kwa mpangilio")):""}${miss.length?`<br>${esc(L("Lambarada maqan (waa la tirtiray)","Missing numbers (deleted)","أرقام مفقودة (محذوفة)","Namba zinazokosekana (zimefutwa)"))}: ${miss.flatMap(c=>c.miss.map(n=>esc(tag(c.k,n)))).join(", ")}`:""}</p>`;
+  const pend=invUnlinked();
+  if(pend.length)h+=`<div class="ilbox"><b>💡 ${esc(L("Lacag soo gashay oo qaansheeg furan ku maqan yahay","Money received while an invoice is open","مبالغ مستلمة وهناك فاتورة مفتوحة","Pesa iliyopokelewa wakati ankara iko wazi"))} (${pend.length})</b>
+    <p class="note">${esc(L("Ku xir si qaansheegga loo calaamadeeyo la bixiyay.","Link it so the invoice shows as paid.","اربطها لتظهر الفاتورة مدفوعة.","Iunganishe ili ankara ionekane imelipwa."))}</p>
+    ${pend.slice(0,8).map(({t,inv})=>`<div class="ilrow"><span>💵 <b>${esc(t.place)}</b> · ${money(Number(t.amount)||0)} · ${fmtD(t.date)}</span>
+      <span class="ilacts">${inv.map(d=>`<button type="button" data-invlink="${esc(t.id)}|${esc(d.id)}">🔗 ${esc(invNoTxt(d))} (${esc(L("haray","left","المتبقي","imebaki"))} ${money(invState(d).left)})</button>`).join("")}<button type="button" class="del" data-invnolink="${esc(t.id)}">${esc(L("Maya, lacag kale","No, other money","لا، مبلغ آخر","Hapana, pesa nyingine"))}</button></span></div>`).join("")}</div>`;
+  box.innerHTML=h}
+function invUnlinked(){const open=mine("inv").filter(d=>d.k==="q"&&invState(d).left>0);if(!open.length)return [];
+  const used=new Set(mine("inv").map(d=>d.txId).filter(Boolean)),res=[];
+  for(const t of mine("tx")){if(t.type!=="in"||t.debtId||t.billId||t.noInv||t.cat==="Kayd"||used.has(t.id)||!String(t.place||"").trim())continue;
+    const inv=open.filter(d=>ckey(d.cust)===ckey(t.place)&&(!d.date||!t.date||d.date<=t.date)&&(!d.created||!t.created||d.created<=t.created)).sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+    if(inv.length)res.push({t,inv})}
+  return res.sort((a,b)=>(b.t.date||"").localeCompare(a.t.date||""))}
+document.addEventListener("click",async e=>{
+  const lk=e.target.closest("[data-invlink]");if(lk){const [tid,iid]=lk.dataset.invlink.split("|"),t=items.find(i=>i.id===tid),d=items.find(i=>i.id===iid);if(!t||!d)return;lk.disabled=true;
+    try{const db=await invEnsureDebt(d),left=debtLeft(db),amt=Number(t.amount)||0,v=Math.min(amt,left);
+      if(v>0){await put({...t,amount:v,debtId:db.id,cat:"Deyn la soo celiyay",note:invNoTxt(d)+(t.note?" · "+t.note:"")});await put({...db,paid:Number(db.paid||0)+v});
+        if(amt>v)await put({...t,id:uid(),amount:Math.round((amt-v)*100)/100,created:new Date().toISOString()})}
+      $("invMsg").textContent="✓ "+L(`${money(v)} waxaa lagu xiray ${invNoTxt(d)}.`,`${money(v)} linked to ${invNoTxt(d)}.`,`تم ربط ${money(v)} بـ ${invNoTxt(d)}.`,`${money(v)} imeunganishwa na ${invNoTxt(d)}.`)}catch(x){console.warn(x);lk.disabled=false}return}
+  const nl=e.target.closest("[data-invnolink]");if(nl){const t=items.find(i=>i.id===nl.dataset.invnolink);if(t)try{await put({...t,noInv:1})}catch{}return}
+  const rn=e.target.closest("[data-invrenum]");if(rn){rn.disabled=true;let moved=[];
+    for(const k of ["r","q"]){const ds=mine("inv").filter(d=>d.k===k).sort((a,b)=>(a.created||"").localeCompare(b.created||""));let mx=Math.max(0,...ds.map(d=>Number(d.no)||0));const seen=new Set();
+      for(const d of ds){const n=Number(d.no)||0;if(n&&!seen.has(n)){seen.add(n);continue}mx++;const old=invNoTxt(d),nd={...d,no:mx,oldNo:d.oldNo||old};
+        await put(nd);moved.push(old+" → "+invNoTxt(nd));
+        for(const x of items.filter(i=>(i.id===d.txId||i.id===d.debtId)&&String(i.note||"").includes(old)))await put({...x,note:String(x.note).replace(old,invNoTxt(nd))})}
+      if(!TEAM){const s=settings();if(Number((s.invNo||{})[k]||0)<mx)await put({...s,invNo:{...(s.invNo||{}),[k]:mx}})}}
+    $("invMsg").textContent="✓ "+L("Lambarada waa la saxay: ","Numbers fixed: ","تم تصحيح الأرقام: ","Namba zimerekebishwa: ")+moved.join(", ");return}
+});
+{const _r8=render;render=function(){_r8();try{renderInvLink();invNoUI()}catch(e){console.warn(e)}}}
+document.querySelectorAll("input[name=invk]").forEach(r=>r.addEventListener("change",()=>{try{invNoUI()}catch{}}));
 /* ================= 13. Owner gives a manager permission to register customers and staff (v152) =================
    team_members.can_register (customers.sql). Owner: always. Manager: only when ticked. Staff: never.
    The server (team_save) refuses customers and new employees from a manager without it. */
