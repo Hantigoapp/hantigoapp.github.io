@@ -461,6 +461,9 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .cusum{grid-template-columns:repeat(3,minmax(0,1fr))}
 .prt{width:100%;border-collapse:collapse;font-size:.9rem}.prt td{padding:5px 4px;border-top:1px solid var(--line)}.prt .n{text-align:right;white-space:nowrap}.prt .pc{color:var(--muted);font-size:.78rem;width:44px}
 .prt .pr-h td{font-weight:700;border-top:0;padding-top:12px}.prt .pr-s td:first-child{padding-left:14px}.prt .pr-t td{font-weight:700}.prt .pr-n td{font-weight:800;font-size:1.02rem;border-top:2px solid var(--accent)}
+.zcbox{border:1px solid var(--out);background:var(--out-soft);border-radius:14px;padding:10px 12px;display:grid;gap:8px}.zcbox .zt{margin:0;font-weight:700;color:var(--out)}
+.zr{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 10px;align-items:center;border-top:1px solid var(--line);padding-top:8px}.za{display:flex;gap:6px;flex-wrap:wrap}
+.zb{display:block;font-size:.74rem;color:var(--muted)}.zb.z0{color:var(--out);font-weight:700}
 .irlist{display:grid}.irow{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.irow:first-child{border-top:0}.irow.irlate{box-shadow:inset 3px 0 0 var(--out);padding-left:8px}
 .irh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.irr{display:grid;justify-items:end;gap:3px}.ira{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ira input{max-width:110px}
 .prtips{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.88rem}.prm{width:100%}
@@ -1168,6 +1171,7 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
   <div id="coAsk" class="banner" data-tab="home" hidden><b>🏢 Ku dar astaanta shirkaddaada</b> Magaca iyo astaanta (logo) shirkadda ayaa ka muuqanaya warbixinnada aad soo dejiso.
     <div class="goal-actions" style="margin-top:8px"><button type="button" class="primary" id="coAskGo">Ku dar hadda</button><button type="button" class="del" id="coAskNo">Mar dambe</button></div></div>
   <div id="alerts" class="alerts no-staff" role="status" data-tab="home" hidden></div>
+  <div id="zcBox" class="zcbox no-staff" role="status" data-tab="home" hidden></div>
 
   <section class="panel staff-only sfcard" aria-labelledby="sfH" data-tab="home" id="sfPanel">
     <div class="sfhead"><h2 id="sfH">👷 Dashboard-ka shaqaalaha</h2><span class="rolepill" id="sfCo"></span></div>
@@ -2048,10 +2052,19 @@ async function syncNow(){
   if(syncAgain||dirty.size||gone.size){syncAgain=false;scheduleSync()}
 }
 async function flush(){clearTimeout(syncTimer);if(dirty.size||gone.size)await syncNow()}
+/* money fields watched for changes (see section 10): old → new is kept on the item, 0 asks first */
+const ZERO_KINDS={tx:["amount"],bill:["amount"],debt:["amount"],inv:["total"],goal:["target"]};
+let ZERO_ASK=true;
 async function put(doc){
   if(["tx","goal","bill","cat","debt","leave","inv"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
   if(doc.kind==="tx"&&!doc.by&&(TEAM||hasStaff)&&me)doc={...doc,by:me.email};
-  const i=items.findIndex(x=>x.id===doc.id);if(i>=0)items[i]=doc;else items.push(doc);
+  const i=items.findIndex(x=>x.id===doc.id);
+  if(i>=0&&ZERO_KINDS[doc.kind]){const old=items[i];let hist=doc.hist||old.hist||[],ch=false;
+    for(const f of ZERO_KINDS[doc.kind]){const o=Math.round(Number(old[f]||0)*100)/100,n=Math.round(Number(doc[f]||0)*100)/100;if(o===n)continue;
+      if(n===0&&o>0&&ZERO_ASK&&typeof confirm==="function"&&!confirm(L(`${zName(old)}\n\nQadarka ${money(o)} waxaad u beddelaysaa 0 (eber). Ma hubtaa?`,`${zName(old)}\n\nYou are changing ${money(o)} to 0 (zero). Are you sure?`,`${zName(old)}\n\nأنت تغيّر ${money(o)} إلى 0 (صفر). هل أنت متأكد؟`,`${zName(old)}\n\nUnabadilisha ${money(o)} kuwa 0 (sifuri). Una uhakika?`))){render();return}
+      hist=[...hist,{at:new Date().toISOString(),by:me?.email||"",f,o,n}].slice(-10);ch=true}
+    if(ch)doc={...doc,hist}}
+  if(i>=0)items[i]=doc;else items.push(doc);
   doc.u=Date.now();dirty.add(doc.id);gone.delete(doc.id);delete goneT[doc.id];
   saveLocal();render();scheduleSync();
 }
@@ -3207,10 +3220,10 @@ function renderBills(txs){
     const hist=billHist===b.id?billHistory(b,txs):"";
     /* a bill with no amount yet and never paid: one short row (name, day, amount), no button bar */
     const empty=!(Number(b.amount)>0)&&!x.pays.length&&billOpen!==b.id&&billHist!==b.id;
-    if(empty)return head+`<div class="bill bempty"><span class="name"><span>${esc(billNm(b))}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
+    if(empty)return head+`<div class="bill bempty"><span class="name"><span>${esc(billNm(b))}${zBadge(b)}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
       <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${id}" aria-label="${L("Qadarka ","Amount for ")}${esc(b.name)}">
       <button class="del" data-del="${id}">Tirtir</button></div>`;
-    return head+`<div class="bill bs-${x.late?"late":x.s}"><span class="name"><span>${esc(billNm(b))}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
+    return head+`<div class="bill bs-${x.late?"late":x.s}"><span class="name"><span>${esc(billNm(b))}${zBadge(b)}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
       <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${id}" aria-label="${L("Qadarka ","Amount for ")}${esc(b.name)}">
       <button class="del" data-del="${id}">Tirtir</button>${line2}${bar}${part}${set}${hist}</div>`}).join("")
     :`<p class="empty" style="margin:0">Weli ma jiro kharash joogto ah. Hoos ka ku dar.</p>`;
@@ -3700,7 +3713,7 @@ function renderDebts(){
   $("debtSum").innerHTML=`<div class="ext lo"><span class="lbl">${L("Lacag naloo hayo","Owed to us")}</span><b>${money(tin)}</b></div><div class="ext hi"><span class="lbl">${L("Lacag aan u hayno dad kale","We owe others")}</span><b>${money(tout)}</b></div>`;
   $("debts").innerHTML=ds.length?ds.map(d=>{const r=debtLeft(d),late=d.due&&r>0&&d.due<today(),id=esc(d.id);
     return `<div class="debt"><div class="goal-top"><b>${esc(d.name)}</b><span class="amt ${d.dir}">${money(r)}</span></div>
-      <span class="note">${d.dir==="in"?L("Naloo hayo","Owed to us"):L("Aan u hayno","We owe")} · ${L("Wadarta","Total")}: ${money(d.amount)}${d.due?` · <span class="${late?"late":""}">${L("Taariikhda","Due")}: ${fmtD(d.due)}${late?L(" (way dhaaftay)"," (overdue)"):""}</span>`:""}</span>
+      <span class="note">${d.dir==="in"?L("Naloo hayo","Owed to us"):L("Aan u hayno","We owe")} · ${L("Wadarta","Total")}: ${money(d.amount)}${d.due?` · <span class="${late?"late":""}">${L("Taariikhda","Due")}: ${fmtD(d.due)}${late?L(" (way dhaaftay)"," (overdue)"):""}</span>`:""}</span>${zBadge(d)}
       <div class="goal-actions">${r>0?`<input type="number" min="0" step="0.01" inputmode="decimal" placeholder="${L("Qadar","Amount")}" id="din-${id}" aria-label="${L("Qadarka","Amount")}"><button data-dpay="${id}">${d.dir==="in"?L("Lacag ayaa la helay","Received"):L("Bixi","Pay")}</button>`:`<span class="done">${L("✓ Waa la dhammeeyay","✓ Settled")}</span>`}
       ${items.some(i=>i.kind==="tx"&&i.debtId===d.id)?`<button class="del" data-dundo="${id}">${L("↩ Ka noqo lacagtii u dambeysay","↩ Undo last payment")}</button>`:""}
       ${d.dir==="in"&&r>0?`<button type="button" class="del" data-dwa="${id}">💬 ${L("Xusuusin","Remind","تذكير","Kumbusha")}</button>`:""}<button class="del" data-del="${id}">Tirtir</button></div></div>`}).join("")
@@ -4961,7 +4974,7 @@ function renderPayroll(){const P=$("pyPanel");if(!P)return;if(MODE!=="business")
       <label class="field"><span>${L("Taleefan","Phone","الهاتف","Simu")}</span><input id="pe-ph" type="tel" maxlength="20" value="${esc(b.phone||"")}"></label>
       <label class="field"><span>${L("Maalinta mushaharka (1-31)","Pay day (1-31)","يوم الدفع (1-31)","Siku ya malipo (1-31)")}</span><input id="pe-day" type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}"></label></div>
       <div class="goal-actions"><button type="button" class="primary" data-pysave="${id}">${L("Kaydi","Save","حفظ","Hifadhi")}</button><button type="button" data-pycancel="1">${L("Jooji","Cancel","إلغاء","Ghairi")}</button><button type="button" class="del" data-pydel="${id}" style="margin-left:auto">${L("Ka saar shaqaalaha","Remove employee","إزالة الموظف","Ondoa mfanyakazi")}</button></div></div>`;
-    return `<div class="emp bs-${x.late?"late":x.s}"><div class="emph"><span><b>${esc(b.who||T(b.name))}</b>${b.mail?` <span class="pill ok empacc" title="${esc(b.mail)}">🔗 ${L("akoon","account","حساب","akaunti")}</span>`:""}<br><small class="note">${esc(T(b.name))}${b.mail&&lc(b.mail)!==lc(b.who)?" · "+esc(b.mail):""}${b.due?" · "+L("maalinta","day","اليوم","siku")+" "+billDay(b):""}${b.phone?" · 📞 "+esc(b.phone):""}</small></span><span class="empr"><b>${money(x.amt)}</b>${billPill(x)}</span></div>
+    return `<div class="emp bs-${x.late?"late":x.s}"><div class="emph"><span><b>${esc(b.who||T(b.name))}</b>${b.mail?` <span class="pill ok empacc" title="${esc(b.mail)}">🔗 ${L("akoon","account","حساب","akaunti")}</span>`:""}<br><small class="note">${esc(T(b.name))}${b.mail&&lc(b.mail)!==lc(b.who)?" · "+esc(b.mail):""}${b.due?" · "+L("maalinta","day","اليوم","siku")+" "+billDay(b):""}${b.phone?" · 📞 "+esc(b.phone):""}</small>${zBadge(b)}</span><span class="empr"><b>${money(x.amt)}</b>${billPill(x)}</span></div>
       ${x.s==="part"?`<span class="note">${L("La bixiyay","Paid","المدفوع","Imelipwa")} ${money(x.paid)} · ${L("haray","left","المتبقي","imebaki")} <b>${money(x.left)}</b></span>`:""}
       <div class="empa">${x.due&&x.left>0?`<input type="number" min="0" step="0.01" inputmode="decimal" id="pp-${id}" value="${x.left}" aria-label="${esc(L("Qadarka","Amount","المبلغ","Kiasi"))}"><button type="button" class="primary" data-pypay="${id}">💳 ${L("Bixi","Pay","ادفع","Lipa")}</button>`:""}
         ${x.paid>0?`<button type="button" data-pyslip="${id}">📄 ${L("Warqadda mushaharka","Payslip","قسيمة الراتب","Hati ya mshahara")}</button>`:""}<button type="button" class="del" data-pyedit="${id}">✏ ${L("Beddel","Edit","تعديل","Hariri")}</button></div></div>`}).join("")
@@ -5153,6 +5166,33 @@ document.addEventListener("click",async e=>{
     pp.disabled=true;try{const db=await invEnsureDebt(d);const got=await debtReceive(db,v);irMsgT="✓ "+L(`${money(got)} waa la qoray (${invNoTxt(d)}).`,`${money(got)} recorded (${invNoTxt(d)}).`,`تم تسجيل ${money(got)} (${invNoTxt(d)}).`,`${money(got)} imerekodiwa (${invNoTxt(d)}).`);renderInvRem()}catch{pp.disabled=false}return}
 });
 {const _r5=render;render=function(){_r5();try{renderInvRem()}catch(e){console.warn(e)}}}
+/* ================= 10. Amounts changed to zero: noticed, shown, can be put back (v147) =================
+   put() keeps the last 10 amount changes on each item (hist: at, by, f, o=old, n=new). A change from a real
+   amount to 0 asks first, then shows on Guriga until someone puts it back or marks it right. Works per mode:
+   Shakhsi sees only Shakhsi items, Shirkad only Shirkad items. No SQL. */
+const zFmt=h=>`${money(h.o)} → ${money(h.n)}`;
+const zWho=h=>h.by?String(h.by).split("@")[0]:"";
+const zName=x=>x.kind==="bill"?billNm(x):x.kind==="debt"?(x.name||""):x.kind==="inv"?invNoTxt(x)+" · "+(x.cust||""):x.kind==="goal"?(x.name||""):(T(x.cat||"")+(x.place?" · "+x.place:""));
+const zKind=x=>x.kind==="bill"?(x.emp?L("Mushahar","Salary","راتب","Mshahara"):L("Kharash joogto ah","Regular expense","مصروف ثابت","Gharama ya kawaida")):x.kind==="debt"?L("Deyn","Debt","دين","Deni"):x.kind==="inv"?L("Qaansheeg","Invoice","فاتورة","Ankara"):x.kind==="goal"?L("Yool","Goal","هدف","Lengo"):L("Lacag","Entry","معاملة","Muamala");
+function zList(){if(STAFF())return [];const since=new Date(Date.now()-30*864e5).toISOString(),out=[];
+  for(const x of items){if(!x.hist||!ZERO_KINDS[x.kind]||(x.mode||"person")!==MODE)continue;
+    x.hist.forEach((h,i)=>{if(h.n===0&&h.o>0&&!h.ok&&h.at>=since&&Number(x[h.f]||0)===0)out.push({x,h,i})})}
+  return out.sort((a,b)=>b.h.at.localeCompare(a.h.at))}
+/* small note on a row: the last amount change, red when it went to 0 */
+function zBadge(x){const h=(x.hist||[]).filter(h=>h.f!=="paid").slice(-1)[0];if(!h)return "";
+  return `<small class="zb ${h.n===0&&h.o>0&&!h.ok?"z0":""}" title="${esc(fmtD(h.at.slice(0,10))+(zWho(h)?" · "+zWho(h):""))}">↺ ${esc(zFmt(h))} · ${fmtD(h.at.slice(0,10))}${zWho(h)?" · "+esc(zWho(h)):""}</small>`}
+function renderZero(){const box=$("zcBox");if(!box)return;const l=zList();box.hidden=!l.length;if(!l.length){box.innerHTML="";return}
+  box.innerHTML=`<p class="zt">⚠️ ${L(`${l.length} qadar ayaa eber (0) loo beddelay`,`${l.length} amounts were changed to zero (0)`,`تم تغيير ${l.length} مبالغ إلى صفر (0)`,`Kiasi ${l.length} kimebadilishwa kuwa sifuri (0)`)}</p>`+
+   l.slice(0,6).map(({x,h,i})=>`<div class="zr"><span><b>${esc(zName(x))}</b> <small class="note">· ${esc(zKind(x))}</small><br><small class="note">${esc(zFmt(h))} · ${fmtD(h.at.slice(0,10))} ${h.at.slice(11,16)}${zWho(h)?" · "+esc(zWho(h)):""}</small></span>
+     <span class="za"><button type="button" class="primary" data-zback="${esc(x.id)}" data-zi="${i}">↩ ${L("Soo celi","Put back","استرجاع","Rudisha")} ${money(h.o)}</button><button type="button" class="del" data-zok="${esc(x.id)}" data-zi="${i}">✓ ${L("Waa sax","It is right","صحيح","Ni sahihi")}</button></span></div>`).join("")+
+   (l.length>6?`<p class="note" style="margin:0">+${l.length-6}</p>`:"")}
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-zback]");if(b){const x=items.find(i=>i.id===b.dataset.zback),k=+b.dataset.zi;if(!x||!x.hist||!x.hist[k])return;const h=x.hist[k];
+    const hist=x.hist.map((r,j)=>j===k?{...r,ok:1}:r);ZERO_ASK=false;try{await put({...x,hist,[h.f]:h.o})}catch{}ZERO_ASK=true;return}
+  const o=e.target.closest("[data-zok]");if(o){const x=items.find(i=>i.id===o.dataset.zok),k=+o.dataset.zi;if(!x||!x.hist||!x.hist[k])return;
+    try{await put({...x,hist:x.hist.map((r,j)=>j===k?{...r,ok:1,okBy:myMail()}:r)})}catch{}return}
+});
+{const _r6=render;render=function(){_r6();try{renderZero()}catch(e){console.warn(e)}}}
 /* ---------- v132 phone: tables as cards, long notes folded to 2 lines ---------- */
 (()=>{const PH=matchMedia("(max-width:639px)");
   /* every cell gets its column name, so a row can be shown as a card on a phone */
