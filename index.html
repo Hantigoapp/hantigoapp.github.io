@@ -1994,7 +1994,7 @@ const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capa
 if(NATIVE){document.querySelectorAll(".pay-only").forEach(e=>e.hidden=true);$("nativeNote").hidden=false}
 const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
 let me=null,profile=null,syncTimer=null,started=false;
-let TEAM=null,companies=[],staff=[],hasStaff=false,ownItems=null,ROLE="owner",staffRoles={},rolesReady=true;
+let TEAM=null,companies=[],staff=[],hasStaff=false,ownItems=null,ROLE="owner",staffRoles={},rolesReady=true,staffReg={},regReady=false,REGOK=false;
 /* roles in a company account: owner (Milkiile) · manager (Maamule, full management) · staff (Shaqaale, limited dashboard) */
 const roleOf=owner=>companies.find(c=>c.owner_id===owner)?.role==="manager"?"manager":"staff";
 const MGR=()=>!TEAM||ROLE==="manager";            // may see and run company management
@@ -2134,22 +2134,22 @@ async function enterTeam(owner){
     if(!Array.isArray(data))data=await idbGet("hantigo.cache."+me.id+".team."+owner);data=teamScope(data,roleOf(owner))}
   if(!Array.isArray(data)){showBanner(L("Akoonka shirkadda lama furi karo hadda. Isku day mar kale.","Cannot open the company account right now. Try again.","تعذّر فتح حساب الشركة الآن. حاول مرة أخرى.","Akaunti ya kampuni haiwezi kufunguliwa sasa. Jaribu tena."));fillModeSel();return false}
   if(!TEAM)ownItems=items;
-  TEAM=owner;ROLE=roleOf(owner);items=data;mode="cloud";dirty.clear();gone.clear();restorePending();saveLocal();if(dirty.size||gone.size)scheduleSync();
+  TEAM=owner;ROLE=roleOf(owner);loadRegPerm(owner);items=data;mode="cloud";dirty.clear();gone.clear();restorePending();saveLocal();if(dirty.size||gone.size)scheduleSync();
   applyMode("business");teamUI();render();return true}
 async function leaveTeam(){await flush();TEAM=null;items=ownItems||loadLocal()||[];ownItems=null;dirty.clear();gone.clear();restorePending();teamUI();if(dirty.size||gone.size)scheduleSync()}
 async function loadStaff(){
   if(!sb||!me||!hasAccess(profile))return;
-  const k="hantigo.staff."+me.id;let err=null;try{let r=await sb.from("team_members").select("member_email,role").eq("owner_id",me.id);rolesReady=!r.error;
+  const k="hantigo.staff."+me.id;let err=null;try{let r=await sb.from("team_members").select("member_email,role,can_register").eq("owner_id",me.id);regReady=!r.error;if(r.error)r=await sb.from("team_members").select("member_email,role").eq("owner_id",me.id);rolesReady=!r.error;
     if(r.error)r=await sb.from("team_members").select("member_email").eq("owner_id",me.id);   // roles.sql not run yet
-    err=r.error;staff=err?[]:(r.data||[]).map(x=>x.member_email);staffRoles={};if(!err)(r.data||[]).forEach(x=>staffRoles[x.member_email]=x.role==="manager"?"manager":"staff")}catch(e){err=e;staff=[]}
-  if(!err){try{localStorage.setItem(k,JSON.stringify(staff));localStorage.setItem(k+".roles",JSON.stringify(staffRoles))}catch{}}
-  else if(!online()||!err.code){try{const c=JSON.parse(localStorage.getItem(k)||"null");if(Array.isArray(c)){staff=c;err=null;staffRoles=JSON.parse(localStorage.getItem(k+".roles")||"{}")||{}}}catch{}}
+    err=r.error;staff=err?[]:(r.data||[]).map(x=>x.member_email);staffRoles={};staffReg={};if(!err)(r.data||[]).forEach(x=>{staffRoles[x.member_email]=x.role==="manager"?"manager":"staff";if(x.can_register)staffReg[x.member_email]=true})}catch(e){err=e;staff=[]}
+  if(!err){try{localStorage.setItem(k,JSON.stringify(staff));localStorage.setItem(k+".roles",JSON.stringify(staffRoles));localStorage.setItem(k+".reg",JSON.stringify(staffReg))}catch{}}
+  else if(!online()||!err.code){try{const c=JSON.parse(localStorage.getItem(k)||"null");if(Array.isArray(c)){staff=c;err=null;staffRoles=JSON.parse(localStorage.getItem(k+".roles")||"{}")||{};staffReg=JSON.parse(localStorage.getItem(k+".reg")||"{}")||{}}}catch{}}
   hasStaff=staff.length>0;renderStaff(err)}
 function renderStaff(err){
   $("team").innerHTML=err?`<p class="note" style="margin:0">${L("Qaybtan weli lama diyaarin. Fadlan la xiriir HantiGo.","This section is not ready yet. Please contact HantiGo.")}</p>`
     :staff.length?staff.map(e=>`<div class="bill" style="grid-template-columns:minmax(0,1fr) auto auto;align-items:center"><span class="name">${esc(e)}</span>
       <select class="rolesel" data-staffrole="${esc(e)}" aria-label="${L("Doorka","Role","الدور","Jukumu")}" ${rolesReady?"":"disabled"}><option value="staff"${staffRoles[e]!=="manager"?" selected":""}>👷 ${L("Shaqaale","Staff","موظف","Mfanyakazi")}</option><option value="manager"${staffRoles[e]==="manager"?" selected":""}>🧑‍💼 ${L("Maamule","Manager","مدير","Meneja")}</option></select>
-      <button class="del" data-delstaff="${esc(e)}">${L("Ka saar","Remove")}</button></div>`).join("")+(rolesReady?"":`<p class="note" style="margin:0">${L("Si aad shaqaale uga dhigto Maamule, marka hore SQL-ka roles.sql ku orod Supabase.","To make someone a Manager, first run roles.sql in Supabase.","لتعيين مدير، شغّل roles.sql في Supabase أولًا.","Ili kumfanya mtu Meneja, kwanza endesha roles.sql kwenye Supabase.")}</p>`)
+      <button class="del" data-delstaff="${esc(e)}">${L("Ka saar","Remove")}</button>${staffRoles[e]==="manager"?`<label class="chk regperm" style="grid-column:1/-1"><input type="checkbox" data-staffreg="${esc(e)}"${staffReg[e]?" checked":""}${regReady?"":" disabled"}> ${L("➕ Wuxuu diiwaangelin karaa macaamiisha iyo shaqaalaha","➕ May register customers and staff","➕ يمكنه تسجيل العملاء والموظفين","➕ Anaweza kusajili wateja na wafanyakazi")}</label>${regReady?"":`<p class="note" style="grid-column:1/-1;margin:0">${L("Si aad ogolaanshahan u bixiso, marka hore customers.sql ku orod Supabase.","To give this permission, first run customers.sql in Supabase.","لمنح هذا الإذن، شغّل customers.sql في Supabase أولًا.","Ili kutoa ruhusa hii, kwanza endesha customers.sql kwenye Supabase.")}</p>`}`:""}</div>`).join("")+(rolesReady?"":`<p class="note" style="margin:0">${L("Si aad shaqaale uga dhigto Maamule, marka hore SQL-ka roles.sql ku orod Supabase.","To make someone a Manager, first run roles.sql in Supabase.","لتعيين مدير، شغّل roles.sql في Supabase أولًا.","Ili kumfanya mtu Meneja, kwanza endesha roles.sql kwenye Supabase.")}</p>`)
     :`<p class="empty" style="margin:0">${L("Weli shaqaale lama darin.","No staff added yet.")}</p>`;
   try{renderPayroll()}catch{}}
 
@@ -5369,6 +5369,28 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-inved]");i
   invLoad(d);renderInvRev();$("invMsg").textContent="✏ "+L(`${invNoTxt(d)} waa furan yahay. Sax, kadib riix 📧 Email u dir si macmiilka loogu diro nuqulka saxda ah.`,`${invNoTxt(d)} is open. Fix it, then tap 📧 Send by email to send the customer the correct copy.`,`${invNoTxt(d)} مفتوح. صحّحه ثم اضغط 📧 إرسال بالبريد لإرسال النسخة الصحيحة للعميل.`,`${invNoTxt(d)} iko wazi. Rekebisha, kisha bonyeza 📧 Tuma kwa barua pepe ili mteja apate nakala sahihi.`);
   $("invPanel").scrollIntoView({behavior:"smooth",block:"start"})});
 invFixUI();
+/* ================= 13. Owner gives a manager permission to register customers and staff (v152) =================
+   team_members.can_register (customers.sql). Owner: always. Manager: only when ticked. Staff: never.
+   The server (team_save) refuses customers and new employees from a manager without it. */
+function canReg(){return !TEAM||(ROLE==="manager"&&REGOK)}
+async function loadRegPerm(owner){const k="hantigo.regperm."+(me?.id||"")+"."+owner;try{REGOK=localStorage.getItem(k)==="1"}catch{REGOK=false}
+  if(!sb||!online())return;try{const {data,error}=await sb.from("team_members").select("can_register").eq("owner_id",owner);
+    if(!error){REGOK=!!(data&&data[0]&&data[0].can_register);try{localStorage.setItem(k,REGOK?"1":"0")}catch{}}else REGOK=false}catch{}
+  try{render()}catch{}}
+function regGate(){const ok=canReg(),P=$("regPanel");if(!P)return ok;
+  let m=$("regNo");if(!m){m=document.createElement("p");m.id="regNo";m.className="note";P.querySelector(".panel-head").after(m)}
+  m.hidden=ok;$("regTabs").hidden=!ok;if(!ok){$("regCust").hidden=true;$("regEmp").hidden=true;$("regInfo").textContent="";$("regMsg").textContent="";
+    m.textContent="🔒 "+L("Diiwaangelinta waxaa kuu oggolaan kara mulkiilaha shirkadda.","Only the company owner can allow you to register.","يمكن لمالك الشركة فقط أن يسمح لك بالتسجيل.","Ni mmiliki wa kampuni tu anayeweza kukuruhusu kusajili.")}
+  return ok}
+{const _rr=renderReg;renderReg=function(){_rr();if(MODE==="business"&&MGR())regGate()}}
+for(const f of ["rcForm","reForm"])$(f).addEventListener("submit",e=>{if(canReg())return;e.preventDefault();e.stopImmediatePropagation();regGate()},true);
+$("pyForm").addEventListener("submit",e=>{if(canReg())return;e.preventDefault();e.stopImmediatePropagation();
+  $("pyErr").textContent="🔒 "+L("Shaqaale cusub waxaa geli kara mulkiilaha ama maamule uu u oggolaaday.","Only the owner, or a manager they allowed, can add a new employee.","يمكن للمالك أو لمدير سمح له فقط إضافة موظف جديد.","Ni mmiliki au meneja aliyemruhusu tu anayeweza kuongeza mfanyakazi mpya.")},true);
+document.addEventListener("change",async e=>{const c=e.target.closest("[data-staffreg]");if(!c||TEAM)return;const email=c.dataset.staffreg,on=c.checked;
+  if(on&&!confirm(L(`${email} ma u oggolaanaysaa inuu diiwaangeliyo macaamiisha iyo shaqaalaha cusub?`,`Allow ${email} to register customers and new staff?`,`السماح لـ ${email} بتسجيل العملاء والموظفين الجدد؟`,`Kumruhusu ${email} kusajili wateja na wafanyakazi wapya?`))){c.checked=false;return}
+  c.disabled=true;let error=null;try{({error}=await sb.from("team_members").update({can_register:on}).eq("owner_id",me.id).eq("member_email",email))}catch(x){error=x}c.disabled=false;
+  if(error){c.checked=!on;alert(L("Lama beddeli karo hadda. Hubi internetka, ama in customers.sql la orday.","Cannot change it now. Check the internet, or that customers.sql was run.","تعذّر التغيير الآن. تحقق من الإنترنت أو من تشغيل customers.sql.","Haiwezi kubadilishwa sasa. Angalia intaneti, au kwamba customers.sql imeendeshwa."));return}
+  if(on)staffReg[email]=true;else delete staffReg[email];try{localStorage.setItem("hantigo.staff."+me.id+".reg",JSON.stringify(staffReg))}catch{}});
 /* ---------- v132 phone: tables as cards, long notes folded to 2 lines ---------- */
 (()=>{const PH=matchMedia("(max-width:639px)");
   /* every cell gets its column name, so a row can be shown as a card on a phone */
