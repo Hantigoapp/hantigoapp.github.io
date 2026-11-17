@@ -466,6 +466,7 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .zb{display:block;font-size:.74rem;color:var(--muted)}.zb.z0{color:var(--out);font-weight:700}
 #irTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}#irTabs button{justify-content:center;font-weight:700;padding:10px 8px}.irnew button{width:100%}
 .invli .invfx{grid-column:1/-1;flex-basis:100%;order:9}.invfx summary{cursor:pointer;color:var(--muted,#9aa7b8);font-size:13px}
+.apv{grid-column:1/-1;flex-basis:100%;display:grid;gap:8px;margin-top:8px;padding:10px;border:1px solid var(--in,#3ddc97);border-radius:12px;background:color-mix(in srgb,var(--in,#3ddc97) 8%,transparent)}.apvms{display:flex;flex-wrap:wrap;gap:6px}.apvm{display:inline-flex!important;flex-direction:row!important;white-space:nowrap;align-items:center;gap:6px;padding:8px 12px;margin:0;font-size:15px;border:1px solid var(--line,#2a3446);border-radius:999px;cursor:pointer}.apvm input{width:auto!important;min-height:0!important;margin:0}.apvm:has(input:checked){border-color:var(--in,#3ddc97);font-weight:700}
 .paynote{margin:8px 0 4px;padding:8px 10px;border-radius:12px;border:1px solid var(--warn,#f0b429);background:color-mix(in srgb,var(--warn,#f0b429) 12%,transparent);display:grid;gap:4px;text-align:start}.paynote .pn{margin:0;font-size:14px}.paynote .pn.late{color:var(--out,#ff6b6b)}
 .glinv{margin:8px 0 4px;padding:8px 10px;border-radius:12px;background:color-mix(in srgb,var(--in,#3ddc97) 10%,transparent);border:1px solid color-mix(in srgb,var(--in,#3ddc97) 35%,transparent);display:grid;gap:4px;text-align:start}.glinvh,.glinvr{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;font-size:14px}.glinv .in{color:var(--in,#3ddc97)}
 .irtodo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 10px}.irtodo .todo{display:grid;justify-items:center;gap:2px;padding:10px 6px;border-radius:12px;border:1px solid var(--line,#2a3446);text-align:center;font-size:12px;line-height:1.25}.irtodo .todo b{font-size:20px}.irtodo .todo .ic{font-size:18px}.irtodo .todo.ok{opacity:.55}.irtodo .todo.hot{border-color:var(--accent,#6aa5ff);background:color-mix(in srgb,var(--accent,#6aa5ff) 14%,transparent)}.irtodo .todo.bad{border-color:var(--out,#ff6b6b);background:color-mix(in srgb,var(--out,#ff6b6b) 12%,transparent)}.irtodo .todo.warn{border-color:var(--warn,#f0b429);background:color-mix(in srgb,var(--warn,#f0b429) 12%,transparent)}@media(max-width:420px){.irtodo{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -4931,9 +4932,9 @@ function invFoot(d){if(d.k==="r")return L("✓ Waa la bixiyay. Mahadsanid!","✓
   if(st.paid>0)return L(`La bixiyay: ${money(st.paid)} · Waxaa haray: ${money(st.left)}. Fadlan bixi inta haray${by}.`,`Paid: ${money(st.paid)} · Left: ${money(st.left)}. Please pay the rest${by}.`,`المدفوع: ${money(st.paid)} · المتبقي: ${money(st.left)}. يرجى دفع الباقي${by}.`,`Imelipwa: ${money(st.paid)} · Imebaki: ${money(st.left)}. Tafadhali lipa kilichobaki${by}.`);
   return L("Fadlan bixi lacagtan","Please pay this amount","يرجى دفع هذا المبلغ","Tafadhali lipa kiasi hiki")+by+"."}
 /* money received on a debt: the debt goes down and the money is written as income (same as Deymaha) */
-async function debtReceive(d,v,date){v=Math.min(v,debtLeft(d));if(!(v>0))return 0;
+async function debtReceive(d,v,date,method){v=Math.min(v,debtLeft(d));if(!(v>0))return 0;
   await put({...d,paid:Number(d.paid||0)+v});
-  await put({id:uid(),kind:"tx",method:payMethod(),type:d.dir==="in"?"in":"out",amount:v,cat:d.dir==="in"?"Deyn la soo celiyay":"Deyn bixin",debtId:d.id,date:date||today(),place:d.name,note:d.note||L("Deyn","Debt"),created:new Date().toISOString()});return v}
+  await put({id:uid(),kind:"tx",method:METHODS.includes(method)?method:payMethod(),type:d.dir==="in"?"in":"out",amount:v,cat:d.dir==="in"?"Deyn la soo celiyay":"Deyn bixin",debtId:d.id,date:date||today(),place:d.name,note:d.note||L("Deyn","Debt"),created:new Date().toISOString()});return v}
 /* an invoice saved without a debt gets one now, so payments, undo and reports all work the same way */
 async function invEnsureDebt(d){let db=invDebt(d);if(db)return db;
   db={id:uid(),kind:"debt",name:d.cust,amount:Number(d.total)||0,dir:"in",due:d.due||null,paid:0,note:invNoTxt(d),created:new Date().toISOString()};
@@ -5289,10 +5290,11 @@ function invPaidRecent(days=7){const from=new Date(Date.now()-days*864e5).toISOS
     if(d.k==="q"&&d.debtId)for(const t of items.filter(i=>i.kind==="tx"&&i.debtId===d.debtId&&(i.date||"")>=from))out.push({d,t,amt:Number(t.amount)||0,date:t.date,full:invState(d).left<=0});
     if(d.k==="r"&&d.txId){const t=items.find(i=>i.id===d.txId);if(t&&(t.date||"")>=from)out.push({d,t,amt:Number(t.amount)||0,date:t.date,full:true})}}
   return out.sort((a,b)=>(b.date||"").localeCompare(a.date||"")||(b.t.created||"").localeCompare(a.t.created||""))}
+const mIcon=m=>m==="Bangi"?"🏦":m==="Kaash"||!m?"💵":"📱";
 function renderGlInv(){const b=$("glInv");if(!b)return;if(!MGR()){b.hidden=true;return}const l=invPaidRecent();if(!l.length){b.hidden=true;return}
   const sum=l.reduce((a,x)=>a+x.amt,0),td=today();b.hidden=false;
   const biz=MODE==="business";b.innerHTML=`<div class="glinvh"><b>✅ ${esc(biz?L("Qaansheegyo la bixiyay","Invoices paid","فواتير مدفوعة","Ankara zilizolipwa"):L("Deyn laguu soo celiyay","Debts paid back to you","ديون أُعيدت إليك","Madeni uliyorudishiwa"))}</b><span class="note">${esc(L("7-dii maalmood","Last 7 days","آخر 7 أيام","Siku 7 zilizopita"))} · <b class="in">+${money(sum)}</b></span></div>`+
-    l.slice(0,4).map(x=>`<div class="glinvr"><span>${x.d.k==="debt"?"💳 "+esc(x.d.cust):`🧾 <b>${esc(invNoTxt(x.d))}</b> · ${esc(x.d.cust)}`}${x.d.k==="debt"&&!x.full?` <small class="note">(${esc(L("qayb","part","جزء","sehemu"))})</small>`:""}${x.d.k==="q"&&!x.full?` <small class="note">(${esc(L("qayb","part","جزء","sehemu"))})</small>`:""}</span><span><b class="in">+${money(x.amt)}</b> <small class="note">${x.date===td?esc(L("Maanta","Today","اليوم","Leo")):fmtD(x.date)}</small></span></div>`).join("")+
+    l.slice(0,4).map(x=>`<div class="glinvr"><span>${x.d.k==="debt"?"💳 "+esc(x.d.cust):`🧾 <b>${esc(invNoTxt(x.d))}</b> · ${esc(x.d.cust)}`}${x.d.k==="debt"&&!x.full?` <small class="note">(${esc(L("qayb","part","جزء","sehemu"))})</small>`:""}${x.d.k==="q"&&!x.full?` <small class="note">(${esc(L("qayb","part","جزء","sehemu"))})</small>`:""}</span><span><b class="in">+${money(x.amt)}</b> <small class="note">${esc(mIcon(x.t.method))} ${esc(T(x.t.method||"Kaash"))} · ${x.date===td?esc(L("Maanta","Today","اليوم","Leo"))+" ("+fmtD(x.date)+")":fmtD(x.date)}</small></span></div>`).join("")+
     (l.length>4&&biz?`<button type="button" class="del" data-irgo2="paid">${esc(L(`Eeg dhammaan (${l.length})`,`See all (${l.length})`,`عرض الكل (${l.length})`,`Ona zote (${l.length})`))}</button>`:"")}
 /* v157: the owner and every manager get a notice: who paid, how much, what they ordered at first and what is left */
 const paySeenKey=()=>"hantigo.payseen."+(me?.id||"")+"."+(TEAM||"own");
@@ -5303,11 +5305,11 @@ function payNoteText(x){if(x.d.k==="debt"){const db=x.d.db,left=debtLeft(db);
       `${x.d.cust} paid you back ${money(x.amt)}. Whole debt: ${money(x.d.total)}.`+(left>0?` Left: ${money(left)}.`:" Fully paid back ✓"),
       `أعاد لك ${x.d.cust} ${money(x.amt)}. الدين كله: ${money(x.d.total)}.`+(left>0?` المتبقي: ${money(left)}.`:" سُدد بالكامل ✓"),
       `${x.d.cust} amekurudishia ${money(x.amt)}. Deni lote: ${money(x.d.total)}.`+(left>0?` Imebaki: ${money(left)}.`:" Imerudishwa yote ✓"))}
-  const st=invState(x.d),who=x.d.cust,ord=Number(x.d.total)||0;
-  return L(`${who} wuxuu bixiyay ${money(x.amt)}. Dalabkiisii hore: ${money(ord)} (${invNoTxt(x.d)}, ${fmtD(x.d.date)}).`+(st.left>0?` Waxaa haray: ${money(st.left)}.`:" Dhammaan waa la bixiyay ✓"),
-    `${who} paid ${money(x.amt)}. Original order: ${money(ord)} (${invNoTxt(x.d)}, ${fmtD(x.d.date)}).`+(st.left>0?` Left: ${money(st.left)}.`:" Fully paid ✓"),
-    `دفع ${who} ${money(x.amt)}. الطلب الأصلي: ${money(ord)} (${invNoTxt(x.d)}، ${fmtD(x.d.date)}).`+(st.left>0?` المتبقي: ${money(st.left)}.`:" مدفوعة بالكامل ✓"),
-    `${who} amelipa ${money(x.amt)}. Oda ya awali: ${money(ord)} (${invNoTxt(x.d)}, ${fmtD(x.d.date)}).`+(st.left>0?` Imebaki: ${money(st.left)}.`:" Imelipwa yote ✓"))}
+  const st=invState(x.d),who=x.d.cust,ord=Number(x.d.total)||0,via=` (${mIcon(x.t.method)} ${T(x.t.method||"Kaash")}, ${fmtD(x.t.date)})`;
+  return L(`${who} wuxuu bixiyay ${money(x.amt)}${via}. Dalabkiisii hore: ${money(ord)} (${invNoTxt(x.d)}, ${fmtD(x.d.date)}).`+(st.left>0?` Waxaa haray: ${money(st.left)}.`:" Dhammaan waa la bixiyay ✓"),
+    `${who} paid ${money(x.amt)}${via}. Original order: ${money(ord)} (${invNoTxt(x.d)}, ${fmtD(x.d.date)}).`+(st.left>0?` Left: ${money(st.left)}.`:" Fully paid ✓"),
+    `دفع ${who} ${money(x.amt)}${via}. الطلب الأصلي: ${money(ord)} (${invNoTxt(x.d)}، ${fmtD(x.d.date)}).`+(st.left>0?` المتبقي: ${money(st.left)}.`:" مدفوعة بالكامل ✓"),
+    `${who} amelipa ${money(x.amt)}${via}. Oda ya awali: ${money(ord)} (${invNoTxt(x.d)}, ${fmtD(x.d.date)}).`+(st.left>0?` Imebaki: ${money(st.left)}.`:" Imelipwa yote ✓"))}
 /* late: an unpaid invoice (Shirkad) or a debt owed to you (Shakhsi) past its pay-by date; shown each day until paid or "Waan arkay" for today */
 function lateList(){const td=today(),out=[];
   if(MODE==="business"){for(const d of mine("inv")){if(d.k!=="q")continue;const st=invState(d);if(!(st.left>0)||!st.due||st.due>=td)continue;out.push({id:"L"+d.id,d,left:st.left,due:st.due,days:-dayDiff(st.due),sent:d.sentAt||d.sharedAt||d.remAt||""})}}
@@ -5330,9 +5332,22 @@ function renderPayNote(){const b=$("payNote");if(!b)return;if(!MGR()){b.hidden=t
 document.addEventListener("click",e=>{const b=e.target.closest("[data-payseen]");if(!b)return;const td=today();paySeenAdd([...invPaidRecent(3).map(x=>x.t.id),...lateList().map(x=>x.id+"@"+td)]);renderPayNote()});
 document.addEventListener("click",async e=>{
   const g=e.target.closest("[data-irgo2]");if(g){irTab="paid";irAll=true;renderInvRem();$("irPanel").scrollIntoView({behavior:"smooth",block:"start"});return}
-  const f=e.target.closest("[data-irfull]");if(!f)return;const d=items.find(i=>i.id===f.dataset.irfull);if(!d)return;const left=invState(d).left;if(!(left>0))return;
-  if(!confirm(L(`${invNoTxt(d)} (${d.cust}) ma la bixiyay oo dhan: ${money(left)}?`,`Was ${invNoTxt(d)} (${d.cust}) paid in full: ${money(left)}?`,`هل دُفعت ${invNoTxt(d)} (${d.cust}) بالكامل: ${money(left)}؟`,`Je, ${invNoTxt(d)} (${d.cust}) imelipwa yote: ${money(left)}?`)))return;
-  f.disabled=true;try{const db=await invEnsureDebt(d);const got=await debtReceive(db,left);irMsgT="✓ "+L(`${invNoTxt(d)} waa la bixiyay (+${money(got)}). Waxay ka muuqataa Guriga.`,`${invNoTxt(d)} is paid (+${money(got)}). It shows on the dashboard.`,`تم دفع ${invNoTxt(d)} (+${money(got)}). تظهر في لوحة التحكم.`,`${invNoTxt(d)} imelipwa (+${money(got)}). Inaonekana kwenye dashibodi.`);renderInvRem()}catch{f.disabled=false}});
+  const f=e.target.closest("[data-irfull]");if(f){const d=items.find(i=>i.id===f.dataset.irfull);if(!d)return;const left=invState(d).left;if(!(left>0))return;
+    const host=f.closest(".irow,.invli")||f.parentElement,old=host.querySelector(".apv");if(old){old.remove();return}
+    const id=esc(d.id),mk=(m,ic)=>`<label class="apvm"><input type="radio" name="apvm-${id}" value="${esc(m)}"${m==="EVC Plus"?" checked":""}> ${ic} ${esc(T(m))}</label>`;
+    host.insertAdjacentHTML("beforeend",`<div class="apv"><b>✅ ${esc(L(`Ansixi ${invNoTxt(d)}: waa la bixiyay`,`Approve ${invNoTxt(d)}: paid`,`اعتماد ${invNoTxt(d)}: مدفوعة`,`Thibitisha ${invNoTxt(d)}: imelipwa`))}</b>
+      <span class="note">${esc(L("Lacagtu xaggee ka timid?","Where did the money come in?","أين وصل المبلغ؟","Pesa iliingia wapi?"))}</span>
+      <div class="apvms">${mk("EVC Plus","📱")}${mk("Bangi","🏦")}${mk("Kaash","💵")}</div>
+      <div class="row"><label class="field"><span>${esc(L("Taariikhda ay soo gashay","Date it came in","تاريخ الوصول","Tarehe iliyoingia"))}</span><input type="date" id="apvd-${id}" value="${today()}" max="${today()}"></label>
+      <label class="field"><span>${esc(L("Qadarka","Amount","المبلغ","Kiasi"))}</span><input type="number" min="0" step="0.01" inputmode="decimal" id="apva-${id}" value="${left}"></label></div>
+      <div class="goal-actions"><button type="button" class="primary" data-irok="${id}">✅ ${esc(L("Ansixi","Approve","اعتماد","Thibitisha"))}</button><button type="button" class="del" data-irfull="${id}">${esc(L("Jooji","Cancel","إلغاء","Ghairi"))}</button></div></div>`);
+    host.querySelector(".apv input[type=radio]:checked")?.focus();return}
+  const ok=e.target.closest("[data-irok]");if(!ok)return;const d=items.find(i=>i.id===ok.dataset.irok);if(!d)return;const box=ok.closest(".apv");
+  const m=box.querySelector("input[type=radio]:checked")?.value||"EVC Plus",dt=box.querySelector("input[type=date]").value||today(),v=parseFloat(box.querySelector("input[type=number]").value);
+  if(!(v>0)){box.querySelector("input[type=number]").focus();return}
+  ok.disabled=true;try{const db=await invEnsureDebt(d);const got=await debtReceive(db,v,dt>today()?today():dt,m);
+    irMsgT="✓ "+L(`${invNoTxt(d)}: ${money(got)} waa la ansixiyay (${T(m)}, ${fmtD(dt)}). Waxay ka muuqataa Guriga.`,`${invNoTxt(d)}: ${money(got)} approved (${T(m)}, ${fmtD(dt)}). It shows on the dashboard.`,`${invNoTxt(d)}: تم اعتماد ${money(got)} (${T(m)}، ${fmtD(dt)}). تظهر في لوحة التحكم.`,`${invNoTxt(d)}: ${money(got)} imethibitishwa (${T(m)}, ${fmtD(dt)}). Inaonekana kwenye dashibodi.`);
+    $("invMsg").textContent=irMsgT;renderInvRem()}catch{ok.disabled=false}});
 /* v155: what needs doing, at a glance on Guriga — not sent yet, overdue, number problems, money not linked */
 function invUnsent(){return mine("inv").filter(d=>!d.sentAt&&!d.sharedAt&&!d.remAt&&!d.noSend).sort((a,b)=>(b.created||"").localeCompare(a.created||""))}
 async function invSentStamp(d,how,to){const x=items.find(i=>i.id===d.id)||d;await put({...x,sharedAt:new Date().toISOString(),sentHow:how,...(to?{sentTo:to,sentAt:new Date().toISOString()}:{})})}
