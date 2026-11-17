@@ -465,6 +465,8 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .zr{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 10px;align-items:center;border-top:1px solid var(--line);padding-top:8px}.za{display:flex;gap:6px;flex-wrap:wrap}
 .zb{display:block;font-size:.74rem;color:var(--muted)}.zb.z0{color:var(--out);font-weight:700}
 #irTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}#irTabs button{justify-content:center;font-weight:700;padding:10px 8px}.irnew button{width:100%}
+.invpick{margin:4px 0 10px;padding:10px;border:1px dashed var(--line,#2a3446);border-radius:12px}.invpick .field{margin:0}.invpick select{font-weight:600}#invPickInfo{margin:6px 0 0}#invPickInfo.warn{color:var(--warn,#f0b429)}
+#regTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}#regTabs button{justify-content:center;font-weight:700;padding:10px 8px}#regPanel #regMsg .del{margin-left:6px}
 .irlist{display:grid}.irow{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.irow:first-child{border-top:0}.irow.irlate{box-shadow:inset 3px 0 0 var(--out);padding-left:8px}
 .irh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.irr{display:grid;justify-items:end;gap:3px}.ira{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ira input{max-width:110px}
 .prtips{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.88rem}.prm{width:100%}
@@ -1239,6 +1241,25 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
     <details class="note"><summary>Eeg tirooyinka</summary><div style="overflow-x:auto"><table class="ctable" id="chartTable"></table></div></details>
   </section>
 
+  <section class="panel biz-only mgr-only" aria-labelledby="regH" data-tab="home" id="regPanel">
+    <div class="panel-head"><h2 id="regH">➕ Diiwaangeli</h2></div>
+    <div class="chips invf regtabs" id="regTabs" role="group"></div>
+    <form id="rcForm" class="regform" novalidate><div id="regCust" style="display:grid;gap:10px">
+      <div class="row">
+        <label class="field"><span id="rcNameL">Magaca macmiilka</span><input id="rcName" type="text" maxlength="50" autocomplete="off" placeholder="Tusaale: Cali Xasan"></label>
+        <label class="field"><span id="rcPhoneL">Taleefanka</span><input id="rcPhone" type="tel" maxlength="20" placeholder="61 5123456"></label>
+        <label class="field"><span id="rcEmailL">Email-ka</span><input id="rcEmail" type="email" maxlength="80" placeholder="macmiil@gmail.com"></label>
+      </div><div class="err" id="rcErr" role="alert"></div><button type="submit" class="primary" id="rcSave">✓ Diiwaangeli macmiilka</button></div></form>
+    <form id="reForm" class="regform" novalidate><div id="regEmp" style="display:grid;gap:10px" hidden>
+      <div class="row">
+        <label class="field"><span id="reNameL">Magaca shaqaalaha</span><input id="reName" type="text" maxlength="40" autocomplete="off" placeholder="Tusaale: Axmed Cali"></label>
+        <label class="field"><span id="reRoleL">Shaqada</span><select id="reRole"></select></label>
+        <label class="field"><span id="reAmtL">Mushaharka bishii</span><input id="reAmt" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label>
+        <label class="field"><span id="rePhoneL">Taleefanka</span><input id="rePhone" type="tel" maxlength="20" placeholder="61 5123456"></label>
+      </div><div class="err" id="reErr" role="alert"></div><button type="submit" class="primary" id="reSave">✓ Diiwaangeli shaqaalaha</button></div></form>
+    <span class="note ok" id="regMsg" role="status"></span>
+    <p class="note" id="regInfo" style="margin:0"></p>
+  </section>
   <section class="panel biz-only mgr-only" aria-labelledby="irH" data-tab="home" id="irPanel" hidden>
     <div class="panel-head"><h2 id="irH">🧾 Xusuusinta qaansheegga</h2></div>
     <div class="extremes cusum" id="irSum"></div>
@@ -1351,8 +1372,12 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
           <input type="radio" name="invk" id="invR" value="r" checked><label for="invR" class="l-in">Rasiid (waa la bixiyay)</label>
           <input type="radio" name="invk" id="invQ" value="q"><label for="invQ" class="l-out">Qaansheeg (weli lama bixin)</label>
         </div>
+        <div class="invpick" id="invPickRow">
+          <label class="field"><span id="invPickL">👤 Dooro macmiil</span><select id="invPick"><option value="">—</option></select></label>
+          <p class="hint" id="invPickInfo" hidden></p>
+        </div>
         <div class="row">
-          <label class="field"><span>Magaca macmiilka</span><input id="invCust" type="text" maxlength="50" placeholder="Tusaale: Cali Xasan"></label>
+          <label class="field"><span>Magaca macmiilka</span><input id="invCust" type="text" maxlength="50" placeholder="Tusaale: Cali Xasan" list="invCustDl" autocomplete="off"><datalist id="invCustDl"></datalist></label>
           <label class="field"><span>Taleefanka macmiilka (WhatsApp)</span><input id="invPhone" type="tel" maxlength="20" placeholder="Tusaale: 61 5123456"></label>
           <label class="field"><span>Email-ka macmiilka</span><input id="invEmail" type="email" maxlength="80" placeholder="macmiil@gmail.com"></label>
         </div>
@@ -2059,7 +2084,7 @@ async function flush(){clearTimeout(syncTimer);if(dirty.size||gone.size)await sy
 const ZERO_KINDS={tx:["amount"],bill:["amount"],debt:["amount"],inv:["total"],goal:["target"]};
 let ZERO_ASK=true;
 async function put(doc){
-  if(["tx","goal","bill","cat","debt","leave","inv"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
+  if(["tx","goal","bill","cat","debt","leave","inv","cust"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
   if(doc.kind==="tx"&&!doc.by&&(TEAM||hasStaff)&&me)doc={...doc,by:me.email};
   const i=items.findIndex(x=>x.id===doc.id);
   if(i>=0&&ZERO_KINDS[doc.kind]){const old=items[i];let hist=doc.hist||old.hist||[],ch=false;
@@ -3072,7 +3097,7 @@ function wrExport(k){if(!WR)return;
 function renderJump(){const nav=$("hJump");if(!nav||$("appView").dataset.tab!=="home")return;
   const biz=MODE==="business";
   const list=[["wrPanel","📋 "+L("Warbixin","Report","تقرير","Ripoti")],["dyPanel","📅 "+L("Maalmaha","Days","الأيام","Siku")],["chartH","📈 "+L("Jaantus","Chart","رسم بياني","Chati")],
-    [biz?"stPanel":"catH",biz?"📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu"):"🍕 "+L("Kharashka","Spending","المصاريف","Matumizi")],["psPanel","📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu")],["mgPanel","🏢 "+L("Maamul","Manage","إدارة","Usimamizi")],["irPanel",biz?"🧾 "+L("Qaansheeg","Invoices","الفواتير","Ankara"):""],["prPanel",biz?"📈 "+L("Faa'iido","Profit","الربح","Faida"):""]];
+    [biz?"stPanel":"catH",biz?"📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu"):"🍕 "+L("Kharashka","Spending","المصاريف","Matumizi")],["psPanel","📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu")],["mgPanel","🏢 "+L("Maamul","Manage","إدارة","Usimamizi")],["regPanel",biz?"➕ "+L("Diiwaangeli","Register","تسجيل","Sajili"):""],["irPanel",biz?"🧾 "+L("Qaansheeg","Invoices","الفواتير","Ankara"):""],["prPanel",biz?"📈 "+L("Faa'iido","Profit","الربح","Faida"):""]];
   const sec=id=>{const e=$(id);return e?(e.tagName==="SECTION"?e:e.closest("section")):null};
   const vis=list.filter(([id,t])=>{const s=sec(id);return t&&s&&!s.hidden&&getComputedStyle(s).display!=="none"});
   const key=vis.map(v=>v[0]).join()+LANG;if(nav.dataset.k===key)return;nav.dataset.k=key;
@@ -4355,7 +4380,7 @@ $("repDoc").addEventListener("click",()=>{const {title}=reportData();
 if(NATIVE){$("repPdf").hidden=true;$("repNote").hidden=true;$("lvPdf").hidden=true}
 
 /* ---------- backup ---------- */
-const BK_KINDS=["tx","goal","bill","cat","debt","leave","inv","settings","rem"];
+const BK_KINDS=["tx","goal","bill","cat","debt","leave","inv","cust","settings","rem"];
 $("bkOut").addEventListener("click",async()=>{await flush();
   saveFile(`HantiGo-backup-${today()}.json`,JSON.stringify({app:"HantiGo",version:1,exported:new Date().toISOString(),email:realMail(),items},null,1),"application/json");
   $("bkMsg").textContent=L("Backup-ka waa la soo dejiyay. Meel ammaan ah ku kaydi.","Backup downloaded. Keep it somewhere safe.")});
@@ -4882,6 +4907,7 @@ function customers(){const m=new Map();if(MODE!=="business")return [];
     c.bought+=a;c.owed+=l;c.paid+=a-l;if(l>0&&d.due&&d.due<today())c.late+=l;c.debts.push(d);seen(c,dt);
     c.acts.push({date:dt,txt:L("Deyn","On credit","بالدين","Kwa mkopo")+(d.note?" · "+d.note:""),amt:a,k:"debt"});
     for(const t of items.filter(i=>i.kind==="tx"&&i.debtId===d.id)){seen(c,t.date);c.acts.push({date:t.date,txt:L("Lacag la helay","Payment received","دفعة مستلمة","Malipo yamepokelewa")+(d.note?" · "+d.note:""),amt:Number(t.amount)||0,k:"pay"})}}
+  for(const r of mine("cust")){const c=g(r.name);if(!c)continue;c.reg=r.id;if(r.phone)c.phone=r.phone;if(r.email)c.email=r.email;if(!c.last)c.last=(r.created||"").slice(0,10)}
   for(const v of mine("inv").sort((a,b)=>(b.created||"").localeCompare(a.created||""))){const c=g(v.cust);if(!c)continue;c.inv++;if(!c.phone&&v.phone)c.phone=v.phone;if(!c.email&&v.email)c.email=v.email;seen(c,v.date)}
   m.forEach(c=>c.acts.sort((a,b)=>(b.date||"").localeCompare(a.date||"")));
   return [...m.values()].sort((a,b)=>(b.late>0)-(a.late>0)||b.owed-a.owed||(b.last||"").localeCompare(a.last||""))}
@@ -5237,6 +5263,70 @@ document.addEventListener("click",async e=>{
     try{await put({...x,hist:x.hist.map((r,j)=>j===k?{...r,ok:1,okBy:myMail()}:r)})}catch{}return}
 });
 {const _r6=render;render=function(){_r6();try{renderZero()}catch(e){console.warn(e)}}}
+/* ================= 11. Shirkad Guriga: register a customer or an employee (v150) =================
+   Customer = kind "cust" {name, phone, email} (Shirkad only). Employee = the payroll form in Qorshe (same rules). */
+let regTab="cust",regMsgT="";
+function renderReg(){const P=$("regPanel");if(!P)return;if(MODE!=="business"||!MGR()){return}
+  $("regH").textContent="➕ "+L("Diiwaangeli","Register","تسجيل","Sajili");
+  const n=mine("cust").length,ne=typeof emps==="function"?emps().length:0;
+  const tb=(k,t)=>`<button type="button" data-regtab="${k}" class="${regTab===k?"on":""}" aria-pressed="${regTab===k}">${t}</button>`;
+  $("regTabs").innerHTML=tb("cust","👤 "+L("Macmiil cusub","New customer","عميل جديد","Mteja mpya"))+tb("emp","👷 "+L("Shaqaale cusub","New employee","موظف جديد","Mfanyakazi mpya"));
+  $("regCust").hidden=regTab!=="cust";$("regEmp").hidden=regTab!=="emp";
+  const lb={rcNameL:["Magaca macmiilka","Customer name","اسم العميل","Jina la mteja"],rcPhoneL:["Taleefanka","Phone","الهاتف","Simu"],rcEmailL:["Email-ka","Email","البريد الإلكتروني","Barua pepe"],
+    reNameL:["Magaca shaqaalaha","Employee name","اسم الموظف","Jina la mfanyakazi"],reRoleL:["Shaqada","Job","الوظيفة","Kazi"],reAmtL:["Mushaharka bishii","Monthly salary","الراتب الشهري","Mshahara wa mwezi"],rePhoneL:["Taleefanka","Phone","الهاتف","Simu"]};
+  for(const k in lb)if($(k))$(k).textContent=L(...lb[k]);
+  $("rcSave").textContent="✓ "+L("Diiwaangeli macmiilka","Register customer","سجّل العميل","Sajili mteja");$("reSave").textContent="✓ "+L("Diiwaangeli shaqaalaha","Register employee","سجّل الموظف","Sajili mfanyakazi");
+  const rs=$("reRole");if(!rs.options.length)B_STAFF.forEach(r=>rs.add(new Option(T(r),r)));else [...rs.options].forEach(o=>o.textContent=T(o.value));
+  $("regInfo").innerHTML=regTab==="cust"?`${L(`👤 ${n} macmiil ayaa diiwaangashan`,`👤 ${n} registered customers`,`👤 ${n} عملاء مسجّلون`,`👤 Wateja ${n} waliosajiliwa`)} · <a href="#" data-regsee="cu">${L("Eeg liiska","See the list","عرض القائمة","Ona orodha")}</a>`
+    :`${L(`👷 ${ne} shaqaale ayaa diiwaangashan`,`👷 ${ne} registered employees`,`👷 ${ne} موظفون مسجّلون`,`👷 Wafanyakazi ${ne} waliosajiliwa`)} · <a href="#" data-regsee="py">${L("Eeg liiska","See the list","عرض القائمة","Ona orodha")}</a>`;
+  $("regMsg").innerHTML=regMsgT}
+$("rcForm").addEventListener("submit",async e=>{e.preventDefault();const name=$("rcName").value.trim().replace(/\s+/g," "),phone=$("rcPhone").value.trim(),email=$("rcEmail").value.trim();
+  $("rcErr").textContent="";
+  if(!name){$("rcErr").textContent=L("Geli magaca macmiilka.","Enter the customer's name.","أدخل اسم العميل.","Weka jina la mteja.");$("rcName").focus();return}
+  if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){$("rcErr").textContent=L("Email-ku sax maaha.","The email is not valid.","البريد الإلكتروني غير صحيح.","Barua pepe si sahihi.");$("rcEmail").focus();return}
+  {const ex=mine("cust").find(c=>ckey(c.name)===ckey(name));if(ex){const name=ex.name;$("rcErr").textContent=L(`${name} horay ayuu u diiwaangashanaa.`,`${name} is already registered.`,`${name} مسجّل مسبقًا.`,`${name} tayari amesajiliwa.`);return}}
+  try{const id=uid();await put({id,kind:"cust",name,phone,email,created:new Date().toISOString()});["rcName","rcPhone","rcEmail"].forEach(i=>$(i).value="");
+    regMsgT="✓ "+esc(L(`${name} waa la diiwaangeliyay.`,`${name} registered.`,`تم تسجيل ${name}.`,`${name} amesajiliwa.`))+` <button type="button" class="del" data-regnew="${esc(id)}">🧾 ${L("U samee rasiid / qaansheeg","Make a receipt / invoice","أنشئ إيصالًا / فاتورة","Tengeneza risiti / ankara")}</button>`;renderReg()}
+  catch{$("rcErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Haiwezi kuhifadhi sasa. Jaribu tena.")}});
+/* employee: filled into the payroll form so the same checks and staff-account link apply */
+$("reForm").addEventListener("submit",async e=>{e.preventDefault();$("reErr").textContent="";
+  $("pyWho").value=$("reName").value.trim();delete $("pyWho").dataset.mail;$("pyRole").value=$("reRole").value;$("pyAmt").value=$("reAmt").value;$("pyPh").value=$("rePhone").value.trim();$("pyDay").value="";
+  const before=emps().length;$("pyForm").requestSubmit();await new Promise(r=>setTimeout(r,60));
+  if(emps().length>before){const nm=$("reName").value.trim();["reName","reAmt","rePhone"].forEach(i=>$(i).value="");regMsgT="✓ "+esc(L(`${nm} waa la diiwaangeliyay. Mushaharka Qorshe ayaa laga bixiyaa.`,`${nm} registered. Pay salaries from Plan.`,`تم تسجيل ${nm}. ادفع الرواتب من الخطة.`,`${nm} amesajiliwa. Lipa mishahara kutoka Mpango.`));renderReg()}
+  else $("reErr").textContent=$("pyErr").textContent||L("Lama kaydin karo hadda.","Could not save right now.","تعذّر الحفظ الآن.","Haiwezi kuhifadhi sasa.")});
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-regtab]");if(t){regTab=t.dataset.regtab;regMsgT="";renderReg();return}
+  const s=e.target.closest("[data-regsee]");if(s){e.preventDefault();if(s.dataset.regsee==="cu"){goTab("add");setTimeout(()=>$("cuPanel").scrollIntoView({behavior:"smooth",block:"start"}),80)}else{goTab("plan");setTimeout(()=>$("pyPanel").scrollIntoView({behavior:"smooth",block:"start"}),80)}return}
+  const nw=e.target.closest("[data-regnew]");if(nw){const c=items.find(i=>i.id===nw.dataset.regnew);if(!c)return;goTab("add");invReset();$("invCust").value=c.name;$("invPhone").value=c.phone||"";$("invEmail").value=c.email||"";
+    setTimeout(()=>{$("invPanel").scrollIntoView({behavior:"smooth",block:"start"});document.querySelector('[data-il="0"][data-f="t"]')?.focus({preventScroll:true})},80);return}
+});
+/* invoice form: registered and earlier customers can be picked by name, their phone and email fill in */
+function fillCustDl(){const dl=$("invCustDl");if(!dl)return;const l=customers().map(c=>c.name);const k=l.join("|");if(dl.dataset.k===k)return;dl.dataset.k=k;dl.innerHTML=l.map(n=>`<option value="${esc(n)}"></option>`).join("")}
+$("invCust").addEventListener("change",()=>{const c=custOf($("invCust").value);if(!c)return;if(!$("invPhone").value&&c.phone)$("invPhone").value=c.phone;if(!$("invEmail").value&&c.email)$("invEmail").value=c.email});
+/* invoice form: pick a registered customer or one who ordered before; name, phone and email fill in so the PDF goes to them */
+function fillCustPick(){const s=$("invPick");if(!s)return;
+  $("invPickL").textContent=L("👤 Dooro macmiil","👤 Choose customer","👤 اختر العميل","👤 Chagua mteja");
+  const cs=customers(),reg=cs.filter(c=>c.reg).sort((a,b)=>a.name.localeCompare(b.name)),old=cs.filter(c=>!c.reg).sort((a,b)=>(b.last||"").localeCompare(a.last||""));
+  const k=[LANG,...cs.map(c=>c.k+":"+(c.reg?1:0)+":"+c.phone+":"+c.email)].join("|");if(s.dataset.k===k){syncPick();return}s.dataset.k=k;
+  const o=c=>`<option value="${esc(c.k)}">${esc(c.name)}${c.phone?" · "+esc(c.phone):""}${c.email?" · ✉":""}</option>`;
+  s.innerHTML=`<option value="">${esc(cs.length?L("— Dooro liiska —","— Choose from list —","— اختر من القائمة —","— Chagua kwenye orodha —"):L("— Weli macmiil lama diiwaangelin —","— No customers yet —","— لا يوجد عملاء بعد —","— Bado hakuna wateja —"))}</option>`+
+    (reg.length?`<optgroup label="${esc(L("✅ Macaamiisha diiwaangashan","✅ Registered customers","✅ العملاء المسجلون","✅ Wateja waliosajiliwa"))}">${reg.map(o).join("")}</optgroup>`:"")+
+    (old.length?`<optgroup label="${esc(L("🛒 Macaamiil hore wax u dalbaday","🛒 Customers who ordered before","🛒 عملاء طلبوا من قبل","🛒 Wateja walioagiza awali"))}">${old.map(o).join("")}</optgroup>`:"")+
+    `<option value="__new">${esc(L("➕ Macmiil cusub (hoos ku qor)","➕ New customer (type below)","➕ عميل جديد (اكتب أدناه)","➕ Mteja mpya (andika hapa chini)"))}</option>`;
+  syncPick()}
+function syncPick(){const s=$("invPick");if(!s)return;const c=custOf($("invCust").value);const v=c?c.k:"";if(s.value!==v)s.value=v;pickInfo()}
+function pickInfo(){const s=$("invPick"),i=$("invPickInfo");if(!s||!i)return;const c=customers().find(x=>x.k===s.value);if(!c){i.hidden=true;return}
+  const w=[];if(c.email)w.push("📧 "+c.email);if(c.phone)w.push("💬 "+c.phone);
+  i.textContent=w.length?L("Qaansheegga waxaa loo dirayaa: ","The invoice will be sent to: ","سيتم إرسال الفاتورة إلى: ","Ankara itatumwa kwa: ")+w.join(" · "):L("⚠ Macmiilkan ma laha email ama taleefan. Hoos ku qor si loogu diro.","⚠ This customer has no email or phone. Type one below to send it.","⚠ لا يوجد بريد أو هاتف لهذا العميل. اكتبه أدناه للإرسال.","⚠ Mteja huyu hana barua pepe wala simu. Andika hapa chini ili kutuma.");
+  i.classList.toggle("warn",!w.length);i.hidden=false}
+$("invPick").addEventListener("change",()=>{const s=$("invPick");
+  if(s.value==="__new"){$("invCust").value="";$("invPhone").value="";$("invEmail").value="";s.value="";pickInfo();$("invCust").focus();return}
+  const c=customers().find(x=>x.k===s.value);if(!c){pickInfo();return}
+  $("invCust").value=c.name;$("invPhone").value=c.phone||"";$("invEmail").value=c.email||"";pickInfo()});
+$("invCust").addEventListener("input",syncPick);
+/* other buttons (customer list, register, edit invoice) fill the name in code: keep the picker in step */
+document.addEventListener("click",()=>setTimeout(()=>{try{syncPick()}catch{}},120));
+{const _r7=render;render=function(){_r7();try{renderReg();fillCustDl();fillCustPick()}catch(e){console.warn(e)}}}
 /* ---------- v132 phone: tables as cards, long notes folded to 2 lines ---------- */
 (()=>{const PH=matchMedia("(max-width:639px)");
   /* every cell gets its column name, so a row can be shown as a card on a phone */
