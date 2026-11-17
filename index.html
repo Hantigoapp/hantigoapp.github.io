@@ -442,6 +442,8 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .cusum{grid-template-columns:repeat(3,minmax(0,1fr))}
 .prt{width:100%;border-collapse:collapse;font-size:.9rem}.prt td{padding:5px 4px;border-top:1px solid var(--line)}.prt .n{text-align:right;white-space:nowrap}.prt .pc{color:var(--muted);font-size:.78rem;width:44px}
 .prt .pr-h td{font-weight:700;border-top:0;padding-top:12px}.prt .pr-s td:first-child{padding-left:14px}.prt .pr-t td{font-weight:700}.prt .pr-n td{font-weight:800;font-size:1.02rem;border-top:2px solid var(--accent)}
+.irlist{display:grid}.irow{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.irow:first-child{border-top:0}.irow.irlate{box-shadow:inset 3px 0 0 var(--out);padding-left:8px}
+.irh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.irr{display:grid;justify-items:end;gap:3px}.ira{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ira input{max-width:110px}
 .prtips{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.88rem}.prm{width:100%}
 .emplist{display:grid}.emp{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.emp:first-child{border-top:0}
 .emph{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.empr{display:grid;justify-items:end;gap:3px}
@@ -1210,6 +1212,12 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
     <details class="note"><summary>Eeg tirooyinka</summary><div style="overflow-x:auto"><table class="ctable" id="chartTable"></table></div></details>
   </section>
 
+  <section class="panel biz-only mgr-only" aria-labelledby="irH" data-tab="home" id="irPanel" hidden>
+    <div class="panel-head"><h2 id="irH">🧾 Xusuusinta qaansheegga</h2></div>
+    <div class="extremes cusum" id="irSum"></div>
+    <span class="note ok" id="irMsg" role="status"></span>
+    <div id="irList" class="irlist"></div>
+  </section>
   <section class="panel biz-only mgr-only" aria-labelledby="prH" data-tab="home" id="prPanel" data-fold="pr" data-fold-def="1">
     <div class="panel-head"><h2 id="prH">📈 Warbixinta faa'iidada</h2>
       <select id="prPer" aria-label="Muddada" style="width:auto"><option value="m">Bishan</option><option value="pm">Bishii hore</option><option value="q">3-dii bilood</option><option value="y">Sannadkan</option><option value="12">12-kii bilood</option></select></div>
@@ -2978,7 +2986,7 @@ function wrExport(k){if(!WR)return;
 function renderJump(){const nav=$("hJump");if(!nav||$("appView").dataset.tab!=="home")return;
   const biz=MODE==="business";
   const list=[["wrPanel","📋 "+L("Warbixin","Report","تقرير","Ripoti")],["dyPanel","📅 "+L("Maalmaha","Days","الأيام","Siku")],["chartH","📈 "+L("Jaantus","Chart","رسم بياني","Chati")],
-    [biz?"stPanel":"catH",biz?"📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu"):"🍕 "+L("Kharashka","Spending","المصاريف","Matumizi")],["psPanel","📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu")],["mgPanel","🏢 "+L("Maamul","Manage","إدارة","Usimamizi")],["prPanel",biz?"📈 "+L("Faa'iido","Profit","الربح","Faida"):""]];
+    [biz?"stPanel":"catH",biz?"📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu"):"🍕 "+L("Kharashka","Spending","المصاريف","Matumizi")],["psPanel","📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu")],["mgPanel","🏢 "+L("Maamul","Manage","إدارة","Usimamizi")],["irPanel",biz?"🧾 "+L("Qaansheeg","Invoices","الفواتير","Ankara"):""],["prPanel",biz?"📈 "+L("Faa'iido","Profit","الربح","Faida"):""]];
   const sec=id=>{const e=$(id);return e?(e.tagName==="SECTION"?e:e.closest("section")):null};
   const vis=list.filter(([id,t])=>{const s=sec(id);return t&&s&&!s.hidden&&getComputedStyle(s).display!=="none"});
   const key=vis.map(v=>v[0]).join()+LANG;if(nav.dataset.k===key)return;nav.dataset.k=key;
@@ -3571,9 +3579,9 @@ function renderAlerts(bud){lastBud=bud;
   if(R.goals&&cur&&now.getDate()>=R.goalDay&&!STAFF()){const tx=mine("tx");
     for(const g of mine("goal")){const p=goalPlan(g,tx);if(p.done||!(p.todo>0))continue;
       out.push(["warn",L("🎯 "+g.name+": bishan weli ku shub "+money(p.todo)+(g.due?" si aad u gaarto "+dueText(g.due):"")+".","🎯 "+g.name+": put in "+money(p.todo)+" more this month"+(g.due?" to reach it by "+dueText(g.due):"")+".","🎯 "+g.name+": أضف "+money(p.todo)+" هذا الشهر"+(g.due?" لتصل إليه بحلول "+dueText(g.due):"")+".","🎯 "+g.name+": weka "+money(p.todo)+" zaidi mwezi huu"+(g.due?" ili kufikia kabla ya "+dueText(g.due):"")+".")])}}
-  if(R.debts&&MODE==="business")for(const d of mine("debt")){const r=Number(d.amount)-Number(d.paid||0);if(!d.due||r<=0)continue;const k=dayDiff(d.due);
+  if(R.debts&&MODE==="business")for(const d0 of mine("debt")){const d=d0.note&&/^Q-\d/.test(d0.note)?{...d0,name:d0.name+" ("+d0.note+")"}:d0;const r=Number(d.amount)-Number(d.paid||0);if(!d.due||r<=0)continue;const k=dayDiff(d.due);
     const who=d.dir==="in"?L("waa inuu bixiyaa","should pay you"):L("waa in la siiyaa","must be paid");
-    if(k<0)out.push(["bad",L("💳 "+d.name+" "+who+" "+money(r)+". Taariikhdii way dhaaftay ("+d.due+").","💳 "+d.name+" "+who+" "+money(r)+". Overdue since "+d.due+".","💳 "+d.name+" "+who+" "+money(r)+". متأخر منذ "+d.due+".","💳 "+d.name+" "+who+" "+money(r)+". Imechelewa tangu "+d.due+".")]);
+    if(k<0)out.push(["bad",L("💳 "+d.name+" "+who+" "+money(r)+". Taariikhdii way dhaaftay ("+fmtD(d.due)+").","💳 "+d.name+" "+who+" "+money(r)+". Overdue since "+fmtD(d.due)+".","💳 "+d.name+" "+who+" "+money(r)+". متأخر منذ "+fmtD(d.due)+".","💳 "+d.name+" "+who+" "+money(r)+". Imechelewa tangu "+fmtD(d.due)+".")]);
     else if(k<=R.billDays)out.push(["warn",L("💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".")])}
   if(R.leave&&MODE==="business"&&MGR())for(const v of mine("leave")){
     if(v.type==="buka"&&v.to>=today()&&!v.seen)out.push(["bad",L("🤒 "+v.who+" wuu xanuunsan yahay ("+lvRange(v)+").","🤒 "+v.who+" is sick ("+lvRange(v)+").","🤒 "+v.who+" مريض ("+lvRange(v)+").","🤒 "+v.who+" ni mgonjwa ("+lvRange(v)+").")]);
@@ -4618,9 +4626,9 @@ async function invPdf(d){const J=await loadPdf();const doc=new J({unit:"mm",form
 function dlBlob(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
 function b64(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]);r.onerror=rej;r.readAsDataURL(blob)})}
 const ownerEmail=()=>realMail();
-async function mailPdf(d,p,to){
-  const {data,error}=await sb.functions.invoke("send-receipt",{body:{to:to||"",copy:ownerEmail(),subject:`${invLabel(d.k)} ${invNoTxt(d)} · ${coName()||"HantiGo"}`,
-    text:invText(d).replace(/\*/g,""),company:coName()||"HantiGo",filename:p.name,pdf:await b64(p.blob)}});
+async function mailPdf(d,p,to,o){o=o||{};
+  const {data,error}=await sb.functions.invoke("send-receipt",{body:{to:to||"",copy:ownerEmail(),subject:o.subject||`${invLabel(d.k)} ${invNoTxt(d)} · ${coName()||"HantiGo"}`,
+    text:(o.text||invText(d)).replace(/\*/g,""),company:coName()||"HantiGo",filename:p.name,pdf:await b64(p.blob)}});
   if(!error&&data?.ok)return data;
   let why=data?.error||"";
   if(error){why=error.message||String(error);try{const r=error.context;if(r&&typeof r.text==="function"){const t=await r.clone().text();why=(r.status?r.status+" ":"")+t}}catch{}}
@@ -4952,6 +4960,50 @@ function prExport(k){if(!PRD)prRender();if(!PRD)return;
 $("prPer").addEventListener("change",prRender);
 $("prCsv").addEventListener("click",()=>prExport("x"));$("prDoc").addEventListener("click",()=>prExport("w"));$("prPdf").addEventListener("click",()=>prExport("p"));
 {const _r4=render;render=function(){_r4();try{prRender()}catch(e){console.warn(e)}}}
+/* ================= 9. Shirkad: invoice reminders on the home page (v143) =================
+   Unpaid Qaansheeg only (Shirkad, owner + manager). Late first, then due soon, then the rest.
+   Every reminder sent is stamped on the invoice (remAt, remN) so everyone sees when the customer was last reminded. */
+let irAll=false;
+function irList(){if(MODE!=="business"||!MGR())return [];const R=remPrefs();
+  return mine("inv").filter(d=>d.k==="q").map(d=>({d,s:invState(d)})).filter(x=>x.s.left>0)
+    .map(x=>({...x,k:x.s.due?dayDiff(x.s.due):null})).map(x=>({...x,g:x.k==null?2:x.k<0?0:x.k<=R.billDays?1:2}))
+    .sort((a,b)=>a.g-b.g||(a.k??999)-(b.k??999)||(a.d.date||"").localeCompare(b.d.date||""))}
+function irDueTxt(x){if(x.k==null)return L("Taariikh bixin lama qorin","No due date","بدون تاريخ استحقاق","Hakuna tarehe ya mwisho");
+  if(x.k<0)return L(`Dib u dhacay ${-x.k} maalmood`,`${-x.k} days overdue`,`متأخر ${-x.k} أيام`,`Imechelewa siku ${-x.k}`);
+  return L("Waa in la bixiyaa ","Due ","يستحق ","Inadaiwa ")+whenText(x.k)}
+function irText(d){const s=invState(d),co=coName()||"HantiGo",no=invNoTxt(d),k=s.due?dayDiff(s.due):null;
+  const when=k==null?"":k<0?L(` Waqtigii bixintu wuxuu ahaa ${fmtD(s.due)}.`,` It was due on ${fmtD(s.due)}.`,` كان موعد الدفع ${fmtD(s.due)}.`,` Ilipaswa kulipwa ${fmtD(s.due)}.`):L(` Fadlan bixi ugu dambayn ${fmtD(s.due)}.`,` Please pay by ${fmtD(s.due)}.`,` يرجى الدفع قبل ${fmtD(s.due)}.`,` Tafadhali lipa kufikia ${fmtD(s.due)}.`);
+  return L(`Salaan ${d.cust},\n*${co}* ayaa ku xusuusinaysa qaansheegga *${no}* (${fmtD(d.date)}).\nWaxaa ka haray: *${money(s.left)}*${s.paid>0?` (la bixiyay ${money(s.paid)})`:""}.${when}\nMahadsanid!`,
+    `Hello ${d.cust},\nThis is a reminder from *${co}* about invoice *${no}* (${fmtD(d.date)}).\nAmount left: *${money(s.left)}*${s.paid>0?` (paid ${money(s.paid)})`:""}.${when}\nThank you!`,
+    `مرحبًا ${d.cust}،\nتذكير من *${co}* بخصوص الفاتورة *${no}* (${fmtD(d.date)}).\nالمبلغ المتبقي: *${money(s.left)}*${s.paid>0?` (المدفوع ${money(s.paid)})`:""}.${when}\nشكرًا لك!`,
+    `Habari ${d.cust},\nHiki ni kikumbusho kutoka *${co}* kuhusu ankara *${no}* (${fmtD(d.date)}).\nKilichobaki: *${money(s.left)}*${s.paid>0?` (imelipwa ${money(s.paid)})`:""}.${when}\nAsante!`)}
+function irPhone(d){return d.phone||(custOf(d.cust)||{}).phone||""}
+async function irStamp(d,how){const x=items.find(i=>i.id===d.id)||d;await put({...x,remAt:new Date().toISOString(),remN:(Number(x.remN)||0)+1,remBy:how})}
+function renderInvRem(){const P=$("irPanel");if(!P)return;const l=irList();
+  if(MODE!=="business"||!MGR()||!l.length){P.hidden=true;return}P.hidden=false;
+  const late=l.filter(x=>x.g===0),soon=l.filter(x=>x.g===1),sum=a=>a.reduce((s,x)=>s+x.s.left,0);
+  $("irH").textContent="🧾 "+L("Xusuusinta qaansheegga","Invoice reminders","تذكير الفواتير","Vikumbusho vya ankara");
+  $("irSum").innerHTML=`<div class="ext ${late.length?"hi":""}"><span class="lbl">${L("Dib u dhacay","Overdue","متأخرة","Zimechelewa")}</span><b>${late.length} · ${money(sum(late))}</b></div><div class="ext"><span class="lbl">${L("Dhowaan la gaarayo","Due soon","تستحق قريبًا","Zinakaribia")}</span><b>${soon.length} · ${money(sum(soon))}</b></div><div class="ext"><span class="lbl">${L("Dhammaan aan la bixin","All unpaid","كل غير المدفوعة","Zote hazijalipwa")}</span><b>${l.length} · ${money(sum(l))}</b></div>`;
+  const show=irAll?l:l.filter(x=>x.g<2).slice(0,6);const vis=show.length?show:l.slice(0,3);
+  $("irList").innerHTML=vis.map(x=>{const d=x.d,id=esc(d.id),ph=irPhone(d);
+    return `<div class="irow ${x.g===0?"irlate":""}"><div class="irh"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)}<br><small class="note ${x.g===0?"late":""}">${esc(irDueTxt(x))}</small>${d.remAt?`<br><small class="note">🔔 ${L("Xusuusin la diray","Reminded","تم التذكير","Imekumbushwa")}: ${fmtD(d.remAt.slice(0,10))}${d.remN>1?` (${d.remN}×)`:""}</small>`:""}</span><span class="irr"><b class="amt q">${money(x.s.left)}</b>${invPill(x.s)}</span></div>
+      <div class="ira">${ph?`<button type="button" class="primary wa-bg" data-irwa="${id}">💬 ${L("Xusuusi WhatsApp","Remind on WhatsApp","تذكير واتساب","Kumbusha WhatsApp")}</button>`:""}${d.email?`<button type="button" data-irmail="${id}">✉️ ${L("Email + PDF","Email + PDF","بريد + PDF","Barua pepe + PDF")}</button>`:""}${!ph&&!d.email?`<button type="button" data-irwa="${id}">💬 WhatsApp</button>`:""}
+        <input type="number" min="0" step="0.01" inputmode="decimal" id="irp-${id}" value="${x.s.left}" aria-label="${esc(L("Qadarka la helay","Amount received","المبلغ المستلم","Kiasi kilichopokelewa"))}"><button type="button" data-irpay="${id}">💵 ${L("La helay","Received","تم الاستلام","Imepokelewa")}</button></div></div>`}).join("")+
+    (l.length>vis.length||irAll?`<button type="button" class="del" data-irall="1">${irAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${l.length}) ▾`,`See all (${l.length}) ▾`,`عرض الكل (${l.length}) ▾`,`Ona zote (${l.length}) ▾`)}</button>`:"");
+  $("irMsg").textContent=irMsgT}
+let irMsgT="";
+document.addEventListener("click",async e=>{
+  if(e.target.closest("[data-irall]")){irAll=!irAll;renderInvRem();return}
+  const w=e.target.closest("[data-irwa]");if(w){const d=items.find(i=>i.id===w.dataset.irwa);if(!d)return;
+    window.open("https://wa.me/"+(waPhone(irPhone(d))||"")+"?text="+encodeURIComponent(irText(d)),"_blank","noopener");irMsgT="";try{await irStamp(d,"wa")}catch{}return}
+  const m=e.target.closest("[data-irmail]");if(m){const d=items.find(i=>i.id===m.dataset.irmail);if(!d||!d.email)return;m.disabled=true;irMsgT=L("Waa la dirayaa…","Sending…","جارٍ الإرسال…","Inatuma…");$("irMsg").textContent=irMsgT;
+    try{const p=await invPdf(d);await mailPdf(d,p,d.email,{subject:L("Xusuusin","Reminder","تذكير","Kikumbusho")+": "+invLabel(d.k)+" "+invNoTxt(d)+" · "+(coName()||"HantiGo"),text:irText(d)});await irStamp(d,"mail");irMsgT="✓ "+L(`Xusuusin + PDF waa loo diray ${d.email}.`,`Reminder + PDF sent to ${d.email}.`,`أُرسل التذكير + PDF إلى ${d.email}.`,`Kikumbusho + PDF kimetumwa kwa ${d.email}.`)}
+    catch(err){irMsgT=L("Email-ka looma diri karo hadda.","The email could not be sent right now.","تعذّر إرسال البريد الآن.","Barua pepe haikuweza kutumwa sasa.")+" "+mailWhy(err?.why||err?.message||"")}
+    m.disabled=false;renderInvRem();return}
+  const pp=e.target.closest("[data-irpay]");if(pp){const d=items.find(i=>i.id===pp.dataset.irpay);if(!d)return;const inp=document.getElementById("irp-"+d.id),v=parseFloat(inp?.value);if(!(v>0)){inp?.focus();return}
+    pp.disabled=true;try{const db=await invEnsureDebt(d);const got=await debtReceive(db,v);irMsgT="✓ "+L(`${money(got)} waa la qoray (${invNoTxt(d)}).`,`${money(got)} recorded (${invNoTxt(d)}).`,`تم تسجيل ${money(got)} (${invNoTxt(d)}).`,`${money(got)} imerekodiwa (${invNoTxt(d)}).`);renderInvRem()}catch{pp.disabled=false}return}
+});
+{const _r5=render;render=function(){_r5();try{renderInvRem()}catch(e){console.warn(e)}}}
 /* ---------- v132 phone: tables as cards, long notes folded to 2 lines ---------- */
 (()=>{const PH=matchMedia("(max-width:639px)");
   /* every cell gets its column name, so a row can be shown as a card on a phone */
