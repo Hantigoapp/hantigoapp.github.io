@@ -465,6 +465,10 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .zr{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 10px;align-items:center;border-top:1px solid var(--line);padding-top:8px}.za{display:flex;gap:6px;flex-wrap:wrap}
 .zb{display:block;font-size:.74rem;color:var(--muted)}.zb.z0{color:var(--out);font-weight:700}
 #irTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}#irTabs button{justify-content:center;font-weight:700;padding:10px 8px}.irnew button{width:100%}
+.invli .invfx{grid-column:1/-1;flex-basis:100%;order:9}.invfx summary{cursor:pointer;color:var(--muted,#9aa7b8);font-size:13px}
+.invrev{margin:10px 0;padding:10px 12px;border:1px solid var(--line,#2a3446);border-radius:12px}.invrev .irh{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between}.revt{width:100%;border-collapse:collapse;margin:6px 0;font-size:14px}.revt th,.revt td{padding:5px 4px;border-bottom:1px solid var(--line,#2a3446);text-align:start}.revt .n{text-align:end;white-space:nowrap}.revt tr.bad td{color:var(--out,#ff6b6b)}.revt tr.tot td{border-bottom:0}.invrev .late{color:var(--out,#ff6b6b)}#invFixInfo{margin:22px 0 0}
+.invpick{margin:4px 0 10px;padding:10px;border:1px dashed var(--line,#2a3446);border-radius:12px}.invpick .field{margin:0}.invpick select{font-weight:600}#invPickInfo{margin:6px 0 0}#invPickInfo.warn{color:var(--warn,#f0b429)}
+#regTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}#regTabs button{justify-content:center;font-weight:700;padding:10px 8px}#regPanel #regMsg .del{margin-left:6px}
 .irlist{display:grid}.irow{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.irow:first-child{border-top:0}.irow.irlate{box-shadow:inset 3px 0 0 var(--out);padding-left:8px}
 .irh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.irr{display:grid;justify-items:end;gap:3px}.ira{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ira input{max-width:110px}
 .prtips{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.88rem}.prm{width:100%}
@@ -1239,6 +1243,25 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
     <details class="note"><summary>Eeg tirooyinka</summary><div style="overflow-x:auto"><table class="ctable" id="chartTable"></table></div></details>
   </section>
 
+  <section class="panel biz-only mgr-only" aria-labelledby="regH" data-tab="home" id="regPanel">
+    <div class="panel-head"><h2 id="regH">➕ Diiwaangeli</h2></div>
+    <div class="chips invf regtabs" id="regTabs" role="group"></div>
+    <form id="rcForm" class="regform" novalidate><div id="regCust" style="display:grid;gap:10px">
+      <div class="row">
+        <label class="field"><span id="rcNameL">Magaca macmiilka</span><input id="rcName" type="text" maxlength="50" autocomplete="off" placeholder="Tusaale: Cali Xasan"></label>
+        <label class="field"><span id="rcPhoneL">Taleefanka</span><input id="rcPhone" type="tel" maxlength="20" placeholder="61 5123456"></label>
+        <label class="field"><span id="rcEmailL">Email-ka</span><input id="rcEmail" type="email" maxlength="80" placeholder="macmiil@gmail.com"></label>
+      </div><div class="err" id="rcErr" role="alert"></div><button type="submit" class="primary" id="rcSave">✓ Diiwaangeli macmiilka</button></div></form>
+    <form id="reForm" class="regform" novalidate><div id="regEmp" style="display:grid;gap:10px" hidden>
+      <div class="row">
+        <label class="field"><span id="reNameL">Magaca shaqaalaha</span><input id="reName" type="text" maxlength="40" autocomplete="off" placeholder="Tusaale: Axmed Cali"></label>
+        <label class="field"><span id="reRoleL">Shaqada</span><select id="reRole"></select></label>
+        <label class="field"><span id="reAmtL">Mushaharka bishii</span><input id="reAmt" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label>
+        <label class="field"><span id="rePhoneL">Taleefanka</span><input id="rePhone" type="tel" maxlength="20" placeholder="61 5123456"></label>
+      </div><div class="err" id="reErr" role="alert"></div><button type="submit" class="primary" id="reSave">✓ Diiwaangeli shaqaalaha</button></div></form>
+    <span class="note ok" id="regMsg" role="status"></span>
+    <p class="note" id="regInfo" style="margin:0"></p>
+  </section>
   <section class="panel biz-only mgr-only" aria-labelledby="irH" data-tab="home" id="irPanel" hidden>
     <div class="panel-head"><h2 id="irH">🧾 Xusuusinta qaansheegga</h2></div>
     <div class="extremes cusum" id="irSum"></div>
@@ -1351,8 +1374,12 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
           <input type="radio" name="invk" id="invR" value="r" checked><label for="invR" class="l-in">Rasiid (waa la bixiyay)</label>
           <input type="radio" name="invk" id="invQ" value="q"><label for="invQ" class="l-out">Qaansheeg (weli lama bixin)</label>
         </div>
+        <div class="invpick" id="invPickRow">
+          <label class="field"><span id="invPickL">👤 Dooro macmiil</span><select id="invPick"><option value="">—</option></select></label>
+          <p class="hint" id="invPickInfo" hidden></p>
+        </div>
         <div class="row">
-          <label class="field"><span>Magaca macmiilka</span><input id="invCust" type="text" maxlength="50" placeholder="Tusaale: Cali Xasan"></label>
+          <label class="field"><span>Magaca macmiilka</span><input id="invCust" type="text" maxlength="50" placeholder="Tusaale: Cali Xasan" list="invCustDl" autocomplete="off"><datalist id="invCustDl"></datalist></label>
           <label class="field"><span>Taleefanka macmiilka (WhatsApp)</span><input id="invPhone" type="tel" maxlength="20" placeholder="Tusaale: 61 5123456"></label>
           <label class="field"><span>Email-ka macmiilka</span><input id="invEmail" type="email" maxlength="80" placeholder="macmiil@gmail.com"></label>
         </div>
@@ -1361,9 +1388,11 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
           <label class="field" id="invDueRow" hidden><span>Ugu dambayn bixinta (ikhtiyaari)</span><input id="invDue" type="date"></label>
         </div>
         <div id="invLines" class="invlines"></div>
-        <div class="goal-actions"><button type="button" id="invAdd">+ Ku dar shay</button><span style="margin-left:auto">Wadarta: <b id="invTot">0</b></span></div>
+        <div class="goal-actions"><button type="button" id="invAdd">+ Ku dar shay</button><span style="margin-left:auto">Wadarta: <b id="invTot">0</b></span><button type="button" class="del" id="invFixBtn">✏ Sax wadarta</button></div>
+        <div class="row" id="invFixRow" hidden><label class="field"><span id="invFixL">Wadarta guud ee saxda ah</span><input id="invFix" type="number" min="0" step="0.01" inputmode="decimal"></label><p class="hint" id="invFixInfo"></p></div>
         <label class="field"><span>Faahfaahin (ikhtiyaari)</span><input id="invNote" type="text" maxlength="120" placeholder="Tusaale: Mahadsanid, mar kale nagu soo noqo"></label>
         <label class="chk" id="invRecRow"><input type="checkbox" id="invRec" checked> <span id="invRecLbl">Ku dar dakhliga (Soo galay)</span></label>
+        <div class="invrev" id="invRev" aria-live="polite"></div>
         <div class="err" id="invErr" role="alert"></div>
         <div class="goal-actions"><button type="button" class="primary" id="invSend">📧 Email u dir (PDF)</button><button type="button" class="primary wa-bg" id="invShare">💬 WhatsApp u dir (PDF)</button><button type="button" id="invDl">⬇ PDF</button></div>
         <span class="note ok" id="invMsg" role="status"></span>
@@ -2059,7 +2088,7 @@ async function flush(){clearTimeout(syncTimer);if(dirty.size||gone.size)await sy
 const ZERO_KINDS={tx:["amount"],bill:["amount"],debt:["amount"],inv:["total"],goal:["target"]};
 let ZERO_ASK=true;
 async function put(doc){
-  if(["tx","goal","bill","cat","debt","leave","inv"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
+  if(["tx","goal","bill","cat","debt","leave","inv","cust"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
   if(doc.kind==="tx"&&!doc.by&&(TEAM||hasStaff)&&me)doc={...doc,by:me.email};
   const i=items.findIndex(x=>x.id===doc.id);
   if(i>=0&&ZERO_KINDS[doc.kind]){const old=items[i];let hist=doc.hist||old.hist||[],ch=false;
@@ -3072,7 +3101,7 @@ function wrExport(k){if(!WR)return;
 function renderJump(){const nav=$("hJump");if(!nav||$("appView").dataset.tab!=="home")return;
   const biz=MODE==="business";
   const list=[["wrPanel","📋 "+L("Warbixin","Report","تقرير","Ripoti")],["dyPanel","📅 "+L("Maalmaha","Days","الأيام","Siku")],["chartH","📈 "+L("Jaantus","Chart","رسم بياني","Chati")],
-    [biz?"stPanel":"catH",biz?"📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu"):"🍕 "+L("Kharashka","Spending","المصاريف","Matumizi")],["psPanel","📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu")],["mgPanel","🏢 "+L("Maamul","Manage","إدارة","Usimamizi")],["irPanel",biz?"🧾 "+L("Qaansheeg","Invoices","الفواتير","Ankara"):""],["prPanel",biz?"📈 "+L("Faa'iido","Profit","الربح","Faida"):""]];
+    [biz?"stPanel":"catH",biz?"📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu"):"🍕 "+L("Kharashka","Spending","المصاريف","Matumizi")],["psPanel","📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu")],["mgPanel","🏢 "+L("Maamul","Manage","إدارة","Usimamizi")],["regPanel",biz?"➕ "+L("Diiwaangeli","Register","تسجيل","Sajili"):""],["irPanel",biz?"🧾 "+L("Qaansheeg","Invoices","الفواتير","Ankara"):""],["prPanel",biz?"📈 "+L("Faa'iido","Profit","الربح","Faida"):""]];
   const sec=id=>{const e=$(id);return e?(e.tagName==="SECTION"?e:e.closest("section")):null};
   const vis=list.filter(([id,t])=>{const s=sec(id);return t&&s&&!s.hidden&&getComputedStyle(s).display!=="none"});
   const key=vis.map(v=>v[0]).join()+LANG;if(nav.dataset.k===key)return;nav.dataset.k=key;
@@ -4355,7 +4384,7 @@ $("repDoc").addEventListener("click",()=>{const {title}=reportData();
 if(NATIVE){$("repPdf").hidden=true;$("repNote").hidden=true;$("lvPdf").hidden=true}
 
 /* ---------- backup ---------- */
-const BK_KINDS=["tx","goal","bill","cat","debt","leave","inv","settings","rem"];
+const BK_KINDS=["tx","goal","bill","cat","debt","leave","inv","cust","settings","rem"];
 $("bkOut").addEventListener("click",async()=>{await flush();
   saveFile(`HantiGo-backup-${today()}.json`,JSON.stringify({app:"HantiGo",version:1,exported:new Date().toISOString(),email:realMail(),items},null,1),"application/json");
   $("bkMsg").textContent=L("Backup-ka waa la soo dejiyay. Meel ammaan ah ku kaydi.","Backup downloaded. Keep it somewhere safe.")});
@@ -4688,11 +4717,11 @@ const invTotal=()=>invLines.reduce((a,l)=>a+(Number(l.q)||0)*(Number(l.p)||0),0)
 function renderInvLines(){if(!invLines.length)invLines=[{n:"",q:1,p:""}];
   $("invLines").innerHTML=`<div class="invrow invh"><span>${L("Shayga / adeegga","Item / service")}</span><span>${L("Tirada","Qty")}</span><span>${L("Qiimaha","Price")}</span><span></span></div>`+invLines.map(invRow).join("");
   $("invLines").insertAdjacentHTML("beforeend",invTopics().map(([,,its],k)=>`<datalist id="invdl-${k}">${its.map(n=>`<option value="${esc(L(...n))}"></option>`).join("")}</datalist>`).join(""));
-  $("invTot").textContent=money(invTotal())}
+  $("invTot").textContent=money(invTotal());if(typeof invFixUI==="function")invFixUI()}
 function invKind(){return document.querySelector("input[name=invk]:checked")?.value||"r"}
 function invKindUI(){const r=invKind()==="r";$("invRecLbl").textContent=r?L("Ku dar dakhliga (Soo galay)","Add to income"):L("Ku dar Deymaha (lacag naloo hayo)","Add to Debts (money owed to us)");
   $("invDueRow").hidden=r;if(invTx){$("invRecRow").hidden=true}else $("invRecRow").hidden=false}
-$("invLines").addEventListener("input",e=>{const i=e.target.dataset.il;if(i==null)return;invLines[i][e.target.dataset.f]=e.target.value;$("invTot").textContent=money(invTotal())});
+$("invLines").addEventListener("input",e=>{const i=e.target.dataset.il;if(i==null)return;invLines[i][e.target.dataset.f]=e.target.value;$("invTot").textContent=money(invTotal());invFixUI()});
 /* a topic was chosen: its goods / services are offered in the name box */
 $("invLines").addEventListener("change",e=>{if(e.target.dataset.f!=="t")return;const i=+e.target.dataset.il;invLines[i].t=e.target.value;renderInvLines();
   const n=document.querySelector(`[data-il="${i}"][data-f="n"]`);if(n){n.focus();if(!n.value&&n.showPicker)try{n.showPicker()}catch{}}});
@@ -4700,8 +4729,9 @@ $("invLines").addEventListener("click",e=>{const b=e.target.closest("[data-ildel
 $("invAdd").addEventListener("click",()=>{invLines.push({n:"",q:1,p:"",t:invLines.length?invLines[invLines.length-1].t??"":""});renderInvLines();document.querySelector(`[data-il="${invLines.length-1}"][data-f="n"]`)?.focus()});
 document.querySelectorAll("input[name=invk]").forEach(r=>r.addEventListener("change",()=>{invKindUI();invLines.forEach(l=>{l.t=""});renderInvLines()}));
 function invLoad(d){invReset();invLines=d.lines.map(l=>({...l}));document.querySelector(`input[name=invk][value=${d.k}]`).checked=true;$("invCust").value=d.cust;$("invPhone").value=d.phone||"";$("invEmail").value=d.email||"";$("invDate").value=d.date;$("invDue").value=d.due||"";$("invNote").value=d.note||"";renderInvLines();invKindUI();$("invRecRow").hidden=true;
-  invCur={sig:JSON.stringify([d.k,d.cust,d.phone||"",d.email||"",d.date,d.lines,d.note||"",d.due||""]),doc:d}}
-function invReset(){invCur=null;invLines=[];invTx=null;$("invCust").value="";$("invPhone").value="";$("invEmail").value="";$("invNote").value="";$("invDate").value=today();$("invDue").value="";$("invRec").checked=true;$("invErr").textContent="";$("invMsg").textContent="";renderInvLines();invKindUI()}
+  $("invFix").value=d.adj?d.total:"";$("invFixRow").hidden=!d.adj;invFixUI();
+  invCur={sig:JSON.stringify([d.k,d.cust,d.phone||"",d.email||"",d.date,d.lines,d.note||"",d.due||"",d.adj||0]),doc:d}}
+function invReset(){invCur=null;invLines=[];invTx=null;$("invFix").value="";$("invFixRow").hidden=true;$("invCust").value="";$("invPhone").value="";$("invEmail").value="";$("invNote").value="";$("invDate").value=today();$("invDue").value="";$("invRec").checked=true;$("invErr").textContent="";$("invMsg").textContent="";renderInvLines();invKindUI()}
 $("invNew").addEventListener("click",invReset);
 function invNextNo(k){const s=settings();const n=TEAM?Math.max(0,...mine("inv").filter(x=>x.k===k).map(x=>Number(x.no)||0))+1:Number((s.invNo||{})[k]||0)+1;return [n,{...s,invNo:{...(s.invNo||{}),[k]:n}}]}
 const invLabel=k=>k==="r"?L("Rasiid","Receipt"):L("Qaansheeg","Invoice");
@@ -4711,13 +4741,16 @@ async function invSave(){const lines=invLines.map(l=>({n:String(l.n||"").trim(),
   const cust=$("invCust").value.trim();
   if(!cust){$("invErr").textContent=L("Geli magaca macmiilka.","Enter the customer's name.");$("invCust").focus();return null}
   if(!lines.length){$("invErr").textContent=L("Geli ugu yaraan hal shay oo leh qiimo.","Enter at least one item with a price.");return null}
-  $("invErr").textContent="";const k=invKind(),total=lines.reduce((a,l)=>a+l.q*l.p,0),date=$("invDate").value||today();
-  const sig=JSON.stringify([k,cust,$("invPhone").value,$("invEmail").value,date,lines,$("invNote").value,$("invDue").value]);
+  $("invErr").textContent="";const k=invKind(),sum=lines.reduce((a,l)=>a+l.q*l.p,0),adj=invAdj(sum),total=Math.round((sum+adj)*100)/100,date=$("invDate").value||today();
+  const sig=JSON.stringify([k,cust,$("invPhone").value,$("invEmail").value,date,lines,$("invNote").value,$("invDue").value,adj]);
   if(invCur&&invCur.sig===sig)return invCur.doc;
   try{let doc;
-    if(invCur&&invCur.doc&&invCur.doc.k===k){doc={...invCur.doc}}
+    if(invCur&&invCur.doc&&invCur.doc.k===k){doc={...(items.find(i=>i.id===invCur.doc.id)||invCur.doc)}}
     else{const [no,s2]=invNextNo(k);await put(s2);doc={id:uid(),kind:"inv",k,no,created:new Date().toISOString()}}
-    Object.assign(doc,{cust,phone:$("invPhone").value.trim(),email:$("invEmail").value.trim(),date,due:k==="q"?($("invDue").value||null):null,lines,total,note:$("invNote").value.trim()});
+    Object.assign(doc,{cust,phone:$("invPhone").value.trim(),email:$("invEmail").value.trim(),date,due:k==="q"?($("invDue").value||null):null,lines,total,adj:adj||0,note:$("invNote").value.trim()});
+    if(doc.sentAt&&invCur&&invCur.doc&&invCur.doc.id===doc.id){const old=items.find(i=>i.id===doc.id)||invCur.doc,at=new Date().toISOString();doc.fixedAt=at;
+      const ch=[];if(old.cust!==doc.cust)ch.push(L("macmiilka","customer","العميل","mteja"));if(JSON.stringify(old.lines)!==JSON.stringify(doc.lines))ch.push(L("shayada","items","البنود","bidhaa"));if(Number(old.total)!==total)ch.push(L("wadarta","total","المجموع","jumla"));if((old.note||"")!==doc.note)ch.push(L("faahfaahinta","note","الملاحظة","maelezo"));
+      doc.fixes=[...(old.fixes||[]),{at,from:Number(old.total)||0,to:total,what:ch.join(", "),by:(typeof realMail==="function"&&realMail())||""}].slice(-20)}
     if(doc.linked&&doc.auto){const t=doc.txId&&items.find(i=>i.id===doc.txId),db=doc.debtId&&items.find(i=>i.id===doc.debtId);
       if(t&&(t.amount!==total||t.date!==date||t.place!==cust))await put({...t,amount:total,date,place:cust});
       if(db&&(db.amount!==total||db.name!==cust||db.due!==doc.due))await put({...db,amount:total,name:cust,due:doc.due})}
@@ -4734,14 +4767,15 @@ function invHtml(d){const k=d.k,co=coName()||"HantiGo",lg=coLogo();
   <table><tr><th>${L("Macmiilka","Customer")}</th><td>${esc(d.cust)}${d.phone?" · "+esc(d.phone):""}</td></tr><tr><th>${L("Taariikhda","Date")}</th><td>${fmtD(d.date)}</td></tr>${k==="q"&&d.due?`<tr><th>${L("Ugu dambayn bixinta","Due date")}</th><td>${fmtD(d.due)}</td></tr>`:""}</table>
   <table><tr><th>${L("Shayga / adeegga","Item / service")}</th><th>${L("Tirada","Qty")}</th><th>${L("Qiimaha","Price")}</th><th>${L("Wadarta","Total")}</th></tr>
   ${d.lines.map(l=>`<tr><td>${esc(l.n)}</td><td class="n">${l.q}</td><td class="n">${money(l.p)}</td><td class="n">${money(l.q*l.p)}</td></tr>`).join("")}
+  ${d.adj?`<tr><td colspan="3">${esc(invAdjLbl(d))}</td><td class="n">${money(d.adj)}</td></tr>`:""}
   <tr><td colspan="3"><b>${L("Wadarta guud","Grand total")}</b></td><td class="n"><b>${money(d.total)}</b></td></tr></table>
   <p><b>${invFoot(d)}</b></p>
   ${d.note?`<p>${esc(d.note)}</p>`:""}
   <p style="color:#666;font-size:11px">${L("Waxaa lagu sameeyay","Made with")} HantiGo · ${dlStamp()}</p></div>`}
 function waPhone(p){let n=String(p||"").replace(/[^\d+]/g,"");if(n.startsWith("+"))return n.slice(1);if(n.startsWith("00"))return n.slice(2);
   if(/^0?6\d{8}$/.test(n)||/^0?7\d{8}$/.test(n))return "252"+n.replace(/^0/,"");return n}
-function invText(d){const k=d.k;return `*${coName()||"HantiGo"}*\n${invLabel(k)} ${invNoTxt(d)} · ${fmtD(d.date)}\n${L("Macmiil","Customer")}: ${d.cust}\n\n`+
-  d.lines.map(l=>`• ${l.n}${l.q!==1?" ×"+l.q:""} = ${money(l.q*l.p)}`).join("\n")+`\n\n*${L("Wadarta","Total")}: ${money(d.total)}*\n`+
+function invText(d){const k=d.k;return `*${coName()||"HantiGo"}*\n${invLabel(k)} ${invNoTxt(d)} · ${fmtD(d.date)}${d.fixedAt?" · "+invFixedLbl():""}\n${L("Macmiil","Customer")}: ${d.cust}\n\n`+
+  d.lines.map(l=>`• ${l.n}${l.q!==1?" ×"+l.q:""} = ${money(l.q*l.p)}`).join("\n")+(d.adj?`\n${invAdjLbl(d)}: ${money(d.adj)}`:"")+`\n\n*${L("Wadarta","Total")}: ${money(d.total)}*\n`+
   invFoot(d)+(d.note?"\n"+d.note:"")}
 function invWa(d){const ph=waPhone(d.phone);window.open("https://wa.me/"+(ph||"")+"?text="+encodeURIComponent(invText(d)),"_blank","noopener")}
 let pdfLib=null;
@@ -4762,6 +4796,7 @@ async function invPdf(d){const J=await loadPdf();const doc=new J({unit:"mm",form
   doc.setFont("helvetica","bold");doc.setFontSize(18);doc.setTextColor(11,122,75);doc.text(coName()||"HantiGo",tx,y+2);
   doc.setFontSize(13);doc.setTextColor(40);doc.text(`${invLabel(d.k).toUpperCase()}  ${invNoTxt(d)}`,W-M,y+2,{align:"right"});
   doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);doc.text(`${L("Taariikhda","Date")}: ${fmtD(d.date)}`,W-M,y+8,{align:"right"});
+  if(d.fixedAt){doc.setTextColor(179,64,42);doc.text(invFixedLbl().toUpperCase(),W-M,y-5,{align:"right"});doc.setTextColor(90)}
   if(d.k==="q"&&d.due)doc.text(`${L("Ugu dambayn bixinta","Due date")}: ${fmtD(d.due)}`,W-M,y+13,{align:"right"});
   y+=24;doc.setDrawColor(200);doc.line(M,y,W-M,y);y+=8;
   doc.setTextColor(90);doc.text(L("Macmiilka","Customer"),M,y);doc.setTextColor(20);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(d.cust,M,y+6);
@@ -4772,6 +4807,7 @@ async function invPdf(d){const J=await loadPdf();const doc=new J({unit:"mm",form
   doc.setFont("helvetica","normal");doc.setTextColor(20);y+=8;
   d.lines.forEach((l,i)=>{if(y>265){doc.addPage();y=20}if(i%2){doc.setFillColor(242,246,244);doc.rect(M,y-5,W-2*M,8,"F")}
     doc.text(doc.splitTextToSize(l.n,95)[0],cx[0]+2,y);doc.text(String(l.q),cx[1]+14,y,{align:"right"});doc.text(pm(l.p),cx[2]+22,y,{align:"right"});doc.text(pm(l.q*l.p),cx[3]-2,y,{align:"right"});y+=8});
+  if(d.adj){doc.text(invAdjLbl(d),cx[0]+2,y);doc.text(pm(d.adj),cx[3]-2,y,{align:"right"});y+=8}
   doc.setDrawColor(11,122,75);doc.line(M,y-3,W-M,y-3);y+=4;doc.setFont("helvetica","bold");doc.setFontSize(13);
   doc.text(L("Wadarta guud","Grand total"),cx[2]-20,y);doc.text(pm(d.total),cx[3]-2,y,{align:"right"});y+=12;
   doc.setFontSize(11);const paidAll=d.k==="r"||invState(d).left<=0;if(paidAll)doc.setTextColor(11,122,75);else doc.setTextColor(179,64,42);
@@ -4807,7 +4843,7 @@ $("invSend").addEventListener("click",async()=>{const d=await invSave();if(!d)re
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){$("invErr").textContent=L("Geli email sax ah oo macmiilka ah.","Enter the customer's correct email.");$("invEmail").focus();return}
   invBusy(true,L("Waa la dirayaa…","Sending…"));let p;
   try{p=await invPdf(d)}catch{invBusy(false,"");$("invErr").textContent=L("PDF-ka lama samayn karo hadda. Hubi internetka.","Could not make the PDF. Check the internet.");return}
-  try{await mailPdf(d,p,to);await put({...items.find(i=>i.id===d.id)||d,sentTo:to,sentAt:new Date().toISOString()});
+  try{await mailPdf(d,p,to,d.fixedAt?{subject:invFixedLbl()+": "+invLabel(d.k)+" "+invNoTxt(d)+" · "+(coName()||"HantiGo"),text:L(`Salaan ${d.cust}, dalabkaagii waa la saxay. Kani waa nuqulka saxda ah:`,`Hello ${d.cust}, your order was corrected. This is the correct copy:`,`مرحبًا ${d.cust}، تم تصحيح طلبك. هذه هي النسخة الصحيحة:`,`Habari ${d.cust}, oda yako imerekebishwa. Hii ndiyo nakala sahihi:`)+"\n\n"+invText(d)}:undefined);await put({...items.find(i=>i.id===d.id)||d,sentTo:to,sentAt:new Date().toISOString()});
     invBusy(false,"✓ "+L(`Waa loo diray ${to}. Nuqul ayaa laguu diray ${ownerEmail()}.`,`Sent to ${to}. A copy was sent to ${ownerEmail()}.`,`أُرسل إلى ${to}. وأُرسلت نسخة إلى ${ownerEmail()}.`,`Imetumwa kwa ${to}. Nakala imetumwa kwa ${ownerEmail()}.`))}
   catch(e){console.warn("send-receipt",e);invBusy(false,"");const w=e?.why||e?.message||"";$("invErr").textContent=L("Email-ka looma diri karo hadda.","The email could not be sent right now.")+" "+mailWhy(w)+" ("+L("Khalad","Error")+": "+String(w).slice(0,160)+") "+L("PDF-ka waa la soo dejiyay.","The PDF was downloaded.");
     dlBlob(p.blob,p.name);location.href=`mailto:${encodeURIComponent(to)}?cc=${encodeURIComponent(ownerEmail())}&subject=${encodeURIComponent(invLabel(d.k)+" "+invNoTxt(d))}&body=${encodeURIComponent(invText(d).replace(/\*/g,""))}`}});
@@ -4865,9 +4901,9 @@ function renderInvList(){const box=$("invList");if(!box)return;
   box.innerHTML=`<p class="invsum">${open.length?L(`🧾 Qaansheegyo aan la bixin: <b>${open.length}</b> · <b>${money(owe)}</b>`,`🧾 Unpaid invoices: <b>${open.length}</b> · <b>${money(owe)}</b>`,`🧾 فواتير غير مدفوعة: <b>${open.length}</b> · <b>${money(owe)}</b>`,`🧾 Ankara ambazo hazijalipwa: <b>${open.length}</b> · <b>${money(owe)}</b>`)+(late.length?` · <span class="late">${L(`${late.length} dib u dhacay`,`${late.length} overdue`,`${late.length} متأخرة`,`${late.length} zimechelewa`)}</span>`:""):L("✓ Qaansheeg kasta waa la bixiyay.","✓ Every invoice is paid.","✓ كل الفواتير مدفوعة.","✓ Kila ankara imelipwa.")}</p>
   <div class="chips invf" role="group">${fb("all",L("Dhammaan","All","الكل","Zote")+` (${all.length})`)}${fb("open",L("Aan la bixin","Unpaid","غير مدفوعة","Hazijalipwa")+` (${open.length})`)}${fb("paid",L("La bixiyay","Paid","مدفوعة","Zimelipwa"))}</div>`+
   (l.length?l.map(d=>{const s=st.get(d.id),id=esc(d.id);
-    return `<div class="invli"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)} · ${fmtD(d.date)}${d.sentTo?" · ✉️ "+esc(d.sentTo):""}</span><span class="amt ${d.k==="q"&&s.left>0?"q":"in"}">${money(d.total)}</span>
+    return `<div class="invli"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)} · ${fmtD(d.date)}${d.sentTo?" · ✉️ "+esc(d.sentTo):""}${d.fixedAt?` · <span class="note">✏ ${esc(invFixedLbl())}${(d.fixes||[]).length>1?" "+d.fixes.length+"×":""}</span>`:""}</span>${(d.fixes||[]).length?`<details class="invfx"><summary>🕓 ${esc(L("Taariikhda sixitaanka","Correction history","سجل التصحيحات","Historia ya marekebisho"))} (${d.fixes.length})</summary>${d.fixes.slice().reverse().map(f=>`<div class="note">${fmtD(f.at.slice(0,10))} ${esc(f.at.slice(11,16))} · ${esc(f.what||"")} · ${money(f.from)} → <b>${money(f.to)}</b></div>`).join("")}</details>`:""}<span class="amt ${d.k==="q"&&s.left>0?"q":"in"}">${money(d.total)}</span>
     <span class="invst">${invPill(s)}${d.k==="q"&&s.left>0&&s.paid>0?`<span class="note">${L("Haray","Left","المتبقي","Imebaki")}: <b>${money(s.left)}</b></span>`:""}${d.k==="q"&&s.due&&s.left>0?`<span class="note ${s.s==="late"?"late":""}">${L("Ugu dambayn","Due","الاستحقاق","Mwisho")}: ${fmtD(s.due)}</span>`:""}</span>
-    <span class="txa"><button type="button" class="del" data-invp="${id}">⬇ PDF</button><button type="button" class="del" data-invw="${id}">📤 ${L("Dir mar kale","Send again","أرسل مرة أخرى","Tuma tena")}</button><button type="button" class="del" data-invd="${id}">${L("Tirtir","Delete","حذف","Futa")}</button></span>
+    <span class="txa"><button type="button" class="del" data-invp="${id}">⬇ PDF</button><button type="button" class="del" data-inved="${id}">✏ ${L("Sax","Fix","تصحيح","Rekebisha")}</button><button type="button" class="del" data-invw="${id}">📤 ${L("Dir mar kale","Send again","أرسل مرة أخرى","Tuma tena")}</button><button type="button" class="del" data-invd="${id}">${L("Tirtir","Delete","حذف","Futa")}</button></span>
     ${d.k==="q"&&s.left>0?`<span class="invpay"><input type="number" min="0" step="0.01" inputmode="decimal" id="ivp-${id}" value="${s.left}" aria-label="${esc(L("Qadarka la helay","Amount received","المبلغ المستلم","Kiasi kilichopokelewa"))}"><button type="button" data-invpay="${id}">💵 ${L("Lacag la helay","Received","تم الاستلام","Imepokelewa")}</button></span>`:""}</div>`}).join("")
    :`<p class="empty" style="margin:0">${L("Halkan wax ma yaallaan.","Nothing here.","لا يوجد شيء هنا.","Hakuna kitu hapa.")}</p>`)+
   (f.length>8?`<button type="button" class="del" data-invall="1">${invAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${f.length}) ▾`,`See all (${f.length}) ▾`,`عرض الكل (${f.length}) ▾`,`Ona zote (${f.length}) ▾`)}</button>`:"")}
@@ -4882,6 +4918,7 @@ function customers(){const m=new Map();if(MODE!=="business")return [];
     c.bought+=a;c.owed+=l;c.paid+=a-l;if(l>0&&d.due&&d.due<today())c.late+=l;c.debts.push(d);seen(c,dt);
     c.acts.push({date:dt,txt:L("Deyn","On credit","بالدين","Kwa mkopo")+(d.note?" · "+d.note:""),amt:a,k:"debt"});
     for(const t of items.filter(i=>i.kind==="tx"&&i.debtId===d.id)){seen(c,t.date);c.acts.push({date:t.date,txt:L("Lacag la helay","Payment received","دفعة مستلمة","Malipo yamepokelewa")+(d.note?" · "+d.note:""),amt:Number(t.amount)||0,k:"pay"})}}
+  for(const r of mine("cust")){const c=g(r.name);if(!c)continue;c.reg=r.id;if(r.phone)c.phone=r.phone;if(r.email)c.email=r.email;if(!c.last)c.last=(r.created||"").slice(0,10)}
   for(const v of mine("inv").sort((a,b)=>(b.created||"").localeCompare(a.created||""))){const c=g(v.cust);if(!c)continue;c.inv++;if(!c.phone&&v.phone)c.phone=v.phone;if(!c.email&&v.email)c.email=v.email;seen(c,v.date)}
   m.forEach(c=>c.acts.sort((a,b)=>(b.date||"").localeCompare(a.date||"")));
   return [...m.values()].sort((a,b)=>(b.late>0)-(a.late>0)||b.owed-a.owed||(b.last||"").localeCompare(a.last||""))}
@@ -5237,6 +5274,101 @@ document.addEventListener("click",async e=>{
     try{await put({...x,hist:x.hist.map((r,j)=>j===k?{...r,ok:1,okBy:myMail()}:r)})}catch{}return}
 });
 {const _r6=render;render=function(){_r6();try{renderZero()}catch(e){console.warn(e)}}}
+/* ================= 11. Shirkad Guriga: register a customer or an employee (v150) =================
+   Customer = kind "cust" {name, phone, email} (Shirkad only). Employee = the payroll form in Qorshe (same rules). */
+let regTab="cust",regMsgT="";
+function renderReg(){const P=$("regPanel");if(!P)return;if(MODE!=="business"||!MGR()){return}
+  $("regH").textContent="➕ "+L("Diiwaangeli","Register","تسجيل","Sajili");
+  const n=mine("cust").length,ne=typeof emps==="function"?emps().length:0;
+  const tb=(k,t)=>`<button type="button" data-regtab="${k}" class="${regTab===k?"on":""}" aria-pressed="${regTab===k}">${t}</button>`;
+  $("regTabs").innerHTML=tb("cust","👤 "+L("Macmiil cusub","New customer","عميل جديد","Mteja mpya"))+tb("emp","👷 "+L("Shaqaale cusub","New employee","موظف جديد","Mfanyakazi mpya"));
+  $("regCust").hidden=regTab!=="cust";$("regEmp").hidden=regTab!=="emp";
+  const lb={rcNameL:["Magaca macmiilka","Customer name","اسم العميل","Jina la mteja"],rcPhoneL:["Taleefanka","Phone","الهاتف","Simu"],rcEmailL:["Email-ka","Email","البريد الإلكتروني","Barua pepe"],
+    reNameL:["Magaca shaqaalaha","Employee name","اسم الموظف","Jina la mfanyakazi"],reRoleL:["Shaqada","Job","الوظيفة","Kazi"],reAmtL:["Mushaharka bishii","Monthly salary","الراتب الشهري","Mshahara wa mwezi"],rePhoneL:["Taleefanka","Phone","الهاتف","Simu"]};
+  for(const k in lb)if($(k))$(k).textContent=L(...lb[k]);
+  $("rcSave").textContent="✓ "+L("Diiwaangeli macmiilka","Register customer","سجّل العميل","Sajili mteja");$("reSave").textContent="✓ "+L("Diiwaangeli shaqaalaha","Register employee","سجّل الموظف","Sajili mfanyakazi");
+  const rs=$("reRole");if(!rs.options.length)B_STAFF.forEach(r=>rs.add(new Option(T(r),r)));else [...rs.options].forEach(o=>o.textContent=T(o.value));
+  $("regInfo").innerHTML=regTab==="cust"?`${L(`👤 ${n} macmiil ayaa diiwaangashan`,`👤 ${n} registered customers`,`👤 ${n} عملاء مسجّلون`,`👤 Wateja ${n} waliosajiliwa`)} · <a href="#" data-regsee="cu">${L("Eeg liiska","See the list","عرض القائمة","Ona orodha")}</a>`
+    :`${L(`👷 ${ne} shaqaale ayaa diiwaangashan`,`👷 ${ne} registered employees`,`👷 ${ne} موظفون مسجّلون`,`👷 Wafanyakazi ${ne} waliosajiliwa`)} · <a href="#" data-regsee="py">${L("Eeg liiska","See the list","عرض القائمة","Ona orodha")}</a>`;
+  $("regMsg").innerHTML=regMsgT}
+$("rcForm").addEventListener("submit",async e=>{e.preventDefault();const name=$("rcName").value.trim().replace(/\s+/g," "),phone=$("rcPhone").value.trim(),email=$("rcEmail").value.trim();
+  $("rcErr").textContent="";
+  if(!name){$("rcErr").textContent=L("Geli magaca macmiilka.","Enter the customer's name.","أدخل اسم العميل.","Weka jina la mteja.");$("rcName").focus();return}
+  if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){$("rcErr").textContent=L("Email-ku sax maaha.","The email is not valid.","البريد الإلكتروني غير صحيح.","Barua pepe si sahihi.");$("rcEmail").focus();return}
+  {const ex=mine("cust").find(c=>ckey(c.name)===ckey(name));if(ex){const name=ex.name;$("rcErr").textContent=L(`${name} horay ayuu u diiwaangashanaa.`,`${name} is already registered.`,`${name} مسجّل مسبقًا.`,`${name} tayari amesajiliwa.`);return}}
+  try{const id=uid();await put({id,kind:"cust",name,phone,email,created:new Date().toISOString()});["rcName","rcPhone","rcEmail"].forEach(i=>$(i).value="");
+    regMsgT="✓ "+esc(L(`${name} waa la diiwaangeliyay.`,`${name} registered.`,`تم تسجيل ${name}.`,`${name} amesajiliwa.`))+` <button type="button" class="del" data-regnew="${esc(id)}">🧾 ${L("U samee rasiid / qaansheeg","Make a receipt / invoice","أنشئ إيصالًا / فاتورة","Tengeneza risiti / ankara")}</button>`;renderReg()}
+  catch{$("rcErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Haiwezi kuhifadhi sasa. Jaribu tena.")}});
+/* employee: filled into the payroll form so the same checks and staff-account link apply */
+$("reForm").addEventListener("submit",async e=>{e.preventDefault();$("reErr").textContent="";
+  $("pyWho").value=$("reName").value.trim();delete $("pyWho").dataset.mail;$("pyRole").value=$("reRole").value;$("pyAmt").value=$("reAmt").value;$("pyPh").value=$("rePhone").value.trim();$("pyDay").value="";
+  const before=emps().length;$("pyForm").requestSubmit();await new Promise(r=>setTimeout(r,60));
+  if(emps().length>before){const nm=$("reName").value.trim();["reName","reAmt","rePhone"].forEach(i=>$(i).value="");regMsgT="✓ "+esc(L(`${nm} waa la diiwaangeliyay. Mushaharka Qorshe ayaa laga bixiyaa.`,`${nm} registered. Pay salaries from Plan.`,`تم تسجيل ${nm}. ادفع الرواتب من الخطة.`,`${nm} amesajiliwa. Lipa mishahara kutoka Mpango.`));renderReg()}
+  else $("reErr").textContent=$("pyErr").textContent||L("Lama kaydin karo hadda.","Could not save right now.","تعذّر الحفظ الآن.","Haiwezi kuhifadhi sasa.")});
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-regtab]");if(t){regTab=t.dataset.regtab;regMsgT="";renderReg();return}
+  const s=e.target.closest("[data-regsee]");if(s){e.preventDefault();if(s.dataset.regsee==="cu"){goTab("add");setTimeout(()=>$("cuPanel").scrollIntoView({behavior:"smooth",block:"start"}),80)}else{goTab("plan");setTimeout(()=>$("pyPanel").scrollIntoView({behavior:"smooth",block:"start"}),80)}return}
+  const nw=e.target.closest("[data-regnew]");if(nw){const c=items.find(i=>i.id===nw.dataset.regnew);if(!c)return;goTab("add");invReset();$("invCust").value=c.name;$("invPhone").value=c.phone||"";$("invEmail").value=c.email||"";
+    setTimeout(()=>{$("invPanel").scrollIntoView({behavior:"smooth",block:"start"});document.querySelector('[data-il="0"][data-f="t"]')?.focus({preventScroll:true})},80);return}
+});
+/* invoice form: registered and earlier customers can be picked by name, their phone and email fill in */
+function fillCustDl(){const dl=$("invCustDl");if(!dl)return;const l=customers().map(c=>c.name);const k=l.join("|");if(dl.dataset.k===k)return;dl.dataset.k=k;dl.innerHTML=l.map(n=>`<option value="${esc(n)}"></option>`).join("")}
+$("invCust").addEventListener("change",()=>{const c=custOf($("invCust").value);if(!c)return;if(!$("invPhone").value&&c.phone)$("invPhone").value=c.phone;if(!$("invEmail").value&&c.email)$("invEmail").value=c.email});
+/* invoice form: pick a registered customer or one who ordered before; name, phone and email fill in so the PDF goes to them */
+function fillCustPick(){const s=$("invPick");if(!s)return;
+  $("invPickL").textContent=L("👤 Dooro macmiil","👤 Choose customer","👤 اختر العميل","👤 Chagua mteja");
+  const cs=customers(),reg=cs.filter(c=>c.reg).sort((a,b)=>a.name.localeCompare(b.name)),old=cs.filter(c=>!c.reg).sort((a,b)=>(b.last||"").localeCompare(a.last||""));
+  const k=[LANG,...cs.map(c=>c.k+":"+(c.reg?1:0)+":"+c.phone+":"+c.email)].join("|");if(s.dataset.k===k){syncPick();return}s.dataset.k=k;
+  const o=c=>`<option value="${esc(c.k)}">${esc(c.name)}${c.phone?" · "+esc(c.phone):""}${c.email?" · ✉":""}</option>`;
+  s.innerHTML=`<option value="">${esc(cs.length?L("— Dooro liiska —","— Choose from list —","— اختر من القائمة —","— Chagua kwenye orodha —"):L("— Weli macmiil lama diiwaangelin —","— No customers yet —","— لا يوجد عملاء بعد —","— Bado hakuna wateja —"))}</option>`+
+    (reg.length?`<optgroup label="${esc(L("✅ Macaamiisha diiwaangashan","✅ Registered customers","✅ العملاء المسجلون","✅ Wateja waliosajiliwa"))}">${reg.map(o).join("")}</optgroup>`:"")+
+    (old.length?`<optgroup label="${esc(L("🛒 Macaamiil hore wax u dalbaday","🛒 Customers who ordered before","🛒 عملاء طلبوا من قبل","🛒 Wateja walioagiza awali"))}">${old.map(o).join("")}</optgroup>`:"")+
+    `<option value="__new">${esc(L("➕ Macmiil cusub (hoos ku qor)","➕ New customer (type below)","➕ عميل جديد (اكتب أدناه)","➕ Mteja mpya (andika hapa chini)"))}</option>`;
+  syncPick()}
+function syncPick(){const s=$("invPick");if(!s)return;const c=custOf($("invCust").value);const v=c?c.k:"";if(s.value!==v)s.value=v;pickInfo()}
+function pickInfo(){const s=$("invPick"),i=$("invPickInfo");if(!s||!i)return;const c=customers().find(x=>x.k===s.value);if(!c){i.hidden=true;return}
+  const w=[];if(c.email)w.push("📧 "+c.email);if(c.phone)w.push("💬 "+c.phone);
+  i.textContent=w.length?L("Qaansheegga waxaa loo dirayaa: ","The invoice will be sent to: ","سيتم إرسال الفاتورة إلى: ","Ankara itatumwa kwa: ")+w.join(" · "):L("⚠ Macmiilkan ma laha email ama taleefan. Hoos ku qor si loogu diro.","⚠ This customer has no email or phone. Type one below to send it.","⚠ لا يوجد بريد أو هاتف لهذا العميل. اكتبه أدناه للإرسال.","⚠ Mteja huyu hana barua pepe wala simu. Andika hapa chini ili kutuma.");
+  i.classList.toggle("warn",!w.length);i.hidden=false}
+$("invPick").addEventListener("change",()=>{const s=$("invPick");
+  if(s.value==="__new"){$("invCust").value="";$("invPhone").value="";$("invEmail").value="";s.value="";pickInfo();$("invCust").focus();return}
+  const c=customers().find(x=>x.k===s.value);if(!c){pickInfo();return}
+  $("invCust").value=c.name;$("invPhone").value=c.phone||"";$("invEmail").value=c.email||"";pickInfo()});
+$("invCust").addEventListener("input",syncPick);
+/* other buttons (customer list, register, edit invoice) fill the name in code: keep the picker in step */
+document.addEventListener("click",()=>setTimeout(()=>{try{syncPick()}catch{}},120));
+{const _r7=render;render=function(){_r7();try{renderReg();fillCustDl();fillCustPick()}catch(e){console.warn(e)}}}
+/* ================= 12. Send the order to the customer + fix mistakes before / after sending (v151) =================
+   Review box shows exactly what the customer gets. ✏ Sax wadarta = correct the grand total (difference shown as its own row).
+   ✏ Sax on a saved invoice loads it; a fix after it was sent marks it "La saxay" and the email says so. */
+function invAdj(sum){const v=$("invFix").value;if($("invFixRow").hidden||v===""||v==null)return 0;const f=Math.round(Number(v)*100)/100;if(!(f>=0))return 0;return Math.round((f-sum)*100)/100}
+function invAdjLbl(d){return d.adj<0?L("Dhimis / sixid","Discount / correction","خصم / تصحيح","Punguzo / marekebisho"):L("Sixid wadarta","Total correction","تصحيح المجموع","Marekebisho ya jumla")}
+function invFixedLbl(){return L("La saxay","Corrected","مُصحَّح","Imerekebishwa")}
+function invFixUI(){const sum=invTotal(),adj=invAdj(sum),i=$("invFixInfo");
+  $("invFixL").textContent=L("Wadarta guud ee saxda ah","Correct grand total","المجموع الصحيح","Jumla sahihi");
+  $("invFixBtn").textContent=$("invFixRow").hidden?"✏ "+L("Sax wadarta","Fix total","تصحيح المجموع","Rekebisha jumla"):"✕ "+L("Ka noqo","Undo","تراجع","Ghairi");
+  i.textContent=adj?L(`Shayada: ${money(sum)} · ${adj<0?"Dhimis":"Ku dar"}: ${money(adj)} → Wadarta: ${money(sum+adj)}`,`Items: ${money(sum)} · ${adj<0?"Discount":"Added"}: ${money(adj)} → Total: ${money(sum+adj)}`,`البنود: ${money(sum)} · ${adj<0?"خصم":"إضافة"}: ${money(adj)} ← المجموع: ${money(sum+adj)}`,`Bidhaa: ${money(sum)} · ${adj<0?"Punguzo":"Nyongeza"}: ${money(adj)} → Jumla: ${money(sum+adj)}`):L("Haddii wadarta guud khaldan tahay, halkan ku qor tirada saxda ah.","If the grand total is wrong, type the correct amount here.","إذا كان المجموع خاطئًا، اكتب المبلغ الصحيح هنا.","Ikiwa jumla si sahihi, andika kiasi sahihi hapa.");
+  $("invTot").textContent=money(sum+adj);renderInvRev()}
+$("invFixBtn").addEventListener("click",()=>{const r=$("invFixRow");r.hidden=!r.hidden;if(!r.hidden){if($("invFix").value==="")$("invFix").value=invTotal()||"";$("invFix").focus()}else $("invFix").value="";invFixUI()});
+$("invFix").addEventListener("input",invFixUI);
+["invCust","invPhone","invEmail","invNote","invDate","invDue"].forEach(id=>$(id).addEventListener("input",()=>renderInvRev()));
+/* what the customer will receive, in plain words, before pressing send */
+function renderInvRev(){const b=$("invRev");if(!b)return;const ls=invLines.map(l=>({n:String(l.n||"").trim(),q:Number(l.q)||0,p:Number(l.p)||0})).filter(l=>l.n||l.p);
+  if(!ls.length&&!$("invCust").value.trim()){b.innerHTML="";b.hidden=true;return}b.hidden=false;
+  const sum=ls.reduce((a,l)=>a+l.q*l.p,0),adj=invAdj(invTotal()),em=$("invEmail").value.trim(),ph=$("invPhone").value.trim(),bad=ls.filter(l=>!l.n||l.q<=0||l.p<=0);
+  const to=[em?"📧 "+esc(em):"",ph?"💬 "+esc(ph):""].filter(Boolean).join(" · ");
+  b.innerHTML=`<div class="irh"><b>🔎 ${esc(L("Hubi dalabka ka hor intaadan dirin","Check the order before you send","راجع الطلب قبل الإرسال","Kagua oda kabla ya kutuma"))}</b>${invCur&&invCur.doc&&invCur.doc.sentAt?`<span class="note">✉️ ${esc(L("Hore ayaa loo diray","Already sent","أُرسل من قبل","Ilishatumwa"))}: ${fmtD(invCur.doc.sentAt.slice(0,10))}</span>`:""}</div>
+  <p class="note">${esc(L("Macmiilka","Customer","العميل","Mteja"))}: <b>${esc($("invCust").value.trim()||"—")}</b>${to?" · "+to:` · <span class="late">${esc(L("email ama taleefan lama gelin","no email or phone","لا بريد ولا هاتف","hakuna barua pepe wala simu"))}</span>`}</p>
+  <table class="revt"><tr><th>${esc(L("Shayga","Item","البند","Bidhaa"))}</th><th>${esc(L("Tirada","Qty","الكمية","Idadi"))}</th><th>${esc(L("Qiimaha","Price","السعر","Bei"))}</th><th>${esc(L("Wadarta","Total","المجموع","Jumla"))}</th></tr>
+  ${ls.map(l=>`<tr class="${!l.n||l.q<=0||l.p<=0?"bad":""}"><td>${esc(l.n||"?")}</td><td class="n">${l.q}</td><td class="n">${money(l.p)}</td><td class="n">${money(l.q*l.p)}</td></tr>`).join("")}
+  ${adj?`<tr><td colspan="3">${esc(invAdjLbl({adj}))}</td><td class="n">${money(adj)}</td></tr>`:""}
+  <tr class="tot"><td colspan="3"><b>${esc(L("Wadarta guud","Grand total","المجموع الكلي","Jumla kuu"))}</b></td><td class="n"><b>${money(sum+adj)}</b></td></tr></table>
+  ${bad.length?`<p class="note late">⚠ ${esc(L("Saf leh magac, tiro ama qiimo maqan lama dirayo. Kor ka sax.","A row with no name, quantity or price will not be sent. Fix it above.","السطر بلا اسم أو كمية أو سعر لن يُرسل. صحّحه بالأعلى.","Mstari usio na jina, idadi au bei hautatumwa. Urekebishe juu."))}</p>`:""}
+  <p class="note">✏ ${esc(L("Wax khaldan? Kor ka beddel magaca shayga, tirada, qiimaha ama wadarta guud, kadib dir.","Something wrong? Change the item name, quantity, price or grand total above, then send.","هناك خطأ؟ غيّر اسم البند أو الكمية أو السعر أو المجموع بالأعلى، ثم أرسل.","Kuna kosa? Badilisha jina, idadi, bei au jumla hapo juu, kisha utume."))}</p>`}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-inved]");if(!b)return;const d=items.find(i=>i.id===b.dataset.inved);if(!d)return;
+  invLoad(d);renderInvRev();$("invMsg").textContent="✏ "+L(`${invNoTxt(d)} waa furan yahay. Sax, kadib riix 📧 Email u dir si macmiilka loogu diro nuqulka saxda ah.`,`${invNoTxt(d)} is open. Fix it, then tap 📧 Send by email to send the customer the correct copy.`,`${invNoTxt(d)} مفتوح. صحّحه ثم اضغط 📧 إرسال بالبريد لإرسال النسخة الصحيحة للعميل.`,`${invNoTxt(d)} iko wazi. Rekebisha, kisha bonyeza 📧 Tuma kwa barua pepe ili mteja apate nakala sahihi.`);
+  $("invPanel").scrollIntoView({behavior:"smooth",block:"start"})});
+invFixUI();
 /* ---------- v132 phone: tables as cards, long notes folded to 2 lines ---------- */
 (()=>{const PH=matchMedia("(max-width:639px)");
   /* every cell gets its column name, so a row can be shown as a card on a phone */
