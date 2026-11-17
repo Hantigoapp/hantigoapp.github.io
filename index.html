@@ -439,7 +439,15 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .invf{margin:4px 0}.invf button.on,.cuf button.on{background:var(--accent);color:#fff;border-color:transparent}
 .invli .invst{display:flex;gap:6px;align-items:center;flex-wrap:wrap;width:100%}#appView .invlist .txa{flex-direction:row;flex-wrap:wrap;gap:6px;width:100%;justify-content:flex-start;align-items:center}.invli .invpay{display:flex;gap:6px;align-items:center;width:100%}.invli .invpay input{max-width:120px}
 .invli .amt.q{color:#d49a1b}.invsum{font-size:.88rem;margin:0}
-.cusum{grid-template-columns:repeat(3,minmax(0,1fr))}#cuQ{width:100%;box-sizing:border-box}
+.cusum{grid-template-columns:repeat(3,minmax(0,1fr))}
+.prt{width:100%;border-collapse:collapse;font-size:.9rem}.prt td{padding:5px 4px;border-top:1px solid var(--line)}.prt .n{text-align:right;white-space:nowrap}.prt .pc{color:var(--muted);font-size:.78rem;width:44px}
+.prt .pr-h td{font-weight:700;border-top:0;padding-top:12px}.prt .pr-s td:first-child{padding-left:14px}.prt .pr-t td{font-weight:700}.prt .pr-n td{font-weight:800;font-size:1.02rem;border-top:2px solid var(--accent)}
+.irlist{display:grid}.irow{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.irow:first-child{border-top:0}.irow.irlate{box-shadow:inset 3px 0 0 var(--out);padding-left:8px}
+.irh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.irr{display:grid;justify-items:end;gap:3px}.ira{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ira input{max-width:110px}
+.prtips{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.88rem}.prm{width:100%}
+.emplist{display:grid}.emp{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.emp:first-child{border-top:0}
+.emph{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.empr{display:grid;justify-items:end;gap:3px}
+.empa{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.empa input{max-width:120px}#pyAll{justify-self:start}#cuQ{width:100%;box-sizing:border-box}
 .culist{display:grid;gap:0}.cu{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.cu:first-child{border-top:0}
 .cu>button.cuh{all:unset;cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center}
 .cu .cun{font-weight:700;overflow-wrap:anywhere}.cu .cum{font-size:.8rem;color:var(--muted)}.cu .cuo{text-align:right}
@@ -1204,6 +1212,23 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
     <details class="note"><summary>Eeg tirooyinka</summary><div style="overflow-x:auto"><table class="ctable" id="chartTable"></table></div></details>
   </section>
 
+  <section class="panel biz-only mgr-only" aria-labelledby="irH" data-tab="home" id="irPanel" hidden>
+    <div class="panel-head"><h2 id="irH">🧾 Xusuusinta qaansheegga</h2></div>
+    <div class="extremes cusum" id="irSum"></div>
+    <span class="note ok" id="irMsg" role="status"></span>
+    <div id="irList" class="irlist"></div>
+  </section>
+  <section class="panel biz-only mgr-only" aria-labelledby="prH" data-tab="home" id="prPanel" data-fold="pr" data-fold-def="1">
+    <div class="panel-head"><h2 id="prH">📈 Warbixinta faa'iidada</h2>
+      <select id="prPer" aria-label="Muddada" style="width:auto"><option value="m">Bishan</option><option value="pm">Bishii hore</option><option value="q">3-dii bilood</option><option value="y">Sannadkan</option><option value="12">12-kii bilood</option></select></div>
+    <p class="note" id="prTitle" style="margin:0"></p>
+    <div class="goal-actions"><button type="button" id="prCsv">⬇ Excel</button><button type="button" id="prDoc">⬇ Word</button><button type="button" id="prPdf">🖨 PDF</button></div>
+    <div class="sttiles" id="prTiles"></div>
+    <div id="prStmt"></div>
+    <ul class="prtips" id="prTips"></ul>
+    <div id="prMonths"></div>
+    <div id="prCust"></div>
+  </section>
   <section class="panel biz-only mgr-only" aria-labelledby="stH" data-tab="home" id="stPanel" data-fold="st" data-fold-def="1">
     <div class="panel-head"><h2 id="stH">📊 Tirakoobka shirkadda</h2>
       <select id="stPer" aria-label="Muddada" style="width:auto"><option value="1">Bishan</option><option value="3">3-dii bilood</option><option value="12">12-kii bilood</option></select></div>
@@ -1360,6 +1385,26 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
           <button type="submit">+ Ku dar</button>
         </form>
         <p class="note" style="margin:0">🔔 <span>Xusuusinnada waxaad ka maamushaa:</span> <a href="#" data-gorem="1">Akoon → Xusuusinnada</a></p>
+      </section>
+
+      <section class="panel biz-only mgr-only" aria-labelledby="pyH" data-tab="plan" id="pyPanel">
+        <div class="panel-head"><h2 id="pyH">👥 Shaqaalaha &amp; mushaharka</h2><span class="note" id="pyMonth"></span></div>
+        <div class="extremes cusum" id="pySum"></div>
+        <button type="button" class="primary" id="pyAll" hidden></button>
+        <span class="note ok" id="pyMsg" role="status"></span>
+        <div id="pyList" class="emplist"></div>
+        <form id="pyForm" novalidate>
+          <div class="row">
+            <label class="field"><span id="pyWhoL">Magaca shaqaalaha</span><input id="pyWho" type="text" maxlength="40" placeholder="Tusaale: Cali Xasan"></label>
+            <label class="field"><span id="pyRoleL">Shaqada</span><select id="pyRole"></select></label>
+            <label class="field"><span id="pyAmtL">Mushaharka bishii</span><input id="pyAmt" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label>
+            <label class="field"><span id="pyPhL">Taleefan (ikhtiyaari)</span><input id="pyPh" type="tel" maxlength="20" placeholder="61 5123456"></label>
+            <label class="field"><span id="pyDayL">Maalinta mushaharka (ikhtiyaari)</span><input id="pyDay" type="number" min="1" max="31" inputmode="numeric" placeholder="25"></label>
+          </div>
+          <div class="err" id="pyErr" role="alert"></div>
+          <button type="submit" id="pyAdd">+ Ku dar shaqaale</button>
+        </form>
+        <p class="note" id="pyNote" style="margin:0"></p>
       </section>
 
       <section class="panel biz-only no-staff" aria-labelledby="debtH" data-tab="plan">
@@ -2941,7 +2986,7 @@ function wrExport(k){if(!WR)return;
 function renderJump(){const nav=$("hJump");if(!nav||$("appView").dataset.tab!=="home")return;
   const biz=MODE==="business";
   const list=[["wrPanel","📋 "+L("Warbixin","Report","تقرير","Ripoti")],["dyPanel","📅 "+L("Maalmaha","Days","الأيام","Siku")],["chartH","📈 "+L("Jaantus","Chart","رسم بياني","Chati")],
-    [biz?"stPanel":"catH",biz?"📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu"):"🍕 "+L("Kharashka","Spending","المصاريف","Matumizi")],["psPanel","📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu")],["mgPanel","🏢 "+L("Maamul","Manage","إدارة","Usimamizi")]];
+    [biz?"stPanel":"catH",biz?"📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu"):"🍕 "+L("Kharashka","Spending","المصاريف","Matumizi")],["psPanel","📊 "+L("Tirakoob","Statistics","إحصاءات","Takwimu")],["mgPanel","🏢 "+L("Maamul","Manage","إدارة","Usimamizi")],["irPanel",biz?"🧾 "+L("Qaansheeg","Invoices","الفواتير","Ankara"):""],["prPanel",biz?"📈 "+L("Faa'iido","Profit","الربح","Faida"):""]];
   const sec=id=>{const e=$(id);return e?(e.tagName==="SECTION"?e:e.closest("section")):null};
   const vis=list.filter(([id,t])=>{const s=sec(id);return t&&s&&!s.hidden&&getComputedStyle(s).display!=="none"});
   const key=vis.map(v=>v[0]).join()+LANG;if(nav.dataset.k===key)return;nav.dataset.k=key;
@@ -3021,6 +3066,7 @@ const BIZ_BILLS_VERSION=5;
 const B_NOT_MONTHLY=["Dayactir dhisme","Agab xafiis","Buugaag & qalab waxbarasho","Daawooyin & qalab caafimaad","Tababar shaqaale"];
 const BILLS_VERSION=4;
 const BILLS_ADDED_V4=["Jaamacad"];   // only these are added for people already on v3, so bills they deleted do not come back
+const billNm=b=>T(b.name)+(b.who?" · "+b.who:"");
 const bills=()=>mine("bill").sort((a,b)=>a.created.localeCompare(b.created));
 /* ---------- recurring bills: schedule, automatic payment, paid / part paid / unpaid / late ---------- */
 const BILL_FREQ=[1,2,3,6,12];
@@ -3091,10 +3137,10 @@ function renderBills(txs){
     const hist=billHist===b.id?billHistory(b,txs):"";
     /* a bill with no amount yet and never paid: one short row (name, day, amount), no button bar */
     const empty=!(Number(b.amount)>0)&&!x.pays.length&&billOpen!==b.id&&billHist!==b.id;
-    if(empty)return head+`<div class="bill bempty"><span class="name"><span>${esc(T(b.name))}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
+    if(empty)return head+`<div class="bill bempty"><span class="name"><span>${esc(billNm(b))}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
       <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${id}" aria-label="${L("Qadarka ","Amount for ")}${esc(b.name)}">
       <button class="del" data-del="${id}">Tirtir</button></div>`;
-    return head+`<div class="bill bs-${x.late?"late":x.s}"><span class="name"><span>${esc(T(b.name))}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
+    return head+`<div class="bill bs-${x.late?"late":x.s}"><span class="name"><span>${esc(billNm(b))}</span><label class="due">${L("Maalinta:","Day:","اليوم:","Siku:")}<input type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}" placeholder="—" data-bdue="${id}" aria-label="${L("Maalinta la bixiyo ","Due day for ")}${esc(b.name)}"></label></span>
       <input type="number" min="0" step="0.01" inputmode="decimal" value="${b.amount||""}" placeholder="0.00" data-bamt="${id}" aria-label="${L("Qadarka ","Amount for ")}${esc(b.name)}">
       <button class="del" data-del="${id}">Tirtir</button>${line2}${bar}${part}${set}${hist}</div>`}).join("")
     :`<p class="empty" style="margin:0">Weli ma jiro kharash joogto ah. Hoos ka ku dar.</p>`;
@@ -3149,9 +3195,9 @@ function renderBillView(txs,late){
     const pick=calDay&&by[calDay]?calDay:null,list=pick?by[pick]:(by[0]||[]);
     box.innerHTML=`<div class="bcal">${cells}</div><p class="note bleg"><em class="paid"></em>${L("La bixiyay","Paid","مدفوع","Imelipwa")} <em class="part"></em>${L("Qayb","Part","جزئي","Sehemu")} <em class="unpaid"></em>${L("Lama bixin","Unpaid","غير مدفوع","Haijalipwa")} <em class="late"></em>${L("Dib u dhacay","Late","متأخر","Imechelewa")}</p>
       ${pick?`<p class="bh-day"><b>${pick} ${MONTHS[view.getMonth()]}</b></p>`:by[0]?`<p class="note" style="margin:0">${L("Biilal aan maalin lahayn:","Bills with no day set:","فواتير بلا يوم:","Bili bila siku:")}</p>`:`<p class="note" style="margin:0">${L("Riix maalin si aad u aragto biilasheeda.","Tap a day to see its bills.","اضغط على يوم لرؤية فواتيره.","Gusa siku kuona bili zake.")}</p>`}
-      ${list.length?`<ul class="bh-list">${list.map(([b,x])=>`<li><span>${esc(T(b.name))}</span>${billPill(x)}<b>${money(x.s==="paid"?x.paid:x.left)}</b></li>`).join("")}</ul>`:""}`;return}
+      ${list.length?`<ul class="bh-list">${list.map(([b,x])=>`<li><span>${esc(billNm(b))}</span>${billPill(x)}<b>${money(x.s==="paid"?x.paid:x.left)}</b></li>`).join("")}</ul>`:""}`;return}
   if(billTab==="late"){
-    box.innerHTML=late.length?`<ul class="bh-list blate">${late.map(({b,d,x,days})=>`<li><span><b>${esc(T(b.name))}</b><br><small class="note">${MONTHS[d.getMonth()]} ${d.getFullYear()} · ⏰ ${days} ${L("maalmood dib u dhac","days late","أيام تأخير","siku za kuchelewa")}${x.paid?` · ${L("la bixiyay","paid","مدفوع","imelipwa")} ${money(x.paid)}`:""}</small></span><b class="bad-t">${money(x.left)}</b><button data-paylate="${esc(b.id)}" data-pm="${ym(d)}">${L("Bixi","Pay","ادفع","Lipa")}</button></li>`).join("")}</ul>
+    box.innerHTML=late.length?`<ul class="bh-list blate">${late.map(({b,d,x,days})=>`<li><span><b>${esc(billNm(b))}</b><br><small class="note">${MONTHS[d.getMonth()]} ${d.getFullYear()} · ⏰ ${days} ${L("maalmood dib u dhac","days late","أيام تأخير","siku za kuchelewa")}${x.paid?` · ${L("la bixiyay","paid","مدفوع","imelipwa")} ${money(x.paid)}`:""}</small></span><b class="bad-t">${money(x.left)}</b><button data-paylate="${esc(b.id)}" data-pm="${ym(d)}">${L("Bixi","Pay","ادفع","Lipa")}</button></li>`).join("")}</ul>
       <p class="bill-total" style="margin:6px 0 0"><span>${L("Wadarta dib u dhacday:","Total late:","إجمالي المتأخر:","Jumla iliyochelewa:")}</span><b class="bad-t">${money(late.reduce((a,l)=>a+l.x.left,0))}</b></p>`
       :`<p class="empty" style="margin:0">✓ ${L("Ma jiro biil dib u dhacay. Si fiican!","No late bills. Well done!","لا توجد فواتير متأخرة. أحسنت!","Hakuna bili zilizochelewa. Hongera!")}</p>`;return}
   if(billTab==="fc"){const months=[0,1,2,3].map(k=>{const d=new Date(view.getFullYear(),view.getMonth()+k,1);let t=0,c=0;
@@ -3159,7 +3205,7 @@ function renderBillView(txs,late){
     const now=new Date(),cur=view.getFullYear()===now.getFullYear()&&view.getMonth()===now.getMonth();
     const up=bs.map(b=>[b,billState(b,txs)]).filter(([,x])=>x.due&&x.left>0).sort((a,c)=>billDay(a[0])-billDay(c[0]));
     box.innerHTML=`<div class="bfc">${months.map((m,i)=>`<div class="${i===0?"cur":""}"><span class="note">${i===0?L("Bishan weli","Still this month","المتبقي هذا الشهر","Bado mwezi huu"):MONTHS[m.d.getMonth()]+(m.d.getFullYear()!==view.getFullYear()?" "+m.d.getFullYear():"")}</span><b>${money(m.t)}</b><small class="note">${m.c} ${L("biil","bills","فواتير","bili")}</small></div>`).join("")}</div>
-      ${up.length?`<p class="note" style="margin:6px 0 0">${L("Biilasha soo socda bishan:","Coming up this month:","القادمة هذا الشهر:","Zinazokuja mwezi huu:")}</p><ul class="bh-list">${up.map(([b,x])=>`<li><span>${b.due?billDay(b)+" "+MONTHS[view.getMonth()].slice(0,3):"—"} · ${esc(T(b.name))}${b.auto?" ⚡":""}</span>${billPill(x)}<b>${money(x.left)}</b></li>`).join("")}</ul>`:`<p class="empty" style="margin:6px 0 0">✓ ${L("Biilasha bishan dhammaan waa la bixiyay.","All of this month's bills are paid.","تم دفع جميع فواتير هذا الشهر.","Bili zote za mwezi huu zimelipwa.")}</p>`}
+      ${up.length?`<p class="note" style="margin:6px 0 0">${L("Biilasha soo socda bishan:","Coming up this month:","القادمة هذا الشهر:","Zinazokuja mwezi huu:")}</p><ul class="bh-list">${up.map(([b,x])=>`<li><span>${b.due?billDay(b)+" "+MONTHS[view.getMonth()].slice(0,3):"—"} · ${esc(billNm(b))}${b.auto?" ⚡":""}</span>${billPill(x)}<b>${money(x.left)}</b></li>`).join("")}</ul>`:`<p class="empty" style="margin:6px 0 0">✓ ${L("Biilasha bishan dhammaan waa la bixiyay.","All of this month's bills are paid.","تم دفع جميع فواتير هذا الشهر.","Bili zote za mwezi huu zimelipwa.")}</p>`}
       ${cur&&months[1].t>0?`<p class="note" style="margin:6px 0 0">💡 ${L("Bisha xigta u diyaari ugu yaraan ","Set aside at least ","خصّص على الأقل ","Tenga angalau ")}<b>${money(months[1].t)}</b>${L(" biilasha.","  for next month's bills."," لفواتير الشهر القادم."," kwa bili za mwezi ujao.")}</p>`:""}`;return}
   box.innerHTML=""}
 function billDate(d=view){const t=new Date();return (t.getFullYear()===d.getFullYear()&&t.getMonth()===d.getMonth())?today():`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-01`}
@@ -3526,16 +3572,16 @@ function renderAlerts(bud){lastBud=bud;
   }
   if(R.budget&&cur&&!STAFF())try{out.push(...catBudAlerts(R.budPct))}catch{}
   if(R.bills&&cur){const txs=mine("tx"),d=now.getDate();
-    for(const b of bills()){const x=billState(b,txs,now);if(!b.due||!(x.amt>0)||!x.due||!(x.left>0))continue;const k=billDay(b,now)-d,days=b.remind??R.billDays,nm=T(b.name),rest=x.paid?L(" (haray "," (left "," (المتبقي "," (kilichobaki ")+money(x.left)+")":"";
+    for(const b of bills()){const x=billState(b,txs,now);if(!b.due||!(x.amt>0)||!x.due||!(x.left>0))continue;const k=billDay(b,now)-d,days=b.remind??R.billDays,nm=billNm(b),rest=x.paid?L(" (haray "," (left "," (المتبقي "," (kilichobaki ")+money(x.left)+")":"";
       if(b.auto&&k>=0){if(k<=days)out.push(["warn",L("⚡ "+b.name+": si toos ah ayaa loo diiwaangelin doonaa "+whenText(k)+". Qadarka: "+money(x.left),"⚡ "+nm+": will be recorded automatically "+whenText(k)+". Amount: "+money(x.left),"⚡ "+nm+": سيُسجَّل تلقائيًا "+whenText(k)+". المبلغ: "+money(x.left),"⚡ "+nm+": itarekodiwa otomatiki "+whenText(k)+". Kiasi: "+money(x.left))]);continue}
       if(k<0)out.push(["bad",L("⏰ "+b.name+": waqtigii bixinta wuu dhaafay "+(-k)+" maalmood (maalinta "+b.due+"). Lama bixin: "+money(x.left),"⏰ "+nm+": "+(-k)+" days late (day "+b.due+"). Unpaid: "+money(x.left),"⏰ "+nm+": متأخر "+(-k)+" أيام (اليوم "+b.due+"). غير مدفوع: "+money(x.left),"⏰ "+nm+": imechelewa siku "+(-k)+" (siku "+b.due+"). Haijalipwa: "+money(x.left))]);
       else if(k<=days)out.push(["warn",L("🔔 "+b.name+": waa in la bixiyaa "+whenText(k)+". Qadarka: "+money(x.left)+rest,"🔔 "+nm+": due "+whenText(k)+". Amount: "+money(x.left)+rest,"🔔 "+nm+": يستحق "+whenText(k)+". المبلغ: "+money(x.left)+rest,"🔔 "+nm+": inadaiwa "+whenText(k)+". Kiasi: "+money(x.left)+rest)])}}
   if(R.goals&&cur&&now.getDate()>=R.goalDay&&!STAFF()){const tx=mine("tx");
     for(const g of mine("goal")){const p=goalPlan(g,tx);if(p.done||!(p.todo>0))continue;
       out.push(["warn",L("🎯 "+g.name+": bishan weli ku shub "+money(p.todo)+(g.due?" si aad u gaarto "+dueText(g.due):"")+".","🎯 "+g.name+": put in "+money(p.todo)+" more this month"+(g.due?" to reach it by "+dueText(g.due):"")+".","🎯 "+g.name+": أضف "+money(p.todo)+" هذا الشهر"+(g.due?" لتصل إليه بحلول "+dueText(g.due):"")+".","🎯 "+g.name+": weka "+money(p.todo)+" zaidi mwezi huu"+(g.due?" ili kufikia kabla ya "+dueText(g.due):"")+".")])}}
-  if(R.debts&&MODE==="business")for(const d of mine("debt")){const r=Number(d.amount)-Number(d.paid||0);if(!d.due||r<=0)continue;const k=dayDiff(d.due);
+  if(R.debts&&MODE==="business")for(const d0 of mine("debt")){const d=d0.note&&/^Q-\d/.test(d0.note)?{...d0,name:d0.name+" ("+d0.note+")"}:d0;const r=Number(d.amount)-Number(d.paid||0);if(!d.due||r<=0)continue;const k=dayDiff(d.due);
     const who=d.dir==="in"?L("waa inuu bixiyaa","should pay you"):L("waa in la siiyaa","must be paid");
-    if(k<0)out.push(["bad",L("💳 "+d.name+" "+who+" "+money(r)+". Taariikhdii way dhaaftay ("+d.due+").","💳 "+d.name+" "+who+" "+money(r)+". Overdue since "+d.due+".","💳 "+d.name+" "+who+" "+money(r)+". متأخر منذ "+d.due+".","💳 "+d.name+" "+who+" "+money(r)+". Imechelewa tangu "+d.due+".")]);
+    if(k<0)out.push(["bad",L("💳 "+d.name+" "+who+" "+money(r)+". Taariikhdii way dhaaftay ("+fmtD(d.due)+").","💳 "+d.name+" "+who+" "+money(r)+". Overdue since "+fmtD(d.due)+".","💳 "+d.name+" "+who+" "+money(r)+". متأخر منذ "+fmtD(d.due)+".","💳 "+d.name+" "+who+" "+money(r)+". Imechelewa tangu "+fmtD(d.due)+".")]);
     else if(k<=R.billDays)out.push(["warn",L("💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".")])}
   if(R.leave&&MODE==="business"&&MGR())for(const v of mine("leave")){
     if(v.type==="buka"&&v.to>=today()&&!v.seen)out.push(["bad",L("🤒 "+v.who+" wuu xanuunsan yahay ("+lvRange(v)+").","🤒 "+v.who+" is sick ("+lvRange(v)+").","🤒 "+v.who+" مريض ("+lvRange(v)+").","🤒 "+v.who+" ni mgonjwa ("+lvRange(v)+").")]);
@@ -3837,14 +3883,14 @@ function renderMgr(){const panel=$("mgPanel");if(!panel||MODE!=="business"||!MGR
     <div class="mgbox"><h3>👥 ${L("Shaqaalaha","Staff","الموظفون","Wafanyakazi")} <span class="tot">${money(r.salT)}</span></h3>
       ${staff.length?`<p class="mgsub">${L("Shaqaalaha akoonka ku jira","Staff with an account","الموظفون الذين لديهم حساب","Wafanyakazi wenye akaunti")} (${staff.length})</p>`+staff.map(e=>li("👤 "+esc(e),r.away.some(v=>String(v.who||"").toLowerCase()===e.toLowerCase())?`<span class="mgpill bad">${L("Maqan maanta","Away today","غائب اليوم","Hayupo leo")}</span>`:`<span class="mgpill">${L("Shaqada","At work","في العمل","Kazini")}</span>`)).join(""):`<p class="note" style="margin:0">${L("Weli shaqaale lama darin. Ku dar: Akoon → Shaqaalaha akoonka shirkadda.","No staff added yet. Add them in Account → Staff.","لم تتم إضافة موظفين بعد. أضفهم من الحساب ← الموظفون.","Bado hakuna wafanyakazi. Waongeze kwenye Akaunti → Wafanyakazi.")}</p>`}
       <p class="mgsub">${L("Mushaharka la bixiyay bishan","Salaries paid this month","الرواتب المدفوعة هذا الشهر","Mishahara iliyolipwa mwezi huu")}</p>${r.roles.length?r.roles.map(([n,v])=>li(esc(T(n)),money(v))).join(""):none()}
-      ${r.unpaidSal.length?`<p class="mgsub">${L("Mushahar aan weli la bixin","Salaries not paid yet","رواتب لم تُدفع بعد","Mishahara bado haijalipwa")}</p>`+r.unpaidSal.map(b=>li(esc(T(b.name)),money(b.amount),b.due?L("Maalinta","Day","اليوم","Siku")+" "+b.due:"")).join(""):""}
+      ${r.unpaidSal.length?`<p class="mgsub">${L("Mushahar aan weli la bixin","Salaries not paid yet","رواتب لم تُدفع بعد","Mishahara bado haijalipwa")}</p>`+r.unpaidSal.map(b=>li(esc(billNm(b)),money(b.amount),b.due?L("Maalinta","Day","اليوم","Siku")+" "+b.due:"")).join(""):""}
       ${r.away.length?`<p class="mgsub">${L("Maanta maqan (fasax / xanuun)","Away today (leave / sick)","غائبون اليوم (إجازة / مرض)","Hawapo leo (likizo / ugonjwa)")}</p>`+r.away.map(v=>li(esc(v.who||""),esc(LVT[v.type]?.[["so","en","ar","sw"].indexOf(LANG)]||""),lvRange(v))).join(""):""}
       ${r.waitLv.length?`<p class="mgsub">⏳ ${L("Codsiyo fasax oo sugaya","Leave requests waiting","طلبات إجازة بانتظار الرد","Maombi ya likizo yanasubiri")}: <b>${r.waitLv.length}</b></p>`:""}</div>
     <div class="mgbox"><h3>🏦 ${L("Lacagta iyo deymaha","Cash and debts","النقد والديون","Pesa na madeni")}</h3>
       ${r.meth.map(([m,v])=>li(esc(T(m)),money(v))).join("")}${li("<b>"+L("Wadarta","Total","المجموع","Jumla")+"</b>","<b>"+money(r.bal)+"</b>")}
       <p class="mgsub">${L("Deymaha","Debts","الديون","Madeni")}</p>${li(L("Lacag naloo hayo","Owed to us","مستحق لنا","Tunadai"),money(r.owedIn))}${li(L("Lacag aan dad u hayno","We owe","مستحق علينا","Tunadaiwa"),money(r.owedOut))}
       ${r.late.length?r.late.map(d=>li("⏰ "+esc(d.name),money(debtLeft(d)),L("Waqtigii wuu dhaafay","Overdue","متأخر","Imepita muda")+": "+fmtD(d.due))).join(""):""}
-      ${r.unpaidOther.length?`<p class="mgsub">${L("Biilal aan weli la bixin bishan","Bills not paid yet this month","فواتير لم تُدفع بعد هذا الشهر","Bili bado hazijalipwa mwezi huu")}</p>`+r.unpaidOther.slice(0,6).map(b=>li(esc(T(b.name)),money(b.amount))).join(""):""}</div>
+      ${r.unpaidOther.length?`<p class="mgsub">${L("Biilal aan weli la bixin bishan","Bills not paid yet this month","فواتير لم تُدفع بعد هذا الشهر","Bili bado hazijalipwa mwezi huu")}</p>`+r.unpaidOther.slice(0,6).map(b=>li(esc(billNm(b)),money(b.amount))).join(""):""}</div>
     <div class="mgbox" style="grid-column:1/-1"><h3>🕒 ${L("Dhaqdhaqaaqyadii u dambeeyay","Latest entries","أحدث الحركات","Maingizo ya karibuni")}</h3>
       ${r.recent.length?r.recent.map(t=>li(`<span class="amt ${t.type}">${t.type==="in"?"+":"−"}</span> ${esc(T(t.cat))}${t.place?" · "+esc(t.place):""}`,`<span class="amt ${t.type}">${money(t.amount)}</span>`,fmtD(t.date)+" · "+esc(T(t.method||"Kaash"))+(t.by?" · 👤 "+esc(t.by.split("@")[0]):""))).join(""):none()}</div>
   </div>`;
@@ -4580,9 +4626,9 @@ async function invPdf(d){const J=await loadPdf();const doc=new J({unit:"mm",form
 function dlBlob(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
 function b64(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]);r.onerror=rej;r.readAsDataURL(blob)})}
 const ownerEmail=()=>realMail();
-async function mailPdf(d,p,to){
-  const {data,error}=await sb.functions.invoke("send-receipt",{body:{to:to||"",copy:ownerEmail(),subject:`${invLabel(d.k)} ${invNoTxt(d)} · ${coName()||"HantiGo"}`,
-    text:invText(d).replace(/\*/g,""),company:coName()||"HantiGo",filename:p.name,pdf:await b64(p.blob)}});
+async function mailPdf(d,p,to,o){o=o||{};
+  const {data,error}=await sb.functions.invoke("send-receipt",{body:{to:to||"",copy:ownerEmail(),subject:o.subject||`${invLabel(d.k)} ${invNoTxt(d)} · ${coName()||"HantiGo"}`,
+    text:(o.text||invText(d)).replace(/\*/g,""),company:coName()||"HantiGo",filename:p.name,pdf:await b64(p.blob)}});
   if(!error&&data?.ok)return data;
   let why=data?.error||"";
   if(error){why=error.message||String(error);try{const r=error.context;if(r&&typeof r.text==="function"){const t=await r.clone().text();why=(r.status?r.status+" ":"")+t}}catch{}}
@@ -4754,6 +4800,210 @@ document.addEventListener("click",async e=>{
     custWa({...c,owed:c.owed||debtLeft(d)},true);return}
 });
 {const _r2=render;render=function(){_r2();try{renderCustomers()}catch(e){console.warn(e)}}}
+/* ================= 7. Shirkad: staff & salaries (payroll) (v141) =================
+   Each employee is a Shirkad monthly bill (kind "bill", emp:1) named after the role, with who = the person.
+   So the salary is paid, shown and reported exactly like the other bills (Biilasha, reminders, manager panel, reports),
+   managers can save it without new SQL, and staff never receive it. Shakhsi is never touched. */
+const emps=()=>MODE==="business"?bills().filter(b=>b.emp):[];
+let empEdit=null,empMsg="";
+function empMonthTxt(d=view){return MONTHS[d.getMonth()]+" "+d.getFullYear()}
+async function payEmp(b,part){const x=billState(b,mine("tx")),amt=part>0?Math.min(part,x.left):x.left;if(!(amt>0)||!x.due)return 0;
+  await put({id:uid(),kind:"tx",method:payMethod(),type:"out",amount:Math.round(amt*100)/100,cat:b.name,billId:b.id,date:billDate(view),place:b.who||"",note:L("Mushahar","Salary","راتب","Mshahara")+" · "+empMonthTxt()+(amt<x.left?" · "+L("qayb","part","جزء","sehemu"):""),created:new Date().toISOString()});return amt}
+function renderPayroll(){const P=$("pyPanel");if(!P)return;if(MODE!=="business"){$("pyList").innerHTML="";return}
+  const txs=mine("tx"),es=emps().sort((a,c)=>String(a.who||"").localeCompare(String(c.who||""))),st=new Map(es.map(b=>[b.id,billState(b,txs)]));
+  $("pyH").textContent="👥 "+L("Shaqaalaha & mushaharka","Staff & salaries","الموظفون والرواتب","Wafanyakazi na mishahara");
+  $("pyMonth").textContent=empMonthTxt();
+  let tot=0,paid=0,left=0,un=0;for(const b of es){const x=st.get(b.id);if(!x.due)continue;tot+=x.amt;paid+=x.paid;left+=x.left;if(x.left>0)un++}
+  $("pySum").innerHTML=es.length?`<div class="ext"><span class="lbl">${L("Mushaharka bishan","Salaries this month","رواتب هذا الشهر","Mishahara mwezi huu")}</span><b>${money(tot)}</b></div><div class="ext lo"><span class="lbl">${L("La bixiyay","Paid","المدفوع","Imelipwa")}</span><b>${money(paid)}</b></div><div class="ext ${left>0?"hi":""}"><span class="lbl">${L("Weli haray","Still to pay","المتبقي","Bado kulipa")}</span><b>${money(left)}</b></div>`:"";
+  $("pyAll").hidden=!(un>0);$("pyAll").textContent=`💳 ${L("Bixi dhammaan","Pay all","ادفع للجميع","Lipa wote")} (${un} · ${money(left)})`;
+  $("pyList").innerHTML=es.length?es.map(b=>{const x=st.get(b.id),id=esc(b.id);
+    if(empEdit===b.id)return `<div class="emp"><div class="row">
+      <label class="field"><span>${L("Magaca","Name","الاسم","Jina")}</span><input id="pe-who" type="text" maxlength="40" value="${esc(b.who||"")}"></label>
+      <label class="field"><span>${L("Mushaharka bishii","Monthly salary","الراتب الشهري","Mshahara wa mwezi")}</span><input id="pe-amt" type="number" min="0" step="0.01" inputmode="decimal" value="${Number(b.amount)||""}"></label>
+      <label class="field"><span>${L("Taleefan","Phone","الهاتف","Simu")}</span><input id="pe-ph" type="tel" maxlength="20" value="${esc(b.phone||"")}"></label>
+      <label class="field"><span>${L("Maalinta mushaharka (1-31)","Pay day (1-31)","يوم الدفع (1-31)","Siku ya malipo (1-31)")}</span><input id="pe-day" type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}"></label></div>
+      <div class="goal-actions"><button type="button" class="primary" data-pysave="${id}">${L("Kaydi","Save","حفظ","Hifadhi")}</button><button type="button" data-pycancel="1">${L("Jooji","Cancel","إلغاء","Ghairi")}</button><button type="button" class="del" data-pydel="${id}" style="margin-left:auto">${L("Ka saar shaqaalaha","Remove employee","إزالة الموظف","Ondoa mfanyakazi")}</button></div></div>`;
+    return `<div class="emp bs-${x.late?"late":x.s}"><div class="emph"><span><b>${esc(b.who||T(b.name))}</b><br><small class="note">${esc(T(b.name))}${b.due?" · "+L("maalinta","day","اليوم","siku")+" "+billDay(b):""}${b.phone?" · 📞 "+esc(b.phone):""}</small></span><span class="empr"><b>${money(x.amt)}</b>${billPill(x)}</span></div>
+      ${x.s==="part"?`<span class="note">${L("La bixiyay","Paid","المدفوع","Imelipwa")} ${money(x.paid)} · ${L("haray","left","المتبقي","imebaki")} <b>${money(x.left)}</b></span>`:""}
+      <div class="empa">${x.due&&x.left>0?`<input type="number" min="0" step="0.01" inputmode="decimal" id="pp-${id}" value="${x.left}" aria-label="${esc(L("Qadarka","Amount","المبلغ","Kiasi"))}"><button type="button" class="primary" data-pypay="${id}">💳 ${L("Bixi","Pay","ادفع","Lipa")}</button>`:""}
+        ${x.paid>0?`<button type="button" data-pyslip="${id}">📄 ${L("Warqadda mushaharka","Payslip","قسيمة الراتب","Hati ya mshahara")}</button>`:""}<button type="button" class="del" data-pyedit="${id}">✏ ${L("Beddel","Edit","تعديل","Hariri")}</button></div></div>`}).join("")
+    :`<p class="empty" style="margin:0">${L("Weli shaqaale lama gelin. Ku dar shaqaale kasta iyo mushaharkiisa, kadib bil kasta halkan ka bixi.","No employees yet. Add each employee and their salary, then pay them here every month.","لا يوجد موظفون بعد. أضف كل موظف وراتبه، ثم ادفع هنا كل شهر.","Bado hakuna wafanyakazi. Ongeza kila mfanyakazi na mshahara wake, kisha ulipe hapa kila mwezi.")}</p>`;
+  $("pyMsg").textContent=empMsg;
+  /* form labels in the chosen language */
+  const lb={pyWhoL:["Magaca shaqaalaha","Employee name","اسم الموظف","Jina la mfanyakazi"],pyRoleL:["Shaqada","Job","الوظيفة","Kazi"],pyAmtL:["Mushaharka bishii","Monthly salary","الراتب الشهري","Mshahara wa mwezi"],pyPhL:["Taleefan (ikhtiyaari)","Phone (optional)","الهاتف (اختياري)","Simu (si lazima)"],pyDayL:["Maalinta mushaharka (ikhtiyaari)","Pay day (optional)","يوم الدفع (اختياري)","Siku ya malipo (si lazima)"]};
+  for(const k in lb)if($(k))$(k).textContent=L(...lb[k]);$("pyAdd").textContent="+ "+L("Ku dar shaqaale","Add employee","أضف موظفًا","Ongeza mfanyakazi");
+  $("pyNote").textContent=L("Mushahar kasta oo la bixiyo wuxuu galayaa Ka baxay (Mushaharka shaqaalaha), Biilasha iyo warbixinnada.","Every salary paid goes into Expenses (Staff salaries), Bills and the reports.","كل راتب يُدفع يُسجَّل في المصروفات (رواتب الموظفين) والفواتير والتقارير.","Kila mshahara unaolipwa huingia kwenye Matumizi (Mishahara ya wafanyakazi), Bili na ripoti.");
+  const rs=$("pyRole");if(rs&&!rs.options.length)B_STAFF.forEach(r=>rs.add(new Option(T(r),r)));else if(rs)[...rs.options].forEach(o=>o.textContent=T(o.value))}
+async function empSlip(b){const J=await loadPdf();const doc=new J({unit:"mm",format:"a4"});const W=210,M=16;let y=18;
+  const x=billState(b,mine("tx"));
+  if(RTL||hasArabic([coName(),b.who].join(" "))){try{const [fn,fb]=await loadUniFont();
+    doc.addFileToVFS("hg.ttf",fn);doc.addFont("hg.ttf","hg","normal");doc.addFileToVFS("hgb.ttf",fb);doc.addFont("hgb.ttf","hg","bold");
+    const sf=doc.setFont.bind(doc);doc.setFont=(f,s)=>sf("hg",s||"normal");doc.setFont("hg","normal")}catch{}}
+  const lg=coLogo();let tx=M;if(lg){try{doc.addImage(lg,/^data:image\/png/.test(lg)?"PNG":"JPEG",M,y-6,22,22);tx=M+27}catch{}}
+  doc.setFont("helvetica","bold");doc.setFontSize(18);doc.setTextColor(11,122,75);doc.text(coName()||"HantiGo",tx,y+2);
+  doc.setFontSize(13);doc.setTextColor(40);doc.text(L("WARQADDA MUSHAHARKA","PAYSLIP","قسيمة الراتب","HATI YA MSHAHARA"),W-M,y+2,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);doc.text(empMonthTxt(),W-M,y+8,{align:"right"});
+  y+=24;doc.setDrawColor(200);doc.line(M,y,W-M,y);y+=9;
+  const row=(k,v,b2)=>{doc.setFont("helvetica","normal");doc.setTextColor(90);doc.text(k,M,y);doc.setTextColor(20);doc.setFont("helvetica",b2?"bold":"normal");doc.text(String(v),W-M,y,{align:"right"});y+=8};
+  row(L("Shaqaalaha","Employee","الموظف","Mfanyakazi"),b.who||"",true);row(L("Shaqada","Job","الوظيفة","Kazi"),T(b.name));if(b.phone)row(L("Taleefan","Phone","الهاتف","Simu"),b.phone);
+  row(L("Mushaharka bishii","Monthly salary","الراتب الشهري","Mshahara wa mwezi"),pm(x.amt),true);y+=4;
+  doc.setFillColor(11,122,75);doc.rect(M,y-5,W-2*M,8,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");
+  doc.text(L("Taariikhda","Date","التاريخ","Tarehe"),M+2,y);doc.text(L("Habka","Method","الطريقة","Njia"),70,y);doc.text(L("Qadarka","Amount","المبلغ","Kiasi"),W-M-2,y,{align:"right"});y+=8;
+  doc.setFont("helvetica","normal");doc.setTextColor(20);x.pays.forEach((t,i)=>{if(i%2){doc.setFillColor(242,246,244);doc.rect(M,y-5,W-2*M,8,"F")}doc.text(fmtD(t.date),M+2,y);doc.text(T(t.method||""),70,y);doc.text(pm(t.amount),W-M-2,y,{align:"right"});y+=8});
+  doc.setDrawColor(11,122,75);doc.line(M,y-3,W-M,y-3);y+=5;row(L("Wadarta la bixiyay","Total paid","إجمالي المدفوع","Jumla iliyolipwa"),pm(x.paid),true);
+  if(x.left>0)row(L("Weli haray","Still to pay","المتبقي","Bado kulipa"),pm(x.left),true);
+  y+=18;doc.setDrawColor(150);doc.line(M,y,M+60,y);doc.line(W-M-60,y,W-M,y);doc.setFontSize(9);doc.setTextColor(110);
+  doc.text(L("Saxiixa shirkadda","Company signature","توقيع الشركة","Sahihi ya kampuni"),M,y+5);doc.text(L("Saxiixa shaqaalaha","Employee signature","توقيع الموظف","Sahihi ya mfanyakazi"),W-M,y+5,{align:"right"});
+  doc.setTextColor(140);doc.setFontSize(8);doc.text(`${L("Waxaa lagu sameeyay","Made with","أُنشئ بواسطة","Imetengenezwa kwa")} HantiGo · hantigoapp.github.io`,W/2,287,{align:"center"});
+  const nm=`${L("Mushahar","Payslip","راتب","Mshahara")}-${String(b.who||T(b.name)).replace(/[^\p{L}\p{N}\- ]+/gu,"").trim().replace(/\s+/g,"-")}-${ym(view)}.pdf`;dlBlob(doc.output("blob"),nm)}
+$("pyForm").addEventListener("submit",async e=>{e.preventDefault();const who=$("pyWho").value.trim(),amount=parseFloat($("pyAmt").value)||0,day=parseInt($("pyDay").value,10)||null;
+  if(!who||!(amount>0)){$("pyErr").textContent=L("Geli magaca iyo mushahar ka weyn eber.","Enter the name and a salary greater than zero.","أدخل الاسم وراتبًا أكبر من صفر.","Weka jina na mshahara zaidi ya sifuri.");return}
+  $("pyErr").textContent="";const role=$("pyRole").value||"Shaqaale kale";
+  try{await put({id:uid(),kind:"bill",emp:1,name:role,who,phone:$("pyPh").value.trim(),amount,due:day&&day>=1&&day<=31?day:null,grp:"staff",created:new Date().toISOString()});
+    ["pyWho","pyAmt","pyPh","pyDay"].forEach(i=>$(i).value="");empMsg="✓ "+L(`${who} waa la daray.`,`${who} added.`,`تمت إضافة ${who}.`,`${who} ameongezwa.`);renderPayroll()}
+  catch{$("pyErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Haiwezi kuhifadhi sasa. Jaribu tena.")}});
+document.addEventListener("click",async e=>{
+  const pp=e.target.closest("[data-pypay]");if(pp){const b=items.find(i=>i.id===pp.dataset.pypay);if(!b)return;const inp=document.getElementById("pp-"+b.id),v=parseFloat(inp?.value);if(!(v>0)){inp?.focus();return}
+    pp.disabled=true;try{const a=await payEmp(b,v);empMsg="✓ "+L(`${b.who}: ${money(a)} waa la bixiyay.`,`${b.who}: ${money(a)} paid.`,`${b.who}: تم دفع ${money(a)}.`,`${b.who}: ${money(a)} imelipwa.`);renderPayroll()}catch{pp.disabled=false}return}
+  const pa=e.target.closest("#pyAll");if(pa){if(!pa.classList.contains("arm")){pa.classList.add("arm");const t=pa.textContent;pa.textContent=L("Hubi? Riix mar kale","Sure? Tap again","متأكد؟ اضغط مرة أخرى","Una uhakika? Gusa tena");setTimeout(()=>{pa.classList.remove("arm");renderPayroll()},3500);return}
+    pa.classList.remove("arm");pa.disabled=true;let n=0,s=0;try{for(const b of emps()){const a=await payEmp(items.find(i=>i.id===b.id)||b,0);if(a>0){n++;s+=a}}}catch{}pa.disabled=false;
+    empMsg="✓ "+L(`${n} shaqaale ayaa la bixiyay · ${money(s)}`,`${n} employees paid · ${money(s)}`,`تم الدفع لـ ${n} موظفين · ${money(s)}`,`Wafanyakazi ${n} wamelipwa · ${money(s)}`);renderPayroll();return}
+  const ps=e.target.closest("[data-pyslip]");if(ps){const b=items.find(i=>i.id===ps.dataset.pyslip);if(b){ps.disabled=true;try{await empSlip(b)}catch{}ps.disabled=false}return}
+  const pe=e.target.closest("[data-pyedit]");if(pe){empEdit=pe.dataset.pyedit;empMsg="";renderPayroll();return}
+  if(e.target.closest("[data-pycancel]")){empEdit=null;renderPayroll();return}
+  const sv=e.target.closest("[data-pysave]");if(sv){const b=items.find(i=>i.id===sv.dataset.pysave);if(!b)return;const who=$("pe-who").value.trim(),amount=parseFloat($("pe-amt").value)||0,day=parseInt($("pe-day").value,10)||null;
+    if(!who||!(amount>0)){$("pe-amt").focus();return}empEdit=null;try{await put({...b,who,amount,phone:$("pe-ph").value.trim(),due:day&&day>=1&&day<=31?day:null})}catch{}renderPayroll();return}
+  const pd=e.target.closest("[data-pydel]");if(pd){if(!pd.classList.contains("arm")){pd.classList.add("arm");pd.textContent=L("Hubi? Mushaharkii hore waa la hayaa","Sure? Past salaries are kept","متأكد؟ تبقى الرواتب السابقة","Una uhakika? Mishahara ya zamani inabaki");setTimeout(()=>{pd.classList.remove("arm");renderPayroll()},3500);return}
+    empEdit=null;try{await remove(pd.dataset.pydel)}catch{}return}
+});
+{const _r3=render;render=function(){_r3();try{renderPayroll()}catch(e){console.warn(e)}}}
+/* ================= 8. Shirkad: profit report (Warbixinta faa'iidada) (v142) =================
+   Shirkad entries only. Profit = business income − every expense (Kayd excluded everywhere).
+   Owner money, bank loans and grants ("Maalgelin & kaalmo") are cash that came in, not profit, so they are shown apart. */
+const PR_INVEST="Maalgelin & kaalmo",PR_COGS="Alaab & iibsi",PR_SAL="Mushaharka shaqaalaha",PR_DEBT="Deyn";
+let PR_IN=null,PR_OUT=null,PRD=null;
+const prIdx=G=>{const m=new Map();G.forEach(([g,,cs])=>cs.forEach(c=>m.set(c,g)));return m};
+function prGrp(t){PR_IN=PR_IN||prIdx(B_IN_GROUPS);PR_OUT=PR_OUT||prIdx(B_GROUPS);
+  if(t.type==="out"&&ROLES.has(t.cat))return PR_SAL;const g=(t.type==="in"?PR_IN:PR_OUT).get(t.cat);if(g)return g;
+  if(t.type==="out"&&t.billId){const b=items.find(i=>i.id===t.billId);if(b&&b.emp)return PR_SAL}return "Kale"}
+const prIso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+function prRange(k){const Y=view.getFullYear(),M=view.getMonth();let a,b;
+  if(k==="pm"){a=new Date(Y,M-1,1);b=new Date(Y,M,0)}else if(k==="q"){a=new Date(Y,M-2,1);b=new Date(Y,M+1,0)}else if(k==="y"){a=new Date(Y,0,1);b=new Date(Y,11,31)}
+  else if(k==="12"){a=new Date(Y,M-11,1);b=new Date(Y,M+1,0)}else{a=new Date(Y,M,1);b=new Date(Y,M+1,0)}
+  const n=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth()+1;
+  return {k,n,a,b,from:prIso(a),to:prIso(b),pfrom:prIso(new Date(a.getFullYear(),a.getMonth()-n,1)),pto:prIso(new Date(a.getFullYear(),a.getMonth(),0))}}
+function prSum(from,to){const ts=mine("tx").filter(t=>t.cat!=="Kayd"&&t.date>=from&&t.date<=to);const inG={},outG={},cust={},cat={};let sales=0,invest=0,out=0;
+  for(const t of ts){const v=Number(t.amount)||0,g=prGrp(t);
+    if(t.type==="in"){if(g===PR_INVEST){invest+=v;continue}sales+=v;inG[g]=(inG[g]||0)+v;const p=String(t.place||"").trim();if(p){const k=ckey(p);cust[k]=cust[k]||{name:p,v:0,n:0};cust[k].v+=v;cust[k].n++}}
+    else{out+=v;outG[g]=(outG[g]||0)+v;cat[t.cat]=(cat[t.cat]||0)+v}}
+  const cogs=outG[PR_COGS]||0,gross=sales-cogs,net=sales-out;
+  return {ts,inG,outG,cust,cat,sales,invest,out,cogs,gross,net,margin:sales?net/sales:null,cash:sales+invest-out}}
+function prData(k){const R=prRange(k),S=prSum(R.from,R.to),P=prSum(R.pfrom,R.pto);
+  const months=[];if(R.n>1)for(let i=0;i<R.n;i++){const a=new Date(R.a.getFullYear(),R.a.getMonth()+i,1),b=new Date(a.getFullYear(),a.getMonth()+1,0),m=prSum(prIso(a),prIso(b));
+    months.push({name:MONTHS[a.getMonth()]+" "+a.getFullYear(),sales:m.sales,out:m.out,net:m.net,margin:m.margin})}
+  const owed=mine("debt").filter(d=>d.dir==="in").reduce((a,d)=>a+debtLeft(d),0),weOwe=mine("debt").filter(d=>d.dir==="out").reduce((a,d)=>a+debtLeft(d),0);
+  const title=R.n===1?MONTHS[R.a.getMonth()]+" "+R.a.getFullYear():R.k==="y"?L("Sannadka ","Year ","سنة ","Mwaka ")+R.a.getFullYear():`${MONTHS[R.a.getMonth()]} ${R.a.getFullYear()} – ${MONTHS[R.b.getMonth()]} ${R.b.getFullYear()}`;
+  return {R,S,P,months,owed,weOwe,title}}
+const prPct=v=>v==null?"—":Math.round(v*100)+"%";
+const gName=g=>T(g);
+/* the statement lines: [label, amount, kind] kind: h=heading, s=sub line, t=total */
+function prLines(d){const S=d.S,ord=(o,skip)=>Object.entries(o).filter(([g])=>!skip.includes(g)).sort((a,b)=>b[1]-a[1]);const r=[];
+  r.push(["💰 "+L("Dakhliga ganacsiga","Business income","إيرادات النشاط","Mapato ya biashara"),null,"h"]);
+  ord(S.inG,[]).forEach(([g,v])=>r.push([gName(g),v,"s"]));r.push([L("Wadarta dakhliga","Total income","إجمالي الإيرادات","Jumla ya mapato"),S.sales,"t"]);
+  if(S.cogs){r.push(["📦 "+L("Kharashka alaabta (iibsi)","Cost of goods (buying)","تكلفة البضاعة","Gharama ya bidhaa"),-S.cogs,"s"]);r.push([L("Faa'iidada guud (ka hor kharashka kale)","Gross profit (before other costs)","إجمالي الربح (قبل المصاريف الأخرى)","Faida ghafi (kabla ya gharama nyingine)"),S.gross,"t"]);}
+  r.push(["💸 "+L("Kharashka shaqada","Running costs","مصاريف التشغيل","Gharama za uendeshaji"),null,"h"]);
+  ord(S.outG,[PR_COGS]).forEach(([g,v])=>r.push([gName(g)+(g===PR_DEBT?" ("+L("deyn la bixiyay","debts paid","ديون مدفوعة","madeni yaliyolipwa")+")":""),-v,"s"]));
+  r.push(S.cogs?[L("Wadarta kharashka shaqada","Total running costs","إجمالي مصاريف التشغيل","Jumla ya gharama za uendeshaji"),-(S.out-S.cogs),"t"]:[L("Wadarta kharashka","Total costs","إجمالي المصاريف","Jumla ya gharama"),-S.out,"t"]);
+  r.push([(S.net>=0?"📈 ":"📉 ")+(S.net>=0?L("FAA'IIDADA SAAFIGA AH","NET PROFIT","صافي الربح","FAIDA HALISI"):L("KHASAARE","NET LOSS","صافي الخسارة","HASARA")),S.net,"n"]);
+  return r}
+function prRender(){const P=$("prPanel");if(!P)return;if(MODE!=="business"||!MGR()){return}
+  $("prH").textContent="📈 "+L("Warbixinta faa'iidada","Profit report","تقرير الأرباح","Ripoti ya faida");
+  const sel=$("prPer"),lab={m:L("Bishan","This month","هذا الشهر","Mwezi huu"),pm:L("Bishii hore","Last month","الشهر الماضي","Mwezi uliopita"),q:L("3-dii bilood","3 months","3 أشهر","Miezi 3"),y:L("Sannadkan","This year","هذه السنة","Mwaka huu"),12:L("12-kii bilood","12 months","12 شهرًا","Miezi 12")};
+  [...sel.options].forEach(o=>o.textContent=lab[o.value]);
+  const d=PRD=prData(sel.value),S=d.S,Pv=d.P;
+  $("prTitle").textContent=d.title;
+  $("prTiles").innerHTML=tiles2([{ic:"💰",lb:L("Dakhliga","Income","الإيرادات","Mapato"),v:money(S.sales),c:ST_INC,cur:S.sales,prev:Pv.sales,goodUp:1},
+    {ic:"💸",lb:L("Kharashka","Costs","المصاريف","Gharama"),v:money(S.out),c:ST_OTH,cur:S.out,prev:Pv.out},
+    {ic:S.net>=0?"📈":"📉",lb:S.net>=0?L("Faa'iido saafi ah","Net profit","صافي الربح","Faida halisi"):L("Khasaare","Loss","خسارة","Hasara"),v:money(S.net),c:S.net>=0?"#2f6fc4":ST_SAL,cur:S.net,prev:Pv.net,goodUp:1},
+    {ic:"％",lb:L("Heerka faa'iidada","Profit margin","هامش الربح","Kiwango cha faida"),v:prPct(S.margin),c:"#7b4fb0"}]);
+  $("prStmt").innerHTML=`<table class="prt"><tbody>${prLines(d).map(([lb,v,k])=>`<tr class="pr-${k}"><td>${esc(lb)}</td><td class="n">${v==null?"":money(v)}</td><td class="n pc">${v==null||!S.sales||k==="h"?"":Math.round(Math.abs(v)/S.sales*100)+"%"}</td></tr>`).join("")}</tbody></table>`;
+  const tips=[];
+  if(!S.sales&&!S.out)tips.push(L("Muddadan wax lacag ah lama qorin.","Nothing was recorded in this period.","لم يُسجَّل شيء في هذه الفترة.","Hakuna kilichorekodiwa katika kipindi hiki."));
+  else{if(Pv.sales||Pv.out)tips.push(S.net>=Pv.net?L(`📈 Faa'iidadu way ka badan tahay muddadii hore <b>${money(S.net-Pv.net)}</b>.`,`📈 Profit is <b>${money(S.net-Pv.net)}</b> higher than the previous period.`,`📈 الربح أعلى من الفترة السابقة بـ <b>${money(S.net-Pv.net)}</b>.`,`📈 Faida iko juu kwa <b>${money(S.net-Pv.net)}</b> kuliko kipindi kilichopita.`)
+      :L(`📉 Faa'iidadu way ka yar tahay muddadii hore <b>${money(Pv.net-S.net)}</b>.`,`📉 Profit is <b>${money(Pv.net-S.net)}</b> lower than the previous period.`,`📉 الربح أقل من الفترة السابقة بـ <b>${money(Pv.net-S.net)}</b>.`,`📉 Faida iko chini kwa <b>${money(Pv.net-S.net)}</b> kuliko kipindi kilichopita.`));
+    const big=Object.entries(S.outG).sort((a,b)=>b[1]-a[1])[0];if(big&&S.out)tips.push(L(`💸 Kharashka ugu badan: <b>${esc(gName(big[0]))}</b> (${Math.round(big[1]/S.out*100)}% kharashka).`,`💸 Biggest cost: <b>${esc(gName(big[0]))}</b> (${Math.round(big[1]/S.out*100)}% of costs).`,`💸 أكبر مصروف: <b>${esc(gName(big[0]))}</b> (${Math.round(big[1]/S.out*100)}% من المصاريف).`,`💸 Gharama kubwa zaidi: <b>${esc(gName(big[0]))}</b> (${Math.round(big[1]/S.out*100)}% ya gharama).`));
+    if(S.invest)tips.push(L(`🏦 ${money(S.invest)} oo maalgelin / amaah ah ayaa soo gashay. Faa'iido lagama dhigin.`,`🏦 ${money(S.invest)} came in as investment / loans. It is not counted as profit.`,`🏦 دخل ${money(S.invest)} كاستثمار / قروض. لا يُحتسب ربحًا.`,`🏦 ${money(S.invest)} iliingia kama uwekezaji / mikopo. Haihesabiwi kama faida.`));
+    if(d.owed)tips.push(L(`🧾 Macaamiishu weli waxay na hayaan <b>${money(d.owed)}</b>. Marka ay bixiyaan ayay faa'iidada ku darsamaysaa.`,`🧾 Customers still owe us <b>${money(d.owed)}</b>. It joins the profit when they pay.`,`🧾 لا يزال العملاء مدينين لنا بـ <b>${money(d.owed)}</b>. يُضاف إلى الربح عند الدفع.`,`🧾 Wateja bado wanadaiwa <b>${money(d.owed)}</b>. Itaongezwa kwenye faida watakapolipa.`))}
+  $("prTips").innerHTML=tips.map(t=>`<li>${t}</li>`).join("");
+  const top=Object.values(S.cust).sort((a,b)=>b.v-a.v).slice(0,5);
+  $("prCust").innerHTML=top.length?`<h3 class="sth">🏆 ${L("Macaamiisha ugu iibka badan","Top customers","أفضل العملاء","Wateja wakuu")}</h3><ul class="bh-list">${top.map(c=>`<li><span>${esc(c.name)} <small class="note">· ${c.n}×</small></span><b>${money(c.v)}</b></li>`).join("")}</ul>`:"";
+  $("prMonths").innerHTML=d.months.length?`<h3 class="sth">📅 ${L("Bil kasta","Month by month","شهريًا","Kila mwezi")}</h3><table class="ctable prm"><tr><th>${L("Bisha","Month","الشهر","Mwezi")}</th><th class="n">${L("Dakhli","Income","الإيرادات","Mapato")}</th><th class="n">${L("Kharash","Costs","المصاريف","Gharama")}</th><th class="n">${L("Faa'iido","Profit","الربح","Faida")}</th><th class="n">%</th></tr>${d.months.map(m=>`<tr><td>${esc(m.name)}</td><td class="n">${money(m.sales)}</td><td class="n">${money(m.out)}</td><td class="n amt ${m.net>=0?"in":"out"}">${money(m.net)}</td><td class="n">${prPct(m.margin)}</td></tr>`).join("")}</table>`:""}
+const prFile=ext=>`HantiGo-${brandName()}-faaiido-${PRD.R.from.slice(0,7)}${PRD.R.n>1?"-"+PRD.R.to.slice(0,7):""}.${ext}`.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_");
+function prHtml(){const d=PRD,S=d.S;return `${coHead()}<h2>${L("Warbixinta faa'iidada","Profit report","تقرير الأرباح","Ripoti ya faida")}: ${esc(d.title)}</h2>
+  <table><tr><th>${L("Qaybta","Item","البند","Kipengele")}</th><th class="n">${L("Qadarka","Amount","المبلغ","Kiasi")}</th><th class="n">% ${L("dakhliga","of income","من الإيرادات","ya mapato")}</th></tr>${prLines(d).map(([lb,v,k])=>`<tr><td>${k==="h"||k==="t"||k==="n"?"<b>"+esc(lb)+"</b>":"&nbsp;&nbsp;"+esc(lb)}</td><td class="n">${v==null?"":(k==="t"||k==="n"?"<b>"+money(v)+"</b>":money(v))}</td><td class="n">${v==null||!S.sales||k==="h"?"":Math.round(Math.abs(v)/S.sales*100)+"%"}</td></tr>`).join("")}</table>
+  <p>${L("Heerka faa'iidada","Profit margin","هامش الربح","Kiwango cha faida")}: <b>${prPct(S.margin)}</b> · ${L("Muddadii hore","Previous period","الفترة السابقة","Kipindi kilichopita")}: ${money(d.P.net)}</p>
+  ${S.invest?`<p>${L("Maalgelin / amaah (faa'iido maaha)","Investment / loans (not profit)","استثمار / قروض (ليست ربحًا)","Uwekezaji / mikopo (si faida)")}: ${money(S.invest)}</p>`:""}
+  ${d.owed?`<p>${L("Lacag macaamiishu na hayaan","Owed to us by customers","مستحق لنا من العملاء","Wateja wanadaiwa")}: ${money(d.owed)}</p>`:""}
+  ${d.months.length?`<h2>${L("Bil kasta","Month by month","شهريًا","Kila mwezi")}</h2><table><tr><th>${L("Bisha","Month","الشهر","Mwezi")}</th><th class="n">${L("Dakhli","Income","الإيرادات","Mapato")}</th><th class="n">${L("Kharash","Costs","المصاريف","Gharama")}</th><th class="n">${L("Faa'iido","Profit","الربح","Faida")}</th><th class="n">%</th></tr>${d.months.map(m=>`<tr><td>${esc(m.name)}</td><td class="n">${money(m.sales)}</td><td class="n">${money(m.out)}</td><td class="n">${money(m.net)}</td><td class="n">${prPct(m.margin)}</td></tr>`).join("")}</table>`:""}
+  ${Object.keys(S.cust).length?`<h2>${L("Macaamiisha ugu iibka badan","Top customers","أفضل العملاء","Wateja wakuu")}</h2><table>${Object.values(S.cust).sort((a,b)=>b.v-a.v).slice(0,10).map(c=>`<tr><td>${esc(c.name)}</td><td class="n">${c.n}×</td><td class="n">${money(c.v)}</td></tr>`).join("")}</table>`:""}${stFoot()}`}
+function prExport(k){if(!PRD)prRender();if(!PRD)return;
+  if(k==="p"){$("printArea").innerHTML=prHtml();document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
+    window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50);return}
+  if(k==="w"){const doc=`<html${RTL?' dir="rtl"':""} xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
+<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b}h2{font-size:13pt;margin-top:14pt}table{border-collapse:collapse;width:100%;margin:6pt 0}th,td{border:1px solid #999;padding:4pt 6pt;text-align:${RTL?"right":"left"}}th{background:#e8f5ee}.n{text-align:right}</style></head><body>${prHtml()}</body></html>`;
+    saveFile(prFile("doc"),"﻿"+doc,"application/msword");return}
+  const d=PRD,S=d.S,H=[L("Qaybta","Item","البند","Kipengele"),L("Qadarka","Amount","المبلغ","Kiasi"),"%"];
+  const secs=[{title:L("Warbixinta faa'iidada","Profit report","تقرير الأرباح","Ripoti ya faida")+": "+d.title,colorFirst:1,head:H,rows:prLines(d).map(([lb,v,k])=>[k==="s"?"   "+lb:lb,v==null?"":v,v==null||!S.sales||k==="h"?"":Math.abs(v)/S.sales])}];
+  if(d.months.length)secs.push({title:L("Bil kasta","Month by month","شهريًا","Kila mwezi"),head:[L("Bisha","Month","الشهر","Mwezi"),L("Dakhli","Income","الإيرادات","Mapato"),L("Kharash","Costs","المصاريف","Gharama"),L("Faa'iido","Profit","الربح","Faida"),"%"],rows:d.months.map(m=>[m.name,m.sales,-m.out,m.net,m.margin==null?"":m.margin])});
+  const tc=Object.values(S.cust).sort((a,b)=>b.v-a.v).slice(0,10);if(tc.length)secs.push({title:L("Macaamiisha ugu iibka badan","Top customers","أفضل العملاء","Wateja wakuu"),head:[L("Macmiilka","Customer","العميل","Mteja"),L("Jeer","Times","مرات","Mara"),L("Qadarka","Amount","المبلغ","Kiasi")],rows:tc.map(c=>[c.name,c.n,c.v])});
+  exportSheet(L("Warbixinta faa'iidada","Profit report","تقرير الأرباح","Ripoti ya faida")+": "+d.title,secs,prFile("x").slice(0,-2))}
+$("prPer").addEventListener("change",prRender);
+$("prCsv").addEventListener("click",()=>prExport("x"));$("prDoc").addEventListener("click",()=>prExport("w"));$("prPdf").addEventListener("click",()=>prExport("p"));
+{const _r4=render;render=function(){_r4();try{prRender()}catch(e){console.warn(e)}}}
+/* ================= 9. Shirkad: invoice reminders on the home page (v143) =================
+   Unpaid Qaansheeg only (Shirkad, owner + manager). Late first, then due soon, then the rest.
+   Every reminder sent is stamped on the invoice (remAt, remN) so everyone sees when the customer was last reminded. */
+let irAll=false;
+function irList(){if(MODE!=="business"||!MGR())return [];const R=remPrefs();
+  return mine("inv").filter(d=>d.k==="q").map(d=>({d,s:invState(d)})).filter(x=>x.s.left>0)
+    .map(x=>({...x,k:x.s.due?dayDiff(x.s.due):null})).map(x=>({...x,g:x.k==null?2:x.k<0?0:x.k<=R.billDays?1:2}))
+    .sort((a,b)=>a.g-b.g||(a.k??999)-(b.k??999)||(a.d.date||"").localeCompare(b.d.date||""))}
+function irDueTxt(x){if(x.k==null)return L("Taariikh bixin lama qorin","No due date","بدون تاريخ استحقاق","Hakuna tarehe ya mwisho");
+  if(x.k<0)return L(`Dib u dhacay ${-x.k} maalmood`,`${-x.k} days overdue`,`متأخر ${-x.k} أيام`,`Imechelewa siku ${-x.k}`);
+  return L("Waa in la bixiyaa ","Due ","يستحق ","Inadaiwa ")+whenText(x.k)}
+function irText(d){const s=invState(d),co=coName()||"HantiGo",no=invNoTxt(d),k=s.due?dayDiff(s.due):null;
+  const when=k==null?"":k<0?L(` Waqtigii bixintu wuxuu ahaa ${fmtD(s.due)}.`,` It was due on ${fmtD(s.due)}.`,` كان موعد الدفع ${fmtD(s.due)}.`,` Ilipaswa kulipwa ${fmtD(s.due)}.`):L(` Fadlan bixi ugu dambayn ${fmtD(s.due)}.`,` Please pay by ${fmtD(s.due)}.`,` يرجى الدفع قبل ${fmtD(s.due)}.`,` Tafadhali lipa kufikia ${fmtD(s.due)}.`);
+  return L(`Salaan ${d.cust},\n*${co}* ayaa ku xusuusinaysa qaansheegga *${no}* (${fmtD(d.date)}).\nWaxaa ka haray: *${money(s.left)}*${s.paid>0?` (la bixiyay ${money(s.paid)})`:""}.${when}\nMahadsanid!`,
+    `Hello ${d.cust},\nThis is a reminder from *${co}* about invoice *${no}* (${fmtD(d.date)}).\nAmount left: *${money(s.left)}*${s.paid>0?` (paid ${money(s.paid)})`:""}.${when}\nThank you!`,
+    `مرحبًا ${d.cust}،\nتذكير من *${co}* بخصوص الفاتورة *${no}* (${fmtD(d.date)}).\nالمبلغ المتبقي: *${money(s.left)}*${s.paid>0?` (المدفوع ${money(s.paid)})`:""}.${when}\nشكرًا لك!`,
+    `Habari ${d.cust},\nHiki ni kikumbusho kutoka *${co}* kuhusu ankara *${no}* (${fmtD(d.date)}).\nKilichobaki: *${money(s.left)}*${s.paid>0?` (imelipwa ${money(s.paid)})`:""}.${when}\nAsante!`)}
+function irPhone(d){return d.phone||(custOf(d.cust)||{}).phone||""}
+async function irStamp(d,how){const x=items.find(i=>i.id===d.id)||d;await put({...x,remAt:new Date().toISOString(),remN:(Number(x.remN)||0)+1,remBy:how})}
+function renderInvRem(){const P=$("irPanel");if(!P)return;const l=irList();
+  if(MODE!=="business"||!MGR()||!l.length){P.hidden=true;return}P.hidden=false;
+  const late=l.filter(x=>x.g===0),soon=l.filter(x=>x.g===1),sum=a=>a.reduce((s,x)=>s+x.s.left,0);
+  $("irH").textContent="🧾 "+L("Xusuusinta qaansheegga","Invoice reminders","تذكير الفواتير","Vikumbusho vya ankara");
+  $("irSum").innerHTML=`<div class="ext ${late.length?"hi":""}"><span class="lbl">${L("Dib u dhacay","Overdue","متأخرة","Zimechelewa")}</span><b>${late.length} · ${money(sum(late))}</b></div><div class="ext"><span class="lbl">${L("Dhowaan la gaarayo","Due soon","تستحق قريبًا","Zinakaribia")}</span><b>${soon.length} · ${money(sum(soon))}</b></div><div class="ext"><span class="lbl">${L("Dhammaan aan la bixin","All unpaid","كل غير المدفوعة","Zote hazijalipwa")}</span><b>${l.length} · ${money(sum(l))}</b></div>`;
+  const show=irAll?l:l.filter(x=>x.g<2).slice(0,6);const vis=show.length?show:l.slice(0,3);
+  $("irList").innerHTML=vis.map(x=>{const d=x.d,id=esc(d.id),ph=irPhone(d);
+    return `<div class="irow ${x.g===0?"irlate":""}"><div class="irh"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)}<br><small class="note ${x.g===0?"late":""}">${esc(irDueTxt(x))}</small>${d.remAt?`<br><small class="note">🔔 ${L("Xusuusin la diray","Reminded","تم التذكير","Imekumbushwa")}: ${fmtD(d.remAt.slice(0,10))}${d.remN>1?` (${d.remN}×)`:""}</small>`:""}</span><span class="irr"><b class="amt q">${money(x.s.left)}</b>${invPill(x.s)}</span></div>
+      <div class="ira">${ph?`<button type="button" class="primary wa-bg" data-irwa="${id}">💬 ${L("Xusuusi WhatsApp","Remind on WhatsApp","تذكير واتساب","Kumbusha WhatsApp")}</button>`:""}${d.email?`<button type="button" data-irmail="${id}">✉️ ${L("Email + PDF","Email + PDF","بريد + PDF","Barua pepe + PDF")}</button>`:""}${!ph&&!d.email?`<button type="button" data-irwa="${id}">💬 WhatsApp</button>`:""}
+        <input type="number" min="0" step="0.01" inputmode="decimal" id="irp-${id}" value="${x.s.left}" aria-label="${esc(L("Qadarka la helay","Amount received","المبلغ المستلم","Kiasi kilichopokelewa"))}"><button type="button" data-irpay="${id}">💵 ${L("La helay","Received","تم الاستلام","Imepokelewa")}</button></div></div>`}).join("")+
+    (l.length>vis.length||irAll?`<button type="button" class="del" data-irall="1">${irAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${l.length}) ▾`,`See all (${l.length}) ▾`,`عرض الكل (${l.length}) ▾`,`Ona zote (${l.length}) ▾`)}</button>`:"");
+  $("irMsg").textContent=irMsgT}
+let irMsgT="";
+document.addEventListener("click",async e=>{
+  if(e.target.closest("[data-irall]")){irAll=!irAll;renderInvRem();return}
+  const w=e.target.closest("[data-irwa]");if(w){const d=items.find(i=>i.id===w.dataset.irwa);if(!d)return;
+    window.open("https://wa.me/"+(waPhone(irPhone(d))||"")+"?text="+encodeURIComponent(irText(d)),"_blank","noopener");irMsgT="";try{await irStamp(d,"wa")}catch{}return}
+  const m=e.target.closest("[data-irmail]");if(m){const d=items.find(i=>i.id===m.dataset.irmail);if(!d||!d.email)return;m.disabled=true;irMsgT=L("Waa la dirayaa…","Sending…","جارٍ الإرسال…","Inatuma…");$("irMsg").textContent=irMsgT;
+    try{const p=await invPdf(d);await mailPdf(d,p,d.email,{subject:L("Xusuusin","Reminder","تذكير","Kikumbusho")+": "+invLabel(d.k)+" "+invNoTxt(d)+" · "+(coName()||"HantiGo"),text:irText(d)});await irStamp(d,"mail");irMsgT="✓ "+L(`Xusuusin + PDF waa loo diray ${d.email}.`,`Reminder + PDF sent to ${d.email}.`,`أُرسل التذكير + PDF إلى ${d.email}.`,`Kikumbusho + PDF kimetumwa kwa ${d.email}.`)}
+    catch(err){irMsgT=L("Email-ka looma diri karo hadda.","The email could not be sent right now.","تعذّر إرسال البريد الآن.","Barua pepe haikuweza kutumwa sasa.")+" "+mailWhy(err?.why||err?.message||"")}
+    m.disabled=false;renderInvRem();return}
+  const pp=e.target.closest("[data-irpay]");if(pp){const d=items.find(i=>i.id===pp.dataset.irpay);if(!d)return;const inp=document.getElementById("irp-"+d.id),v=parseFloat(inp?.value);if(!(v>0)){inp?.focus();return}
+    pp.disabled=true;try{const db=await invEnsureDebt(d);const got=await debtReceive(db,v);irMsgT="✓ "+L(`${money(got)} waa la qoray (${invNoTxt(d)}).`,`${money(got)} recorded (${invNoTxt(d)}).`,`تم تسجيل ${money(got)} (${invNoTxt(d)}).`,`${money(got)} imerekodiwa (${invNoTxt(d)}).`);renderInvRem()}catch{pp.disabled=false}return}
+});
+{const _r5=render;render=function(){_r5();try{renderInvRem()}catch(e){console.warn(e)}}}
 /* ---------- v132 phone: tables as cards, long notes folded to 2 lines ---------- */
 (()=>{const PH=matchMedia("(max-width:639px)");
   /* every cell gets its column name, so a row can be shown as a card on a phone */
