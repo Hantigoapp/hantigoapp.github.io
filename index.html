@@ -392,8 +392,15 @@ html[data-mode="business"] .person-only{display:none!important}
 .bar.bud i{background:var(--in)}.bar.bud.near i{background:#c98a00}.bar.bud.over i{background:var(--out)}
 /* phase 1: Mobile Money list, quick repeat, daily allowance, topic limits, savings streak, hide amounts */
 .mmq{display:grid;gap:8px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-.mmrow{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}.mmrow.off{opacity:.55}
-.mmrow select{grid-column:1/-1;width:100%;min-width:0}.mmchk{display:flex;gap:8px;align-items:center;font-weight:700}.mmchk input{width:20px!important;height:20px;margin:0}
+.mmrow{display:grid;gap:8px;padding:10px 0;border-top:1px solid var(--line)}.mmrow.off>:not(.mmtop){opacity:.55}
+.mmrow select{width:100%;min-width:0}.mmchk{display:flex;gap:8px;align-items:center;font-weight:700}.mmchk input{width:22px!important;height:22px;margin:0}
+.mmhead{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;justify-content:space-between}.mmto{font-size:.86rem;color:var(--muted)}.mmto b{color:var(--ink,inherit)}
+.mmtop{display:flex;gap:10px;align-items:center}.mmdir{display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:1;min-width:0}
+.mmdir button{min-height:40px;border-radius:10px;font-weight:700;font-size:.9rem;padding:6px 8px;background:transparent;border:1px solid var(--line);color:var(--muted)}
+.mmdir button.in.on{background:var(--per,#3ddc97);border-color:transparent;color:var(--per-ink,#05231a)}.mmdir button.out.on{background:#ff7a66;border-color:transparent;color:#3a0d06}
+.mmpair{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:8px}.mmamt{display:grid;gap:4px;font-size:.82rem;color:var(--muted);min-width:0}.mmamt input{font-size:1.1rem;font-weight:700;width:100%;box-sizing:border-box}.mmrow{gap:6px!important}
+.mmwarn{font-size:.86rem;color:#ffd27a;line-height:1.35}.mmedit{justify-self:start;font-size:.86rem}
+.mmsum{display:flex;gap:14px;justify-content:flex-end;font-weight:700;padding-top:6px;border-top:1px solid var(--line)}.mmsum .in{color:var(--per,#3ddc97)}.mmsum .out{color:#ff7a66}
 .mmwho{font-size:.86rem;color:var(--muted);min-width:0;overflow-wrap:anywhere}
 #qRep{flex-wrap:nowrap!important}.glance .gl-top{flex-wrap:nowrap}.glance .gl-top .glmode{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.glance .gl-top .glst{flex:none}
 .qrep{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:2px;scrollbar-width:thin}.qrep .chip{white-space:nowrap;flex:none}.qrep>.note{flex:none;align-self:center}
@@ -612,7 +619,8 @@ html[data-skin="3"][data-mode="business"] .stat.bal .val{color:#cfe1ff}
 .glact button b{font-size:1.2rem;line-height:1}
 .glact [data-quick="in"]{background:var(--per)!important;color:var(--per-ink)!important}
 .glact [data-quick="out"]{background:#ff7a66!important;color:#3a0d06!important}
-.in-team .glact [data-quick]{display:flex}
+.in-team .glact [data-quick],.in-team .glact [data-mm]{display:flex}
+.glact [data-mm]{grid-column:1/-1;min-height:42px!important;background:rgba(255,255,255,.08)!important;color:inherit!important;border:1px dashed rgba(255,255,255,.28)!important;font-weight:600}
 /* profit / loss tiles (this month + today) */
 .glpl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 2px}
 .glpl:empty{display:none}
@@ -1277,10 +1285,10 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
               <input type="radio" name="method" id="mBank" value="Bangi"><label for="mBank">Bangi</label>
               <input type="radio" name="method" id="mCash" value="Kaash"><label for="mCash">Kaash</label>
             </div></div>
-          <div class="mm"><button type="button" class="chip mmbtn" id="mmBtn">📋 Ku dheji fariinta EVC</button><span class="note" id="mmMsg" role="status"></span>
-            <div class="newcat" id="mmBox" hidden><span class="note">Koobiyee fariinta EVC Plus (ama ZAAD, Sahal, eDahab), halkan ku dheji, kadib riix “Buuxi”.</span>
+          <div class="mm"><button type="button" class="chip mmbtn" id="mmBtn">📋 Ku dheji fariinta Mobile Money</button><span class="note" id="mmMsg" role="status"></span>
+            <div class="newcat" id="mmBox" hidden><span class="note">Koobiyee hal fariin ama dhowr (EVC Plus, ZAAD, Sahal, eDahab, JEEB), halkan ku dheji. HantiGo ayaa garanaya lacagta soo gashay iyo tan baxday.</span>
               <textarea id="mmText" rows="3" placeholder="[-EVCPlus-] $5 ayaad u dirtay ..."></textarea>
-              <button type="button" id="mmGo" class="primary" style="justify-self:start">Buuxi</button></div>
+              <button type="button" id="mmGo" class="primary" style="justify-self:start">Akhri fariinta</button></div>
             <div id="mmList" class="mmq" hidden></div></div>
           <div class="chips qrep" id="qRep" hidden></div>
           <div class="chips" id="daily" aria-label="Kharashka maalinlaha" hidden></div>
@@ -1797,6 +1805,9 @@ Object.assign(SW,{"Track your income and expenses.":"Fuatilia mapato na matumizi
 /* recurring bills: schedule, auto, part payments */Object.assign(EN,{"⚙ Jadwal: dooro inta jeer (bil kasta, 3 biloodba, sannad kasta), digniinta iyo ⚡ bixin toos ah. “½ Bixi qayb” waxay bixisaa qayb ka mid ah biilka.":"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.","Joogto · qayb":"Recurring · part","Joogto · toos":"Recurring · auto","Joogto":"Recurring","Qaybaha":"Categories","Liiska":"List","Liiska biilasha":"Bills list","Jadwalka bisha":"Month calendar","Dib u dhacay":"Late","Saadaal":"Forecast"});
 Object.assign(AR,{"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.":"⚙ الجدول: اختر كم مرة (كل شهر، كل 3 أشهر، كل سنة)، والتذكير و⚡ الدفع التلقائي. “½ ادفع جزءًا” يدفع جزءًا فقط من الفاتورة.","Recurring · part":"ثابت · جزء","Recurring · auto":"ثابت · تلقائي","Recurring":"ثابت","Categories":"الفئات","Month calendar":"تقويم الشهر","Late":"متأخر","Forecast":"التوقعات"});
 Object.assign(SW,{"⚙ Schedule: choose how often (every month, every 3 months, every year), the reminder and ⚡ automatic payment. “½ Pay part” pays only part of the bill.":"⚙ Ratiba: chagua mara ngapi (kila mwezi, kila miezi 3, kila mwaka), kikumbusho na ⚡ malipo ya otomatiki. “½ Lipa sehemu” hulipa sehemu tu ya bili.","Recurring · part":"Ya kawaida · sehemu","Recurring · auto":"Ya kawaida · otomatiki","Recurring":"Ya kawaida","Categories":"Aina","Month calendar":"Kalenda ya mwezi","Late":"Zimechelewa","Forecast":"Utabiri"});
+/* Mobile Money paste */Object.assign(EN,{"📋 Ku dheji fariinta Mobile Money":"📋 Paste a Mobile Money message","Koobiyee hal fariin ama dhowr (EVC Plus, ZAAD, Sahal, eDahab, JEEB), halkan ku dheji. HantiGo ayaa garanaya lacagta soo gashay iyo tan baxday.":"Copy one message or several (EVC Plus, ZAAD, Sahal, eDahab, JEEB) and paste them here. HantiGo works out the money in and money out.","Akhri fariinta":"Read message"});
+Object.assign(AR,{"📋 Paste a Mobile Money message":"📋 الصق رسالة Mobile Money","Copy one message or several (EVC Plus, ZAAD, Sahal, eDahab, JEEB) and paste them here. HantiGo works out the money in and money out.":"انسخ رسالة أو عدة رسائل (EVC Plus وZAAD وSahal وeDahab وJEEB) والصقها هنا. يحدّد HantiGo المال الداخل والخارج.","Read message":"اقرأ الرسالة"});
+Object.assign(SW,{"📋 Paste a Mobile Money message":"📋 Bandika ujumbe wa Mobile Money","Copy one message or several (EVC Plus, ZAAD, Sahal, eDahab, JEEB) and paste them here. HantiGo works out the money in and money out.":"Nakili ujumbe mmoja au kadhaa (EVC Plus, ZAAD, Sahal, eDahab, JEEB) na ubandike hapa. HantiGo itatambua pesa iliyoingia na iliyotoka.","Read message":"Soma ujumbe"});
 /* payment method box */Object.assign(EN,{"Markaad bixiso, riix “Waan bixiyay”":"After paying, tap “I have paid”","Ku dar tix ama sawirka fariinta (ikhtiyaari)":"Add the Tx number or a screenshot (optional)","Lambarka dhaqdhaqaaqa ee fariinta lacagta":"Transaction number from the payment SMS","Sawirka fariinta lacagta":"Screenshot of the payment SMS","✓ Waan bixiyay":"✓ I have paid","📲 U sheeg WhatsApp inaad bixisay":"📲 Tell us on WhatsApp that you paid"});
 Object.assign(AR,{"After paying, tap “I have paid”":"بعد الدفع، اضغط «لقد دفعت»","Add the Tx number or a screenshot (optional)":"أضف رقم العملية أو صورة الرسالة (اختياري)","Transaction number from the payment SMS":"رقم العملية من رسالة الدفع","Screenshot of the payment SMS":"صورة رسالة الدفع","✓ I have paid":"✓ لقد دفعت","📲 Tell us on WhatsApp that you paid":"📲 أخبرنا عبر واتساب أنك دفعت"});
 Object.assign(SW,{"After paying, tap “I have paid”":"Ukishalipa, gusa “Nimelipa”","Add the Tx number or a screenshot (optional)":"Ongeza namba ya muamala au picha ya ujumbe (hiari)","Transaction number from the payment SMS":"Namba ya muamala kutoka ujumbe wa malipo","Screenshot of the payment SMS":"Picha ya ujumbe wa malipo","✓ I have paid":"✓ Nimelipa","📲 Tell us on WhatsApp that you paid":"📲 Tuambie kwa WhatsApp kuwa umelipa"});
@@ -2300,8 +2311,8 @@ function renderGlance(mi,mo){const g=$("glState");if(!g)return;const biz=MODE===
   g.dataset.st=st;$("glSum").textContent=txt;$("glSum").hidden=!txt;
   const bar=$("glBar");bar.style.width=(mi>0?Math.min(100,pct):mo>0?100:0)+"%";bar.dataset.st=st;bar.parentNode.hidden=!mi&&!mo;
   bar.parentNode.title=mi?L(`Kharashka: ${pct}% dakhliga`,`Spending: ${pct}% of income`,`المصاريف: ${pct}% من الدخل`,`Matumizi: ${pct}% ya mapato`):"";
-  const a=$("glAct");if(!a.dataset.on){a.dataset.on=1;a.addEventListener("click",e=>{const b=e.target.closest("[data-quick]");if(!b)return;goTab("add");const r=$(b.dataset.quick==="in"?"tIn":"tOut");if(r&&!r.checked)r.click();setTimeout(()=>{const x=$("amount");(x&&x.offsetParent?x:document.querySelector("#multiList input:not([type=checkbox])"))?.focus()},60)})}
-  a.innerHTML=`<button type="button" data-quick="in"><b>+</b> ${biz?L("Dakhli / iib","Income / sale","دخل / بيع","Mapato / mauzo"):L("Lacag soo gashay","Money in","دخل","Pesa iliyoingia")}</button><button type="button" data-quick="out"><b>−</b> ${L("Kharash","Expense","مصروف","Matumizi")}</button>`}
+  const a=$("glAct");if(!a.dataset.on){a.dataset.on=1;a.addEventListener("click",e=>{if(e.target.closest("[data-mm]")){goTab("add");$("mmBtn").click();return}const b=e.target.closest("[data-quick]");if(!b)return;goTab("add");const r=$(b.dataset.quick==="in"?"tIn":"tOut");if(r&&!r.checked)r.click();setTimeout(()=>{const x=$("amount");(x&&x.offsetParent?x:document.querySelector("#multiList input:not([type=checkbox])"))?.focus()},60)})}
+  a.innerHTML=`<button type="button" data-quick="in"><b>+</b> ${biz?L("Dakhli / iib","Income / sale","دخل / بيع","Mapato / mauzo"):L("Lacag soo gashay","Money in","دخل","Pesa iliyoingia")}</button><button type="button" data-quick="out"><b>−</b> ${L("Kharash","Expense","مصروف","Matumizi")}</button><button type="button" data-mm="1">📋 ${L("Ku dheji fariinta Mobile Money","Paste a Mobile Money message","الصق رسالة Mobile Money","Bandika ujumbe wa Mobile Money")}</button>`}
 function renderPL(txs){const box=$("glPL");if(!box)return;
   const real=txs.filter(t=>t.cat!=="Kayd"),sm=(a,t)=>a.filter(x=>x.type===t).reduce((s,x)=>s+Number(x.amount||0),0);
   const now=new Date(),cur=view.getFullYear()===now.getFullYear()&&view.getMonth()===now.getMonth();
@@ -4444,29 +4455,48 @@ $("date").value=today();renderDaily();fillCats();render();initLang();init();
   <button type="button" class="del" id="lkForgot">Ma illowday PIN-ka? Ka bax oo mar kale gal</button></div></div>
 <script>
 /* ================= 1. Paste EVC / ZAAD / Sahal / eDahab message ================= */
+/* Reads one Mobile Money SMS (EVC Plus, ZAAD, Sahal, eDahab, JEEB, WaafiPay, M-Pesa, bank wallets) in Somali or English.
+   Returns amount, direction (in/out, sure = a known phrase was found), currency, other party, date, reference, network, balance, fee. */
+const MM_IN=/ka heshay|ka heshey|ka helay|waxaad heshay|waxaad heshey|waxaa la[a-z]{0,5} soo|\bla[a-z]{0,5}gu soo (?:dir|shub|wareej)|\bla[a-z]{0,5}gu shubay|kuu soo (?:dir|shub|wareej)|loo soo dir|soo gashay|ku soo dhacay|you have received|\breceived\b|credited|deposited|dhigatay|lacag dhigasho/;
+const MM_OUT=/u dirtay|u dirtey|u diray|u wareejisay|u wareejiyay|u bixisay|u bixiyay|ka iibsatay|ka iibsaday|iibsatay|ku shubatay|ku shubtay|la bixisay|ka qaadatay|ka saaratay|you have sent|you have paid|\bsent\b|\bpaid\b|debited|withdr|purchased|bought|transferred to|payment to/;
+const MM_NUM="([\\d][\\d,]*(?:\\.\\d+)?)";
+const MM_SYM="(\\$|USD|SLSH|SLS|Sh\\.?\\s?So\\.?|SOS|Ksh\\.?|KES|ETB|Sh\\.?)";
+const mmCur=x=>{x=String(x||"").toUpperCase().replace(/[.\s]/g,"");return x==="$"||x==="USD"?"USD":x==="SLSH"||x==="SLS"?"SLSH":x==="KSH"||x==="KES"?"KES":x==="ETB"?"ETB":x?"SOS":""};
+const MM_STOP="(?=[,;]|\\.(?:\\s|$)|\\s+(?:Tar|Taariikh|Haraag|Hadhaag|Lacagta|Kharash|on|at|Your|Fee|Balance|Ref|Tix|TID|ayaad|waxaad)\\b|\\s*\\(|$)";
 function parseMM(raw){
   const s=String(raw||"").replace(/\s+/g," ").trim();if(!s)return null;
-  let amount=null;
-  const re=/(?:\$|USD\s?|SLSH\.?\s?|SOS\s?|Sh\.?\s?)\s?([\d][\d,]*(?:\.\d+)?)|([\d][\d,]*(?:\.\d+)?)\s?(?:\$|USD|SLSH|SOS)/gi;let m;
-  while((m=re.exec(s))){const pre=s.slice(Math.max(0,m.index-28),m.index).toLowerCase();
-    if(/haraag|hadhaag|balance|baaqi|kharashka adeeg|fee/.test(pre))continue;
-    const v=parseFloat((m[1]||m[2]).replace(/,/g,""));if(v>0){amount=v;break}}
+  let amount=null,cur="",bal=null,fee=null,m;
+  const re=new RegExp(`(?<![A-Za-z])${MM_SYM}\\s?${MM_NUM}|${MM_NUM}\\s?(\\$|USD|SLSH|SOS|Ksh|KES|ETB)(?![A-Za-z])`,"gi");
+  while((m=re.exec(s))){const v=parseFloat((m[2]||m[3]).replace(/,/g,""));if(!(v>0))continue;
+    const pre=s.slice(Math.max(0,m.index-30),m.index).toLowerCase(),c=mmCur(m[1]||m[4]);
+    if(/haraag|hadhaag|hartay|haray|balance|baaqi|remaining|available/.test(pre)){if(bal==null)bal=v;continue}
+    if(/kharash|\bfee|commission|adeeg|charge/.test(pre)){if(fee==null)fee=v;continue}
+    if(amount==null){amount=v;cur=c}}
   if(amount==null)return null;
-  const low=s.toLowerCase();
-  const isIn=/ka heshay|ka helay|waxaad heshay|waxaad heshay|lagu soo dir|lagu soo shubay|kuu soo dir|kuu soo wareej|loo soo dir|you have received|received|credited/.test(low);
-  const type=isIn?"in":"out";
-  let date=null;const d=s.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
-  if(d){let a=+d[1],b=+d[2],y=+d[3];if(y<100)y+=2000;let dd=a,mm=b;if(mm>12&&dd<=12){dd=b;mm=a}
+  const low=s.toLowerCase(),mi=low.search(MM_IN),mo=low.search(MM_OUT);
+  const sure=mi>=0||mo>=0,type=mi>=0&&(mo<0||mi<mo)?"in":"out";
+  let date=null;const iso=s.match(/\b(20\d\d)-(\d{1,2})-(\d{1,2})\b/),d=s.match(/\b(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})\b/);
+  if(iso)date=iso[1]+"-"+iso[2].padStart(2,"0")+"-"+iso[3].padStart(2,"0");
+  else if(d){let dd=+d[1],mm=+d[2],y=+d[3];if(y<100)y+=2000;if(mm>12&&dd<=12)[dd,mm]=[mm,dd];
     if(mm>=1&&mm<=12&&dd>=1&&dd<=31&&y>2000&&y<2100)date=y+"-"+String(mm).padStart(2,"0")+"-"+String(dd).padStart(2,"0")}
-  let who="";const nm=s.match(/([A-Za-z][A-Za-z .'\-]{1,40}?)\s*\(\s*(\+?\d{6,15})\s*\)/);
-  if(nm)who=(nm[1].trim()+" ("+nm[2]+")");
-  else{const t=s.match(/(?:u dirtay|u wareejisay|ka heshay|ka helay|ka iibsatay|u bixisay|sent to|paid to|to|from)\s+([^,;\n]{2,40}?)(?:[,;]|\s+Tar|\s+on\s|\s+at\s|$)/i);
-    if(t&&!/^\$|^\d+(\.\d+)?$/.test(t[1].trim()))who=t[1].trim();
-    if(!who){const p=s.match(/\b(\+?252\d{8,9}|0?6\d{8}|[67]\d{7,8})\b/);if(p)who=p[1]}}
-  who=who.replace(/^.*\b(dirtay|wareejisay|heshay|helay|iibsatay|bixisay|sent to|paid to|to|from)\s+/i,"").replace(/\s+(ayaad|waxaad|tar|lacag)\b.*$/i,"").trim().slice(0,40);
-  const ref=s.match(/(?:Tix(?:raac)?|Ref(?:erence)?|TID|Transaction ID|Trans ID)\s*[:#.]?\s*([A-Z0-9]{4,})/i);
-  let net="EVC";if(/zaad/i.test(s))net="ZAAD";else if(/sahal/i.test(s))net="Sahal";else if(/e-?dahab/i.test(s))net="eDahab";else if(/jeeb/i.test(s))net="JEEB";else if(/m-?pesa/i.test(s))net="M-Pesa";else if(/premier|wallet|salaam|amal|bank/i.test(s)&&!/evc/i.test(s))net="Bangi";
-  return {amount,type,date,who,ref:ref?ref[1]:"",net}}
+  if(date&&typeof today==="function"&&date>today())date=null;   // a future date means the message was misread: use today
+  const VERB=/^.*\b(?:dirtay|dirtey|diray|wareejisay|wareejiyay|heshay|heshey|helay|iibsatay|iibsaday|bixisay|bixiyay|shubay|shubatay|shubtay|dir|shub|sent to|paid to|received from|to|from)\s+/i;
+  const clean=x=>String(x||"").replace(VERB,"").replace(/\s+(?:ayaad|waxaad|tar|lacag)\b.*$/i,"").replace(/[\s,.;:]+$/,"").trim();
+  const bad=x=>!x||/^(?:tar|taariikh|haraag|hadhaag|lacag|on|at|your|fee|balance|kaarka|merchant)\b/i.test(x)||/^\$|^\d/.test(x);
+  let name="",phone="";
+  if((m=s.match(/([A-Za-z][A-Za-z .'\-]{1,60}?)\s*\(\s*(\+?\d{6,15})\s*\)/))){name=clean(m[1]);phone=m[2]}
+  if(!phone&&(m=s.match(/(\+?252\d{8,9}|\+?2547\d{8}|\b0?[67]\d{7,8}|\b09\d{8})\b/)))phone=m[1];
+  if(!name&&phone){const i=s.indexOf(phone),after=s.slice(i+phone.length),before=s.slice(0,i);
+    if((m=after.match(new RegExp("^[,\\s]+([A-Za-z][A-Za-z '\\-]{1,40}?)"+MM_STOP))))name=clean(m[1]);
+    if(bad(name)&&(m=before.match(/(?:from|to|ka|u)\s+([A-Z][A-Za-z'\-]+(?:\s+[A-Z][A-Za-z'\-]+){0,3})\s*$/)))name=clean(m[1]);
+    if(bad(name))name=""}
+  if(!name&&!phone&&(m=s.match(new RegExp("(?:u dirtay|u wareejisay|ka heshay|ka helay|ka iibsatay|u bixisay|sent to|paid to|received from|to|from)\\s+([^,;\\n]{2,40}?)"+MM_STOP,"i")))){const n=clean(m[1]);if(!bad(n))name=n}
+  if(!name&&(m=s.match(/(?:ka iibsatay|u bixisay|paid to|payment to)\s+([^,;\n]{2,40}?)(?=[,;]|\.(?:\s|$)|\s+Tar\b|$)/i))){const n=clean(m[1]);if(!bad(n))name=n}
+  const who=(name&&phone?name+" ("+phone+")":name||phone).slice(0,40);
+  const ref=s.match(/(?:Tix(?:raac)?|Ref(?:erence)?(?:\s*No)?|TID|TxID|Txn(?:\s*ID)?|Transaction ID|Trans(?:action)? ?ID|Aqoonsi)\s*[:#.]?\s*([A-Z0-9]{4,})/i)||s.match(/^([A-Z]{2,3}\d[A-Z0-9]{6,})\s+Confirmed/);
+  let net="EVC";if(/zaad/i.test(s))net="ZAAD";else if(/sahal/i.test(s))net="Sahal";else if(/e-?dahab/i.test(s))net="eDahab";else if(/jeeb/i.test(s))net="JEEB";else if(/waafi/i.test(s))net="WaafiPay";else if(/m-?pesa/i.test(s))net="M-Pesa";else if(/premier|wallet|salaam|amal|bank/i.test(s)&&!/evc/i.test(s))net="Bangi";
+  let h=5381;for(const ch of s.toLowerCase().replace(/[^a-z0-9$.]/g,""))h=((h*33)^ch.charCodeAt(0))>>>0;   // same message pasted twice = same key, even without a Tix number
+  return {amount,type,sure,cur,date,who,ref:ref?ref[1]:"",key:"mm"+h.toString(36),net,bal,fee}}
 function fillFromMM(p){
   if(!p){$("mmMsg").textContent=L("Fariintan lama fahmin. Hubi inaad koobiyeysay fariinta oo dhan.","Could not read this message. Make sure you copied the whole message.");$("mmMsg").className="err";return false}
   if(MULTI_ON){MULTI_ON=false;fillCats()}
@@ -4475,7 +4505,7 @@ function fillFromMM(p){
   $("amount").value=p.amount;if(p.date)$("date").value=p.date;
   if(p.who)$("place").value=p.who;
   const ac=autoCat(p);if(ac){if(useGroups()){$("grp").value=grpOf(ac.cat,p.type);fillCats()}$("cat").value=ac.cat;markChip()}
-  MM_REF=p.ref||"";const dup=refSeen(p.ref);
+  MM_REF=p.ref||p.key||"";const dup=refSeen(p.ref)||refSeen(p.key);
   const nt=[p.net!=="EVC"&&p.net!=="Bangi"?p.net:"",p.ref?"Tix "+p.ref:""].filter(Boolean).join(" · ");if(nt&&!$("note").value)$("note").value=nt;
   $("mmMsg").className="note ok";
   $("mmMsg").textContent="✓ "+L(`Waa la buuxiyay: ${p.type==="in"?"Soo galay":"Ka baxay"} ${money(p.amount)}${p.who?" · "+p.who:""}. Dooro qaybta, kadib riix Kaydi.`,
@@ -5053,29 +5083,52 @@ function catOptions(t,sel){const o=c=>`<option value="${esc(c)}"${c===sel?" sele
   const ownG=own.length?`<optgroup label="${esc(L4("Kuwa aad adigu ku dartay","Your own","الخاصة بك","Zako mwenyewe"))}">${own.map(o).join("")}</optgroup>`:"";
   if(GROUPS(t).length)return GROUPS(t).map(g=>`<optgroup label="${esc(grpLabel(g[0]))}">${g[2].filter(c=>c!=="Kayd").map(o).join("")}</optgroup>`).join("")+ownG;
   return (CATS[t]||[]).filter(c=>c!=="Kayd").map(o).join("")+ownG}
-const mmNote=p=>[p.net!=="EVC"&&p.net!=="Bangi"?p.net:"",p.ref?"Tix "+p.ref:""].filter(Boolean).join(" · ");
+const mmNote=p=>[p.net!=="EVC"&&p.net!=="Bangi"?p.net:"",p.ref?"Tix "+p.ref:"",p.cur&&p.cur!==currency()?p.cur+" "+p.orig:""].filter(Boolean).join(" · ");
+/* every pasted message (one or many) is shown as a preview first: money in or out, amount, who, date. Nothing is saved until the person taps Kaydi. */
 function mmHandle(raw){const ps=splitMM(raw).map(pmm).filter(Boolean);
-  if(ps.length>1){mmMulti(ps);return true}
-  return fillFromMM(ps[0]||pmm(raw))}
+  if(!ps.length){const one=pmm(raw);if(one)ps.push(one)}
+  if(!ps.length)return fillFromMM(null);
+  mmMulti(ps);return true}
 function mmMulti(ps){const seen=new Set();
-  MMQ=ps.map(p=>{const dup=refSeen(p.ref)||(p.ref&&seen.has(p.ref));if(p.ref)seen.add(p.ref);return {...p,dup,on:!dup,cat:(autoCat(p)||{}).cat||defCat(p.type)}});
-  $("mmBox").hidden=true;$("mmMsg").textContent="";mmDraw()}
-function mmDraw(){const n=MMQ.filter(x=>x.on).length,box=$("mmList");box.hidden=false;
-  box.innerHTML=`<b>📥 ${L4(MMQ.length+" fariimood ayaa la helay",MMQ.length+" messages found","تم العثور على "+MMQ.length+" رسائل","Jumbe "+MMQ.length+" zimepatikana")}</b>
-  <span class="note">${L4("Qaybta waxaa loo doortay sida aad hore u qortay. Hubi, kadib riix Kaydi.","Categories are picked from what you entered before. Check them, then tap Save.","اختيرت الفئات بناءً على ما أدخلته سابقًا. تحقق ثم اضغط حفظ.","Makundi yamechaguliwa kulingana na ulichoingiza awali. Kagua, kisha bonyeza Hifadhi.")}</span>
-  ${MMQ.map((p,i)=>`<div class="mmrow${p.on?"":" off"}"><label class="mmchk"><input type="checkbox" data-mmon="${i}"${p.on?" checked":""} aria-label="${esc(L4("Dooro","Select","اختيار","Chagua"))}"><span class="amt ${p.type}">${p.type==="in"?"+":"−"}${money(p.amount)}</span></label>
-    <span class="mmwho">${esc(p.who||p.net)}${p.date?" · "+esc(fmtD(p.date)):""}${p.dup?` · <b class="bud-over">${L4("hore ayaa loo qoray","already saved","محفوظة مسبقًا","imeshahifadhiwa")}</b>`:""}</span>
-    <select data-mmcat="${i}" aria-label="${esc(L4("Qaybta","Category","الفئة","Kundi"))}">${catOptions(p.type,p.cat)}</select></div>`).join("")}
-  <div class="goal-actions"><button type="button" class="primary" id="mmSaveAll"${n?"":" disabled"}>${L4("Kaydi","Save","حفظ","Hifadhi")} (${n})</button><button type="button" id="mmCancel">${L4("Jooji","Cancel","إلغاء","Ghairi")}</button></div>`}
+  MMQ=ps.map(p=>{const k=p.ref||p.key,dup=refSeen(p.ref)||refSeen(p.key)||(!!k&&seen.has(k));if(k)seen.add(k);const curX=!!p.cur&&p.cur!==currency();
+    return {...p,orig:p.amount,dup,curX,on:!dup&&!curX,cat:(autoCat(p)||{}).cat||defCat(p.type)}});
+  $("mmBox").hidden=true;$("mmMsg").textContent="";mmDraw();setTimeout(()=>$("mmList").scrollIntoView({block:"nearest",behavior:"smooth"}),50)}
+const mmDirLab=t=>t==="in"?(MODE==="business"?L4("+ Iib / soo galay","+ Sale / money in","+ بيع / دخل","+ Mauzo / pesa iliyoingia"):L4("+ Soo galay","+ Money in","+ دخل","+ Pesa iliyoingia")):(MODE==="business"?L4("− Kharash","− Expense","− مصروف","− Matumizi"):L4("− Ka baxay","− Money out","− خرج","− Pesa iliyotoka"));
+const curSym=c=>c==="USD"?"$":c==="SOS"?"Sh":c||"";
+function mmDraw(){const n=MMQ.filter(x=>x.on).length,box=$("mmList"),one=MMQ.length===1;box.hidden=false;
+  const sIn=MMQ.filter(x=>x.on&&x.type==="in").reduce((a,x)=>a+Number(x.amount||0),0),sOut=MMQ.filter(x=>x.on&&x.type==="out").reduce((a,x)=>a+Number(x.amount||0),0);
+  box.innerHTML=`<div class="mmhead"><b>📥 ${one?L4("Fariinta waa la akhriyay","Message read","تمت قراءة الرسالة","Ujumbe umesomwa"):L4(MMQ.length+" fariimood ayaa la akhriyay",MMQ.length+" messages read","تمت قراءة "+MMQ.length+" رسائل","Jumbe "+MMQ.length+" zimesomwa")}</b>
+    <span class="mmto">${MODE==="business"?"🏢":"👤"} ${esc(L4("Waxaa lagu kaydinayaa:","Will be saved in:","سيُحفظ في:","Itahifadhiwa katika:"))} <b>${esc(modeLabel())}</b></span></div>
+  <span class="note">${L4("HantiGo ayaa gartay lacagta soo gashay iyo tan baxday. Hubi, kadib riix Kaydi. Waad beddeli kartaa wax kasta.","HantiGo worked out the money in and money out. Check it, then tap Save. You can change anything.","حدّد HantiGo المال الداخل والخارج. تحقق ثم اضغط حفظ. يمكنك تعديل أي شيء.","HantiGo imetambua pesa iliyoingia na iliyotoka. Kagua, kisha bonyeza Hifadhi. Unaweza kubadilisha chochote.")}</span>
+  ${MMQ.map((p,i)=>`<div class="mmrow${p.on?"":" off"}">
+    <div class="mmtop"><label class="mmchk"><input type="checkbox" data-mmon="${i}"${p.on?" checked":""} aria-label="${esc(L4("Dooro","Select","اختيار","Chagua"))}"></label>
+      <div class="mmdir" role="radiogroup" aria-label="${esc(L4("Nooca","Type","النوع","Aina"))}">${["in","out"].map(t=>`<button type="button" class="${t}${p.type===t?" on":""}" data-mmdir="${i}" data-t="${t}" aria-pressed="${p.type===t}">${esc(mmDirLab(t))}</button>`).join("")}</div></div>
+    <div class="mmpair"><label class="mmamt"><span>${esc(L4("Qadarka","Amount","المبلغ","Kiasi"))} (${esc(curSym(currency()))})</span><input type="number" inputmode="decimal" min="0" step="0.01" data-mmamt="${i}" value="${esc(String(p.amount))}"></label>
+    <label class="mmamt"><span>${esc(L4("Qaybta","Category","الفئة","Kundi"))}</span><select data-mmcat="${i}">${catOptions(p.type,p.cat)}</select></label></div>
+    <span class="mmwho">${esc(p.who||L4("Qof aan la garanayn","Unknown sender","مرسل غير معروف","Mtumaji asiyejulikana"))} · ${esc(fmtD(p.date||today()))} · ${esc(p.net)}${p.ref?" · Tix "+esc(p.ref):""}${p.bal!=null?` · ${esc(L4("Haraaga","Balance","الرصيد","Salio"))} ${esc(curSym(p.cur||currency()))}${esc(String(p.bal))}`:""}</span>
+    ${p.dup?`<span class="mmwarn">⚠️ ${L4("Fariintan hore ayaa loo kaydiyay (isla tixraac).","This message was already saved (same reference).","تم حفظ هذه الرسالة من قبل (نفس المرجع).","Ujumbe huu tayari umehifadhiwa (kumbukumbu ileile).")}</span>`:""}
+    ${p.curX?`<span class="mmwarn">⚠️ ${L4(`Fariintu waa ${p.cur} ${p.orig}, akoonkaagu waa ${currency()==="SOS"?"Shilin":"Dollar"}. Geli qadarka saxda ah, kadib dooro.`,`The message is in ${p.cur} ${p.orig}, your account is in ${currency()==="SOS"?"shillings":"dollars"}. Enter the right amount, then tick it.`,`الرسالة بعملة ${p.cur} ${p.orig}، وحسابك ${currency()==="SOS"?"بالشلن":"بالدولار"}. أدخل المبلغ الصحيح ثم اختره.`,`Ujumbe uko kwa ${p.cur} ${p.orig}, akaunti yako iko kwa ${currency()==="SOS"?"shilingi":"dola"}. Weka kiasi sahihi, kisha uchague.`)}</span>`:""}
+    ${p.sure?"":`<span class="mmwarn">❓ ${L4("Hubi: lacag soo gashay mise lacag baxday?","Check: money in or money out?","تحقق: مال داخل أم خارج؟","Kagua: pesa iliyoingia au iliyotoka?")}</span>`}
+    <button type="button" class="linkbtn mmedit" data-mmedit="${i}">✏ ${L4("Faahfaahin dheeraad ah","More details","تفاصيل أكثر","Maelezo zaidi")}</button></div>`).join("")}
+  ${MMQ.length>1?`<div class="mmsum"><span class="in">+${money(sIn)}</span><span class="out">−${money(sOut)}</span></div>`:""}
+  <div class="goal-actions"><button type="button" class="primary" id="mmSaveAll"${n?"":" disabled"}>✓ ${L4("Kaydi","Save","حفظ","Hifadhi")}${one?"":` (${n})`}</button><button type="button" id="mmCancel">${L4("Jooji","Cancel","إلغاء","Ghairi")}</button></div>`}
 document.addEventListener("change",e=>{const on=e.target.closest("[data-mmon]"),c=e.target.closest("[data-mmcat]");
   if(on){MMQ[+on.dataset.mmon].on=on.checked;mmDraw()}if(c)MMQ[+c.dataset.mmcat].cat=c.value});
+document.addEventListener("input",e=>{const a=e.target.closest("[data-mmamt]");if(!a)return;const p=MMQ[+a.dataset.mmamt];if(!p)return;
+  p.amount=parseFloat(a.value)||0;const b=$("mmSaveAll");if(b)b.disabled=!MMQ.some(x=>x.on&&x.amount>0)});
 document.addEventListener("click",async e=>{
+  const dir=e.target.closest("[data-mmdir]");
+  if(dir){const p=MMQ[+dir.dataset.mmdir],t=dir.dataset.t;if(p&&p.type!==t){p.type=t;p.sure=true;p.cat=(autoCat(p)||{}).cat||defCat(t)}mmDraw();return}
+  const ed=e.target.closest("[data-mmedit]");
+  if(ed){const p=MMQ.splice(+ed.dataset.mmedit,1)[0];if(!p)return;fillFromMM(p);if(p.cat){if(useGroups()){$("grp").value=grpOf(p.cat,p.type);fillCats()}$("cat").value=p.cat;markChip()}
+    if(MMQ.length){mmDraw();$("mmList").hidden=false}return}
   if(e.target.id==="mmCancel"){MMQ=[];$("mmList").hidden=true;return}
-  if(e.target.id!=="mmSaveAll")return;const list=MMQ.filter(x=>x.on);if(!list.length)return;e.target.disabled=true;const base=Date.now();
+  if(e.target.id!=="mmSaveAll")return;const list=MMQ.filter(x=>x.on&&x.amount>0);if(!list.length)return;e.target.disabled=true;const base=Date.now();
   try{for(let k=0;k<list.length;k++){const p=list[k];
-      await put({id:uid(),kind:"tx",method:p.net==="Bangi"?"Bangi":"EVC Plus",type:p.type,amount:p.amount,cat:p.cat,date:p.date||today(),place:(p.who||"").slice(0,40),note:mmNote(p),...(p.ref?{ref:p.ref}:{}),src:"sms",created:new Date(base+k).toISOString()})}
+      await put({id:uid(),kind:"tx",method:p.net==="Bangi"?"Bangi":"EVC Plus",type:p.type,amount:p.amount,cat:p.cat,date:p.date||today(),place:(p.who||"").slice(0,40),note:mmNote(p),...(p.ref||p.key?{ref:p.ref||p.key}:{}),src:"sms",created:new Date(base+k).toISOString()})}
+    const nIn=list.filter(x=>x.type==="in").length,nOut=list.length-nIn;
     MMQ=[];$("mmList").hidden=true;$("mmText").value="";$("mmMsg").className="note ok";
-    $("mmMsg").textContent="✓ "+L4(list.length+" waa la kaydiyay.",list.length+" saved.","تم حفظ "+list.length+".",list.length+" zimehifadhiwa.")}
+    $("mmMsg").textContent="✓ "+L4(`${list.length} waa la kaydiyay (${nIn} soo galay, ${nOut} ka baxay).`,`${list.length} saved (${nIn} in, ${nOut} out).`,`تم حفظ ${list.length} (${nIn} داخل، ${nOut} خارج).`,`${list.length} zimehifadhiwa (${nIn} zimeingia, ${nOut} zimetoka).`)}
   catch{$("mmMsg").className="err";$("mmMsg").textContent=L4("Lama kaydin karo hadda. Isku day mar kale.","Could not save now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Imeshindikana kuhifadhi sasa. Jaribu tena.");e.target.disabled=false}});
 /* share an SMS from the phone's Messages app straight into HantiGo (installed app on Android) */
 const MM_SHARE=(()=>{try{const q=new URLSearchParams(location.search);return [q.get("mmshare"),q.get("mmtitle")].filter(Boolean).join("\n")}catch{return ""}})();
