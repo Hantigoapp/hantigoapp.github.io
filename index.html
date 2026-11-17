@@ -452,7 +452,7 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .lkdots{display:flex;gap:14px}.lkdots i{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent)}.lkdots i.on{background:var(--accent)}
 .lkpad{display:grid;grid-template-columns:repeat(3,72px);gap:12px}.lkpad button{height:64px;border-radius:50%;font-size:1.5rem;font-weight:600}
 .shake{animation:shk .35s}@keyframes shk{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-.invlines{display:grid;gap:6px}.invrow{display:grid;grid-template-columns:minmax(0,1fr) 64px 92px 32px;gap:6px;align-items:center}.invrow input{min-width:0;width:100%;box-sizing:border-box}
+.invlines{display:grid;gap:10px}.invrow .invtopic{grid-column:1/-1;min-width:0}.invrow{display:grid;grid-template-columns:minmax(0,1fr) 64px 92px 32px;gap:6px;align-items:center}.invrow input{min-width:0;width:100%;box-sizing:border-box}
 .invh{font-size:.8rem;color:var(--muted)}.chk{display:flex!important;gap:8px;align-items:center;font-size:.92rem;justify-content:flex-start}.chk input{width:auto!important;flex:none;margin:0}
 .wa-bg{background:#1faa53!important;border-color:#1faa53!important}.invlist{display:grid;gap:6px}
 .invf{margin:4px 0}.invf button.on,.cuf button.on{background:var(--accent);color:#fff;border-color:transparent}
@@ -4665,18 +4665,40 @@ $("pinSave").addEventListener("click",async()=>{const a=$("pin1").value.trim(),b
 
 /* ================= 5. Receipt / invoice (Shirkad) ================= */
 let invLines=[],invTx=null;
-function invRow(l,i){return `<div class="invrow"><input data-il="${i}" data-f="n" type="text" maxlength="50" value="${esc(l.n)}" placeholder="${esc(L("Shayga / adeegga","Item / service"))}" aria-label="${esc(L("Shayga","Item"))}"><input data-il="${i}" data-f="q" type="number" inputmode="decimal" min="0" step="any" value="${l.q}" aria-label="${esc(L("Tirada","Qty"))}"><input data-il="${i}" data-f="p" type="number" inputmode="decimal" min="0" step="0.01" value="${l.p||""}" placeholder="0.00" aria-label="${esc(L("Qiimaha","Price"))}"><button type="button" class="del" data-ildel="${i}" aria-label="${esc(L("Ka saar","Remove"))}">✕</button></div>`}
+/* topics for the lines: Rasiid (paid now) and Qaansheeg (not paid yet) each have their own list, never mixed.
+   [icon, topic [so,en,ar,sw], items [[so,en,ar,sw]...]] */
+const IT=(so,en,ar,sw)=>[so,en,ar,sw];
+const INV_TOPICS={
+ r:[["🛒",IT("Iib & alaab","Sales & goods","مبيعات وبضائع","Mauzo na bidhaa"),[IT("Iib tafaariiq","Retail sale","بيع بالتجزئة","Mauzo ya rejareja"),IT("Iib jumlad","Wholesale","بيع بالجملة","Mauzo ya jumla"),IT("Iib online","Online sale","بيع عبر الإنترنت","Mauzo mtandaoni"),IT("Cunto & cabbitaan","Food & drinks","طعام ومشروبات","Chakula na vinywaji"),IT("Dhar & kabo","Clothes & shoes","ملابس وأحذية","Nguo na viatu"),IT("Qalab elektaroonig","Electronics","إلكترونيات","Vifaa vya elektroniki")]],
+   ["🛠️",IT("Adeeg la bixiyay","Service paid","خدمة مدفوعة","Huduma iliyolipwa"),[IT("Adeeg","Service","خدمة","Huduma"),IT("Dayactir","Repair","إصلاح","Ukarabati"),IT("Rakib","Installation","تركيب","Ufungaji"),IT("Gaadiid & rarid","Transport & delivery","نقل وتوصيل","Usafiri na usafirishaji"),IT("Nadaafad","Cleaning","تنظيف","Usafi"),IT("La-talin","Consulting","استشارة","Ushauri")]],
+   ["🎓",IT("Fiiga ardayda","Student fees","رسوم الطلاب","Ada ya wanafunzi"),[IT("Fiiga bisha","Monthly fee","الرسوم الشهرية","Ada ya mwezi"),IT("Diiwaangelin arday","Registration","تسجيل","Usajili"),IT("Lacag imtixaan","Exam fee","رسوم الامتحان","Ada ya mtihani"),IT("Buug & dirays","Books & uniform","كتب وزي","Vitabu na sare")]],
+   ["🏢",IT("Kiro la helay","Rent received","إيجار مستلم","Kodi iliyopokelewa"),[IT("Kiro guri","House rent","إيجار منزل","Kodi ya nyumba"),IT("Kiro dukaan","Shop rent","إيجار محل","Kodi ya duka"),IT("Kiro qalab","Equipment rent","إيجار معدات","Kodi ya vifaa"),IT("Kiro gaari","Vehicle rent","إيجار مركبة","Kodi ya gari")]],
+   ["🌾",IT("Beeraha & xoolaha","Farm & livestock","زراعة ومواشي","Kilimo na mifugo"),[IT("Dalag","Crops","محاصيل","Mazao"),IT("Khudaar & miro","Vegetables & fruit","خضار وفواكه","Mboga na matunda"),IT("Caano","Milk","حليب","Maziwa"),IT("Xoolo","Livestock","مواشي","Mifugo")]],
+   ["📦",IT("Kale","Other","أخرى","Nyingine"),[IT("Kale","Other","أخرى","Nyingine")]]],
+ q:[["🧾",IT("Iib deyn ah","Sale on credit","بيع بالآجل","Mauzo kwa mkopo"),[IT("Alaab deyn lagu qaatay","Goods on credit","بضائع بالآجل","Bidhaa kwa mkopo"),IT("Iib jumlad deyn ah","Wholesale on credit","جملة بالآجل","Jumla kwa mkopo"),IT("Dalab la keenay","Order delivered","طلب تم تسليمه","Agizo limewasilishwa"),IT("Bixin qaybo-qaybo","Pay in parts","دفع على أقساط","Malipo kwa awamu")]],
+   ["🛠️",IT("Adeeg la bixin doono","Service to be paid","خدمة مستحقة الدفع","Huduma ya kulipwa"),[IT("Qandaraas","Contract","عقد","Mkataba"),IT("Marxalad mashruuc","Project stage","مرحلة مشروع","Hatua ya mradi"),IT("Adeeg bille ah","Monthly service","خدمة شهرية","Huduma ya kila mwezi"),IT("Dayactir","Repair","إصلاح","Ukarabati"),IT("La-talin","Consulting","استشارة","Ushauri")]],
+   ["🎓",IT("Fiiga aan la bixin","Fees not yet paid","رسوم غير مدفوعة","Ada ambazo hazijalipwa"),[IT("Fiiga bisha","Monthly fee","الرسوم الشهرية","Ada ya mwezi"),IT("Fiiga dib u dhacay","Late fee","رسوم متأخرة","Ada iliyochelewa"),IT("Lacag imtixaan","Exam fee","رسوم الامتحان","Ada ya mtihani"),IT("Diiwaangelin arday","Registration","تسجيل","Usajili")]],
+   ["🏢",IT("Kiro la sugayo","Rent due","إيجار مستحق","Kodi inayodaiwa"),[IT("Kiro bishan","This month's rent","إيجار هذا الشهر","Kodi ya mwezi huu"),IT("Kiro dib u dhacay","Late rent","إيجار متأخر","Kodi iliyochelewa"),IT("Kiro qalab","Equipment rent","إيجار معدات","Kodi ya vifaa")]],
+   ["📄",IT("Biil macmiil","Customer bill","فاتورة العميل","Bili ya mteja"),[IT("Biil bille ah","Monthly bill","فاتورة شهرية","Bili ya kila mwezi"),IT("Khidmad","Fee","رسوم","Ada"),IT("Ganaax dib u dhac","Late penalty","غرامة تأخير","Faini ya kuchelewa")]],
+   ["📦",IT("Kale","Other","أخرى","Nyingine"),[IT("Kale","Other","أخرى","Nyingine")]]]};
+const invTopics=()=>INV_TOPICS[invKind()==="q"?"q":"r"];
+function invTopicSel(l,i){const ts=invTopics();return `<select class="invtopic" data-il="${i}" data-f="t" aria-label="${esc(L("Mowduuca","Topic","الموضوع","Mada"))}"><option value="">📂 ${esc(L("Dooro mowduuca","Choose a topic","اختر الموضوع","Chagua mada"))}</option>${ts.map(([ic,g],k)=>`<option value="${k}"${String(l.t)===String(k)?" selected":""}>${ic} ${esc(L(...g))}</option>`).join("")}</select>`}
+function invRow(l,i){return `<div class="invrow">${invTopicSel(l,i)}<input data-il="${i}" data-f="n" type="text" maxlength="50" value="${esc(l.n)}"${l.t!==""&&l.t!=null&&invTopics()[l.t]?` list="invdl-${l.t}"`:""} placeholder="${esc(L("Shayga / adeegga","Item / service"))}" aria-label="${esc(L("Shayga","Item"))}"><input data-il="${i}" data-f="q" type="number" inputmode="decimal" min="0" step="any" value="${l.q}" aria-label="${esc(L("Tirada","Qty"))}"><input data-il="${i}" data-f="p" type="number" inputmode="decimal" min="0" step="0.01" value="${l.p||""}" placeholder="0.00" aria-label="${esc(L("Qiimaha","Price"))}"><button type="button" class="del" data-ildel="${i}" aria-label="${esc(L("Ka saar","Remove"))}">✕</button></div>`}
 const invTotal=()=>invLines.reduce((a,l)=>a+(Number(l.q)||0)*(Number(l.p)||0),0);
 function renderInvLines(){if(!invLines.length)invLines=[{n:"",q:1,p:""}];
   $("invLines").innerHTML=`<div class="invrow invh"><span>${L("Shayga / adeegga","Item / service")}</span><span>${L("Tirada","Qty")}</span><span>${L("Qiimaha","Price")}</span><span></span></div>`+invLines.map(invRow).join("");
+  $("invLines").insertAdjacentHTML("beforeend",invTopics().map(([,,its],k)=>`<datalist id="invdl-${k}">${its.map(n=>`<option value="${esc(L(...n))}"></option>`).join("")}</datalist>`).join(""));
   $("invTot").textContent=money(invTotal())}
 function invKind(){return document.querySelector("input[name=invk]:checked")?.value||"r"}
 function invKindUI(){const r=invKind()==="r";$("invRecLbl").textContent=r?L("Ku dar dakhliga (Soo galay)","Add to income"):L("Ku dar Deymaha (lacag naloo hayo)","Add to Debts (money owed to us)");
   $("invDueRow").hidden=r;if(invTx){$("invRecRow").hidden=true}else $("invRecRow").hidden=false}
 $("invLines").addEventListener("input",e=>{const i=e.target.dataset.il;if(i==null)return;invLines[i][e.target.dataset.f]=e.target.value;$("invTot").textContent=money(invTotal())});
+/* a topic was chosen: its goods / services are offered in the name box */
+$("invLines").addEventListener("change",e=>{if(e.target.dataset.f!=="t")return;const i=+e.target.dataset.il;invLines[i].t=e.target.value;renderInvLines();
+  const n=document.querySelector(`[data-il="${i}"][data-f="n"]`);if(n){n.focus();if(!n.value&&n.showPicker)try{n.showPicker()}catch{}}});
 $("invLines").addEventListener("click",e=>{const b=e.target.closest("[data-ildel]");if(!b)return;invLines.splice(+b.dataset.ildel,1);renderInvLines()});
-$("invAdd").addEventListener("click",()=>{invLines.push({n:"",q:1,p:""});renderInvLines();document.querySelector(`[data-il="${invLines.length-1}"][data-f="n"]`)?.focus()});
-document.querySelectorAll("input[name=invk]").forEach(r=>r.addEventListener("change",invKindUI));
+$("invAdd").addEventListener("click",()=>{invLines.push({n:"",q:1,p:"",t:invLines.length?invLines[invLines.length-1].t??"":""});renderInvLines();document.querySelector(`[data-il="${invLines.length-1}"][data-f="n"]`)?.focus()});
+document.querySelectorAll("input[name=invk]").forEach(r=>r.addEventListener("change",()=>{invKindUI();invLines.forEach(l=>{l.t=""});renderInvLines()}));
 function invLoad(d){invReset();invLines=d.lines.map(l=>({...l}));document.querySelector(`input[name=invk][value=${d.k}]`).checked=true;$("invCust").value=d.cust;$("invPhone").value=d.phone||"";$("invEmail").value=d.email||"";$("invDate").value=d.date;$("invDue").value=d.due||"";$("invNote").value=d.note||"";renderInvLines();invKindUI();$("invRecRow").hidden=true;
   invCur={sig:JSON.stringify([d.k,d.cust,d.phone||"",d.email||"",d.date,d.lines,d.note||"",d.due||""]),doc:d}}
 function invReset(){invCur=null;invLines=[];invTx=null;$("invCust").value="";$("invPhone").value="";$("invEmail").value="";$("invNote").value="";$("invDate").value=today();$("invDue").value="";$("invRec").checked=true;$("invErr").textContent="";$("invMsg").textContent="";renderInvLines();invKindUI()}
@@ -4685,7 +4707,7 @@ function invNextNo(k){const s=settings();const n=TEAM?Math.max(0,...mine("inv").
 const invLabel=k=>k==="r"?L("Rasiid","Receipt"):L("Qaansheeg","Invoice");
 const invNoTxt=d=>(d.k==="r"?"R-":"Q-")+String(d.no).padStart(4,"0");
 let invCur=null;
-async function invSave(){const lines=invLines.map(l=>({n:String(l.n||"").trim(),q:Number(l.q)||0,p:Number(l.p)||0})).filter(l=>l.n&&l.q>0&&l.p>0);
+async function invSave(){const lines=invLines.map(l=>({n:String(l.n||"").trim(),q:Number(l.q)||0,p:Number(l.p)||0,...(l.t!==""&&l.t!=null?{t:Number(l.t)}:{})})).filter(l=>l.n&&l.q>0&&l.p>0);
   const cust=$("invCust").value.trim();
   if(!cust){$("invErr").textContent=L("Geli magaca macmiilka.","Enter the customer's name.");$("invCust").focus();return null}
   if(!lines.length){$("invErr").textContent=L("Geli ugu yaraan hal shay oo leh qiimo.","Enter at least one item with a price.");return null}
@@ -5174,7 +5196,7 @@ let irMsgT="",irTab="open";
 function invItems(d){const ls=(d.lines||[]).filter(l=>l&&l.n);if(!ls.length)return "";const t=ls.slice(0,3).map(l=>l.n+(Number(l.q)!==1?" ×"+l.q:"")).join(" · ")+(ls.length>3?` +${ls.length-3}`:"");
   return `<br><small class="note iritems">🛒 ${esc(t)}</small>`}
 document.addEventListener("click",async e=>{
-  const nw=e.target.closest("[data-irnew]");if(nw){const k=nw.dataset.irnew==="r"?"r":"q";goTab("add");invReset();const r=document.querySelector(`input[name=invk][value=${k}]`);if(r)r.checked=true;invKindUI();
+  const nw=e.target.closest("[data-irnew]");if(nw){const k=nw.dataset.irnew==="r"?"r":"q";goTab("add");invReset();const r=document.querySelector(`input[name=invk][value=${k}]`);if(r)r.checked=true;invKindUI();renderInvLines();
     setTimeout(()=>{$("invPanel").scrollIntoView({behavior:"smooth",block:"start"});$("invCust").focus({preventScroll:true})},80);return}
   const it=e.target.closest("[data-irtab]");if(it){irTab=it.dataset.irtab;irAll=false;renderInvRem();return}
   if(e.target.closest("[data-irall]")){irAll=!irAll;renderInvRem();return}
