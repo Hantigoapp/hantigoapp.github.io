@@ -466,6 +466,7 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .prtips{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.88rem}.prm{width:100%}
 .emplist{display:grid}.emp{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.emp:first-child{border-top:0}
 .emph{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.empr{display:grid;justify-items:end;gap:3px}
+#pyAccRow[hidden]{display:none!important}
 .pylink{border:1px dashed var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:8px}.pylink h3{margin:0;font-size:15px}.pyl{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.pyl span{min-width:0;overflow-wrap:anywhere}.empacc{font-size:12px}
 .empa{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.empa input{max-width:120px}#pyAll{justify-self:start}#cuQ{width:100%;box-sizing:border-box}
 .culist{display:grid;gap:0}.cu{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.cu:first-child{border-top:0}
@@ -1420,12 +1421,14 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
         <div id="pyLink" class="pylink" hidden></div>
         <form id="pyForm" novalidate>
           <div class="row">
-            <label class="field"><span id="pyWhoL">Magaca shaqaalaha</span><input id="pyWho" type="text" maxlength="40" list="pyStaff" placeholder="Tusaale: Cali Xasan"><datalist id="pyStaff"></datalist></label>
-            <label class="field"><span id="pyRoleL">Shaqada</span><select id="pyRole"></select></label>
+            <label class="field"><span id="pyWhoL">Magaca shaqaalaha</span><input id="pyWho" type="text" maxlength="40" placeholder="Tusaale: Cali Xasan"></label>
+            <label class="field"><span id="pyMailL">Email-ka shaqaalaha (ikhtiyaari)</span><input id="pyMail" type="email" maxlength="80" list="pyStaff" autocomplete="off" placeholder="cali@gmail.com"><datalist id="pyStaff"></datalist></label>
+            <label class="field"><span id="pyPhL">Taleefanka lacagta loo diro (EVC)</span><input id="pyPh" type="tel" maxlength="20" placeholder="61 5123456"></label>
             <label class="field"><span id="pyAmtL">Mushaharka bishii</span><input id="pyAmt" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></label>
-            <label class="field"><span id="pyPhL">Taleefan (ikhtiyaari)</span><input id="pyPh" type="tel" maxlength="20" placeholder="61 5123456"></label>
+            <label class="field"><span id="pyRoleL">Shaqada</span><select id="pyRole"></select></label>
             <label class="field"><span id="pyDayL">Maalinta mushaharka (ikhtiyaari)</span><input id="pyDay" type="number" min="1" max="31" inputmode="numeric" placeholder="25"></label>
           </div>
+          <label class="chk owner-only" id="pyAccRow" hidden><input type="checkbox" id="pyAcc" checked> <span id="pyAccL">Sii akoon HantiGo: wuxuu ku geli karaa app-ka isla email-kan</span></label>
           <div class="err" id="pyErr" role="alert"></div>
           <button type="submit" id="pyAdd">+ Ku dar shaqaale</button>
         </form>
@@ -4935,13 +4938,22 @@ function staffAccounts(){const out=new Set(staff.map(lc));
   return [...out].filter(Boolean).sort()}
 const empOfMail=m=>emps().find(b=>lc(b.mail)===lc(m)||lc(b.who)===lc(m));
 const mailName=m=>{const n=String(m).split("@")[0].replace(/[._\-]+/g," ").trim();return n?n.replace(/\b\p{L}/gu,c=>c.toUpperCase()):m};
-$("pyWho")?.addEventListener("input",e=>{if(!e.target.value.trim()){delete e.target.dataset.mail;empMail=""}});
-function empPick(m){empMail=lc(m);if(!$("pyWho"))return;const w=$("pyWho");w.value=mailName(m);w.dataset.mail=empMail;
+/* owner only: offer to open a HantiGo staff account for a new email (managers cannot change the staff list) */
+const okMail=v=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(lc(v));
+function pyAccShow(){const r=$("pyAccRow");if(!r)return;const m=lc($("pyMail")?.value);r.hidden=!!TEAM||!okMail(m)||staff.map(lc).includes(m)}
+$("pyMail")?.addEventListener("input",pyAccShow);
+function empPick(m){empMail=lc(m);if(!$("pyWho"))return;const w=$("pyWho");w.value=mailName(m);$("pyMail").value=empMail;pyAccShow();
   $("pyErr").textContent="";$("pyForm").scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>$("pyAmt").focus(),250)}
 function renderPyLink(){const box=$("pyLink");if(!box)return;const acc=MODE==="business"?staffAccounts():[];
   if($("pyStaff"))$("pyStaff").innerHTML=acc.filter(m=>!empOfMail(m)).map(m=>`<option value="${esc(m)}">`).join("");
-  const todo=acc.filter(m=>!empOfMail(m));box.hidden=!todo.length;if(!todo.length){box.innerHTML="";return}
-  box.innerHTML=`<h3>🔗 ${L("Shaqaalaha akoonka leh, mushahar weli looma gelin","Staff with an account, no salary set yet","موظفون لديهم حساب ولم يُحدَّد راتبهم بعد","Wafanyakazi wenye akaunti, bado hawana mshahara")} (${todo.length})</h3>`
+  const todo=acc.filter(m=>!empOfMail(m));
+  /* owner: employees a manager added with an email but no HantiGo account yet */
+  const noAcc=TEAM?[]:emps().filter(b=>okMail(b.mail)&&!staff.map(lc).includes(lc(b.mail)));
+  box.hidden=!todo.length&&!noAcc.length;if(box.hidden){box.innerHTML="";return}
+  const accHtml=noAcc.length?`<h3>🔑 ${L("Shaqaale email leh, akoon HantiGo weli looma furin","Staff with an email but no HantiGo account yet","موظفون لديهم بريد بدون حساب HantiGo بعد","Wafanyakazi wenye barua pepe bila akaunti ya HantiGo")} (${noAcc.length})</h3>`
+    +noAcc.map(b=>`<div class="pyl"><span>👤 ${esc(b.who||"")} · ${esc(b.mail)}</span><button type="button" data-pyacc="${esc(b.mail)}">+ ${L("Sii akoon","Give account","امنحه حسابًا","Mpe akaunti")}</button></div>`).join(""):"";
+  if(!todo.length){box.innerHTML=accHtml;return}
+  box.innerHTML=accHtml+`<h3>🔗 ${L("Shaqaalaha akoonka leh, mushahar weli looma gelin","Staff with an account, no salary set yet","موظفون لديهم حساب ولم يُحدَّد راتبهم بعد","Wafanyakazi wenye akaunti, bado hawana mshahara")} (${todo.length})</h3>`
     +todo.map(m=>`<div class="pyl"><span>👤 ${esc(m)}</span><button type="button" class="primary" data-pypick="${esc(m)}">+ ${L("Geli mushaharka","Set salary","حدّد الراتب","Weka mshahara")}</button></div>`).join("")
     +`<p class="note" style="margin:0">${L("Shaqaale kasta oo lagu daro Akoon → Shaqaalaha akoonka shirkadda halkan ayuu ka soo muuqanayaa.","Every staff member added in Account → Staff appears here.","كل موظف تتم إضافته من الحساب ← الموظفون يظهر هنا.","Kila mfanyakazi anayeongezwa kwenye Akaunti → Wafanyakazi huonekana hapa.")}</p>`}
 function empMonthTxt(d=view){return MONTHS[d.getMonth()]+" "+d.getFullYear()}
@@ -4958,7 +4970,8 @@ function renderPayroll(){const P=$("pyPanel");if(!P)return;if(MODE!=="business")
     if(empEdit===b.id)return `<div class="emp"><div class="row">
       <label class="field"><span>${L("Magaca","Name","الاسم","Jina")}</span><input id="pe-who" type="text" maxlength="40" value="${esc(b.who||"")}"></label>
       <label class="field"><span>${L("Mushaharka bishii","Monthly salary","الراتب الشهري","Mshahara wa mwezi")}</span><input id="pe-amt" type="number" min="0" step="0.01" inputmode="decimal" value="${Number(b.amount)||""}"></label>
-      <label class="field"><span>${L("Taleefan","Phone","الهاتف","Simu")}</span><input id="pe-ph" type="tel" maxlength="20" value="${esc(b.phone||"")}"></label>
+      <label class="field"><span>${L("Email","Email","البريد الإلكتروني","Barua pepe")}</span><input id="pe-mail" type="email" maxlength="80" value="${esc(b.mail||"")}"></label>
+      <label class="field"><span>${L("Taleefanka lacagta loo diro","Phone to send salary to","هاتف إرسال الراتب","Simu ya kutumia mshahara")}</span><input id="pe-ph" type="tel" maxlength="20" value="${esc(b.phone||"")}"></label>
       <label class="field"><span>${L("Maalinta mushaharka (1-31)","Pay day (1-31)","يوم الدفع (1-31)","Siku ya malipo (1-31)")}</span><input id="pe-day" type="number" min="1" max="31" inputmode="numeric" value="${b.due||""}"></label></div>
       <div class="goal-actions"><button type="button" class="primary" data-pysave="${id}">${L("Kaydi","Save","حفظ","Hifadhi")}</button><button type="button" data-pycancel="1">${L("Jooji","Cancel","إلغاء","Ghairi")}</button><button type="button" class="del" data-pydel="${id}" style="margin-left:auto">${L("Ka saar shaqaalaha","Remove employee","إزالة الموظف","Ondoa mfanyakazi")}</button></div></div>`;
     return `<div class="emp bs-${x.late?"late":x.s}"><div class="emph"><span><b>${esc(b.who||T(b.name))}</b>${b.mail?` <span class="pill ok empacc" title="${esc(b.mail)}">🔗 ${L("akoon","account","حساب","akaunti")}</span>`:""}<br><small class="note">${esc(T(b.name))}${b.mail&&lc(b.mail)!==lc(b.who)?" · "+esc(b.mail):""}${b.due?" · "+L("maalinta","day","اليوم","siku")+" "+billDay(b):""}${b.phone?" · 📞 "+esc(b.phone):""}</small></span><span class="empr"><b>${money(x.amt)}</b>${billPill(x)}</span></div>
@@ -4968,7 +4981,7 @@ function renderPayroll(){const P=$("pyPanel");if(!P)return;if(MODE!=="business")
     :`<p class="empty" style="margin:0">${L("Weli shaqaale lama gelin. Ku dar shaqaale kasta iyo mushaharkiisa, kadib bil kasta halkan ka bixi.","No employees yet. Add each employee and their salary, then pay them here every month.","لا يوجد موظفون بعد. أضف كل موظف وراتبه، ثم ادفع هنا كل شهر.","Bado hakuna wafanyakazi. Ongeza kila mfanyakazi na mshahara wake, kisha ulipe hapa kila mwezi.")}</p>`;
   $("pyMsg").textContent=empMsg;
   /* form labels in the chosen language */
-  const lb={pyWhoL:["Magaca shaqaalaha","Employee name","اسم الموظف","Jina la mfanyakazi"],pyRoleL:["Shaqada","Job","الوظيفة","Kazi"],pyAmtL:["Mushaharka bishii","Monthly salary","الراتب الشهري","Mshahara wa mwezi"],pyPhL:["Taleefan (ikhtiyaari)","Phone (optional)","الهاتف (اختياري)","Simu (si lazima)"],pyDayL:["Maalinta mushaharka (ikhtiyaari)","Pay day (optional)","يوم الدفع (اختياري)","Siku ya malipo (si lazima)"]};
+  const lb={pyWhoL:["Magaca shaqaalaha","Employee name","اسم الموظف","Jina la mfanyakazi"],pyRoleL:["Shaqada","Job","الوظيفة","Kazi"],pyAmtL:["Mushaharka bishii","Monthly salary","الراتب الشهري","Mshahara wa mwezi"],pyPhL:["Taleefanka lacagta loo diro (EVC)","Phone to send the salary to (mobile money)","رقم الهاتف لإرسال الراتب","Simu ya kutumia mshahara"],pyMailL:["Email-ka shaqaalaha (ikhtiyaari)","Employee email (optional)","البريد الإلكتروني للموظف (اختياري)","Barua pepe ya mfanyakazi (si lazima)"],pyAccL:["Sii akoon HantiGo: wuxuu ku geli karaa app-ka isla email-kan","Give a HantiGo account: they can sign in to the app with this email","امنحه حسابًا في HantiGo: يمكنه الدخول إلى التطبيق بهذا البريد","Mpe akaunti ya HantiGo: anaweza kuingia kwenye programu kwa barua pepe hii"],pyDayL:["Maalinta mushaharka (ikhtiyaari)","Pay day (optional)","يوم الدفع (اختياري)","Siku ya malipo (si lazima)"]};
   for(const k in lb)if($(k))$(k).textContent=L(...lb[k]);$("pyAdd").textContent="+ "+L("Ku dar shaqaale","Add employee","أضف موظفًا","Ongeza mfanyakazi");
   $("pyNote").textContent=L("Mushahar kasta oo la bixiyo wuxuu galayaa Ka baxay (Mushaharka shaqaalaha), Biilasha iyo warbixinnada.","Every salary paid goes into Expenses (Staff salaries), Bills and the reports.","كل راتب يُدفع يُسجَّل في المصروفات (رواتب الموظفين) والفواتير والتقارير.","Kila mshahara unaolipwa huingia kwenye Matumizi (Mishahara ya wafanyakazi), Bili na ripoti.");
   renderPyLink();
@@ -4998,12 +5011,20 @@ async function empSlip(b){const J=await loadPdf();const doc=new J({unit:"mm",for
 $("pyForm").addEventListener("submit",async e=>{e.preventDefault();const who=$("pyWho").value.trim(),amount=parseFloat($("pyAmt").value)||0,day=parseInt($("pyDay").value,10)||null;
   if(!who||!(amount>0)){$("pyErr").textContent=L("Geli magaca iyo mushahar ka weyn eber.","Enter the name and a salary greater than zero.","أدخل الاسم وراتبًا أكبر من صفر.","Weka jina na mshahara zaidi ya sifuri.");return}
   $("pyErr").textContent="";const role=$("pyRole").value||"Shaqaale kale";
-  /* linked to a staff account when picked from the list, or when the name typed is that staff member's email */
-  const acc=staffAccounts(),mail=lc(who).includes("@")&&acc.includes(lc(who))?lc(who):(empMail&&$("pyWho").dataset.mail===empMail?empMail:"");
+  /* the employee's email links the salary to their HantiGo staff account */
+  const mailIn=lc($("pyMail").value),mail=okMail(mailIn)?mailIn:okMail(who)?lc(who):"";
+  if(mailIn&&!okMail(mailIn)){$("pyErr").textContent=L("Geli email sax ah.","Enter a valid email.","أدخل بريدًا إلكترونيًا صحيحًا.","Weka barua pepe sahihi.");return}
+  if(mail&&(mail===myMail()||mail===lc(realMail()))){$("pyErr").textContent=L("Kani waa email-kaaga. Geli email-ka shaqaalaha.","That is your own email. Enter the staff member's email.","هذا بريدك. أدخل بريد الموظف.","Hii ni barua pepe yako. Weka ya mfanyakazi.");return}
   if(mail&&empOfMail(mail)){$("pyErr").textContent=L("Shaqaalahan mushahar horay ayaa loo geliyay.","This staff member already has a salary.","لهذا الموظف راتب مسجّل مسبقًا.","Mfanyakazi huyu tayari ana mshahara.");return}
   const name=mail&&lc(who)===mail?mailName(mail):who;
+  const giveAcc=!TEAM&&mail&&!$("pyAccRow").hidden&&$("pyAcc").checked;
   try{await put({id:uid(),kind:"bill",emp:1,name:role,who:name,...(mail?{mail}:{}),phone:$("pyPh").value.trim(),amount,due:day&&day>=1&&day<=31?day:null,grp:"staff",created:new Date().toISOString()});
-    ["pyWho","pyAmt","pyPh","pyDay"].forEach(i=>$(i).value="");delete $("pyWho").dataset.mail;empMail="";empMsg="✓ "+L(`${name} waa la daray.`,`${name} added.`,`تمت إضافة ${name}.`,`${name} ameongezwa.`);renderPayroll()}
+    let accTxt="";
+    if(giveAcc){let error=null;try{await flush();({error}=await sb.from("team_members").insert({owner_id:me.id,member_email:mail}))}catch(x){error=x}
+      if(!error){await loadStaff();accTxt=" "+L(`Akoon ayaa loo furay: ha isku diiwaangeliyo HantiGo email-ka ${mail}.`,`Account opened: they sign up to HantiGo with ${mail}.`,`تم فتح حساب: يسجّل في HantiGo بالبريد ${mail}.`,`Akaunti imefunguliwa: ajisajili HantiGo kwa ${mail}.`)}
+      else accTxt=" "+L("Akoonka lama furin hadda; ka dar Akoon → Shaqaalaha akoonka shirkadda.","The account was not opened now; add it in Account → Staff.","لم يُفتح الحساب الآن؛ أضفه من الحساب ← الموظفون.","Akaunti haikufunguliwa sasa; iongeze kwenye Akaunti → Wafanyakazi.")}
+    if(TEAM&&mail)accTxt=" "+L("Milkiilaha shirkadda ayaa akoon HantiGo u furi kara.","The company owner can give them a HantiGo account.","يمكن لمالك الشركة أن يمنحه حسابًا في HantiGo.","Mmiliki wa kampuni anaweza kumpa akaunti ya HantiGo.");
+    ["pyWho","pyMail","pyAmt","pyPh","pyDay"].forEach(i=>$(i).value="");empMail="";pyAccShow();empMsg="✓ "+L(`${name} waa la daray.`,`${name} added.`,`تمت إضافة ${name}.`,`${name} ameongezwa.`)+accTxt;renderPayroll()}
   catch{$("pyErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Haiwezi kuhifadhi sasa. Jaribu tena.")}});
 document.addEventListener("click",async e=>{
   const pp=e.target.closest("[data-pypay]");if(pp){const b=items.find(i=>i.id===pp.dataset.pypay);if(!b)return;const inp=document.getElementById("pp-"+b.id),v=parseFloat(inp?.value);if(!(v>0)){inp?.focus();return}
@@ -5012,11 +5033,16 @@ document.addEventListener("click",async e=>{
     pa.classList.remove("arm");pa.disabled=true;let n=0,s=0;try{for(const b of emps()){const a=await payEmp(items.find(i=>i.id===b.id)||b,0);if(a>0){n++;s+=a}}}catch{}pa.disabled=false;
     empMsg="✓ "+L(`${n} shaqaale ayaa la bixiyay · ${money(s)}`,`${n} employees paid · ${money(s)}`,`تم الدفع لـ ${n} موظفين · ${money(s)}`,`Wafanyakazi ${n} wamelipwa · ${money(s)}`);renderPayroll();return}
   const ps=e.target.closest("[data-pyslip]");if(ps){const b=items.find(i=>i.id===ps.dataset.pyslip);if(b){ps.disabled=true;try{await empSlip(b)}catch{}ps.disabled=false}return}
+  const pa2=e.target.closest("[data-pyacc]");if(pa2){if(TEAM)return;const m=lc(pa2.dataset.pyacc);pa2.disabled=true;let error=null;
+    try{await flush();({error}=await sb.from("team_members").insert({owner_id:me.id,member_email:m}))}catch(x){error=x}
+    empMsg=error?L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Haiwezi kuhifadhi sasa. Jaribu tena."):"✓ "+L(`Akoon ayaa loo furay: ha isku diiwaangeliyo HantiGo email-ka ${m}.`,`Account opened: they sign up to HantiGo with ${m}.`,`تم فتح حساب: يسجّل في HantiGo بالبريد ${m}.`,`Akaunti imefunguliwa: ajisajili HantiGo kwa ${m}.`);
+    if(!error)await loadStaff();else{pa2.disabled=false}renderPayroll();return}
   const pk=e.target.closest("[data-pypick]");if(pk){empPick(pk.dataset.pypick);return}
   const pe=e.target.closest("[data-pyedit]");if(pe){empEdit=pe.dataset.pyedit;empMsg="";renderPayroll();return}
   if(e.target.closest("[data-pycancel]")){empEdit=null;renderPayroll();return}
   const sv=e.target.closest("[data-pysave]");if(sv){const b=items.find(i=>i.id===sv.dataset.pysave);if(!b)return;const who=$("pe-who").value.trim(),amount=parseFloat($("pe-amt").value)||0,day=parseInt($("pe-day").value,10)||null;
-    if(!who||!(amount>0)){$("pe-amt").focus();return}empEdit=null;try{await put({...b,who,amount,phone:$("pe-ph").value.trim(),due:day&&day>=1&&day<=31?day:null})}catch{}renderPayroll();return}
+    const pm2=lc($("pe-mail").value);if(pm2&&(!okMail(pm2)||emps().some(o=>o.id!==b.id&&lc(o.mail)===pm2))){$("pe-mail").focus();return}
+    if(!who||!(amount>0)){$("pe-amt").focus();return}empEdit=null;const nb={...b};if(pm2)nb.mail=pm2;else delete nb.mail;try{await put({...nb,who,amount,phone:$("pe-ph").value.trim(),due:day&&day>=1&&day<=31?day:null})}catch{}renderPayroll();return}
   const pd=e.target.closest("[data-pydel]");if(pd){if(!pd.classList.contains("arm")){pd.classList.add("arm");pd.textContent=L("Hubi? Mushaharkii hore waa la hayaa","Sure? Past salaries are kept","متأكد؟ تبقى الرواتب السابقة","Una uhakika? Mishahara ya zamani inabaki");setTimeout(()=>{pd.classList.remove("arm");renderPayroll()},3500);return}
     empEdit=null;try{await remove(pd.dataset.pydel)}catch{}return}
 });
