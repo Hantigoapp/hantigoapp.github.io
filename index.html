@@ -663,6 +663,7 @@ button.plt[data-pl="up"].on{outline-color:#3ddc97}button.plt[data-pl="down"].on{
 .pldet .plhd b{font-size:1rem;overflow-wrap:anywhere}
 .pldet .plx{min-height:0;width:34px;height:34px;padding:0;border-radius:50%;flex:0 0 auto}
 .pldet .plwhy{margin:6px 0 10px;font-size:.86rem;opacity:.9}
+.pldet .pltop{margin:-4px 0 10px;font-size:.86rem;padding:8px 10px;border-radius:10px;background:rgba(255,122,102,.12);overflow-wrap:anywhere}
 .plcols{display:grid;gap:12px}
 @media (min-width:640px){.plcols{grid-template-columns:1fr 1fr}}
 .plcol h4{margin:0 0 6px;font-size:.9rem;display:flex;justify-content:space-between;gap:8px}
@@ -2410,11 +2411,15 @@ function renderPLDetail(arr,head,month,o){o=o||{};const box=$(o.box||"glPLd");if
     :n<0?L(`Kharashka (${money(o2)}) ayaa ka badnaa lacagta soo gashay (${money(i)}), sidaas ayaa khasaare ${money(-n)} u dhacay.`,`Spending (${money(o2)}) was more than income (${money(i)}), so the loss is ${money(-n)}.`,`المصاريف (${money(o2)}) أكثر من الدخل (${money(i)})، لذلك الخسارة ${money(-n)}.`,`Matumizi (${money(o2)}) yalizidi mapato (${money(i)}), kwa hiyo hasara ni ${money(-n)}.`)
     :n>0?L(`Lacagta soo gashay (${money(i)}) ayaa ka badnayd kharashka (${money(o2)}): faa'iido ${money(n)}.`,`Income (${money(i)}) was more than spending (${money(o2)}): a profit of ${money(n)}.`,`الدخل (${money(i)}) أكثر من المصاريف (${money(o2)}): ربح ${money(n)}.`,`Mapato (${money(i)}) yalizidi matumizi (${money(o2)}): faida ya ${money(n)}.`)
     :L("Lacagta soo gashay iyo kharashku waa isku mid.","Income and spending are equal.","الدخل والمصاريف متساويان.","Mapato na matumizi ni sawa."));
+  /* profit / loss: say at once where the money went (biggest spending first) */
+  const topOut=o.only||!outs.length?"":(()=>{const m=new Map();outs.forEach(x=>{const k=x.cat||"Kale";m.set(k,(m.get(k)||0)+Number(x.amount||0))});
+    const l=[...m].sort((a,b)=>b[1]-a[1]),top=l.slice(0,3).map(([c,v])=>`<b>${esc(T(c))}</b> ${money(v)}${o2?` (${Math.round(v/o2*100)}%)`:""}`).join(" · ");
+    return `<p class="pltop">💸 ${L("Lacagta ugu badan waxay ku baxday:","Most money went to:","ذهب معظم المال إلى:","Pesa nyingi zilienda kwa:")} ${top}${l.length>3?` · ${L(`+${l.length-3} kale`,`+${l.length-3} more`,`+${l.length-3} أخرى`,`+${l.length-3} zaidi`)}`:""}</p>`})();
   box.dataset.pl=o.only?(o.only==="in"?"up":"down"):n<0?"down":n>0?"up":"zero";
   const per=o.from?{from:o.from,to:o.to||o.from}:month?(()=>{const y=view.getFullYear(),m=view.getMonth(),z=x=>String(x).padStart(2,"0");return {from:`${y}-${z(m+1)}-01`,to:`${y}-${z(m+1)}-${z(new Date(y,m+1,0).getDate())}`}})():{from:today(),to:today()};
   const hd=o.headVal!=null?`${esc(head)}: ${esc(o.headVal)}`:o.only?`${esc(head)}: ${money(tot)}`:`${esc(head)}: ${n<0?"📉 "+L("Khasaare","Loss","خسارة","Hasara"):n>0?"📈 "+L("Faa'iido","Profit","ربح","Faida"):"➖ "+L("Siman","Break-even","تعادل","Sawa")} ${n>0?"+":n<0?"−":""}${money(Math.abs(n))}`;
   box._pld={head,month,ins,outs,i,o:o2,n,why,only:o.only||"",xs:o.headVal!=null,tIn,tOut,...per};if(!o.box)PLD=box._pld;
-  box.innerHTML=`<div class="plhd"><b>${hd}</b>${closeX}</div><p class="plwhy">${why}</p><div class="plcols${o.only?" one":""}">${o.only==="in"?cIn:o.only==="out"?cOut:n<0?cOut+cIn:cIn+cOut}</div><div class="pldl"><span>${L("Soo deji:","Download:","تنزيل:","Pakua:")}</span><button type="button" data-pldl="x">⬇ Excel</button><button type="button" data-pldl="w">⬇ Word</button>${NATIVE?"":`<button type="button" data-pldl="p">🖨 PDF</button>`}</div>`;
+  box.innerHTML=`<div class="plhd"><b>${hd}</b>${closeX}</div><p class="plwhy">${why}</p>${topOut}<div class="plcols${o.only?" one":""}">${o.only==="in"?cIn:o.only==="out"?cOut:cOut+cIn}</div><div class="pldl"><span>${L("Soo deji:","Download:","تنزيل:","Pakua:")}</span><button type="button" data-pldl="x">⬇ Excel</button><button type="button" data-pldl="w">⬇ Word</button>${NATIVE?"":`<button type="button" data-pldl="p">🖨 PDF</button>`}</div>`;
   box.querySelectorAll("[data-pldl]").forEach(b=>b.onclick=()=>{PLD=box._pld;plExport(b.dataset.pldl)});
   box.querySelectorAll("details[data-plcat]").forEach(d=>d.addEventListener("toggle",()=>{if(d.open)PLopen.add(d.dataset.plcat);else PLopen.delete(d.dataset.plcat)}));
   box.querySelector(".plx").onclick=close;box.hidden=false}
