@@ -464,6 +464,7 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .zcbox{border:1px solid var(--out);background:var(--out-soft);border-radius:14px;padding:10px 12px;display:grid;gap:8px}.zcbox .zt{margin:0;font-weight:700;color:var(--out)}
 .zr{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 10px;align-items:center;border-top:1px solid var(--line);padding-top:8px}.za{display:flex;gap:6px;flex-wrap:wrap}
 .zb{display:block;font-size:.74rem;color:var(--muted)}.zb.z0{color:var(--out);font-weight:700}
+#irTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}#irTabs button{justify-content:center;font-weight:700;padding:10px 8px}.irnew button{width:100%}
 .irlist{display:grid}.irow{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.irow:first-child{border-top:0}.irow.irlate{box-shadow:inset 3px 0 0 var(--out);padding-left:8px}
 .irh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.irr{display:grid;justify-items:end;gap:3px}.ira{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ira input{max-width:110px}
 .prtips{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.88rem}.prm{width:100%}
@@ -1241,6 +1242,8 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
   <section class="panel biz-only mgr-only" aria-labelledby="irH" data-tab="home" id="irPanel" hidden>
     <div class="panel-head"><h2 id="irH">🧾 Xusuusinta qaansheegga</h2></div>
     <div class="extremes cusum" id="irSum"></div>
+    <div class="chips invf" id="irTabs" role="group"></div>
+    <div id="irNew" class="irnew"></div>
     <span class="note ok" id="irMsg" role="status"></span>
     <div id="irList" class="irlist"></div>
   </section>
@@ -5142,19 +5145,38 @@ function irText(d){const s=invState(d),co=coName()||"HantiGo",no=invNoTxt(d),k=s
 function irPhone(d){return d.phone||(custOf(d.cust)||{}).phone||""}
 async function irStamp(d,how){const x=items.find(i=>i.id===d.id)||d;await put({...x,remAt:new Date().toISOString(),remN:(Number(x.remN)||0)+1,remBy:how})}
 function renderInvRem(){const P=$("irPanel");if(!P)return;const l=irList();
-  if(MODE!=="business"||!MGR()||!l.length){P.hidden=true;return}P.hidden=false;
+  const allInv=MODE==="business"&&MGR()?mine("inv"):[];
+  if(!allInv.length){P.hidden=true;return}P.hidden=false;
+  const paidL=allInv.map(d=>({d,s:invState(d)})).filter(x=>x.s.left<=0).sort((a,b)=>(b.d.date||"").localeCompare(a.d.date||"")||(b.d.created||"").localeCompare(a.d.created||""));
+  const tb=(k,t)=>`<button type="button" data-irtab="${k}" class="${irTab===k?"on":""}" aria-pressed="${irTab===k}">${t}</button>`;
+  $("irTabs").innerHTML=tb("open","⏳ "+L("Aan weli la bixin","Not paid yet","غير مدفوعة بعد","Bado hazijalipwa")+` (${l.length})`)+tb("paid","✓ "+L("La bixiyay","Paid","مدفوعة","Zimelipwa")+` (${paidL.length})`);
   const late=l.filter(x=>x.g===0),soon=l.filter(x=>x.g===1),sum=a=>a.reduce((s,x)=>s+x.s.left,0);
-  $("irH").textContent="🧾 "+L("Xusuusinta qaansheegga","Invoice reminders","تذكير الفواتير","Vikumbusho vya ankara");
   $("irSum").innerHTML=`<div class="ext ${late.length?"hi":""}"><span class="lbl">${L("Dib u dhacay","Overdue","متأخرة","Zimechelewa")}</span><b>${late.length} · ${money(sum(late))}</b></div><div class="ext"><span class="lbl">${L("Dhowaan la gaarayo","Due soon","تستحق قريبًا","Zinakaribia")}</span><b>${soon.length} · ${money(sum(soon))}</b></div><div class="ext"><span class="lbl">${L("Dhammaan aan la bixin","All unpaid","كل غير المدفوعة","Zote hazijalipwa")}</span><b>${l.length} · ${money(sum(l))}</b></div>`;
+  $("irH").textContent="🧾 "+L("Qaansheegyada","Invoices","الفواتير","Ankara");
+  $("irNew").innerHTML=irTab==="paid"?`<button type="button" class="primary" data-irnew="r">+ ${L("Ku dar mid la bixiyay (rasiid)","Add a paid one (receipt)","أضف مدفوعة (إيصال)","Ongeza iliyolipwa (risiti)")}</button>`
+    :`<button type="button" class="primary" data-irnew="q">+ ${L("Ku dar qaansheeg aan la bixin","Add an unpaid invoice","أضف فاتورة غير مدفوعة","Ongeza ankara isiyolipwa")}</button>`;
+  if(irTab==="paid"){const pv=irAll?paidL:paidL.slice(0,8);
+    $("irList").innerHTML=(pv.length?pv.map(({d,s})=>`<div class="irow"><div class="irh"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)}<br><small class="note">${fmtD(d.date)}${d.k==="q"&&s.paid?" · "+L("Qaansheeg la bixiyay","Invoice paid","فاتورة مدفوعة","Ankara imelipwa"):""}</small>${invItems(d)}</span><span class="irr"><b class="amt in">${money(d.total)}</b>${invPill(s)}</span></div>
+      <div class="ira"><button type="button" class="del" data-invp="${esc(d.id)}">⬇ PDF</button><button type="button" class="del" data-invw="${esc(d.id)}">📤 ${L("Dir mar kale","Send again","أرسل مرة أخرى","Tuma tena")}</button></div></div>`).join("")
+      :`<p class="empty" style="margin:0">${L("Weli qaansheeg la bixiyay ma jiro.","No paid invoices yet.","لا توجد فواتير مدفوعة بعد.","Bado hakuna ankara zilizolipwa.")}</p>`)+
+      (paidL.length>8?`<button type="button" class="del" data-irall="1">${irAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${paidL.length}) ▾`,`See all (${paidL.length}) ▾`,`عرض الكل (${paidL.length}) ▾`,`Ona zote (${paidL.length}) ▾`)}</button>`:"");
+    $("irMsg").textContent=irMsgT;return}
+  if(!l.length){$("irList").innerHTML=`<p class="empty" style="margin:0">✓ ${L("Qaansheeg kasta waa la bixiyay.","Every invoice is paid.","كل الفواتير مدفوعة.","Kila ankara imelipwa.")}</p>`;$("irMsg").textContent=irMsgT;return}
   const show=irAll?l:l.filter(x=>x.g<2).slice(0,6);const vis=show.length?show:l.slice(0,3);
   $("irList").innerHTML=vis.map(x=>{const d=x.d,id=esc(d.id),ph=irPhone(d);
-    return `<div class="irow ${x.g===0?"irlate":""}"><div class="irh"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)}<br><small class="note ${x.g===0?"late":""}">${esc(irDueTxt(x))}</small>${d.remAt?`<br><small class="note">🔔 ${L("Xusuusin la diray","Reminded","تم التذكير","Imekumbushwa")}: ${fmtD(d.remAt.slice(0,10))}${d.remN>1?` (${d.remN}×)`:""}</small>`:""}</span><span class="irr"><b class="amt q">${money(x.s.left)}</b>${invPill(x.s)}</span></div>
+    return `<div class="irow ${x.g===0?"irlate":""}"><div class="irh"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)}<br><small class="note ${x.g===0?"late":""}">${esc(irDueTxt(x))}</small>${d.remAt?`<br><small class="note">🔔 ${L("Xusuusin la diray","Reminded","تم التذكير","Imekumbushwa")}: ${fmtD(d.remAt.slice(0,10))}${d.remN>1?` (${d.remN}×)`:""}</small>`:""}${invItems(d)}</span><span class="irr"><b class="amt q">${money(x.s.left)}</b>${invPill(x.s)}</span></div>
       <div class="ira">${ph?`<button type="button" class="primary wa-bg" data-irwa="${id}">💬 ${L("Xusuusi WhatsApp","Remind on WhatsApp","تذكير واتساب","Kumbusha WhatsApp")}</button>`:""}${d.email?`<button type="button" data-irmail="${id}">✉️ ${L("Email + PDF","Email + PDF","بريد + PDF","Barua pepe + PDF")}</button>`:""}${!ph&&!d.email?`<button type="button" data-irwa="${id}">💬 WhatsApp</button>`:""}
         <input type="number" min="0" step="0.01" inputmode="decimal" id="irp-${id}" value="${x.s.left}" aria-label="${esc(L("Qadarka la helay","Amount received","المبلغ المستلم","Kiasi kilichopokelewa"))}"><button type="button" data-irpay="${id}">💵 ${L("La helay","Received","تم الاستلام","Imepokelewa")}</button></div></div>`}).join("")+
     (l.length>vis.length||irAll?`<button type="button" class="del" data-irall="1">${irAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${l.length}) ▾`,`See all (${l.length}) ▾`,`عرض الكل (${l.length}) ▾`,`Ona zote (${l.length}) ▾`)}</button>`:"");
   $("irMsg").textContent=irMsgT}
-let irMsgT="";
+let irMsgT="",irTab="open";
+/* the services / goods on an invoice, short: "Sonkor 50kg ×3 · Saliid ×10" */
+function invItems(d){const ls=(d.lines||[]).filter(l=>l&&l.n);if(!ls.length)return "";const t=ls.slice(0,3).map(l=>l.n+(Number(l.q)!==1?" ×"+l.q:"")).join(" · ")+(ls.length>3?` +${ls.length-3}`:"");
+  return `<br><small class="note iritems">🛒 ${esc(t)}</small>`}
 document.addEventListener("click",async e=>{
+  const nw=e.target.closest("[data-irnew]");if(nw){const k=nw.dataset.irnew==="r"?"r":"q";goTab("add");invReset();const r=document.querySelector(`input[name=invk][value=${k}]`);if(r)r.checked=true;invKindUI();
+    setTimeout(()=>{$("invPanel").scrollIntoView({behavior:"smooth",block:"start"});$("invCust").focus({preventScroll:true})},80);return}
+  const it=e.target.closest("[data-irtab]");if(it){irTab=it.dataset.irtab;irAll=false;renderInvRem();return}
   if(e.target.closest("[data-irall]")){irAll=!irAll;renderInvRem();return}
   const w=e.target.closest("[data-irwa]");if(w){const d=items.find(i=>i.id===w.dataset.irwa);if(!d)return;
     window.open("https://wa.me/"+(waPhone(irPhone(d))||"")+"?text="+encodeURIComponent(irText(d)),"_blank","noopener");irMsgT="";try{await irStamp(d,"wa")}catch{}return}
