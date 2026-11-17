@@ -1252,6 +1252,7 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
       <div class="row">
         <label class="field"><span id="rcNameL">Magaca macmiilka</span><input id="rcName" type="text" maxlength="50" autocomplete="off" placeholder="Tusaale: Cali Xasan"></label>
         <label class="field"><span id="rcPhoneL">Taleefanka</span><input id="rcPhone" type="tel" maxlength="20" placeholder="61 5123456"></label>
+        <label class="field"><span id="rcTypeL">Macmiilku waa</span><select id="rcType"><option value="p">👤 Shakhsi</option><option value="b">🏢 Shirkad</option></select></label>
         <label class="field"><span id="rcEmailL">Email-ka</span><input id="rcEmail" type="email" maxlength="80" placeholder="macmiil@gmail.com"></label>
       </div><div class="err" id="rcErr" role="alert"></div><button type="submit" class="primary" id="rcSave">✓ Diiwaangeli macmiilka</button></div></form>
     <form id="reForm" class="regform" novalidate><div id="regEmp" style="display:grid;gap:10px" hidden>
@@ -1384,6 +1385,7 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
         </div>
         <div class="row">
           <label class="field"><span>Magaca macmiilka</span><input id="invCust" type="text" maxlength="50" placeholder="Tusaale: Cali Xasan" list="invCustDl" autocomplete="off"><datalist id="invCustDl"></datalist></label>
+          <label class="field"><span id="invCtypeL">Macmiilku waa</span><select id="invCtype"><option value="">—</option><option value="p">👤 Shakhsi</option><option value="b">🏢 Shirkad</option></select></label>
           <label class="field"><span>Taleefanka macmiilka (WhatsApp)</span><input id="invPhone" type="tel" maxlength="20" placeholder="Tusaale: 61 5123456"></label>
           <label class="field"><span>Email-ka macmiilka</span><input id="invEmail" type="email" maxlength="80" placeholder="macmiil@gmail.com"></label>
         </div>
@@ -4749,7 +4751,7 @@ function renderInvLines(){if(!invLines.length)invLines=[{n:"",q:1,p:""}];
   $("invLines").insertAdjacentHTML("beforeend",invTopics().map(t=>`<datalist id="invdl-${esc(t.id)}">${t.items.map(n=>`<option value="${esc(n)}"></option>`).join("")}</datalist>`).join("")+`<p class="note invhint">💡 ${esc(L("Shay cusub oo aad qorto wuxuu si toos ah ugu darmayaa liiska mowduuca.","A new item you type is added to the topic's list automatically.","أي بند جديد تكتبه يُضاف تلقائيًا إلى قائمة الموضوع.","Bidhaa mpya unayoandika inaongezwa kwenye orodha ya mada moja kwa moja."))}</p>`);
   $("invTot").textContent=money(invTotal());if(typeof invFixUI==="function")invFixUI()}
 function invKind(){return document.querySelector("input[name=invk]:checked")?.value||"r"}
-function invKindUI(){const r=invKind()==="r";$("invRecLbl").textContent=r?L("Ku dar dakhliga (Soo galay)","Add to income"):L("Ku dar Deymaha (lacag naloo hayo)","Add to Debts (money owed to us)");
+function invKindUI(){const r=invKind()==="r";if(!r&&!$("invDue").value){const b=new Date(($("invDate").value||today())+"T12:00:00");b.setDate(b.getDate()+INV_DUE_DAYS);$("invDue").value=b.toISOString().slice(0,10)}$("invRecLbl").textContent=r?L("Ku dar dakhliga (Soo galay)","Add to income"):L("Ku dar Deymaha (lacag naloo hayo)","Add to Debts (money owed to us)");
   $("invDueRow").hidden=r;if(invTx){$("invRecRow").hidden=true}else $("invRecRow").hidden=false}
 $("invLines").addEventListener("input",e=>{const i=e.target.dataset.il;if(i==null)return;invLines[i][e.target.dataset.f]=e.target.value;$("invTot").textContent=money(invTotal());invFixUI()});
 /* a topic was chosen: its goods / services are offered in the name box */
@@ -4763,9 +4765,9 @@ $("invLines").addEventListener("click",e=>{const b=e.target.closest("[data-ildel
 $("invAdd").addEventListener("click",()=>{invLines.push({n:"",q:1,p:"",t:invLines.length?invLines[invLines.length-1].t??"":""});renderInvLines();document.querySelector(`[data-il="${invLines.length-1}"][data-f="n"]`)?.focus()});
 document.querySelectorAll("input[name=invk]").forEach(r=>r.addEventListener("change",()=>{invKindUI();invLines.forEach(l=>{l.t=""});renderInvLines()}));
 function invLoad(d){invReset();invLines=d.lines.map(l=>({...l}));document.querySelector(`input[name=invk][value=${d.k}]`).checked=true;$("invCust").value=d.cust;$("invPhone").value=d.phone||"";$("invEmail").value=d.email||"";$("invDate").value=d.date;$("invDue").value=d.due||"";$("invNote").value=d.note||"";renderInvLines();invKindUI();$("invRecRow").hidden=true;
-  $("invFix").value=d.adj?d.total:"";$("invFixRow").hidden=!d.adj;invFixUI();
-  invCur={sig:JSON.stringify([d.k,d.cust,d.phone||"",d.email||"",d.date,d.lines,d.note||"",d.due||"",d.adj||0]),doc:d}}
-function invReset(){invCur=null;invLines=[];invTx=null;$("invFix").value="";$("invFixRow").hidden=true;$("invCust").value="";$("invPhone").value="";$("invEmail").value="";$("invNote").value="";$("invDate").value=today();$("invDue").value="";$("invRec").checked=true;$("invErr").textContent="";$("invMsg").textContent="";renderInvLines();invKindUI()}
+  $("invCtype").value=d.ctype||"";$("invFix").value=d.adj?d.total:"";$("invFixRow").hidden=!d.adj;invFixUI();
+  invCur={sig:JSON.stringify([d.k,d.cust,d.phone||"",d.email||"",d.date,d.lines,d.note||"",d.due||"",d.adj||0,d.ctype||""]),doc:d}}
+function invReset(){invCur=null;invLines=[];invTx=null;$("invCtype").value="";$("invFix").value="";$("invFixRow").hidden=true;$("invCust").value="";$("invPhone").value="";$("invEmail").value="";$("invNote").value="";$("invDate").value=today();$("invDue").value="";$("invRec").checked=true;$("invErr").textContent="";$("invMsg").textContent="";renderInvLines();invKindUI()}
 $("invNew").addEventListener("click",invReset);
 {const _ir=invReset;invReset=function(){_ir();try{invNoUI()}catch{}};const _il=invLoad;invLoad=function(d){_il(d);try{invNoUI()}catch{}}}
 function invNextNo(k){const s=settings();const mx=Math.max(0,...mine("inv").filter(x=>x.k===k).map(x=>Number(x.no)||0));const n=Math.max(mx,TEAM?0:Number((s.invNo||{})[k]||0))+1;return [n,{...s,invNo:{...(s.invNo||{}),[k]:n}}]}
@@ -4777,12 +4779,12 @@ async function invSave(){const lines=invLines.map(l=>({n:String(l.n||"").trim(),
   if(!cust){$("invErr").textContent=L("Geli magaca macmiilka.","Enter the customer's name.");$("invCust").focus();return null}
   if(!lines.length){$("invErr").textContent=L("Geli ugu yaraan hal shay oo leh qiimo.","Enter at least one item with a price.");return null}
   $("invErr").textContent="";const k=invKind(),sum=lines.reduce((a,l)=>a+l.q*l.p,0),adj=invAdj(sum),total=Math.round((sum+adj)*100)/100,date=$("invDate").value||today();
-  const sig=JSON.stringify([k,cust,$("invPhone").value,$("invEmail").value,date,lines,$("invNote").value,$("invDue").value,adj]);
+  const sig=JSON.stringify([k,cust,$("invPhone").value,$("invEmail").value,date,lines,$("invNote").value,$("invDue").value,adj,$("invCtype").value]);
   if(invCur&&invCur.sig===sig)return invCur.doc;
   try{let doc;
     if(invCur&&invCur.doc&&invCur.doc.k===k){doc={...(items.find(i=>i.id===invCur.doc.id)||invCur.doc)}}
     else{const [no,s2]=invNextNo(k);await put(s2);doc={id:uid(),kind:"inv",k,no,created:new Date().toISOString()}}
-    Object.assign(doc,{cust,phone:$("invPhone").value.trim(),email:$("invEmail").value.trim(),date,due:k==="q"?($("invDue").value||null):null,lines,total,adj:adj||0,note:$("invNote").value.trim()});
+    Object.assign(doc,{cust,phone:$("invPhone").value.trim(),email:$("invEmail").value.trim(),date,due:k==="q"?($("invDue").value||null):null,lines,total,adj:adj||0,ctype:$("invCtype").value||"",note:$("invNote").value.trim()});
     if(doc.sentAt&&invCur&&invCur.doc&&invCur.doc.id===doc.id){const old=items.find(i=>i.id===doc.id)||invCur.doc,at=new Date().toISOString();doc.fixedAt=at;
       const ch=[];if(old.cust!==doc.cust)ch.push(L("macmiilka","customer","العميل","mteja"));if(JSON.stringify(old.lines)!==JSON.stringify(doc.lines))ch.push(L("shayada","items","البنود","bidhaa"));if(Number(old.total)!==total)ch.push(L("wadarta","total","المجموع","jumla"));if((old.note||"")!==doc.note)ch.push(L("faahfaahinta","note","الملاحظة","maelezo"));
       doc.fixes=[...(old.fixes||[]),{at,from:Number(old.total)||0,to:total,what:ch.join(", "),by:(typeof realMail==="function"&&realMail())||""}].slice(-20)}
@@ -4799,19 +4801,25 @@ async function invSave(){const lines=invLines.map(l=>({n:String(l.n||"").trim(),
   catch{$("invErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.");return null}}
 function invHtml(d){const k=d.k,co=coName()||"HantiGo",lg=coLogo();
   return `<div class="inv"><div class="rhead">${lg?`<img src="${lg}" alt="" width="56" height="56" style="max-height:56px">`:""}<div><h1 style="margin:0">${esc(co)}</h1><small style="color:#666">${esc(invLabel(k))} · ${esc(invNoTxt(d))}</small></div></div>
-  <table><tr><th>${L("Macmiilka","Customer")}</th><td>${esc(d.cust)}${d.phone?" · "+esc(d.phone):""}</td></tr><tr><th>${L("Taariikhda","Date")}</th><td>${fmtD(d.date)}</td></tr>${k==="q"&&d.due?`<tr><th>${L("Ugu dambayn bixinta","Due date")}</th><td>${fmtD(d.due)}</td></tr>`:""}</table>
+  <table><tr><th>${L("Macmiilka","Customer")}</th><td>${esc(d.cust)}${invCtypeTxt(d)?" ("+esc(invCtypeTxt(d))+")":""}${d.phone?" · "+esc(d.phone):""}${d.email?" · "+esc(d.email):""}</td></tr><tr><th>${esc(invDateLbl())}</th><td>${fmtD(d.date)}</td></tr><tr><th>${esc(invSentLbl())}</th><td>${fmtD(today())}</td></tr>${k==="q"&&d.due?`<tr><th>${L("Ugu dambayn bixinta","Due date")}</th><td>${fmtD(d.due)}</td></tr>`:""}</table>
   <table><tr><th>${L("Shayga / adeegga","Item / service")}</th><th>${L("Tirada","Qty")}</th><th>${L("Qiimaha","Price")}</th><th>${L("Wadarta","Total")}</th></tr>
   ${d.lines.map(l=>`<tr><td>${esc(l.n)}</td><td class="n">${l.q}</td><td class="n">${money(l.p)}</td><td class="n">${money(l.q*l.p)}</td></tr>`).join("")}
   ${d.adj?`<tr><td colspan="3">${esc(invAdjLbl(d))}</td><td class="n">${money(d.adj)}</td></tr>`:""}
   <tr><td colspan="3"><b>${L("Wadarta guud","Grand total")}</b></td><td class="n"><b>${money(d.total)}</b></td></tr></table>
-  <p><b>${invFoot(d)}</b></p>
   ${d.note?`<p>${esc(d.note)}</p>`:""}
+  <p><b>${invFoot(d)}</b></p>
   <p style="color:#666;font-size:11px">${L("Waxaa lagu sameeyay","Made with")} HantiGo · ${dlStamp()}</p></div>`}
 function waPhone(p){let n=String(p||"").replace(/[^\d+]/g,"");if(n.startsWith("+"))return n.slice(1);if(n.startsWith("00"))return n.slice(2);
   if(/^0?6\d{8}$/.test(n)||/^0?7\d{8}$/.test(n))return "252"+n.replace(/^0/,"");return n}
-function invText(d){const k=d.k;return `*${coName()||"HantiGo"}*\n${invLabel(k)} ${invNoTxt(d)} · ${fmtD(d.date)}${d.fixedAt?" · "+invFixedLbl():""}\n${L("Macmiil","Customer")}: ${d.cust}\n\n`+
-  d.lines.map(l=>`• ${l.n}${l.q!==1?" ×"+l.q:""} = ${money(l.q*l.p)}`).join("\n")+(d.adj?`\n${invAdjLbl(d)}: ${money(d.adj)}`:"")+`\n\n*${L("Wadarta","Total")}: ${money(d.total)}*\n`+
-  invFoot(d)+(d.note?"\n"+d.note:"")}
+/* v156: what the customer reads — order date, send date, who (company or person) with phone + email, every item with qty × price, total, and the pay-by date LAST */
+const INV_DUE_DAYS=7;
+const invCtypeTxt=d=>d.ctype==="b"?"🏢 "+L("Shirkad","Company","شركة","Kampuni"):d.ctype==="p"?"👤 "+L("Shakhsi","Person","فرد","Mtu binafsi"):"";
+const invDateLbl=()=>L("Taariikhda dalabka","Order date","تاريخ الطلب","Tarehe ya oda");
+const invSentLbl=()=>L("La diray","Sent on","تاريخ الإرسال","Imetumwa");
+function invText(d){const k=d.k,ct=invCtypeTxt(d);return `*${coName()||"HantiGo"}*\n${invLabel(k)} ${invNoTxt(d)}${d.fixedAt?" · "+invFixedLbl():""}\n${invDateLbl()}: ${fmtD(d.date)}\n${invSentLbl()}: ${fmtD(today())}\n\n`+
+  `${L("Macmiilka","Customer","العميل","Mteja")}: ${d.cust}${ct?" ("+ct+")":""}`+(d.phone?`\n${L("Taleefan","Phone","الهاتف","Simu")}: ${d.phone}`:"")+(d.email?`\n${L("Email","Email","البريد","Barua pepe")}: ${d.email}`:"")+`\n\n`+
+  d.lines.map(l=>`• ${l.n} — ${l.q} × ${money(l.p)} = ${money(l.q*l.p)}`).join("\n")+(d.adj?`\n${invAdjLbl(d)}: ${money(d.adj)}`:"")+`\n\n*${L("Wadarta guud","Grand total","المجموع الكلي","Jumla kuu")}: ${money(d.total)}*`+
+  (d.note?"\n\n"+d.note:"")+`\n\n*${invFoot(d)}*`}
 function invWa(d){const ph=waPhone(d.phone);window.open("https://wa.me/"+(ph||"")+"?text="+encodeURIComponent(invText(d)),"_blank","noopener")}
 let pdfLib=null;
 function loadPdf(){return pdfLib||(pdfLib=new Promise((res,rej)=>{if(window.jspdf)return res(window.jspdf.jsPDF);const sc=document.createElement("script");sc.src="vendor/jspdf.umd.min.js";
@@ -4830,12 +4838,12 @@ async function invPdf(d){const J=await loadPdf();const doc=new J({unit:"mm",form
   if(lg){try{const f=/^data:image\/png/.test(lg)?"PNG":"JPEG";doc.addImage(lg,f,M,y-6,22,22);tx=M+27}catch{}}
   doc.setFont("helvetica","bold");doc.setFontSize(18);doc.setTextColor(11,122,75);doc.text(coName()||"HantiGo",tx,y+2);
   doc.setFontSize(13);doc.setTextColor(40);doc.text(`${invLabel(d.k).toUpperCase()}  ${invNoTxt(d)}`,W-M,y+2,{align:"right"});
-  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);doc.text(`${L("Taariikhda","Date")}: ${fmtD(d.date)}`,W-M,y+8,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);doc.text(`${invDateLbl()}: ${fmtD(d.date)}`,W-M,y+8,{align:"right"});doc.text(`${invSentLbl()}: ${fmtD(today())}`,W-M,y+13,{align:"right"});
   if(d.fixedAt){doc.setTextColor(179,64,42);doc.text(invFixedLbl().toUpperCase(),W-M,y-5,{align:"right"});doc.setTextColor(90)}
-  if(d.k==="q"&&d.due)doc.text(`${L("Ugu dambayn bixinta","Due date")}: ${fmtD(d.due)}`,W-M,y+13,{align:"right"});
+  if(d.k==="q"&&d.due)doc.text(`${L("Ugu dambayn bixinta","Due date")}: ${fmtD(d.due)}`,W-M,y+18,{align:"right"});
   y+=24;doc.setDrawColor(200);doc.line(M,y,W-M,y);y+=8;
-  doc.setTextColor(90);doc.text(L("Macmiilka","Customer"),M,y);doc.setTextColor(20);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(d.cust,M,y+6);
-  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);const ct=[d.phone,d.email].filter(Boolean).join("  ·  ");if(ct)doc.text(ct,M,y+11);
+  doc.setTextColor(90);doc.text(L("Macmiilka","Customer"),M,y);doc.setTextColor(20);doc.setFont("helvetica","bold");doc.setFontSize(12);doc.text(d.cust+(d.ctype?"  ("+(d.ctype==="b"?L("Shirkad","Company","شركة","Kampuni"):L("Shakhsi","Person","فرد","Mtu binafsi"))+")":""),M,y+6);
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(90);const ct=[d.phone&&L("Tel","Tel","هاتف","Simu")+": "+d.phone,d.email&&L("Email","Email","بريد","Barua pepe")+": "+d.email].filter(Boolean).join("   ·   ");if(ct)doc.text(ct,M,y+11);
   y+=20;const cx=[M,118,142,W-M];
   doc.setFillColor(11,122,75);doc.rect(M,y-5,W-2*M,8,"F");doc.setTextColor(255);doc.setFont("helvetica","bold");
   doc.text(L("Shayga / adeegga","Item / service"),cx[0]+2,y);doc.text(L("Tirada","Qty"),cx[1]+14,y,{align:"right"});doc.text(L("Qiimaha","Price"),cx[2]+22,y,{align:"right"});doc.text(L("Wadarta","Total"),cx[3]-2,y,{align:"right"});
@@ -4845,9 +4853,9 @@ async function invPdf(d){const J=await loadPdf();const doc=new J({unit:"mm",form
   if(d.adj){doc.text(invAdjLbl(d),cx[0]+2,y);doc.text(pm(d.adj),cx[3]-2,y,{align:"right"});y+=8}
   doc.setDrawColor(11,122,75);doc.line(M,y-3,W-M,y-3);y+=4;doc.setFont("helvetica","bold");doc.setFontSize(13);
   doc.text(L("Wadarta guud","Grand total"),cx[2]-20,y);doc.text(pm(d.total),cx[3]-2,y,{align:"right"});y+=12;
-  doc.setFontSize(11);const paidAll=d.k==="r"||invState(d).left<=0;if(paidAll)doc.setTextColor(11,122,75);else doc.setTextColor(179,64,42);
-  doc.text(doc.splitTextToSize(invFoot(d).replace(/^✓ /,""),W-2*M),M,y);
-  doc.setFont("helvetica","normal");doc.setTextColor(60);doc.setFontSize(10);if(d.note){y+=8;doc.text(doc.splitTextToSize(d.note,W-2*M),M,y)}
+  if(d.note){doc.setFont("helvetica","normal");doc.setTextColor(60);doc.setFontSize(10);const nl=doc.splitTextToSize(d.note,W-2*M);doc.text(nl,M,y);y+=5*nl.length+5;doc.setFont("helvetica","bold")}
+  doc.setFontSize(12);const paidAll=d.k==="r"||invState(d).left<=0;if(paidAll)doc.setTextColor(11,122,75);else doc.setTextColor(179,64,42);
+  doc.text(doc.splitTextToSize(invFoot(d).replace(/^✓ /,""),W-2*M),M,y);doc.setFont("helvetica","normal");
   doc.setTextColor(140);doc.setFontSize(8);doc.text(`${L("Waxaa lagu sameeyay","Made with")} HantiGo · hantigoapp.github.io`,W/2,287,{align:"center"});
   const name=`${coName()?coName().replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"-")+"-":""}${invNoTxt(d)}.pdf`;
   const blob=doc.output("blob");return {blob,name,file:new File([blob],name,{type:"application/pdf"})}}
@@ -4953,7 +4961,7 @@ function customers(){const m=new Map();if(MODE!=="business")return [];
     c.bought+=a;c.owed+=l;c.paid+=a-l;if(l>0&&d.due&&d.due<today())c.late+=l;c.debts.push(d);seen(c,dt);
     c.acts.push({date:dt,txt:L("Deyn","On credit","بالدين","Kwa mkopo")+(d.note?" · "+d.note:""),amt:a,k:"debt"});
     for(const t of items.filter(i=>i.kind==="tx"&&i.debtId===d.id)){seen(c,t.date);c.acts.push({date:t.date,txt:L("Lacag la helay","Payment received","دفعة مستلمة","Malipo yamepokelewa")+(d.note?" · "+d.note:""),amt:Number(t.amount)||0,k:"pay"})}}
-  for(const r of mine("cust")){const c=g(r.name);if(!c)continue;c.reg=r.id;if(r.phone)c.phone=r.phone;if(r.email)c.email=r.email;if(!c.last)c.last=(r.created||"").slice(0,10)}
+  for(const r of mine("cust")){const c=g(r.name);if(!c)continue;c.reg=r.id;if(r.phone)c.phone=r.phone;if(r.email)c.email=r.email;if(r.ctype)c.ctype=r.ctype;if(!c.last)c.last=(r.created||"").slice(0,10)}
   for(const v of mine("inv").sort((a,b)=>(b.created||"").localeCompare(a.created||""))){const c=g(v.cust);if(!c)continue;c.inv++;if(!c.phone&&v.phone)c.phone=v.phone;if(!c.email&&v.email)c.email=v.email;seen(c,v.date)}
   m.forEach(c=>c.acts.sort((a,b)=>(b.date||"").localeCompare(a.date||"")));
   return [...m.values()].sort((a,b)=>(b.late>0)-(a.late>0)||b.owed-a.owed||(b.last||"").localeCompare(a.last||""))}
@@ -5355,7 +5363,7 @@ $("rcForm").addEventListener("submit",async e=>{e.preventDefault();const name=$(
   if(!name){$("rcErr").textContent=L("Geli magaca macmiilka.","Enter the customer's name.","أدخل اسم العميل.","Weka jina la mteja.");$("rcName").focus();return}
   if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){$("rcErr").textContent=L("Email-ku sax maaha.","The email is not valid.","البريد الإلكتروني غير صحيح.","Barua pepe si sahihi.");$("rcEmail").focus();return}
   {const ex=mine("cust").find(c=>ckey(c.name)===ckey(name));if(ex){const name=ex.name;$("rcErr").textContent=L(`${name} horay ayuu u diiwaangashanaa.`,`${name} is already registered.`,`${name} مسجّل مسبقًا.`,`${name} tayari amesajiliwa.`);return}}
-  try{const id=uid();await put({id,kind:"cust",name,phone,email,created:new Date().toISOString()});["rcName","rcPhone","rcEmail"].forEach(i=>$(i).value="");
+  try{const id=uid();await put({id,kind:"cust",name,phone,email,ctype:$("rcType").value==="b"?"b":"p",created:new Date().toISOString()});["rcName","rcPhone","rcEmail"].forEach(i=>$(i).value="");
     regMsgT="✓ "+esc(L(`${name} waa la diiwaangeliyay.`,`${name} registered.`,`تم تسجيل ${name}.`,`${name} amesajiliwa.`))+` <button type="button" class="del" data-regnew="${esc(id)}">🧾 ${L("U samee rasiid / qaansheeg","Make a receipt / invoice","أنشئ إيصالًا / فاتورة","Tengeneza risiti / ankara")}</button>`;renderReg()}
   catch{$("rcErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Haiwezi kuhifadhi sasa. Jaribu tena.")}});
 /* employee: filled into the payroll form so the same checks and staff-account link apply */
@@ -5367,12 +5375,12 @@ $("reForm").addEventListener("submit",async e=>{e.preventDefault();$("reErr").te
 document.addEventListener("click",e=>{
   const t=e.target.closest("[data-regtab]");if(t){regTab=t.dataset.regtab;regMsgT="";renderReg();return}
   const s=e.target.closest("[data-regsee]");if(s){e.preventDefault();if(s.dataset.regsee==="cu"){goTab("add");setTimeout(()=>$("cuPanel").scrollIntoView({behavior:"smooth",block:"start"}),80)}else{goTab("plan");setTimeout(()=>$("pyPanel").scrollIntoView({behavior:"smooth",block:"start"}),80)}return}
-  const nw=e.target.closest("[data-regnew]");if(nw){const c=items.find(i=>i.id===nw.dataset.regnew);if(!c)return;goTab("add");invReset();$("invCust").value=c.name;$("invPhone").value=c.phone||"";$("invEmail").value=c.email||"";
+  const nw=e.target.closest("[data-regnew]");if(nw){const c=items.find(i=>i.id===nw.dataset.regnew);if(!c)return;goTab("add");invReset();$("invCust").value=c.name;$("invPhone").value=c.phone||"";$("invEmail").value=c.email||"";$("invCtype").value=c.ctype||"";
     setTimeout(()=>{$("invPanel").scrollIntoView({behavior:"smooth",block:"start"});document.querySelector('[data-il="0"][data-f="t"]')?.focus({preventScroll:true})},80);return}
 });
 /* invoice form: registered and earlier customers can be picked by name, their phone and email fill in */
 function fillCustDl(){const dl=$("invCustDl");if(!dl)return;const l=customers().map(c=>c.name);const k=l.join("|");if(dl.dataset.k===k)return;dl.dataset.k=k;dl.innerHTML=l.map(n=>`<option value="${esc(n)}"></option>`).join("")}
-$("invCust").addEventListener("change",()=>{const c=custOf($("invCust").value);if(!c)return;if(!$("invPhone").value&&c.phone)$("invPhone").value=c.phone;if(!$("invEmail").value&&c.email)$("invEmail").value=c.email});
+$("invCust").addEventListener("change",()=>{const c=custOf($("invCust").value);if(!c)return;if(!$("invCtype").value&&c.ctype)$("invCtype").value=c.ctype;if(!$("invPhone").value&&c.phone)$("invPhone").value=c.phone;if(!$("invEmail").value&&c.email)$("invEmail").value=c.email});
 /* invoice form: pick a registered customer or one who ordered before; name, phone and email fill in so the PDF goes to them */
 function fillCustPick(){const s=$("invPick");if(!s)return;
   $("invPickL").textContent=L("👤 Dooro macmiil","👤 Choose customer","👤 اختر العميل","👤 Chagua mteja");
@@ -5392,7 +5400,7 @@ function pickInfo(){const s=$("invPick"),i=$("invPickInfo");if(!s||!i)return;con
 $("invPick").addEventListener("change",()=>{const s=$("invPick");
   if(s.value==="__new"){$("invCust").value="";$("invPhone").value="";$("invEmail").value="";s.value="";pickInfo();$("invCust").focus();return}
   const c=customers().find(x=>x.k===s.value);if(!c){pickInfo();return}
-  $("invCust").value=c.name;$("invPhone").value=c.phone||"";$("invEmail").value=c.email||"";pickInfo()});
+  $("invCust").value=c.name;$("invPhone").value=c.phone||"";$("invEmail").value=c.email||"";$("invCtype").value=c.ctype||"";pickInfo()});
 $("invCust").addEventListener("input",syncPick);
 /* other buttons (customer list, register, edit invoice) fill the name in code: keep the picker in step */
 document.addEventListener("click",()=>setTimeout(()=>{try{syncPick()}catch{}},120));
@@ -5439,7 +5447,8 @@ async function invLearn(k,lines){const by=new Map();
    R-0001, R-0002… and Q-0001, Q-0002… each count on their own. The next number is shown before saving.
    Doubles (two phones saving at once offline) are found and can be fixed; missing numbers are named.
    Income from a customer who has an unpaid invoice is found and can be linked to it (the invoice then shows paid). */
-function invNoUI(){const b=$("invNoLbl");if(!b)return;const k=invKind(),cur=invCur&&invCur.doc&&invCur.doc.k===k?invCur.doc:null;
+function invNoUI(){const b=$("invNoLbl");if(!b)return;$("invCtypeL").textContent=L("Macmiilku waa","Customer is","العميل","Mteja ni");const o=$("invCtype").options;o[1].textContent="👤 "+L("Shakhsi","Person","فرد","Mtu binafsi");o[2].textContent="🏢 "+L("Shirkad","Company","شركة","Kampuni");
+  const rt=$("rcType");if(rt){$("rcTypeL").textContent=L("Macmiilku waa","Customer is","العميل","Mteja ni");rt.options[0].textContent=o[1].textContent;rt.options[1].textContent=o[2].textContent}const k=invKind(),cur=invCur&&invCur.doc&&invCur.doc.k===k?invCur.doc:null;
   const no=cur?invNoTxt(cur):invNoTxt({k,no:invNextNo(k)[0]});
   b.innerHTML=`🔢 ${esc(L("Lambarka","Number","الرقم","Namba"))}: <b>${esc(no)}</b>${cur?"":` <span class="note">(${esc(L("kan xiga","next","التالي","inayofuata"))})</span>`}`}
 function invNumCheck(){const out=[];
