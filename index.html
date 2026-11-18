@@ -2964,7 +2964,7 @@ function render(){
       <span class="dot ${t.type}" aria-hidden="true">${t.type==="in"?"+":"−"}</span>
       <div style="min-width:0"><div class="name">${esc(t.cat)}<span class="pm">${esc(t.method||"Kaash")}</span></div>${(()=>{const m=[t.place,t.note].filter(Boolean).map(esc);if(t.by&&(TEAM||hasStaff))m.push("👤 "+esc(t.by.split("@")[0]));return m.length?`<div class="meta">${m.join(" · ")}</div>`:""})()}</div>
       <span class="amt ${t.type}">${t.type==="in"?"+":"−"}${money(t.amount)}</span>
-      <span class="txa">${MODE==="business"&&t.type==="in"&&MGR()&&!t.debtId?`<button class="del" data-rcpt="${esc(t.id)}">🧾 Rasiid</button>`:""}${t.billId||t.debtId||t.cat==="Kayd"?"":`<button class="del" data-edit="${esc(t.id)}">✏️ Beddel</button>`}<button class="del" data-del="${esc(t.id)}" aria-label="Tirtir">Tirtir</button></span></li>`;
+      <span class="txa">${MODE==="business"&&t.type==="in"&&MGR()&&!t.debtId?((rv=>rv?`<button class="del" data-glopen="${esc(rv.id)}">🧾 ${esc(invNoTxt(rv))}</button>`:`<button class="del" data-rcpt="${esc(t.id)}">🧾 Rasiid</button>`)(items.find(i=>i.kind==="inv"&&i.txId===t.id))):""}${t.billId||t.debtId||t.cat==="Kayd"?"":`<button class="del" data-edit="${esc(t.id)}">✏️ Beddel</button>`}<button class="del" data-del="${esc(t.id)}" aria-label="Tirtir">Tirtir</button></span></li>`;
     list.innerHTML=dayGroups(month).map(g=>`<li class="dayh">${dayHead(g)}</li>`+g.txs.map(row).join("")).join("");
   }
 
@@ -3491,7 +3491,8 @@ document.addEventListener("click",async e=>{
     if(t){try{await put({...d,paid:Math.max(0,Number(d.paid||0)-Number(t.amount))});await remove(t.id)}catch{}}return}
   const del=e.target.closest("[data-del]");
   if(del){if(!del.classList.contains("arm")){del.classList.add("arm");del.textContent="Hubi?";setTimeout(()=>{del.classList.remove("arm");del.textContent="Tirtir"},3000);return}
-    const dv=items.find(i=>i.id===del.dataset.del),iv=dv&&dv.kind==="debt"&&items.find(i=>i.kind==="inv"&&i.debtId===dv.id);
+    const dv=items.find(i=>i.id===del.dataset.del),iv=dv&&dv.kind==="debt"&&items.find(i=>i.kind==="inv"&&i.debtId===dv.id),rv=dv&&dv.kind==="tx"&&items.find(i=>i.kind==="inv"&&i.txId===dv.id);
+    if(rv){del.classList.remove("arm");del.textContent=L(`Ku xiran ${invNoTxt(rv)}: ka tirtir Rasiidka`,`Belongs to ${invNoTxt(rv)}: delete it from Receipts`,`مرتبط بـ ${invNoTxt(rv)}: احذفه من الإيصالات`,`Ni ya ${invNoTxt(rv)}: futa kwenye Risiti`);return}   // v161: never leave a receipt that says paid with no money behind it
     if(iv){del.classList.remove("arm");del.textContent=L(`Ku xiran ${invNoTxt(iv)}: ka tirtir Qaansheegga`,`Belongs to ${invNoTxt(iv)}: delete it from Invoices`,`مرتبط بـ ${invNoTxt(iv)}: احذفه من الفواتير`,`Ni ya ${invNoTxt(iv)}: futa kwenye Ankara`);return}   // v160: never leave an invoice without its debt
     try{await unlinkTx(dv);await remove(del.dataset.del)}catch{}return}
   const chip=e.target.closest("[data-chip]");
@@ -4791,6 +4792,8 @@ const invLabel=k=>k==="r"?L("Rasiid","Receipt"):L("Qaansheeg","Invoice");
 const invNoTxt=d=>(d.k==="r"?"R-":"Q-")+String(d.no).padStart(4,"0");
 let invCur=null;
 async function invSave(){const lines=invLines.map(l=>({n:String(l.n||"").trim(),q:Number(l.q)||0,p:Number(l.p)||0,...(invTopic(l.t)?{t:String(l.t)}:{})})).filter(l=>l.n&&l.q>0&&l.p>0);
+  if(invTx){const rv=items.find(i=>i.kind==="inv"&&i.txId===invTx&&i.id!==invCur?.doc?.id);   // v161: one income = one receipt, never two papers for the same money
+    if(rv){invLoad(rv);$("invErr").textContent=L(`Lacagtan waxay horay u leedahay ${invNoTxt(rv)}. Waa kan, halkan ka fur.`,`This money already has ${invNoTxt(rv)}. It is opened here.`,`هذا المبلغ له ${invNoTxt(rv)} من قبل. تم فتحه هنا.`,`Pesa hii tayari ina ${invNoTxt(rv)}. Imefunguliwa hapa.`);return null}}
   const cust=$("invCust").value.trim();
   if(!cust){$("invErr").textContent=L("Geli magaca macmiilka.","Enter the customer's name.");$("invCust").focus();return null}
   if(!lines.length){$("invErr").textContent=L("Geli ugu yaraan hal shay oo leh qiimo.","Enter at least one item with a price.");return null}
