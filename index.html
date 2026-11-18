@@ -5265,7 +5265,63 @@ function prExport(k){if(!PRD)prRender();if(!PRD)return;
   if(k==="p"){$("printArea").innerHTML=prHtml();document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
     window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50);return}
   if(k==="w"){const doc=`<html${RTL?' dir="rtl"':""} xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
-<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b}h2{font-size:13pt;margin-top:14pt}table{border-collapse:collapse;width:100%;margin:6pt 0}th,td{border:1px solid #999;padding:4pt 6pt;text-align:${RTL?"right":"left"}}th{background:#e8f5ee}.n{text-align:right}</style></head><body>${prHtml()}</body></html>`;
+<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b}h2{font-size:13pt;margin-top:14pt}table{border-collapse:collapse;width:100%;margin:6pt 0}th,td{border:1px solid #999;padding:4pt 6pt;text-align:${RTL?"right":"left"}}th{background:#e8f5ee}.n{text-align:right}
+/* HantiGo visual refresh — presentation-only overrides; app behavior and data flows remain unchanged. */
+:root{--bg:#f4f8f6;--surface:#fff;--ink:#172b23;--muted:#687b72;--line:#e1eae5;--accent:#087f5b;--accent-soft:#e4f4ec;--in:#13845c;--in-soft:#e3f4eb;--out:#bd594b;--out-soft:#faeae6;--nav-bg:rgba(255,255,255,.94)}
+:root[data-theme="dark"]{--bg:#101a16;--surface:#18251f;--ink:#edf6f0;--muted:#a0b2a8;--line:#2b3c33;--accent:#55c995;--accent-soft:#1d3a2d;--in:#62d4a0;--in-soft:#193b2d;--out:#f08c7c;--out-soft:#3b2522;--nav-bg:rgba(24,37,31,.96);color-scheme:dark}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a16;--surface:#18251f;--ink:#edf6f0;--muted:#a0b2a8;--line:#2b3c33;--accent:#55c995;--accent-soft:#1d3a2d;--in:#62d4a0;--in-soft:#193b2d;--out:#f08c7c;--out-soft:#3b2522;--nav-bg:rgba(24,37,31,.96);color-scheme:dark}}
+html{scroll-behavior:smooth}body{letter-spacing:-.006em;background:var(--bg)}
+button,input,select{transition:border-color .18s ease,background-color .18s ease,box-shadow .18s ease,transform .18s ease}
+button{border-radius:12px}button:hover{transform:translateY(-1px)}button:active{transform:translateY(0)}
+.primary{background:var(--accent);border-color:var(--accent);box-shadow:0 5px 14px color-mix(in srgb,var(--accent) 20%,transparent)}
+.primary:hover{filter:brightness(1.05);box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 24%,transparent)}
+input,select{border-radius:12px;min-height:42px}
+.panel,.stat,.goal,.ext,.month-compare .mc-item{border-radius:18px;box-shadow:0 5px 18px rgba(24,55,40,.035)}
+.panel{padding:19px;gap:16px}.stat{padding:17px 18px}.stat .val{font-size:clamp(1.35rem,2vw,1.7rem)}
+.stat.bal{background:linear-gradient(135deg,#087f5b,#0b674d);box-shadow:0 9px 24px rgba(8,127,91,.16)}
+#appView.wrap{max-width:1200px;gap:22px;padding-top:26px}
+#appView>header{padding:4px 2px 16px;border-bottom:1px solid var(--line);align-items:center}
+#appView header h1{font-size:2rem;letter-spacing:-.045em}#appView header h1 span,#authView .brand h1 span{color:var(--accent)}
+#appView .sub{font-size:.9rem}#appView .month{padding:5px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+#appView .month button{border:0;background:transparent}#appView .month b{font-weight:700}
+#appView .summary{gap:14px}#appView .cols{gap:18px}#appView .panel-head{align-items:center}
+#appView .panel-head h2,#appView .panel>h2{letter-spacing:-.02em}
+#appView .bnav{background:var(--nav-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 12px 34px rgba(12,35,24,.14);border-color:var(--line)}
+#appView .bnav button{border-radius:14px}#appView .bnav button[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+#appView .dot{border-radius:12px}#appView .bar{height:9px}
+#appView .hjump{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}#appView .hjump button{border-radius:999px}
+#authView.gate-home{max-width:1160px;padding-top:30px;gap:26px}
+#authView .home-top{align-items:center;padding:0 4px}
+#authView .brand h1{font-size:2.35rem;letter-spacing:-.055em}#authView .brand .sub{font-size:.96rem;color:var(--muted)}
+#authView .home-lang select{background:var(--surface);border-radius:999px;padding-inline:14px}
+#authView .home-grid{gap:20px}
+#authView .hero{border:0;border-radius:28px;padding:clamp(26px,4vw,48px);gap:20px;color:#f4fff8;background:radial-gradient(90% 110% at 100% 0%,rgba(105,220,165,.22),transparent 58%),linear-gradient(135deg,#0b6148 0%,#087f5b 58%,#07553f 100%);box-shadow:0 18px 42px rgba(8,88,62,.17)}
+#authView .hero h2{font-size:clamp(2rem,4.2vw,3.15rem);line-height:1.08;letter-spacing:-.045em;max-width:16ch}
+#authView .hero h2 span{color:#9ce7bd}#authView .hero-lead{color:rgba(245,255,249,.82);font-size:1.08rem}
+#authView .hero-eyebrow{color:#b5f0ce;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
+#authView .hero-chips span{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.18);color:#fff}
+#authView .hero-cta .primary{background:#fff;color:#086448;border-color:#fff;box-shadow:none}
+#authView .hero-cta .ghost{color:#fff;border-color:rgba(255,255,255,.36);background:rgba(255,255,255,.08)}
+#authView .hero-sep{background:rgba(255,255,255,.2)}#authView .hero-h{color:rgba(245,255,249,.72)}
+#authView .hero-list button{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.16);color:#fff;border-radius:16px}
+#authView .hero-list button:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3)}
+#authView .hero-list button span{color:rgba(245,255,249,.72)}
+#authView .home-side .panel,#authView .steps-panel{border-radius:20px;box-shadow:0 8px 28px rgba(24,55,40,.055)}
+#authView .home-side{gap:16px}#authView .steps-panel{padding:22px}
+#authView .modecard{border-radius:18px;padding:18px;background:var(--surface)}
+#authView .modecard:hover{border-color:var(--accent);box-shadow:0 8px 24px rgba(8,127,91,.08)}
+@media(min-width:900px){#appView.wrap{grid-template-columns:repeat(2,minmax(0,1fr))}#appView>header,#appView>.banner,#appView>#cityAsk,#appView>.alerts,#appView>.summary,#appView>footer,#appView>[data-install],#appView>.bnav{grid-column:1/-1}#appView[data-tab="home"] section[aria-labelledby="chartH"]{grid-column:1/-1}}
+@media(max-width:600px){
+#appView.wrap{padding:14px 12px calc(94px + env(safe-area-inset-bottom,0px));gap:16px}
+#appView>header{gap:10px;padding-bottom:12px}#appView header h1{font-size:1.75rem}
+#appView .panel{padding:15px;border-radius:16px}#appView .summary{gap:9px}#appView .stat{padding:12px}
+#authView.gate-home{padding:18px 14px 30px;gap:18px}#authView .hero{padding:25px 20px;border-radius:22px}
+#authView .hero h2{font-size:2rem}#authView .hero-cta{grid-template-columns:1fr}
+#authView .hero-list{grid-template-columns:repeat(2,minmax(0,1fr))}#authView .home-top{align-items:center}
+}
+@media(max-width:360px){#authView .hero-list{grid-template-columns:1fr}}
+
+</style></head><body>${prHtml()}</body></html>`;
     saveFile(prFile("doc"),"﻿"+doc,"application/msword");return}
   const d=PRD,S=d.S,H=[L("Qaybta","Item","البند","Kipengele"),L("Qadarka","Amount","المبلغ","Kiasi"),"%"];
   const secs=[{title:L("Warbixinta faa'iidada","Profit report","تقرير الأرباح","Ripoti ya faida")+": "+d.title,colorFirst:1,head:H,rows:prLines(d).map(([lb,v,k])=>[k==="s"?"   "+lb:lb,v==null?"":v,v==null||!S.sales||k==="h"?"":Math.abs(v)/S.sales])}];
