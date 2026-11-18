@@ -2067,6 +2067,7 @@ function applyMode(m){MODE=m==="business"?"business":"person";if(!TEAM){payFor=L
   $("topPlaceLbl").textContent=MODE==="business"?"Alaab-qaybiyaha lacagta ugu badan la siiyay bishan":"Shirkadda lacagta ugu badan laga siiyay bishan";
   $("subline").textContent=MODE==="business"?"Ganacsigaaga: qor iibka iyo kharashyada, ogowna faa'iidada bishii.":"Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.";
   $("bName").placeholder=MODE==="business"?"Tusaale: Darawal":"Tusaale: Iskuul";
+  $("goalH").textContent=MODE==="business"?L("Kaydka shirkadda","Company savings","مدخرات الشركة","Akiba ya kampuni"):L("Kaydka iyo kayd degdeg","Savings and emergency fund","الادخار وصندوق الطوارئ","Akiba na mfuko wa dharura");
   $("billH").textContent=MODE==="business"?"Kharashyada joogtada ah":"Kharashka bille ah";
   $("billNote").textContent=MODE==="business"?"Halkan geli oo kaliya kharashyada joogtada ah ee bil kasta la bixiyo (kiro, koronto, mushahar…). Kharash hal mar ah “Ku dar” ka geli.":"Halkan geli oo kaliya kharashyada bil kasta la bixiyo (kiro, koronto, iskuul…). Kharash hal mar ah “Ku dar” ka geli.";
   showAll=false;renderDaily();fillCats();goalPresets()}
@@ -2940,9 +2941,11 @@ function fillCats(){const type=document.querySelector('input[name=type]:checked'
   const opts=a=>a.filter(c=>c!=="Kayd").map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
   const own=ownCats(type).map(c=>c.name);
   $("grpRow").hidden=!useGroups();
-  if(useGroups()){const gs=$("grp"),known=cur&&cur!=="__new"&&(GROUPS().some(g=>g[2].includes(cur))||own.includes(cur)),g0=(gs.dataset.m===MODE+type&&gs.value)||grpOf(known?cur:GROUPS()[0][2][0],type);gs.dataset.m=MODE+type;
-    gs.innerHTML=GROUPS().map(([g])=>`<option value="${esc(g)}">${esc(grpLabel(g))}</option>`).join("");gs.value=GROUPS().some(x=>x[0]===g0)?g0:GROUPS()[0][0];
-    const G=GROUPS().find(x=>x[0]===gs.value),mineG=own.filter(c=>grpOf(c,type)===G[0]);
+  if(useGroups()){/* Shakhsi has no Deymaha panel: the expense topic "💳 Deyn" is not offered (old entries keep their name, and editing one still shows it) */
+    const GS=GROUPS().filter(g=>!(MODE!=="business"&&type==="out"&&g[0]==="Deyn"&&!g[2].includes(cur)&&!(editing&&g[2].includes(items.find(i=>i.id===editing)?.cat))));
+    const gs=$("grp"),known=cur&&cur!=="__new"&&(GS.some(g=>g[2].includes(cur))||own.includes(cur)),g0=(gs.dataset.m===MODE+type&&gs.value)||grpOf(known?cur:GS[0][2][0],type);gs.dataset.m=MODE+type;
+    gs.innerHTML=GS.map(([g])=>`<option value="${esc(g)}">${esc(grpLabel(g))}</option>`).join("");gs.value=GS.some(x=>x[0]===g0)?g0:GS[0][0];
+    const G=GS.find(x=>x[0]===gs.value),mineG=own.filter(c=>grpOf(c,type)===G[0]);
     sel.innerHTML=opts(G[2])+(mineG.length?`<optgroup label="Kuwa aad adigu ku dartay">${opts(mineG)}</optgroup>`:"")+`<option value="__new">➕ Ku dar mid liiska ka maqan…</option>`;
     if(G[2].includes(cur)||mineG.includes(cur))sel.value=cur;
     $("ownCats").innerHTML=ownCats(type).map(c=>`<button type="button" class="chip own" data-delcat="${c.id}" aria-label="${L("Ka saar ","Remove ")}${esc(c.name)}">${c.name} ✕</button>`).join("");
@@ -5737,9 +5740,7 @@ function renderInvRem(){const P=$("irPanel");if(!P)return;const l=irList();
 let irMsgT="",irTab="open";
 /* v157: an invoice approved as paid shows on the dashboard at once (Guriga glance card) — the money is income there too */
 function invPaidRecent(days=7){const from=new Date(Date.now()-days*864e5).toISOString().slice(0,10),out=[];
-  if(MODE!=="business"){for(const db of mine("debt").filter(x=>x.dir==="in"))for(const t of items.filter(i=>i.kind==="tx"&&i.debtId===db.id&&(i.date||"")>=from))
-      out.push({d:{k:"debt",cust:db.name,total:Number(db.amount)||0,date:(db.created||"").slice(0,10),db},t,amt:Number(t.amount)||0,date:t.date,full:debtLeft(db)<=0});
-    return out.sort((a,b)=>(b.date||"").localeCompare(a.date||""))}
+  if(MODE!=="business")return out;   /* Shakhsi has no Deymaha panel, so no debt notices on Guriga (saved debts stay untouched) */
   for(const d of mine("inv")){
     if(d.k==="q"&&d.debtId)for(const t of items.filter(i=>i.kind==="tx"&&i.debtId===d.debtId&&(i.date||"")>=from))out.push({d,t,amt:Number(t.amount)||0,date:t.date,full:invState(d).left<=0});
     if(d.k==="r"&&d.txId){const t=items.find(i=>i.id===d.txId);if(t&&(t.date||"")>=from)out.push({d,t,amt:Number(t.amount)||0,date:t.date,full:true})}}
@@ -5798,7 +5799,7 @@ function payNoteText(x){if(x.d.k==="debt"){const db=x.d.db,left=debtLeft(db);
 /* late: an unpaid invoice (Shirkad) or a debt owed to you (Shakhsi) past its pay-by date; shown each day until paid or "Waan arkay" for today */
 function lateList(){const td=today(),out=[];
   if(MODE==="business"){for(const d of mine("inv")){if(d.k!=="q")continue;const st=invState(d);if(!(st.left>0)||!st.due||st.due>=td)continue;out.push({id:"L"+d.id,d,left:st.left,due:st.due,days:-dayDiff(st.due),sent:d.sentAt||d.sharedAt||d.remAt||""})}}
-  else for(const db of mine("debt")){if(db.dir!=="in"||!db.due||db.due>=td)continue;const left=debtLeft(db);if(!(left>0))continue;out.push({id:"L"+db.id,d:{k:"debt",cust:db.name,total:Number(db.amount)||0},left,due:db.due,days:-dayDiff(db.due),sent:""})}
+
   return out.sort((a,b)=>b.days-a.days)}
 function lateText(x){if(x.d.k==="debt")return L(`${x.d.cust} wuu ka daahay inuu kuu celiyo deynta: ${money(x.left)} (ugu dambayn ${fmtD(x.due)}, ${x.days} maalmood ka hor).`,`${x.d.cust} is late paying back ${money(x.left)} (due ${fmtD(x.due)}, ${x.days} days ago).`,`تأخر ${x.d.cust} في إعادة ${money(x.left)} (الاستحقاق ${fmtD(x.due)}، منذ ${x.days} أيام).`,`${x.d.cust} amechelewa kurudisha ${money(x.left)} (mwisho ${fmtD(x.due)}, siku ${x.days} zilizopita).`);
   const sent=x.sent?L(` La diray ${fmtD(x.sent.slice(0,10))}.`,` Sent ${fmtD(x.sent.slice(0,10))}.`,` أُرسلت ${fmtD(x.sent.slice(0,10))}.`,` Ilitumwa ${fmtD(x.sent.slice(0,10))}.`):"";
