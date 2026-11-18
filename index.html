@@ -3056,7 +3056,7 @@ function wrData(txs){
   const rate=inc>0?left/inc:null;
   const score=!inc&&!out?"none":inc<=0||left<0?"bad":rate<.1?"mid":"ok";
   const z=n=>String(n).padStart(2,"0");
-  return {y,m,cur,inc,out,left,pInc,pOut,sav,groups,sal,dim,days,perDay,forecast,rate,score,n:mon.length,
+  return {y,m,cur,inc,out,left,pInc,pOut,sav,groups,sal,dim,days,perDay,forecast,rate,score,n:mon.length,list:mon,trs:mineTr().filter(t=>inM(t,y,m)).sort((a,b)=>(a.date+(a.created||"")).localeCompare(b.date+(b.created||""))),
     from:`${y}-${z(m+1)}-01`,to:`${y}-${z(m+1)}-${z(dim)}`,mName:MONTHS[m]+" "+y}}
 function wrText(d){const biz=MODE==="business",pct=v=>Math.round(v*100);
   const S={};
@@ -3123,7 +3123,53 @@ function wrHtml(print){const {d,S}=WR,pct=v=>d.out?Math.round(v/d.out*100)+"%":"
   <tr><td class="n">${money(d.inc)}</td><td class="n">${money(d.out)}</td><td class="n" style="font-weight:700;color:${d.left<0?"#c0392b":"#0b7a4b"}">${d.left<0?"−":""}${money(Math.abs(d.left))}</td></tr></table>
   ${d.groups.length?`<h2>${esc(S.topH)}</h2><table><tr><th>${L("Mowduuca","Topic","الموضوع","Mada")}</th><th>${L("Qadarka","Amount","المبلغ","Kiasi")}</th><th>%</th>${print?"<th></th>":""}</tr>${d.groups.map(([g,v])=>`<tr><td>${esc(grpLabel(g))}</td><td class="n">${money(v)}</td><td class="n">${pct(v)}</td>${print?`<td style="width:35%"><div class="pb" style="width:${(v/d.groups[0][1]*100).toFixed(1)}%;background:#e5534b"></div></td>`:""}</tr>`).join("")}</table>`:""}
   ${S.facts.length?`<h2>${L("Waxa la ogaaday","What we found","ما وجدناه","Tulichogundua")}</h2><ul>${S.facts.map(([ic,t])=>`<li>${ic} ${strip(t)}</li>`).join("")}</ul>`:""}
-  ${S.tip?`<p><b>💡 ${L("Talo","Tip","نصيحة","Ushauri")}:</b> ${strip(S.tip)}</p>`:""}`}
+  ${S.tip?`<p><b>💡 ${L("Talo","Tip","نصيحة","Ushauri")}:</b> ${strip(S.tip)}</p>`:""}
+  ${wrListHtml(d)}`}
+/* report files: every entry of the month with date, weekday, time, account (EVC Plus / Bangi / Kaash) and where the money came from / went */
+const wrTime=t=>{const c=t.created?new Date(t.created):null;if(!c||isNaN(c))return "";const z=n=>String(n).padStart(2,"0");
+  return c.getFullYear()+"-"+z(c.getMonth()+1)+"-"+z(c.getDate())===t.date?z(c.getHours())+":"+z(c.getMinutes()):""};
+function wrRows(d,type){return d.list.filter(t=>t.type===type).sort((a,b)=>(a.date+(a.created||"")).localeCompare(b.date+(b.created||""))).map(t=>({
+  date:t.date,day:dayDate(t.date).wd,time:wrTime(t),topic:GROUPS(t.type).length?grpLabel(grpOf(t.cat,t.type)):"",cat:T(t.cat),
+  acc:T(t.method||"Kaash"),place:t.place||"",note:t.note||"",amt:Number(t.amount||0)}))}
+function wrAcc(d){const o={},g=m=>o[m=m||"Kaash"]=o[m]||{i:0,o:0,t:0};METHODS.forEach(g);
+  d.list.forEach(t=>g(t.method)[t.type==="in"?"i":"o"]+=Number(t.amount||0));
+  d.trs.forEach(t=>{const v=Number(t.amount||0);g(t.method).t-=v;g(t.to).t+=v});
+  return Object.entries(o).filter(([m,v])=>v.i||v.o||v.t).map(([m,v])=>[T(m),v.i,v.o,v.t,v.i-v.o+v.t])}
+const wrTrRows=d=>d.trs.map(t=>({date:t.date,day:dayDate(t.date).wd,time:wrTime(t),from:T(t.method||"Kaash"),to:T(t.to||"Kaash"),note:t.note||"",amt:Number(t.amount||0)}));
+const WRH={
+  acc:()=>"🏦 "+L("Akoon kasta: EVC Plus, Bangi, Kaash","Each account: EVC Plus, Bank, Cash","كل حساب: EVC Plus، البنك، النقد","Kila akaunti: EVC Plus, Benki, Taslimu"),
+  in:()=>"💰 "+L("Goorta iyo halka lacagtu ka soo gashay","When and where money came in","متى ومن أين دخلت الأموال","Lini na wapi pesa ziliingia"),
+  out:()=>"💸 "+L("Goorta iyo halka lacagtu ku baxday","When and where money went out","متى وأين خرجت الأموال","Lini na wapi pesa zilitoka"),
+  tr:()=>"⇄ "+L("Lacagta la kala wareejiyay (EVC Plus, Bangi, Kaash)","Money moved between accounts (EVC Plus, Bank, Cash)","الأموال المحوّلة بين الحسابات (EVC Plus، البنك، النقد)","Pesa zilizohamishwa kati ya akaunti (EVC Plus, Benki, Taslimu)"),
+  from:()=>L("Laga wareejiyay","From","من","Kutoka"),to:()=>L("Loo wareejiyay","To","إلى","Kwenda"),trc:()=>L("Wareejin","Transfers","تحويلات","Uhamisho"),
+  date:()=>L("Taariikhda","Date","التاريخ","Tarehe"),day:()=>L("Maalinta","Day","اليوم","Siku"),time:()=>L("Saacadda","Time","الساعة","Saa"),
+  topic:()=>L("Mowduuca","Topic","الموضوع","Mada"),cat:()=>L("Qaybta","Category","الفئة","Aina"),
+  acct:()=>L("Akoonka","Account","الحساب","Akaunti"),
+  pin:()=>L("Meesha ay ka timid","Where it came from","مصدرها","Ilitoka wapi"),pout:()=>L("Meesha ay ku baxday","Where it went","أين صُرفت","Ilienda wapi"),
+  note:()=>L("Faahfaahin","Details","تفاصيل","Maelezo"),amt:()=>L("Qadarka","Amount","المبلغ","Kiasi"),total:()=>L("Wadarta","Total","المجموع","Jumla"),
+  inc:()=>L("Soo galay","Money in","دخل","Iliingia"),outc:()=>L("Ka baxay","Money out","خرج","Ilitoka"),diff:()=>L("Farqiga","Difference","الفرق","Tofauti"),
+  none:()=>L("Bishan waxba lama qorin.","Nothing recorded this month.","لا شيء مسجل هذا الشهر.","Hakuna kilichorekodiwa mwezi huu."),
+  trnone:()=>L("Bishan lacag lama kala wareejin.","No money was moved between accounts this month.","لم تُحوَّل أموال بين الحسابات هذا الشهر.","Hakuna pesa zilizohamishwa kati ya akaunti mwezi huu.")};
+const sgn=v=>(v<0?"−":v>0?"+":"")+money(Math.abs(v));
+function wrListHtml(d){const acc=wrAcc(d),ti=d=>`${esc(dayDate(d.date).full)}<br><small style="color:#666">${esc(d.day)}${d.time?" · "+d.time:""}</small>`;
+  const list=type=>{const r=wrRows(d,type),tot=r.reduce((s,x)=>s+x.amt,0);
+    return `<h2>${esc(type==="in"?WRH.in():WRH.out())}</h2><table><tr><th>${WRH.date()}</th><th>${WRH.cat()}</th><th>${WRH.acct()}</th><th>${type==="in"?WRH.pin():WRH.pout()}</th><th>${WRH.amt()}</th></tr>`
+     +(r.length?r.map(x=>`<tr><td>${ti(x)}</td><td>${esc(x.cat)}${x.topic?`<br><small style="color:#666">${esc(x.topic)}</small>`:""}</td><td>${esc(x.acc)}</td><td>${esc(x.place)}${x.note?`<br><small style="color:#666">${esc(x.note)}</small>`:""}</td><td class="n" style="color:${type==="in"?"#0b7a4b":"#c0392b"}">${money(x.amt)}</td></tr>`).join("")
+       +`<tr><td colspan="4"><b>${WRH.total()} (${r.length})</b></td><td class="n"><b>${money(tot)}</b></td></tr>`:`<tr><td colspan="5">${WRH.none()}</td></tr>`)+`</table>`};
+  const tr=wrTrRows(d),trT=tr.reduce((s,x)=>s+x.amt,0);
+  return (acc.length?`<h2>${esc(WRH.acc())}</h2><table><tr><th>${WRH.acct()}</th><th>${WRH.inc()}</th><th>${WRH.outc()}</th><th>${WRH.trc()}</th><th>${WRH.diff()}</th></tr>${acc.map(([m,i,o,t,f])=>`<tr><td>${esc(m)}</td><td class="n">${money(i)}</td><td class="n">${money(o)}</td><td class="n">${t?sgn(t):"—"}</td><td class="n" style="color:${f<0?"#c0392b":"#0b7a4b"}">${sgn(f)}</td></tr>`).join("")}</table>`:"")
+    +list("in")+list("out")
+    +`<h2>${esc(WRH.tr())}</h2><table><tr><th>${WRH.date()}</th><th>${WRH.from()}</th><th>${WRH.to()}</th><th>${WRH.note()}</th><th>${WRH.amt()}</th></tr>`
+    +(tr.length?tr.map(x=>`<tr><td>${ti(x)}</td><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td>${esc(x.note)}</td><td class="n">${money(x.amt)}</td></tr>`).join("")
+      +`<tr><td colspan="4"><b>${WRH.total()} (${tr.length})</b></td><td class="n"><b>${money(trT)}</b></td></tr>`:`<tr><td colspan="5">${WRH.trnone()}</td></tr>`)+`</table>`}
+function wrListSheets(d){const sec=type=>{const r=wrRows(d,type),tot=r.reduce((s,x)=>s+x.amt,0);
+    return {title:type==="in"?WRH.in():WRH.out(),head:[WRH.date(),WRH.day(),WRH.time(),WRH.topic(),WRH.cat(),WRH.acct(),type==="in"?WRH.pin():WRH.pout(),WRH.note(),WRH.amt()],
+      rows:r.length?[...r.map(x=>[x.date,x.day,x.time,x.topic,x.cat,x.acc,x.place,x.note,type==="in"?x.amt:-x.amt]),[WRH.total()+" ("+r.length+")","","","","","","","",type==="in"?tot:-tot]]:[[WRH.none()]],totalRow:r.length?1:0}};
+  const acc=wrAcc(d);
+  const tr=wrTrRows(d);
+  return [...(acc.length?[{title:WRH.acc(),head:[WRH.acct(),WRH.inc(),WRH.outc(),WRH.trc(),WRH.diff()],rows:acc.map(([m,i,o,t,f])=>[m,i,-o,t,f])}]:[]),sec("in"),sec("out"),
+    {title:WRH.tr(),head:[WRH.date(),WRH.day(),WRH.time(),WRH.from(),WRH.to(),WRH.note(),WRH.amt()],
+      rows:tr.length?[...tr.map(x=>[x.date,x.day,x.time,x.from,x.to,x.note,x.amt]),[WRH.total()+" ("+tr.length+")","","","","","",tr.reduce((s,x)=>s+x.amt,0)]]:[[WRH.trnone()]],totalRow:tr.length?1:0}]}
 function wrExport(k){if(!WR)return;
   if(k==="p"){$("printArea").innerHTML=wrHtml(true)+stFoot();
     document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
@@ -3135,7 +3181,8 @@ function wrExport(k){if(!WR)return;
   exportSheet(strip(S.title)+" · "+d.mName,[
     {title:S.score[0]+" "+S.score[1],colorFirst:1,head:[L("Soo galay","Income"),L("Ka baxay","Expenses"),MODE==="business"?L("Faa'iido","Profit"):L("Lacagta haray","Left over")],rows:[[d.inc,d.out,d.left]]},
     {title:strip(S.topH),head:[L("Mowduuca","Topic","الموضوع","Mada"),L("Qadarka","Amount","المبلغ","Kiasi"),"%"],rows:d.groups.map(([g,v])=>[grpLabel(g),v,d.out?v/d.out:0])},
-    {title:L("Waxa la ogaaday","What we found","ما وجدناه","Tulichogundua"),head:[L("Faahfaahin","Details")],rows:[[S.score[2]],...(S.per100?[[S.per100]]:[]),...S.facts.map(([ic,t])=>[ic+" "+strip(t)]),...(S.tip?[["💡 "+strip(S.tip)]]:[])]}
+    {title:L("Waxa la ogaaday","What we found","ما وجدناه","Tulichogundua"),head:[L("Faahfaahin","Details")],rows:[[S.score[2]],...(S.per100?[[S.per100]]:[]),...S.facts.map(([ic,t])=>[ic+" "+strip(t)]),...(S.tip?[["💡 "+strip(S.tip)]]:[])]},
+    ...wrListSheets(d)
   ],wrFile("x").slice(0,-2))}
 /* phone: chips that jump to each home section (only the ones this account can see) */
 function renderJump(){const nav=$("hJump");if(!nav||$("appView").dataset.tab!=="home")return;
