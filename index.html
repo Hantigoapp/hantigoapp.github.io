@@ -1017,6 +1017,7 @@ html:not([data-mode="business"]) #appView[data-tab="hub"] [data-hubs],html.role-
 html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
 html[data-mode="business"]:not(.role-staff) #appView[data-tab="home"] #wrPanel,html[data-mode="business"]:not(.role-staff) #appView[data-tab="home"] .hsec.wrsec{display:none!important}
 .ihnotes .glinv{margin:0}
+.npick select{width:100%}
 .dmove{display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:space-between}
 </style>
 <script src="vendor/supabase.js"></script>
@@ -5904,6 +5905,25 @@ document.addEventListener("click",e=>{
   if(k==="repdl"){const w=$("wrPanel");if(w&&w.classList.contains("folded"))w.querySelector(".foldbtn")?.click();go("wrPanel");return}
 });
 {const _rh=render;render=function(){_rh();try{renderHub()}catch(e){console.warn(e)}}}
+/* ---- pick a registered customer or employee from a list instead of typing the name again (Shirkad, v164) ---- */
+const NPICK=[["place",()=>[["c",custNames()],["e",empNames()]]],["lvWho",()=>[["e",empNames()]]],["dName",()=>[["c",custNames()]]]];
+function custNames(){return customers().map(c=>c.name)}
+function empNames(){const a=emps().map(b=>b.who||T(b.name)).filter(Boolean),seen=new Set(a.map(ckey));for(const m of staff||[])if(!seen.has(ckey(m))){a.push(m);seen.add(ckey(m))}return a}
+function renderPicks(){const on=MODE==="business"&&MGR();
+  for(const [id,fn] of NPICK){const inp=$(id);if(!inp)continue;const host=inp.closest("label");if(!host)continue;
+    let w=$("np-"+id);if(!w){w=document.createElement("label");w.className="field npick";w.id="np-"+id;w.innerHTML=`<span></span><select data-npick="${id}"></select>`;host.before(w)}
+    const groups=on?fn().filter(g=>g[1].length):[];w.hidden=!groups.length;if(!groups.length)continue;
+    const gl={c:"👥 "+L("Macaamiisha","Customers","العملاء","Wateja"),e:"🧑‍💼 "+L("Shaqaalaha","Staff","الموظفون","Wafanyakazi")};
+    w.querySelector("span").textContent=groups.length>1?L("Dooro macmiil ama shaqaale","Pick a customer or staff member","اختر عميلًا أو موظفًا","Chagua mteja au mfanyakazi"):groups[0][0]==="c"?L("👤 Dooro macmiil diiwaangashan","👤 Pick a registered customer","👤 اختر عميلًا مسجّلًا","👤 Chagua mteja aliyesajiliwa"):L("🧑‍💼 Dooro shaqaale diiwaangashan","🧑‍💼 Pick a registered staff member","🧑‍💼 اختر موظفًا مسجّلًا","🧑‍💼 Chagua mfanyakazi aliyesajiliwa");
+    const sel=w.querySelector("select"),key=JSON.stringify(groups)+LANG;
+    if(sel.dataset.k!==key){sel.dataset.k=key;sel.innerHTML=`<option value="">— ${esc(L("Dooro liiska","Choose from the list","اختر من القائمة","Chagua kwenye orodha"))} —</option>`+groups.map(([g,ns])=>`<optgroup label="${esc(gl[g])}">${ns.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("")}</optgroup>`).join("")}
+    const cur=ckey(inp.value),m=[...sel.options].find(o=>o.value&&ckey(o.value)===cur);sel.value=m?m.value:""}
+  /* typing still works: the lists also appear as suggestions */
+  if(on){const dl=$("lvStaff");if(dl)dl.innerHTML=empNames().map(e=>`<option value="${esc(e)}">`).join("");
+    const pl=$("placeList");if(pl){const have=new Set([...pl.options].map(o=>ckey(o.value)));custNames().forEach(n=>{if(!have.has(ckey(n)))pl.insertAdjacentHTML("afterbegin",`<option value="${esc(n)}">`)})}}}
+document.addEventListener("change",e=>{const s=e.target.closest("[data-npick]");if(!s||!s.value)return;const i=$(s.dataset.npick);if(!i)return;i.value=s.value;i.dispatchEvent(new Event("input",{bubbles:true}))});
+document.addEventListener("input",e=>{const id=e.target.id;if(NPICK.some(x=>x[0]===id))try{renderPicks()}catch{}});
+{const _rp=render;render=function(){_rp();try{renderPicks()}catch(e){console.warn(e)}}}
 for(const f of ["rcForm","reForm"])$(f).addEventListener("submit",e=>{if(canReg())return;e.preventDefault();e.stopImmediatePropagation();regGate()},true);
 $("pyForm").addEventListener("submit",e=>{if(canReg())return;e.preventDefault();e.stopImmediatePropagation();
   $("pyErr").textContent="🔒 "+L("Shaqaale cusub waxaa geli kara mulkiilaha ama maamule uu u oggolaaday.","Only the owner, or a manager they allowed, can add a new employee.","يمكن للمالك أو لمدير سمح له فقط إضافة موظف جديد.","Ni mmiliki au meneja aliyemruhusu tu anayeweza kuongeza mfanyakazi mpya.")},true);
