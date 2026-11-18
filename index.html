@@ -444,7 +444,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
 #coImg,.coph{width:64px;height:64px;border-radius:14px;object-fit:contain;background:#fff;flex:none}
 .coph{display:grid;place-items:center;font-size:1.8rem;background:var(--bg);border:1px dashed var(--line)}
 #printArea .rhead{display:flex;align-items:center;gap:12px;margin-bottom:6px}#printArea .rhead img{max-height:56px;max-width:140px;object-fit:contain}
-#printArea{display:none}
+#printArea{display:none}#printArea,#printArea *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .mm{display:grid;gap:6px}.mmbtn{justify-self:start;font-weight:600;color:var(--accent);border-color:var(--accent)}#mmText{width:100%;box-sizing:border-box;font:inherit;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:inherit}
 .note.ok{color:var(--in)}.pinbox{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:12px}
 .lockv{position:fixed;inset:0;z-index:9999;background:var(--bg,#0b1118);display:grid;place-items:center;padding:16px}
@@ -4433,6 +4433,31 @@ async function saveFile(name,text,type){const blob=new Blob([text],{type});
   try{const f=new File([blob],name,{type});if(NATIVE&&navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch{}
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+/* ---------- money colours in every download (v164, AM): money in = green, money out = red ----------
+   Works from the column header, the row's first cell or the section heading, in all 4 languages. */
+const MK_NET=/faa'?iid|profit|khasaare|loss|haray|hadhay|left|net\b|farqi|difference|الربح|الخسارة|صافي|تبق|الفرق|faida|hasara|imebaki|tofauti|salio/i;
+const MK_IN=/soo gal|soo gash|money in|income|dakhli|revenue|sales|^\W*iib|iibka|la helay|received|دخل|إيراد|مبيعات|مستلم|iliingia|mapato|mauzo|💰/i;
+const MK_OUT=/ka bax|baxday|money out|went\b|zilienda|ilienda|صُرف|expense|spending|kharash|mushahar|salar|costs?\b|خرج|مصروف|مصاريف|رواتب|تكلف|ilitoka|matumizi|gharama|mishahara|💸/i;
+function moneyKind(t){t=String(t||"").trim();if(!t)return null;const n=MK_NET.test(t),i=MK_IN.test(t),o=MK_OUT.test(t);
+  if(n)return "net";if(i&&o)return null;return i?"in":o?"out":null}
+const MC={in:"#0b7a4b",out:"#c0392b",inBg:"#e2f3ea",outBg:"#fbe4e0"};
+function colorMoneyEl(root){if(!root)return;
+  root.querySelectorAll("table").forEach(tb=>{let hk=null;for(let e=tb.previousElementSibling;e;e=e.previousElementSibling){if(/^H[1-4]$/.test(e.tagName)){hk=moneyKind(e.textContent);break}}
+    const rows=[...tb.rows];if(!rows.length)return;const head=rows.find(r=>r.querySelector("th"));const ck=[],skip=[];
+    if(head)[...head.cells].forEach((c,j)=>{const t=c.textContent;ck[j]=moneyKind(t);skip[j]=/^\s*%\s*$/.test(t)||xlDays(t);
+      if(ck[j]==="in"||ck[j]==="out"){c.style.background=MC[ck[j]+"Bg"];c.style.color=MC[ck[j]]}});
+    let sk=null;
+    rows.forEach(r=>{if(r===head)return;const cells=[...r.cells];if(!cells.length)return;
+      if(!cells.some((c,j)=>j>0&&/\d/.test(c.textContent))){const k0=moneyKind(r.textContent);if(k0)sk=k0;return}   /* a heading row like "💸 Kharashka shaqada" colours the rows under it */
+      const rk=moneyKind(cells[0].textContent)||moneyKind(cells.filter(c=>!/\d/.test(c.textContent)).map(c=>c.textContent).join(" "));
+      cells.forEach((c,j)=>{if(c.tagName==="TH"||(j===0&&cells.length>1&&!ck[0])||skip[j]||c.style.color||c.querySelector("[style*=color]"))return;const t=c.textContent.trim();
+        if(!/\d/.test(t)||/%\s*$/.test(t)||/^\d{4}-\d{2}-\d{2}/.test(t))return;
+        let k=ck[j]||rk||sk||hk;if(!k&&/^[−-]/.test(t))k="out";if(k==="net")k=/^[−-]/.test(t)?"out":/^0([.,]0+)?$|^\$?0\.00$/.test(t.replace(/[^\d.,−-]/g,""))?null:"in";
+        if(k==="in"||k==="out"){c.style.color=MC[k];c.style.fontWeight=c.style.fontWeight||"600"}})})})}
+function colorMoneyHtml(html){try{const m=String(html).match(/<body[^>]*>([\s\S]*)<\/body>/i);if(!m)return html;const d=document.createElement("div");d.innerHTML=m[1];colorMoneyEl(d);return html.replace(m[1],()=>d.innerHTML)}catch{return html}}
+/* Word files and the print/PDF area go through here, so every report gets the colours */
+{const _sf=saveFile;saveFile=function(name,text,type){if(typeof text==="string"&&/msword/.test(type||""))text=colorMoneyHtml(text);return _sf(name,text,type)}}
+{const _pr=window.print.bind(window);window.print=function(){try{colorMoneyEl($("printArea"))}catch{}return _pr()}}
 /* ---------- Excel (.xlsx) with company name + logo; CSV if the library can't load ---------- */
 let xlLib=null;
 function loadExcel(){return xlLib||(xlLib=new Promise((res,rej)=>{if(window.ExcelJS)return res(window.ExcelJS);const sc=document.createElement("script");sc.src="vendor/exceljs.min.js";sc.onload=()=>res(window.ExcelJS);sc.onerror=()=>{xlLib=null;rej()};document.head.appendChild(sc)}))}
@@ -4444,7 +4469,8 @@ function xlColor(h){h=String(h).toLowerCase();
   if(/mushah|mushaar|salar/.test(h))return"FFD9443C";
   if(/kale|other/.test(h))return"FFC98A0C";
   if(/soo gashay|soo galay|income|^iib/.test(h))return"FF1E8E5A";
-  if(/guud|total|ka baxay|expense/.test(h))return"FF8A4B1C";
+  if(/ka baxay|expense|money out/.test(h))return"FFC0392B";
+  if(/guud|total/.test(h))return"FF8A4B1C";
   if(/^kharashka$|^spending$/.test(h))return"FFD9443C";
   if(/kayd|saving/.test(h))return"FF5A8FE0";
   if(/haray|hadhay|left over/.test(h))return"FF2F6FC4";
@@ -4467,9 +4493,13 @@ async function exportSheet(title,sections,base){base=base.replace(/[^\p{L}\p{N}_
       sec.head.forEach((h,j)=>{const c=hr.getCell(j+1);c.value=h;c.font={bold:true,color:{argb:"FFFFFFFF"}};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:j===0&&!sec.colorFirst?"FF34495E":xlColor(h)}};
         c.alignment={horizontal:j===0?"left":"center",vertical:"middle",wrapText:true};c.border=border;w[j]=Math.max(w[j],Math.min(22,String(h).length+2))});
       r++;
-      sec.rows.forEach((row,k)=>{const rr=ws.getRow(r);row.forEach((v,j)=>{const c=rr.getCell(j+1);c.value=v===""||v==null?null:v;c.border=border;
+      let xsk=null;
+      sec.rows.forEach((row,k)=>{const rr=ws.getRow(r);if(!row.some((x,j)=>j>0&&typeof x==="number")){const k0=moneyKind(row.join(" "));if(k0)xsk=k0}
+        row.forEach((v,j)=>{const c=rr.getCell(j+1);c.value=v===""||v==null?null:v;c.border=border;
           if(k%2)c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF5F8FA"}};
-          if(typeof v==="number"){c.numFmt=sec.head[j]==="%"?"0%":xlDays(sec.head[j])?"#,##0":"#,##0.00";c.alignment={horizontal:"right"};if(v<0)c.font={color:{argb:"FFD9443C"}}}
+          if(typeof v==="number"){c.numFmt=sec.head[j]==="%"?"0%":xlDays(sec.head[j])?"#,##0":"#,##0.00";c.alignment={horizontal:"right"};
+            let mk=sec.head[j]==="%"||xlDays(sec.head[j])?null:(moneyKind(sec.head[j])||(j>0?moneyKind(row[0])||moneyKind(row.filter(x=>typeof x==="string"&&!/\d/.test(x)).join(" "))||xsk:null)||moneyKind(sec.title));if(mk==="net")mk=v<0?"out":v>0?"in":null;
+            if(v<0&&!mk)mk="out";if(mk)c.font={bold:true,color:{argb:mk==="in"?"FF0B7A4B":"FFC0392B"}}}
           w[j]=Math.max(w[j],Math.min(34,(typeof v==="number"?v.toLocaleString("en",{minimumFractionDigits:2}):String(v??"")).length+2))});
         if(sec.totalRow&&k===sec.rows.length-1)rr.font={bold:true};r++});
       r++}
