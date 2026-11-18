@@ -1004,7 +1004,7 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
 .hubtop h2{margin:0;font-size:1.25rem}
 .hubback{border-radius:999px!important;padding:8px 14px!important;font-weight:700;min-height:40px}
 .hubsw{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-.hubsw button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px!important;font-size:.78rem;font-weight:700;border-radius:12px!important;min-height:54px;position:relative}
+.hubsw button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px!important;font-size:.72rem;min-width:0;overflow-wrap:anywhere;font-weight:700;border-radius:12px!important;min-height:54px;position:relative}
 .hubsw button i{font-style:normal;font-size:1.2rem;line-height:1}
 .hubsw button[aria-current="page"]{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}
 .hubsw button .bhbadge{top:-6px;inset-inline-end:-4px;min-width:18px;height:18px;font-size:.68rem}
@@ -1015,6 +1015,9 @@ html:not([data-mode="business"]) #appView[data-tab="hub"] [data-hubs],html.role-
 #appView[data-hub="cust"] #regPanel{order:1}
 #appView[data-tab="hub"][data-hub="cust"] #regTabs{display:none!important}
 html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
+html[data-mode="business"]:not(.role-staff) #appView[data-tab="home"] #wrPanel,html[data-mode="business"]:not(.role-staff) #appView[data-tab="home"] .hsec.wrsec{display:none!important}
+.ihnotes .glinv{margin:0}
+.dmove{display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:space-between}
 </style>
 <script src="vendor/supabase.js"></script>
 
@@ -1262,7 +1265,7 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
 
   <nav class="hjump no-staff" id="hJump" data-tab="home" aria-label="Qaybaha Guriga"></nav>
 
-  <h3 class="hsec no-staff" data-tab="home">Warbixinno</h3>
+  <h3 class="hsec no-staff wrsec" data-tab="home">Warbixinno</h3>
   <section class="panel no-staff wrpanel" aria-labelledby="wrH" data-tab="home" id="wrPanel" data-hubs="rep" data-fold="wr" data-fold-ph="1">
     <div class="panel-head"><h2 id="wrH">📋 Warbixinta bishan</h2></div>
     <div id="wrBody" aria-live="polite"></div>
@@ -1284,7 +1287,7 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
   </section>
 
   <h3 class="hsec no-staff" data-tab="home">Falanqayn</h3>
-  <section class="panel biz-only mgr-only mgpanel" aria-labelledby="mgH" data-tab="home" data-hubs="rep" id="mgPanel" data-fold="mg" data-fold-def="1">
+  <section class="panel biz-only mgr-only mgpanel" aria-labelledby="mgH" data-tab="hub" data-hubs="rep" id="mgPanel" data-fold="mg" data-fold-def="1">
     <div class="panel-head"><h2 id="mgH">🏢 Dashboard-ka maamulaha</h2><span class="note" id="mgMonth"></span></div>
     <div id="mgBody"></div>
   </section>
@@ -1319,6 +1322,7 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
     <span class="note ok" id="regMsg" role="status"></span>
     <p class="note" id="regInfo" style="margin:0"></p>
   </section>
+  <section class="panel biz-only mgr-only ihnotes" aria-label="Qaansheegyo la bixiyay" data-tab="hub" data-hubs="inv" id="ihNotes" hidden></section>
   <section class="panel biz-only mgr-only" aria-labelledby="irH" data-tab="hub" data-hubs="inv" id="irPanel" hidden>
     <div class="panel-head"><h2 id="irH">🧾 Xusuusinta qaansheegga</h2></div>
     <div class="irtodo" id="irTodo"></div>
@@ -3301,6 +3305,8 @@ const BILLS_VERSION=4;
 const BILLS_ADDED_V4=["Jaamacad"];   // only these are added for people already on v3, so bills they deleted do not come back
 const billNm=b=>T(b.name)+(b.who?" · "+b.who:"");
 const bills=()=>mine("bill").sort((a,b)=>a.created.localeCompare(b.created));
+/* Biilasha list: in Shirkad the staff salaries live only in 🧑‍💼 Shaqaalaha (no second copy here); empty job rows (Macallin…) hidden too */
+const billsShown=()=>MODE==="business"?bills().filter(b=>!b.emp&&!(ROLES.has(b.name)&&!(Number(b.amount)>0))):bills();
 /* ---------- recurring bills: schedule, automatic payment, paid / part paid / unpaid / late ---------- */
 const BILL_FREQ=[1,2,3,6,12];
 const freqTxt=n=>n===1?L("Bil kasta","Every month","كل شهر","Kila mwezi"):n===12?L("Sannad kasta","Every year","كل سنة","Kila mwaka"):L(n+" biloodba mar","Every "+n+" months","كل "+n+" أشهر","Kila miezi "+n);
@@ -3338,7 +3344,7 @@ const billSec=x=>x.late?0:(x.s==="unpaid"||x.s==="part")?1:x.s==="paid"?2:x.s===
 const BILL_SECS=[["⏰",["Dib u dhacay","Late","متأخرة","Zilizochelewa"]],["📅",["Soo socda","Coming up","القادمة","Zinazokuja"]],["✓",["La bixiyay","Paid","مدفوعة","Zimelipwa"]],["💤",["Bishan ma jiro","Not this month","ليست هذا الشهر","Si mwezi huu"]],["✏",["Qadar la’aan","No amount yet","بلا مبلغ بعد","Bila kiasi bado"]]];
 function renderBills(txs){
   $("billMonth").textContent=MONTHS[view.getMonth()];
-  let bs=bills();let total=0,left=0,cnt={paid:0,part:0,unpaid:0,late:0},rest=0;
+  let bs=billsShown();let total=0,left=0,cnt={paid:0,part:0,unpaid:0,late:0},rest=0;
   const ae=document.activeElement,ka=ae?.dataset?.bamt?"bamt":ae?.dataset?.bdue?"bdue":ae?.dataset?.bpartin?"bpartin":null,keep=ka?{a:ka,id:ae.dataset[ka],v:ae.value}:null;
   const st=new Map(bs.map(b=>[b.id,billState(b,txs)]));
   for(const b of bs){const x=st.get(b.id);if(x.due)total+=x.amt;if(x.due&&x.left>0&&x.amt>0)left++;if(cnt[x.s]!=null)cnt[x.s]++;if(x.late)cnt.late++;if(x.due&&x.amt>0)rest+=x.left}
@@ -3404,7 +3410,7 @@ const BWDAYS=()=>LANG==="ar"?["إث","ثل","أر","خم","جم","سب","أح"]:
 const dShort=iso=>{const d=new Date(iso+"T00:00");return d.getDate()+" "+MONTHS[d.getMonth()].slice(0,3)};
 /* every late bill: this month after its day, or an earlier month (up to 6 back, not before the bill existed) still not fully paid */
 function lateBills(txs){const now=new Date(),out=[];
-  for(const b of bills()){if(!(Number(b.amount)>0))continue;
+  for(const b of billsShown()){if(!(Number(b.amount)>0))continue;
     for(let k=6;k>=0;k--){const d=new Date(now.getFullYear(),now.getMonth()-k,1),x=billState(b,txs,d);if(!x.late)continue;
       const dd=new Date(d.getFullYear(),d.getMonth(),billDay(b,d));out.push({b,d,x,days:Math.max(1,Math.floor((now-dd)/864e5))})}}
   return out.sort((a,c)=>c.days-a.days)}
@@ -3419,7 +3425,7 @@ function billHistory(b,txs){const ps=txs.filter(t=>t.billId===b.id).sort((a,c)=>
 function renderBillView(txs,late){
   document.querySelectorAll("[data-btab]").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.btab===billTab)));
   $("lateN").textContent=late.length?" "+late.length:"";
-  const box=$("billPane"),bs=bills().filter(b=>Number(b.amount)>0);
+  const box=$("billPane"),bs=billsShown().filter(b=>Number(b.amount)>0);
   if(billTab==="cal"){const d0=new Date(view.getFullYear(),view.getMonth(),1),n=dimOf(d0),lead=(d0.getDay()+6)%7,t0=today(),by={};
     for(const b of bs){const x=billState(b,txs);if(!x.due)continue;const k=b.due?billDay(b):0;(by[k]=by[k]||[]).push([b,x])}
     let cells=BWDAYS().map(w=>`<span class="cw">${w}</span>`).join("")+"<span></span>".repeat(lead);
@@ -3538,9 +3544,11 @@ function startEdit(t){editing=t.id;
 /* v160: the same money written twice (same day, type, amount and place, or category when no place) — warn once, a second tap saves it */
 let dupSig="";
 function txDup(type,amount,cat,date,place,skip){const p=ckey(place),a=Math.round(amount*100);
-  return mine("tx").find(t=>t.id!==skip&&t.type===type&&t.date===date&&Math.round((Number(t.amount)||0)*100)===a&&(p?ckey(t.place)===p:(!ckey(t.place)&&t.cat===cat)))||null}
+  const other=items.filter(t=>t.kind==="tx"&&(t.mode||"person")!==MODE&&t.type!=="tr"&&t.id!==skip&&t.type===type&&t.date===date&&Math.round((Number(t.amount)||0)*100)===a&&(p?ckey(t.place)===p:t.cat===cat));
+  const here=mine("tx").find(t=>t.id!==skip&&t.type===type&&t.date===date&&Math.round((Number(t.amount)||0)*100)===a&&(p?ckey(t.place)===p:(!ckey(t.place)&&t.cat===cat)));
+  if(here)return here;if(other.length)return {...other[0],_other:1};return null}
 function dupAsk(hits,sig){if(!hits.length||dupSig===sig){dupSig="";return false}dupSig=sig;
-  $("txErr").innerHTML=`<span class="dupw">⚠️ ${esc(L("Tan oo kale ayaa horay loo qoray","This was already written","تم تسجيل هذا من قبل","Hii tayari imeandikwa"))}: ${hits.map(t=>esc(T(t.cat)+(t.place?" · "+t.place:"")+" · "+money(t.amount)+" · "+fmtD(t.date))).join("; ")}. ${esc(L("Haddii ay tahay lacag kale, riix Kaydi mar kale.","If it is different money, tap Save again.","إذا كان مبلغًا آخر، اضغط حفظ مرة أخرى.","Kama ni pesa nyingine, bonyeza Hifadhi tena."))}</span>`;return true}
+  $("txErr").innerHTML=`<span class="dupw">⚠️ ${esc(L("Tan oo kale ayaa horay loo qoray","This was already written","تم تسجيل هذا من قبل","Hii tayari imeandikwa"))}: ${hits.map(t=>esc(T(t.cat)+(t.place?" · "+t.place:"")+" · "+money(t.amount)+" · "+fmtD(t.date)+(t._other?" ("+((t.mode||"person")==="business"?L("🏢 Shirkad","🏢 Business","🏢 الشركة","🏢 Biashara"):L("👤 Shakhsi","👤 Personal","👤 شخصي","👤 Binafsi"))+")":""))).join("; ")}. ${esc(L("Haddii ay tahay lacag kale, riix Kaydi mar kale.","If it is different money, tap Save again.","إذا كان مبلغًا آخر، اضغط حفظ مرة أخرى.","Kama ni pesa nyingine, bonyeza Hifadhi tena."))}</span>`;return true}
 $("txForm").addEventListener("submit",async e=>{e.preventDefault();
   if(MULTI_ON&&useGroups()&&!editing){const list=[...document.querySelectorAll("[data-mamt]")].map(i=>[i.dataset.mamt,parseFloat(i.value)]).filter(x=>x[1]>0);
     if(!list.length){$("txErr").textContent=L("Geli qiimaha ugu yaraan hal shay.","Enter a price for at least one item.");document.querySelector("[data-mamt]")?.focus();return}
@@ -3823,13 +3831,14 @@ function renderAlerts(bud){lastBud=bud;
   if(R.goals&&cur&&now.getDate()>=R.goalDay&&!STAFF()){const tx=mine("tx");
     for(const g of mine("goal")){const p=goalPlan(g,tx);if(p.done||!(p.todo>0))continue;
       out.push(["warn",L("🎯 "+g.name+": bishan weli ku shub "+money(p.todo)+(g.due?" si aad u gaarto "+dueText(g.due):"")+".","🎯 "+g.name+": put in "+money(p.todo)+" more this month"+(g.due?" to reach it by "+dueText(g.due):"")+".","🎯 "+g.name+": أضف "+money(p.todo)+" هذا الشهر"+(g.due?" لتصل إليه بحلول "+dueText(g.due):"")+".","🎯 "+g.name+": weka "+money(p.todo)+" zaidi mwezi huu"+(g.due?" ili kufikia kabla ya "+dueText(g.due):"")+".")])}}
-  if(R.debts&&MODE==="business")for(const d0 of mine("debt")){const d=d0.note&&/^Q-\d/.test(d0.note)?{...d0,name:d0.name+" ("+d0.note+")"}:d0;const r=Number(d.amount)-Number(d.paid||0);if(!d.due||r<=0)continue;const k=dayDiff(d.due);
+  if(R.debts&&MODE==="business")for(const d0 of mine("debt")){if(d0.dir==="in"&&MGR())continue;   /* customer balances: shown in 👥 Macaamiisha / 🧾 Qaansheegyada (badge on Guriga) */
+    const d=d0.note&&/^Q-\d/.test(d0.note)?{...d0,name:d0.name+" ("+d0.note+")"}:d0;const r=Number(d.amount)-Number(d.paid||0);if(!d.due||r<=0)continue;const k=dayDiff(d.due);
     const who=d.dir==="in"?L("waa inuu bixiyaa","should pay you"):L("waa in la siiyaa","must be paid");
     if(k<0)out.push(["bad",L("💳 "+d.name+" "+who+" "+money(r)+". Taariikhdii way dhaaftay ("+fmtD(d.due)+").","💳 "+d.name+" "+who+" "+money(r)+". Overdue since "+fmtD(d.due)+".","💳 "+d.name+" "+who+" "+money(r)+". متأخر منذ "+fmtD(d.due)+".","💳 "+d.name+" "+who+" "+money(r)+". Imechelewa tangu "+fmtD(d.due)+".")]);
     else if(k<=R.billDays)out.push(["warn",L("💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".")])}
   if(R.leave&&MODE==="business"&&MGR())for(const v of mine("leave")){
     if(v.type==="buka"&&v.to>=today()&&!v.seen)out.push(["bad",L("🤒 "+v.who+" wuu xanuunsan yahay ("+lvRange(v)+").","🤒 "+v.who+" is sick ("+lvRange(v)+").","🤒 "+v.who+" مريض ("+lvRange(v)+").","🤒 "+v.who+" ni mgonjwa ("+lvRange(v)+").")]);
-    else if(v.status==="wait")out.push(["warn",L("🏖️ "+v.who+" wuxuu codsaday fasax ("+lvRange(v)+"). Eeg Qorshe.","🏖️ "+v.who+" asked for leave ("+lvRange(v)+"). See Plan.","🏖️ "+v.who+" طلب إجازة ("+lvRange(v)+"). انظر الخطة.","🏖️ "+v.who+" ameomba likizo ("+lvRange(v)+"). Angalia Mpango.")])}
+    else if(v.status==="wait"&&!(typeof hubOn==="function"&&hubOn()))out.push(["warn",L("🏖️ "+v.who+" wuxuu codsaday fasax ("+lvRange(v)+"). Eeg 🧑‍💼 Shaqaalaha.","🏖️ "+v.who+" asked for leave ("+lvRange(v)+"). See 🧑‍💼 Staff.","🏖️ "+v.who+" طلب إجازة ("+lvRange(v)+"). انظر 🧑‍💼 الموظفون.","🏖️ "+v.who+" ameomba likizo ("+lvRange(v)+"). Angalia 🧑‍💼 Wafanyakazi.")])}
   if(R.daily&&cur&&hhmm()>=R.time&&!mine("tx").some(t=>t.date===today()&&(!STAFF()||isMine(t))))
     out.push(["warn",L("✍️ Maanta weli waxba ma qorin. Ku dar lacagta soo gashay iyo kharashka maanta.","✍️ Nothing entered today yet. Add today's money in and spending.","✍️ لم تُسجّل شيئًا اليوم بعد. أضف دخل اليوم ومصروفه.","✍️ Bado hujaingiza chochote leo. Ongeza mapato na matumizi ya leo.")]);
   $("alerts").innerHTML=out.map(([c,t])=>`<p class="al ${c}">${esc(t)}</p>`).join("");$("alerts").hidden=!out.length;
@@ -3869,21 +3878,23 @@ else{$("notifyRow").hidden=false;
 /* ---------- debts (company) ---------- */
 const debtLeft=d=>Math.max(0,Number(d.amount)-Number(d.paid||0));
 function renderDebts(){
-  const ds=mine("debt").sort((a,b)=>(debtLeft(b)>0)-(debtLeft(a)>0)||(a.due||"9999").localeCompare(b.due||"9999"));
-  const tin=ds.filter(d=>d.dir==="in").reduce((a,d)=>a+debtLeft(d),0),tout=ds.filter(d=>d.dir==="out").reduce((a,d)=>a+debtLeft(d),0);
-  $("debtSum").innerHTML=`<div class="ext lo"><span class="lbl">${L("Lacag naloo hayo","Owed to us")}</span><b>${money(tin)}</b></div><div class="ext hi"><span class="lbl">${L("Lacag aan u hayno dad kale","We owe others")}</span><b>${money(tout)}</b></div>`;
+  const bizC=MODE==="business"&&MGR(),cin=bizC?mine("debt").filter(d=>d.dir==="in"):[];
+  const ds=mine("debt").filter(d=>!bizC||d.dir!=="in").sort((a,b)=>(debtLeft(b)>0)-(debtLeft(a)>0)||(a.due||"9999").localeCompare(b.due||"9999"));
+  const tin=(bizC?cin:ds).filter(d=>d.dir==="in").reduce((a,d)=>a+debtLeft(d),0),tout=ds.filter(d=>d.dir==="out").reduce((a,d)=>a+debtLeft(d),0);
+  $("debtSum").innerHTML=`<div class="ext lo"><span class="lbl">${L("Lacag naloo hayo","Owed to us")}</span><b>${money(tin)}</b>${bizC?`<button type="button" class="del" data-hub="cust" data-hubgo="1">👥 ${L("Eeg Macaamiisha","See Customers","عرض العملاء","Ona Wateja")} →</button>`:""}</div><div class="ext hi"><span class="lbl">${L("Lacag aan u hayno dad kale","We owe others")}</span><b>${money(tout)}</b></div>`;
   $("debts").innerHTML=ds.length?ds.map(d=>{const r=debtLeft(d),late=d.due&&r>0&&d.due<today(),id=esc(d.id);
     return `<div class="debt"><div class="goal-top"><b>${esc(d.name)}</b><span class="amt ${d.dir}">${money(r)}</span></div>
       <span class="note">${d.dir==="in"?L("Naloo hayo","Owed to us"):L("Aan u hayno","We owe")} · ${L("Wadarta","Total")}: ${money(d.amount)}${d.due?` · <span class="${late?"late":""}">${L("Taariikhda","Due")}: ${fmtD(d.due)}${late?L(" (way dhaaftay)"," (overdue)"):""}</span>`:""}</span>${typeof zBadge==="function"?zBadge(d):""}
       <div class="goal-actions">${r>0?`<input type="number" min="0" step="0.01" inputmode="decimal" placeholder="${L("Qadar","Amount")}" id="din-${id}" aria-label="${L("Qadarka","Amount")}"><button data-dpay="${id}">${d.dir==="in"?L("Lacag ayaa la helay","Received"):L("Bixi","Pay")}</button>`:`<span class="done">${L("✓ Waa la dhammeeyay","✓ Settled")}</span>`}
       ${items.some(i=>i.kind==="tx"&&i.debtId===d.id)?`<button class="del" data-dundo="${id}">${L("↩ Ka noqo lacagtii u dambeysay","↩ Undo last payment")}</button>`:""}
       ${d.dir==="in"&&r>0?`<button type="button" class="del" data-dwa="${id}">💬 ${L("Xusuusin","Remind","تذكير","Kumbusha")}</button>`:""}<button class="del" data-del="${id}">Tirtir</button></div></div>`}).join("")
-    :`<p class="empty" style="margin:0">${L("Weli deyn lama qorin.","No debts recorded yet.")}</p>`}
+    :`<p class="empty" style="margin:0">${bizC?L("Ma jirto lacag aad dad kale u hayso.","You do not owe anyone money.","لا تدين لأحد بالمال.","Huna deni kwa mtu yeyote."):L("Weli deyn lama qorin.","No debts recorded yet.")}</p>`}
 $("debtForm").addEventListener("submit",async e=>{e.preventDefault();
   const name=$("dName").value.trim(),amount=parseFloat($("dAmt").value),dir=document.querySelector('input[name=ddir]:checked').value,due=$("dDue").value||null;
   if(!name||!(amount>0)){$("dErr").textContent=L("Geli magac iyo qadar ka weyn eber.","Enter a name and an amount greater than zero.");return}
   $("dErr").textContent="";
-  try{await put({id:uid(),kind:"debt",name,amount,dir,due,paid:0,created:new Date().toISOString()});$("dName").value="";$("dAmt").value="";$("dDue").value=""}
+  try{await put({id:uid(),kind:"debt",name,amount,dir,due,paid:0,created:new Date().toISOString()});$("dName").value="";$("dAmt").value="";$("dDue").value="";
+    if(dir==="in"&&MODE==="business"&&MGR())$("dErr").innerHTML=`<span class="ok">✓ ${esc(L(`${name} waxaa lagu daray 👥 Macaamiisha.`,`${name} was added to 👥 Customers.`,`تمت إضافة ${name} إلى 👥 العملاء.`,`${name} ameongezwa kwa 👥 Wateja.`))}</span> <button type="button" class="del" data-hub="cust" data-hubgo="1">${esc(L("Eeg","See","عرض","Ona"))} →</button>`}
   catch{$("dErr").textContent="Lama kaydin karo hadda. Isku day mar kale."}});
 document.addEventListener("click",async e=>{
   const dp=e.target.closest("[data-dpay]");
@@ -3935,6 +3946,8 @@ $("lvForm").addEventListener("submit",async e=>{e.preventDefault();
   if(!who){$("lvErr").textContent=L("Geli magaca shaqaalaha.","Enter the staff member's name.");return}
   if(!from||to<from){$("lvErr").textContent=L("Dooro taariikhda bilowga iyo dhammaadka.","Choose the start and end dates.");return}
   $("lvErr").textContent="";
+  {const w=ckey(who),ov=mine("leave").find(v=>v.status!=="no"&&ckey(v.who)===w&&(v.type==="buka")===(type==="buka")&&v.from<=to&&v.to>=from);
+    if(ov){$("lvErr").textContent=L(`${ov.who}: ${lvRange(ov)} horay ayaa loo qoray.`,`${ov.who}: ${lvRange(ov)} is already recorded.`,`${ov.who}: ${lvRange(ov)} مسجّلة مسبقًا.`,`${ov.who}: ${lvRange(ov)} tayari imeandikwa.`);return}}
   const status=owner||type==="buka"?"ok":"wait";
   try{await put({id:uid(),kind:"leave",who,type,from,to,note,status,by:me?.email||"",created:new Date().toISOString()});
     $("lvWho").value="";$("lvFrom").value="";$("lvTo").value="";$("lvNote").value="";
@@ -4906,6 +4919,8 @@ async function invSave(){const lines=invLines.map(l=>({n:String(l.n||"").trim(),
   $("invErr").textContent="";const k=invKind(),sum=lines.reduce((a,l)=>a+l.q*l.p,0),adj=invAdj(sum),total=Math.round((sum+adj)*100)/100,date=$("invDate").value||today();
   const sig=JSON.stringify([k,cust,$("invPhone").value,$("invEmail").value,date,lines,$("invNote").value,$("invDue").value,adj,$("invCtype").value]);
   if(invCur&&invCur.sig===sig)return invCur.doc;
+  if(!invCur){const tw=mine("inv").find(d=>d.k===k&&ckey(d.cust)===ckey(cust)&&d.date===date&&Math.abs((Number(d.total)||0)-total)<0.005);
+    if(tw&&invDupSig!==sig){invDupSig=sig;$("invErr").textContent="⚠️ "+L(`${invNoTxt(tw)} oo isku macmiil, taariikh iyo wadar ah (${money(total)}) horay ayaa loo sameeyay. Haddii ay tahay mid kale, riix mar kale.`,`${invNoTxt(tw)} with the same customer, date and total (${money(total)}) already exists. If this is a different one, tap again.`,`${invNoTxt(tw)} بنفس العميل والتاريخ والمجموع (${money(total)}) موجود مسبقًا. إذا كانت مختلفة، اضغط مرة أخرى.`,`${invNoTxt(tw)} yenye mteja, tarehe na jumla sawa (${money(total)}) tayari ipo. Kama ni nyingine, bonyeza tena.`);return null}invDupSig=""}
   try{let doc;
     const cur=invCur&&invCur.doc&&items.find(i=>i.id===invCur.doc.id);
     if(invCur&&invCur.doc&&invCur.doc.k===k){doc={...(cur||invCur.doc)}}
@@ -5274,6 +5289,9 @@ $("pyForm").addEventListener("submit",async e=>{e.preventDefault();const who=$("
   const acc=staffAccounts(),mail=lc(who).includes("@")&&acc.includes(lc(who))?lc(who):(empMail&&$("pyWho").dataset.mail===empMail?empMail:"");
   if(mail&&empOfMail(mail)){$("pyErr").textContent=L("Shaqaalahan mushahar horay ayaa loo geliyay.","This staff member already has a salary.","لهذا الموظف راتب مسجّل مسبقًا.","Mfanyakazi huyu tayari ana mshahara.");return}
   const name=mail&&lc(who)===mail?mailName(mail):who;
+  {const same=emps().find(b=>ckey(b.who||"")===ckey(name));if(same){$("pyErr").textContent=L(`${same.who} horay ayuu ugu jiray liiska shaqaalaha (${T(same.name)}).`,`${same.who} is already on the staff list (${T(same.name)}).`,`${same.who} موجود مسبقًا في قائمة الموظفين (${T(same.name)}).`,`${same.who} tayari yuko kwenye orodha ya wafanyakazi (${T(same.name)}).`);return}
+    const dg=x=>String(x||"").replace(/\D/g,"").slice(-9),ph=dg($("pyPh").value),sig=name+"|"+ph,sp=ph.length>=7&&emps().find(b=>dg(b.phone)===ph);
+    if(sp&&pyDupSig!==sig){pyDupSig=sig;$("pyErr").textContent="⚠️ "+L(`Telefoonkan waxaa horay u leh ${sp.who}. Haddii uu yahay qof kale, riix mar kale.`,`This phone already belongs to ${sp.who}. If it is a different person, tap again.`,`هذا الهاتف مسجّل باسم ${sp.who}. إذا كان شخصًا آخر، اضغط مرة أخرى.`,`Simu hii tayari ni ya ${sp.who}. Kama ni mtu mwingine, bonyeza tena.`);return}pyDupSig=""}
   try{await put({id:uid(),kind:"bill",emp:1,name:role,who:name,...(mail?{mail}:{}),phone:$("pyPh").value.trim(),amount,due:day&&day>=1&&day<=31?day:null,grp:"staff",created:new Date().toISOString()});
     ["pyWho","pyAmt","pyPh","pyDay"].forEach(i=>$(i).value="");delete $("pyWho").dataset.mail;empMail="";empMsg="✓ "+L(`${name} waa la daray.`,`${name} added.`,`تمت إضافة ${name}.`,`${name} ameongezwa.`);renderPayroll()}
   catch{$("pyErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Haiwezi kuhifadhi sasa. Jaribu tena.")}});
@@ -5651,7 +5669,7 @@ document.addEventListener("click",async e=>{
 {const _r6=render;render=function(){_r6();try{renderZero()}catch(e){console.warn(e)}}}
 /* ================= 11. Shirkad Guriga: register a customer or an employee (v150) =================
    Customer = kind "cust" {name, phone, email} (Shirkad only). Employee = the payroll form in Qorshe (same rules). */
-let regTab="cust",regMsgT="";
+let regTab="cust",regMsgT="",rcDupSig="",pyDupSig="",invDupSig="";
 function renderReg(){const P=$("regPanel");if(!P)return;if(MODE!=="business"||!MGR()){return}
   $("regH").textContent="➕ "+L("Diiwaangeli","Register","تسجيل","Sajili");
   const n=mine("cust").length,ne=typeof emps==="function"?emps().length:0;
@@ -5670,6 +5688,9 @@ $("rcForm").addEventListener("submit",async e=>{e.preventDefault();const name=$(
   $("rcErr").textContent="";
   if(!name){$("rcErr").textContent=L("Geli magaca macmiilka.","Enter the customer's name.","أدخل اسم العميل.","Weka jina la mteja.");$("rcName").focus();return}
   if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){$("rcErr").textContent=L("Email-ku sax maaha.","The email is not valid.","البريد الإلكتروني غير صحيح.","Barua pepe si sahihi.");$("rcEmail").focus();return}
+  {const dg=x=>String(x||"").replace(/\D/g,"").slice(-9),ph=dg(phone),em=lc(email),sig=[name,phone,email].join("|");
+    const ex2=(ph.length>=7||em)&&mine("cust").find(c=>ckey(c.name)!==ckey(name)&&((ph.length>=7&&dg(c.phone)===ph)||(em&&lc(c.email)===em)));
+    if(ex2&&rcDupSig!==sig){rcDupSig=sig;$("rcErr").textContent="⚠️ "+L(`Telefoonkan ama email-kan waxaa horay u leh ${ex2.name}. Haddii uu yahay qof kale, riix Diiwaangeli mar kale.`,`This phone or email already belongs to ${ex2.name}. If it is a different person, tap Register again.`,`هذا الهاتف أو البريد مسجّل باسم ${ex2.name}. إذا كان شخصًا آخر، اضغط تسجيل مرة أخرى.`,`Simu au barua pepe hii tayari ni ya ${ex2.name}. Kama ni mtu mwingine, bonyeza Sajili tena.`);return}rcDupSig=""}
   {const ex=mine("cust").find(c=>ckey(c.name)===ckey(name));if(ex){const name=ex.name;$("rcErr").textContent=L(`${name} horay ayuu u diiwaangashanaa.`,`${name} is already registered.`,`${name} مسجّل مسبقًا.`,`${name} tayari amesajiliwa.`);return}}
   try{const id=uid();await put({id,kind:"cust",name,phone,email,ctype:$("rcType").value==="b"?"b":"p",created:new Date().toISOString()});["rcName","rcPhone","rcEmail"].forEach(i=>$(i).value="");
     regMsgT="✓ "+esc(L(`${name} waa la diiwaangeliyay.`,`${name} registered.`,`تم تسجيل ${name}.`,`${name} amesajiliwa.`))+` <button type="button" class="del" data-regnew="${esc(id)}">🧾 ${L("U samee rasiid / qaansheeg","Make a receipt / invoice","أنشئ إيصالًا / فاتورة","Tengeneza risiti / ankara")}</button>`;renderReg()}
@@ -5839,6 +5860,9 @@ function hubInfo(k){const tx=mine("tx");
   return {n:MONTHS[view.getMonth()]+": "+(pl>=0?"📈 "+L("Faa'iido","Profit","ربح","Faida")+" "+money(pl):"📉 "+L("Khasaare","Loss","خسارة","Hasara")+" "+money(-pl)),good:pl>0,bad:pl<0,badge:0}}
 function renderHub(){const g=$("bhGrid");if(!g)return;const av=$("appView");
   if(av.dataset.tab==="hub"&&!hubOn()){goTab("home");return}
+  /* Shirkad: payment notices + paid invoices live only in 🧾 Qaansheegyada; Shakhsi keeps them on the home card */
+  {const pn=$("payNote"),gi=$("glInv"),host=$("ihNotes");if(pn&&gi&&host){if(hubOn()){if(pn.parentElement!==host){host.appendChild(pn);host.appendChild(gi)}host.hidden=pn.hidden&&gi.hidden}
+    else{if(pn.parentElement===host){$("glPLd").after(pn);pn.after(gi)}host.hidden=true}}}
   if(!hubOn())return;
   $("bhH").textContent="🏢 "+(coName()||L("Shirkaddaada","Your business","شركتك","Biashara yako"));
   const inf={};for(const k in HUBS){try{inf[k]=hubInfo(k)}catch(e){inf[k]={n:"",badge:0}}}
@@ -5867,7 +5891,7 @@ addEventListener("popstate",()=>{hubPushed=false;if($("appView").dataset.tab==="
 function secGo(id,tab){const h=HUB_OF[id];if(h&&hubOn())hubOpen(h,true);else goTab(tab)}
 function secShow(id){const h=HUB_OF[id],av=$("appView");if(h&&hubOn()&&!(av.dataset.tab==="hub"&&av.dataset.hub===h))hubOpen(h,true)}
 document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-hub]");if(b&&(b.closest("#bhGrid")||b.closest("#hubSw"))){hubOpen(b.dataset.hub);return}
+  const b=e.target.closest("[data-hub]");if(b&&(b.closest("#bhGrid")||b.closest("#hubSw")||b.dataset.hubgo)){hubOpen(b.dataset.hub);return}
   if(e.target.closest("#hubBack")){hubClose();return}
   const a=e.target.closest("[data-hubact]");if(!a)return;const k=a.dataset.hubact;
   const go=(id,f)=>setTimeout(()=>{const el=$(id);if(!el)return;const s=el.tagName==="SECTION"?el:el.closest("section");if(s&&s.classList.contains("folded"))s.querySelector(".foldbtn")?.click();el.scrollIntoView({behavior:"smooth",block:"start"});if(f)setTimeout(()=>$(f)?.focus({preventScroll:true}),350)},60);
