@@ -2124,6 +2124,8 @@ async function flush(){clearTimeout(syncTimer);if(dirty.size||gone.size)await sy
 /* money fields watched for changes (see section 10): old → new is kept on the item, 0 asks first */
 const ZERO_KINDS={tx:["amount"],bill:["amount"],debt:["amount"],inv:["total"],goal:["target"]};
 let ZERO_ASK=true;
+/* every change to a money entry is remembered (when, who, old → new) so downloaded reports can show it */
+const TX_EDIT_F=["type","amount","date","cat","method","to","place","note"];let MIGRATING=false;
 async function put(doc){
   if(["tx","goal","bill","cat","debt","leave","inv","cust"].includes(doc.kind)&&!doc.mode)doc={...doc,mode:MODE};
   if(doc.kind==="tx"&&!doc.by&&(TEAM||hasStaff)&&me)doc={...doc,by:me.email};
@@ -2133,6 +2135,8 @@ async function put(doc){
       if(n===0&&o>0&&ZERO_ASK&&typeof confirm==="function"&&!confirm(L(`${zName(old)}\n\nQadarka ${money(o)} waxaad u beddelaysaa 0 (eber). Ma hubtaa?`,`${zName(old)}\n\nYou are changing ${money(o)} to 0 (zero). Are you sure?`,`${zName(old)}\n\nأنت تغيّر ${money(o)} إلى 0 (صفر). هل أنت متأكد؟`,`${zName(old)}\n\nUnabadilisha ${money(o)} kuwa 0 (sifuri). Una uhakika?`))){render();return}
       hist=[...hist,{at:new Date().toISOString(),by:me?.email||"",f,o,n}].slice(-10);ch=true}
     if(ch)doc={...doc,hist}}
+  if(i>=0&&doc.kind==="tx"&&!MIGRATING){const old=items[i],c=TX_EDIT_F.filter(f=>String(old[f]??"")!==String(doc[f]??"")).map(f=>[f,old[f]??"",doc[f]??""]);
+    if(c.length)doc={...doc,edits:[...(doc.edits||old.edits||[]),{at:new Date().toISOString(),by:me?.email||"",c}].slice(-5)}}
   if(i>=0)items[i]=doc;else items.push(doc);
   doc.u=Date.now();dirty.add(doc.id);gone.delete(doc.id);delete goneT[doc.id];
   saveLocal();render();scheduleSync();
@@ -3126,16 +3130,39 @@ function wrHtml(print){const {d,S}=WR,pct=v=>d.out?Math.round(v/d.out*100)+"%":"
   ${S.tip?`<p><b>💡 ${L("Talo","Tip","نصيحة","Ushauri")}:</b> ${strip(S.tip)}</p>`:""}
   ${wrListHtml(d)}`}
 /* report files: every entry of the month with date, weekday, time, account (EVC Plus / Bangi / Kaash) and where the money came from / went */
+const stampOf=iso=>{const c=iso?new Date(iso):null;if(!c||isNaN(c))return "";const z=n=>String(n).padStart(2,"0");return `${z(c.getDate())}/${z(c.getMonth()+1)}/${c.getFullYear()} ${z(c.getHours())}:${z(c.getMinutes())}`};
+const recAt=t=>stampOf(t.created);
+function edVal(f,v){return v===""||v==null?"—":f==="amount"?money(v):f==="type"?(v==="in"?L("Soo galay","Money in","دخل","Iliingia"):v==="tr"?L("Wareejin","Transfer","تحويل","Uhamisho"):L("Ka baxay","Money out","خرج","Ilitoka")):f==="date"?dayDate(v).full:["cat","method","to"].includes(f)?T(v):String(v)}
+const edName=f=>({type:L("Nooca","Type","النوع","Aina"),amount:L("Qadarka","Amount","المبلغ","Kiasi"),date:L("Taariikhda","Date","التاريخ","Tarehe"),cat:L("Qaybta","Category","الفئة","Aina"),method:L("Akoonka","Account","الحساب","Akaunti"),to:L("Loo wareejiyay","To","إلى","Kwenda"),place:L("Meesha","Place","المكان","Mahali"),note:L("Faahfaahin","Details","تفاصيل","Maelezo")})[f]||f;
+/* "18/11/2026 11:02: Qadarka $50.00 → $80.00" for each change (newest last) */
+const chgOf=t=>(t.edits||[]).map(e=>stampOf(e.at)+": "+e.c.map(([f,o,n])=>`${edName(f)} ${edVal(f,o)} → ${edVal(f,n)}`).join(", ")+(e.by&&MODE==="business"?" ("+e.by+")":"")).join(" | ");
 const wrTime=t=>{const c=t.created?new Date(t.created):null;if(!c||isNaN(c))return "";const z=n=>String(n).padStart(2,"0");
   return c.getFullYear()+"-"+z(c.getMonth()+1)+"-"+z(c.getDate())===t.date?z(c.getHours())+":"+z(c.getMinutes()):""};
 function wrRows(d,type){return d.list.filter(t=>t.type===type).sort((a,b)=>(a.date+(a.created||"")).localeCompare(b.date+(b.created||""))).map(t=>({
   date:t.date,day:dayDate(t.date).wd,time:wrTime(t),topic:GROUPS(t.type).length?grpLabel(grpOf(t.cat,t.type)):"",cat:T(t.cat),
-  acc:T(t.method||"Kaash"),place:t.place||"",note:t.note||"",amt:Number(t.amount||0)}))}
+  acc:T(t.method||"Kaash"),place:t.place||"",note:t.note||"",amt:Number(t.amount||0),rec:recAt(t),chg:chgOf(t)}))}
 function wrAcc(d){const o={},g=m=>o[m=m||"Kaash"]=o[m]||{i:0,o:0,t:0};METHODS.forEach(g);
   d.list.forEach(t=>g(t.method)[t.type==="in"?"i":"o"]+=Number(t.amount||0));
   d.trs.forEach(t=>{const v=Number(t.amount||0);g(t.method).t-=v;g(t.to).t+=v});
   return Object.entries(o).filter(([m,v])=>v.i||v.o||v.t).map(([m,v])=>[T(m),v.i,v.o,v.t,v.i-v.o+v.t])}
-const wrTrRows=d=>d.trs.map(t=>({date:t.date,day:dayDate(t.date).wd,time:wrTime(t),from:T(t.method||"Kaash"),to:T(t.to||"Kaash"),note:t.note||"",amt:Number(t.amount||0)}));
+const wrTrRows=d=>d.trs.map(t=>({date:t.date,day:dayDate(t.date).wd,time:wrTime(t),from:T(t.method||"Kaash"),to:T(t.to||"Kaash"),note:t.note||"",amt:Number(t.amount||0),rec:recAt(t),chg:chgOf(t)}));
+/* history before the report's first day: every entry oldest → newest with the running balance (Kayd counts like the home "Ku haray") */
+function histRows(before){const all=items.filter(i=>i.kind==="tx"&&(i.mode||"person")===MODE&&String(i.date)<before).sort((a,b)=>(a.date+(a.created||"")).localeCompare(b.date+(b.created||"")));
+  let bal=0;return all.map(t=>{const v=Number(t.amount||0),k=t.type==="in"?v:t.type==="out"?-v:0;bal+=k;
+    return {date:t.date,day:dayDate(t.date).wd,type:edVal("type",t.type),cat:t.type==="tr"?T(t.method||"Kaash")+" → "+T(t.to||"Kaash"):T(t.cat),acc:t.type==="tr"?"":T(t.method||"Kaash"),
+      place:[t.place,t.note].filter(Boolean).join(" · "),k,tr:t.type==="tr",amt:v,bal,rec:recAt(t),chg:chgOf(t)}})}
+const HH={title:()=>"📜 "+L("Taariikhda hore: wixii soo galay iyo wixii baxay ka hor","Earlier history: everything in and out before","السجل السابق: كل ما دخل وخرج قبل","Historia ya awali: kila kilichoingia na kutoka kabla ya"),
+  type:()=>L("Nooca","Type","النوع","Aina"),bal:()=>L("Haraaga","Balance","الرصيد","Salio"),rec:()=>L("La qoray","Entered","أُدخل","Iliingizwa"),chg:()=>L("La beddelay","Changed","عُدّل","Ilibadilishwa"),
+  open:()=>L("Haraaga bilowga","Opening balance","الرصيد الافتتاحي","Salio la mwanzo"),none:()=>L("Wax ka horreeyay lama qorin.","Nothing was recorded before this.","لم يُسجَّل شيء قبل ذلك.","Hakuna kilichorekodiwa kabla ya hapo.")};
+function histTitle(from){return HH.title()+" "+dayDate(from).full}
+function histHtml(from){const r=histRows(from),sm='style="color:#666"';
+  return `<h2>${esc(histTitle(from))}</h2><table><tr><th>${WRH.date()}</th><th>${HH.type()}</th><th>${WRH.cat()}</th><th>${WRH.acct()}</th><th>${L("Meesha / faahfaahin","Place / details","المكان / التفاصيل","Mahali / maelezo")}</th><th>${WRH.amt()}</th><th>${HH.bal()}</th></tr>`
+   +(r.length?r.map(x=>`<tr><td>${esc(dayDate(x.date).full)}<br><small ${sm}>${esc(x.day)}</small></td><td>${esc(x.type)}</td><td>${esc(x.cat)}</td><td>${esc(x.acc)}</td><td>${esc(x.place)}${x.rec?`<br><small ${sm}>✍ ${HH.rec()}: <span dir="ltr">${esc(x.rec)}</span></small>`:""}${x.chg?`<br><small style="color:#9a6b00">✏ ${HH.chg()}: ${esc(x.chg)}</small>`:""}</td><td class="n" style="color:${x.tr?"#555":x.k>=0?"#0b7a4b":"#c0392b"}">${x.tr?"⇄ "+money(x.amt):sgn(x.k)}</td><td class="n">${x.bal<0?"−":""}${money(Math.abs(x.bal))}</td></tr>`).join("")
+     +`<tr><td colspan="6"><b>${HH.open()} ${esc(dayDate(from).full)}</b></td><td class="n"><b>${r[r.length-1].bal<0?"−":""}${money(Math.abs(r[r.length-1].bal))}</b></td></tr>`
+     :`<tr><td colspan="7">${HH.none()}</td></tr>`)+`</table>`}
+function histSheet(from){const r=histRows(from);
+  return {title:histTitle(from),head:[WRH.date(),WRH.day(),HH.type(),WRH.cat(),WRH.acct(),L("Meesha / faahfaahin","Place / details","المكان / التفاصيل","Mahali / maelezo"),WRH.amt(),HH.bal(),HH.rec(),HH.chg()],
+    rows:r.length?[...r.map(x=>[x.date,x.day,x.type,x.cat,x.acc,x.place,x.tr?x.amt:x.k,x.bal,x.rec,x.chg]),[HH.open()+" "+from,"","","","","","",r[r.length-1].bal,"",""]]:[[HH.none()]],totalRow:r.length?1:0}}
 const WRH={
   acc:()=>"🏦 "+L("Akoon kasta: EVC Plus, Bangi, Kaash","Each account: EVC Plus, Bank, Cash","كل حساب: EVC Plus، البنك، النقد","Kila akaunti: EVC Plus, Benki, Taslimu"),
   in:()=>"💰 "+L("Goorta iyo halka lacagtu ka soo gashay","When and where money came in","متى ومن أين دخلت الأموال","Lini na wapi pesa ziliingia"),
@@ -3154,22 +3181,24 @@ const sgn=v=>(v<0?"−":v>0?"+":"")+money(Math.abs(v));
 function wrListHtml(d){const acc=wrAcc(d),ti=d=>`${esc(dayDate(d.date).full)}<br><small style="color:#666">${esc(d.day)}${d.time?" · "+d.time:""}</small>`;
   const list=type=>{const r=wrRows(d,type),tot=r.reduce((s,x)=>s+x.amt,0);
     return `<h2>${esc(type==="in"?WRH.in():WRH.out())}</h2><table><tr><th>${WRH.date()}</th><th>${WRH.cat()}</th><th>${WRH.acct()}</th><th>${type==="in"?WRH.pin():WRH.pout()}</th><th>${WRH.amt()}</th></tr>`
-     +(r.length?r.map(x=>`<tr><td>${ti(x)}</td><td>${esc(x.cat)}${x.topic?`<br><small style="color:#666">${esc(x.topic)}</small>`:""}</td><td>${esc(x.acc)}</td><td>${esc(x.place)}${x.note?`<br><small style="color:#666">${esc(x.note)}</small>`:""}</td><td class="n" style="color:${type==="in"?"#0b7a4b":"#c0392b"}">${money(x.amt)}</td></tr>`).join("")
+     +(r.length?r.map(x=>`<tr><td>${ti(x)}</td><td>${esc(x.cat)}${x.topic?`<br><small style="color:#666">${esc(x.topic)}</small>`:""}</td><td>${esc(x.acc)}</td><td>${esc(x.place)}${x.note?`<br><small style="color:#666">${esc(x.note)}</small>`:""}${x.rec?`<br><small style="color:#666">✍ ${HH.rec()}: <span dir="ltr">${esc(x.rec)}</span></small>`:""}${x.chg?`<br><small style="color:#9a6b00">✏ ${HH.chg()}: ${esc(x.chg)}</small>`:""}</td><td class="n" style="color:${type==="in"?"#0b7a4b":"#c0392b"}">${money(x.amt)}</td></tr>`).join("")
        +`<tr><td colspan="4"><b>${WRH.total()} (${r.length})</b></td><td class="n"><b>${money(tot)}</b></td></tr>`:`<tr><td colspan="5">${WRH.none()}</td></tr>`)+`</table>`};
   const tr=wrTrRows(d),trT=tr.reduce((s,x)=>s+x.amt,0);
   return (acc.length?`<h2>${esc(WRH.acc())}</h2><table><tr><th>${WRH.acct()}</th><th>${WRH.inc()}</th><th>${WRH.outc()}</th><th>${WRH.trc()}</th><th>${WRH.diff()}</th></tr>${acc.map(([m,i,o,t,f])=>`<tr><td>${esc(m)}</td><td class="n">${money(i)}</td><td class="n">${money(o)}</td><td class="n">${t?sgn(t):"—"}</td><td class="n" style="color:${f<0?"#c0392b":"#0b7a4b"}">${sgn(f)}</td></tr>`).join("")}</table>`:"")
     +list("in")+list("out")
     +`<h2>${esc(WRH.tr())}</h2><table><tr><th>${WRH.date()}</th><th>${WRH.from()}</th><th>${WRH.to()}</th><th>${WRH.note()}</th><th>${WRH.amt()}</th></tr>`
-    +(tr.length?tr.map(x=>`<tr><td>${ti(x)}</td><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td>${esc(x.note)}</td><td class="n">${money(x.amt)}</td></tr>`).join("")
-      +`<tr><td colspan="4"><b>${WRH.total()} (${tr.length})</b></td><td class="n"><b>${money(trT)}</b></td></tr>`:`<tr><td colspan="5">${WRH.trnone()}</td></tr>`)+`</table>`}
+    +(tr.length?tr.map(x=>`<tr><td>${ti(x)}</td><td>${esc(x.from)}</td><td>${esc(x.to)}</td><td>${esc(x.note)}${x.rec?`<br><small style="color:#666">✍ ${HH.rec()}: <span dir="ltr">${esc(x.rec)}</span></small>`:""}${x.chg?`<br><small style="color:#9a6b00">✏ ${HH.chg()}: ${esc(x.chg)}</small>`:""}</td><td class="n">${money(x.amt)}</td></tr>`).join("")
+      +`<tr><td colspan="4"><b>${WRH.total()} (${tr.length})</b></td><td class="n"><b>${money(trT)}</b></td></tr>`:`<tr><td colspan="5">${WRH.trnone()}</td></tr>`)+`</table>`
+    +histHtml(d.from)}
 function wrListSheets(d){const sec=type=>{const r=wrRows(d,type),tot=r.reduce((s,x)=>s+x.amt,0);
-    return {title:type==="in"?WRH.in():WRH.out(),head:[WRH.date(),WRH.day(),WRH.time(),WRH.topic(),WRH.cat(),WRH.acct(),type==="in"?WRH.pin():WRH.pout(),WRH.note(),WRH.amt()],
-      rows:r.length?[...r.map(x=>[x.date,x.day,x.time,x.topic,x.cat,x.acc,x.place,x.note,type==="in"?x.amt:-x.amt]),[WRH.total()+" ("+r.length+")","","","","","","","",type==="in"?tot:-tot]]:[[WRH.none()]],totalRow:r.length?1:0}};
+    return {title:type==="in"?WRH.in():WRH.out(),head:[WRH.date(),WRH.day(),WRH.topic(),WRH.cat(),WRH.acct(),type==="in"?WRH.pin():WRH.pout(),WRH.note(),WRH.amt(),HH.rec(),HH.chg()],
+      rows:r.length?[...r.map(x=>[x.date,x.day,x.topic,x.cat,x.acc,x.place,x.note,type==="in"?x.amt:-x.amt,x.rec,x.chg]),[WRH.total()+" ("+r.length+")","","","","","","",type==="in"?tot:-tot,"",""]]:[[WRH.none()]],totalRow:r.length?1:0}};
   const acc=wrAcc(d);
   const tr=wrTrRows(d);
   return [...(acc.length?[{title:WRH.acc(),head:[WRH.acct(),WRH.inc(),WRH.outc(),WRH.trc(),WRH.diff()],rows:acc.map(([m,i,o,t,f])=>[m,i,-o,t,f])}]:[]),sec("in"),sec("out"),
-    {title:WRH.tr(),head:[WRH.date(),WRH.day(),WRH.time(),WRH.from(),WRH.to(),WRH.note(),WRH.amt()],
-      rows:tr.length?[...tr.map(x=>[x.date,x.day,x.time,x.from,x.to,x.note,x.amt]),[WRH.total()+" ("+tr.length+")","","","","","",tr.reduce((s,x)=>s+x.amt,0)]]:[[WRH.trnone()]],totalRow:tr.length?1:0}]}
+    {title:WRH.tr(),head:[WRH.date(),WRH.day(),WRH.from(),WRH.to(),WRH.note(),WRH.amt(),HH.rec(),HH.chg()],
+      rows:tr.length?[...tr.map(x=>[x.date,x.day,x.from,x.to,x.note,x.amt,x.rec,x.chg]),[WRH.total()+" ("+tr.length+")","","","","",tr.reduce((s,x)=>s+x.amt,0),"",""]]:[[WRH.trnone()]],totalRow:tr.length?1:0},
+    histSheet(d.from)]}
 function wrExport(k){if(!WR)return;
   if(k==="p"){$("printArea").innerHTML=wrHtml(true)+stFoot();
     document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
@@ -3430,7 +3459,8 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 const RENAME={"Iskuul / waxbarasho":"Iskuul","Lacag-celin / celin":"Lacag-celin","Gunno / bonus":"Gunno","Hawlgab / pension":"Hawlgab","Biyo caafimaad (cabitaan)":"Biyo-caafi","Biyo caafi":"Biyo-caafi","Fiidmo ardayda":"Fiiga ardayda","Fiidmo iskuul (lacagta bisha)":"Fiiga iskuulka (lacagta bisha)","Caafimaad dhimirka":"Caafimaadka dhimirka","Dawooyin & qalab caafimaad":"Daawooyin & qalab caafimaad","Lacag-celin alaab-qeybiye":"Lacag-celin alaab-qaybiye","Xayeysiis & suuqgeyn":"Xayeysiis & suuq-geyn","Iib (sales)":"Iib","Iib jumlad (wholesale)":"Iib jumlad","Iib tafaariiq (retail)":"Iib tafaariiq","Qandaraas (contract)":"Qandaraas","La-talin (consulting)":"La-talin","Funaanad (T-shirt)":"Funaanad","Dhar dhaqid (laundry)":"Dhar dhaqid","Raajo & sawir (X-ray)":"Raajo & sawir","Cabitaan tamar (energy)":"Cabitaan tamar","Alaab (stock)":"Alaab","Gunno shaqaale (bonus)":"Gunno shaqaale","Xisaab-hubin (audit)":"Xisaab-hubin","Sadaqo & zakaad":"Sadaqo & Zakaad","Fiiga ardayga":"Fiiga ardayda","Fiiga ardayga":"Fiiga ardayda"};
 const newName=n=>RENAME[n]||(typeof n==="string"&&n.startsWith("Mushahar: ")?n.slice(10):null);
 const GRP_RENAME={"Mushaarka shaqaalaha":"Mushaharka shaqaalaha","Fiidmo & ardayda":"Fiiga & ardayda","Fiiga & ardayga":"Fiiga & ardayda","Activity":"Madadaalo"};
-async function migrateNames(){for(const d of [...items]){const k=d.kind==="tx"?"cat":(d.kind==="bill"||d.kind==="cat")?"name":null;
+async function migrateNames(){MIGRATING=true;try{await migrateNames0()}finally{MIGRATING=false}}
+async function migrateNames0(){for(const d of [...items]){const k=d.kind==="tx"?"cat":(d.kind==="bill"||d.kind==="cat")?"name":null;
   const nn=k&&newName(d[k]),ng=d.kind==="cat"&&GRP_RENAME[d.grp];
   if((nn&&nn!==d[k])||ng)try{await put({...d,...(nn?{[k]:nn}:{}),...(ng?{grp:ng}:{})})}catch{}}}
 let seeding=false;
@@ -4435,9 +4465,10 @@ async function exportSheet(title,sections,base){base=base.replace(/[^\p{L}\p{N}_
     saveFile(base+".csv","﻿"+lines.map(x=>x.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8")}}
 const csvCell=v=>{v=String(v??"");return /[",;\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
 $("repCsv").addEventListener("click",()=>{const {txs,title,yr,y}=reportData();
-  const head=[L("Taariikhda","Date"),L("Nooca","Type"),L("Qaybta","Category"),L("Qadarka","Amount"),L("Lacagta","Currency"),L("Habka","Method"),L("Meesha","Place"),L("Faahfaahin","Details"),L("Qoray","Entered by")];
+  const head=[L("Taariikhda","Date"),L("Nooca","Type"),L("Qaybta","Category"),L("Qadarka","Amount"),L("Lacagta","Currency"),L("Habka","Method"),L("Meesha","Place"),L("Faahfaahin","Details"),L("Qoray","Entered by"),HH.rec(),HH.chg()];
   head.splice(2,0,L("Mowduuca","Topic"));
-  const rows=txs.map(t=>[t.date,typeLabel(t.type),GROUPS(t.type).length?grpLabel(grpOf(t.cat,t.type)):"",T(t.cat),(t.type==="in"?1:-1)*Number(t.amount),currency(),T(t.method||"Kaash"),t.place||"",t.note||"",t.by||""]);
+  const rows=txs.map(t=>[t.date,typeLabel(t.type),GROUPS(t.type).length?grpLabel(grpOf(t.cat,t.type)):"",T(t.cat),(t.type==="in"?1:-1)*Number(t.amount),currency(),T(t.method||"Kaash"),t.place||"",t.note||"",t.by||"",recAt(t),chgOf(t)]);
+  const from=repFrom();
   const S=repSums(txs);
   exportSheet(L("Warbixin","Report")+": "+title+" · "+modeLabel(),[
     {title:L("Kooban","Summary"),colorFirst:1,head:[L("Soo galay","Income"),L("Ka baxay","Expenses"),L("Deyn la bixiyay","Debt paid"),L("Kayd","Savings"),L("Lacagta haray","Left over")],rows:[[S.si,-S.so,-S.debt,S.sav,S.left]]},
@@ -4446,7 +4477,10 @@ $("repCsv").addEventListener("click",()=>{const {txs,title,yr,y}=reportData();
     ...(true?[{title:L("Kharashka mowduuc kasta","Spending by topic"),head:[L("Mowduuca","Topic"),L("Qaybta","Category"),L("Qadarka","Amount")],rows:(()=>{const gt={};txs.filter(t=>t.type==="out"&&t.cat!=="Kayd").forEach(t=>{const g=grpOf(t.cat);(gt[g]=gt[g]||{v:0,c:{}}).v+=Number(t.amount);gt[g].c[t.cat]=(gt[g].c[t.cat]||0)+Number(t.amount)});
       return Object.entries(gt).sort((a,b)=>b[1].v-a[1].v).flatMap(([g,o])=>[[grpLabel(g),L("Wadarta","Total"),o.v],...Object.entries(o.c).sort((a,b)=>b[1]-a[1]).map(([c,v])=>["",T(c),v])])})()}]:[]),
     {title:L("📅 Maalin-maalin","📅 Day by day","📅 يومًا بيوم","📅 Siku kwa siku"),head:dayHeadX(),rows:dayRows(txs)},
-    {title:L("Dhaqdhaqaaqa","Transactions"),head,rows}],`HantiGo-${brandName()}-${title}`)});
+    {title:L("Dhaqdhaqaaqa","Transactions"),head,rows},
+    histSheet(from)],`HantiGo-${brandName()}-${title}`)});
+/* first day of the period the Warbixin tab shows */
+function repFrom(){const yr=$("repPeriod").value==="year";return yr?repYearNow()+"-01-01":`${view.getFullYear()}-${String(view.getMonth()+1).padStart(2,"0")}-01`}
 const dayRows=txs=>dayGroups(txs).reverse().map(g=>{const d=dayDate(g.date);return [g.date,d.wd,g.si,-g.so,g.net,String(g.n)]});
 const dayHeadX=()=>[L("Taariikhda","Date"),L("Maalinta","Day","اليوم","Siku"),L("Soo galay","Income"),L("Ka baxay","Expenses"),L("Farqiga","Difference","الفرق","Tofauti"),L("Qoraal","Entries","المعاملات","Miamala")];
 function repSums(txs){const a=f=>txs.filter(f).reduce((s,t)=>s+Number(t.amount),0);
@@ -4468,7 +4502,8 @@ function buildReport(){const {txs,title,yr,y}=reportData();const S=repSums(txs);
   <table><tr>${dayHeadX().map(h=>`<th>${h}</th>`).join("")}</tr>${dayRows(txs).map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td class="n">${money(r[2])}</td><td class="n">${r[3]?"−":""}${money(-r[3])}</td><td class="n">${r[4]<0?"−":""}${money(Math.abs(r[4]))}</td><td class="n">${r[5]}</td></tr>`).join("")||`<tr><td colspan="6">—</td></tr>`}</table>
   <h2>${L("Dhaqdhaqaaqa","Transactions")} (${txs.length})</h2>
   <table><tr><th>${L("Taariikhda","Date")}</th><th>${L("Nooca","Type")}</th><th>${L("Qaybta","Category")}</th><th>${L("Habka","Method")}</th><th>${L("Meesha / faahfaahin","Place / details")}</th><th>${L("Qadarka","Amount")}</th></tr>
-  ${txs.map(t=>`<tr><td>${esc(t.date)}</td><td>${typeLabel(t.type)}</td><td>${esc(T(t.cat))}</td><td>${esc(T(t.method||"Kaash"))}</td><td>${esc([t.place,t.note].filter(Boolean).join(" · "))}</td><td class="n">${t.type==="in"?"+":"−"}${money(t.amount)}</td></tr>`).join("")}</table>
+  ${txs.map(t=>`<tr><td>${esc(t.date)}</td><td>${typeLabel(t.type)}</td><td>${esc(T(t.cat))}</td><td>${esc(T(t.method||"Kaash"))}</td><td>${esc([t.place,t.note].filter(Boolean).join(" · "))}${recAt(t)?`<br><small style="color:#666">✍ ${HH.rec()}: <span dir="ltr">${esc(recAt(t))}</span></small>`:""}${chgOf(t)?`<br><small style="color:#9a6b00">✏ ${HH.chg()}: ${esc(chgOf(t))}</small>`:""}</td><td class="n">${t.type==="in"?"+":"−"}${money(t.amount)}</td></tr>`).join("")}</table>
+  ${histHtml(repFrom())}
   <p>${L("Waxaa la sameeyay","Created")} ${dlStamp()} · HantiGo · ${L("Aasaasaha HantiGo:","HantiGo founder:")} Asad Moallim</p>`}
 $("repPdf").addEventListener("click",()=>{$("printArea").innerHTML=buildReport();document.body.classList.add("printing");
   const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
