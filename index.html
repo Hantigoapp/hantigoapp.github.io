@@ -444,7 +444,7 @@ hr{border:0;border-top:1px solid var(--line);margin:4px 0;width:100%}
 #coImg,.coph{width:64px;height:64px;border-radius:14px;object-fit:contain;background:#fff;flex:none}
 .coph{display:grid;place-items:center;font-size:1.8rem;background:var(--bg);border:1px dashed var(--line)}
 #printArea .rhead{display:flex;align-items:center;gap:12px;margin-bottom:6px}#printArea .rhead img{max-height:56px;max-width:140px;object-fit:contain}
-#printArea{display:none}
+#printArea{display:none}#printArea,#printArea *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .mm{display:grid;gap:6px}.mmbtn{justify-self:start;font-weight:600;color:var(--accent);border-color:var(--accent)}#mmText{width:100%;box-sizing:border-box;font:inherit;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:inherit}
 .note.ok{color:var(--in)}.pinbox{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:12px}
 .lockv{position:fixed;inset:0;z-index:9999;background:var(--bg,#0b1118);display:grid;place-items:center;padding:16px}
@@ -1008,17 +1008,39 @@ html[data-skin="1"],html[data-skin="2"]{--violet:#7a4fd1}
 .hubtop h2{margin:0;font-size:1.25rem}
 .hubback{border-radius:999px!important;padding:8px 14px!important;font-weight:700;min-height:40px}
 .hubsw{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-.hubsw button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px!important;font-size:.78rem;font-weight:700;border-radius:12px!important;min-height:54px;position:relative}
+.hubsw button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px!important;font-size:.72rem;min-width:0;overflow-wrap:anywhere;font-weight:700;border-radius:12px!important;min-height:54px;position:relative}
 .hubsw button i{font-style:normal;font-size:1.2rem;line-height:1}
 .hubsw button[aria-current="page"]{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}
 .hubsw button .bhbadge{top:-6px;inset-inline-end:-4px;min-width:18px;height:18px;font-size:.68rem}
 .hubact{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.hubact:empty{display:none}
 .hubact button{font-weight:700;min-height:44px}
-#appView[data-tab="hub"][data-hub="cust"] [data-hubs~="cust"]:not([hidden]),#appView[data-tab="hub"][data-hub="inv"] [data-hubs~="inv"]:not([hidden]),#appView[data-tab="hub"][data-hub="staff"] [data-hubs~="staff"]:not([hidden]),#appView[data-tab="hub"][data-hub="rep"] [data-hubs~="rep"]:not([hidden]){display:grid!important;grid-column:1/-1}
-html:not([data-mode="business"]) #appView[data-tab="hub"] [data-hubs],html.role-staff #appView[data-tab="hub"] [data-hubs].mgr-only,html.role-staff #appView[data-tab="hub"] [data-hubs].no-staff,html.in-team #appView[data-tab="hub"] [data-hubs].owner-only,html.in-team #appView[data-tab="hub"] [data-hubs].no-team{display:none!important}
+#appView[data-tab="hub"][data-hub="cust"] [data-hubs~="cust"]:not([hidden]),#appView[data-tab="hub"][data-hub="inv"] [data-hubs~="inv"]:not([hidden]),#appView[data-tab="hub"][data-hub="staff"] [data-hubs~="staff"]:not([hidden]),#appView[data-tab="hub"][data-hub="rep"] [data-hubs~="rep"]:not([hidden]),#appView[data-tab="hub"][data-hub="pwr"] [data-hubs~="pwr"]:not([hidden]),#appView[data-tab="hub"][data-hub="pdy"] [data-hubs~="pdy"]:not([hidden]),#appView[data-tab="hub"][data-hub="pch"] [data-hubs~="pch"]:not([hidden]),#appView[data-tab="hub"][data-hub="pst"] [data-hubs~="pst"]:not([hidden]){display:grid!important;grid-column:1/-1}
+html:not([data-mode="business"]) #appView[data-tab="hub"] [data-hubs].biz-only,html[data-mode="business"] #appView[data-tab="hub"] [data-hubs].person-only,html.role-staff #appView[data-tab="hub"] [data-hubs].mgr-only,html.role-staff #appView[data-tab="hub"] [data-hubs].no-staff,html.in-team #appView[data-tab="hub"] [data-hubs].owner-only,html.in-team #appView[data-tab="hub"] [data-hubs].no-team{display:none!important}
 #appView[data-hub="cust"] #regPanel{order:1}
 #appView[data-tab="hub"][data-hub="cust"] #regTabs{display:none!important}
 html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
+html[data-mode="business"]:not(.role-staff) #appView[data-tab="home"] #wrPanel,html[data-mode="business"]:not(.role-staff) #appView[data-tab="home"] .hsec.wrsec{display:none!important}
+.ihnotes .glinv{margin:0}
+.npick select{width:100%}
+.dmove{display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:space-between}
+/* ---- v168: shorter Guriga + Akoon (AM): nothing removed, every part 1-2 taps away ---- */
+#appView[data-tab] #hJump,#appView[data-tab="home"] #hJump:not(:empty),#appView #coAsk{display:none!important}
+html[data-mode="business"]:not(.role-staff) #appView[data-tab="home"] #mcPanel,html[data-mode="business"]:not(.role-staff) #appView[data-tab="home"] #chPanel,html[data-mode="business"]:not(.role-staff) #appView[data-tab="home"] .ansec{display:none!important}
+html:not([data-mode="business"]) #appView[data-tab="home"] :is(#wrPanel,.wrsec,#mcPanel,.ansec,#chPanel,#psPanel,#catPanel){display:none!important}
+html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1/-1}
+.glact .glx{display:none!important}.glact.more .glx{display:flex!important}
+.glact [data-glmore]{grid-column:1/-1;min-height:38px!important;background:transparent!important;color:inherit!important;border:1px solid rgba(255,255,255,.22)!important;font-weight:600;opacity:.9}
+.accmenu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:900px){.accmenu{grid-template-columns:repeat(3,minmax(0,1fr));grid-column:1/-1}#appView[data-tab="more"] #accCard,#appView[data-tab="more"] #accBar{grid-column:1/-1}}
+.accmenu button{position:relative;display:grid;justify-items:start;align-content:start;gap:3px;text-align:start;padding:12px 12px 10px!important;min-height:84px;border-radius:16px!important;border:1px solid var(--line)!important;background:var(--surface)!important;color:var(--ink)!important;font:inherit}
+.accmenu button i{font-style:normal;font-size:1.4rem;line-height:1}.accmenu button b{font-size:.95rem}.accmenu button small{font-size:.74rem;color:var(--muted);line-height:1.25}
+.accmenu .dotnew{position:absolute;top:10px;inset-inline-end:10px;width:10px;height:10px;border-radius:50%;background:var(--out)}
+#appView[data-tab="more"] #accBar{display:flex!important;align-items:center;gap:10px}#accBar h2{display:none}#accBar .hubback{width:auto}
+.acccard .account{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+#appView[data-tab="more"]:not([data-accsec]) #accBar,#appView[data-tab="more"][data-accsec] #accCard,#appView[data-tab="more"][data-accsec] #accMenu,#appView[data-tab="more"][data-accsec] footer.credit{display:none!important}
+#appView[data-tab="more"] [data-tab="more"][data-acc]:not(.accon){display:none!important}
+#appView[data-tab="more"][data-accsec] [data-tab="more"][data-acc].accon:not([hidden]){grid-column:1/-1}
+.langrow .langsw select{width:100%}
 </style>
 <script src="vendor/supabase.js"></script>
 
@@ -1230,7 +1252,7 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
     <div class="goal-actions" style="margin-top:8px"><button type="button" class="primary" id="coAskGo">Ku dar hadda</button><button type="button" class="del" id="coAskNo">Mar dambe</button></div></div>
   <div id="alerts" class="alerts no-staff" role="status" data-tab="home" hidden></div>
   <div id="zcBox" class="zcbox no-staff" role="status" data-tab="home" hidden></div>
-  <div class="hubbar biz-only mgr-only" id="hubBar" data-tab="hub" data-hubs="cust inv staff rep"><div class="hubtop"><button type="button" class="hubback" id="hubBack">← Guriga</button><h2 id="hubTitle"></h2></div><div class="hubsw" id="hubSw" role="group"></div><div class="hubact" id="hubAct"></div></div>
+  <div class="hubbar no-staff" id="hubBar" data-tab="hub" data-hubs="cust inv staff rep pwr pdy pch pst"><div class="hubtop"><button type="button" class="hubback" id="hubBack">← Guriga</button><h2 id="hubTitle"></h2></div><div class="hubsw" id="hubSw" role="group"></div><div class="hubact" id="hubAct"></div></div>
 
   <section class="panel staff-only sfcard" aria-labelledby="sfH" data-tab="home" id="sfPanel">
     <div class="sfhead"><h2 id="sfH">👷 Dashboard-ka shaqaalaha</h2><span class="rolepill" id="sfCo"></span></div>
@@ -1262,23 +1284,24 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
 
   <section class="panel no-staff trpanel" aria-labelledby="trH" data-tab="home" id="trPanel" hidden></section>
 
+  <section class="panel person-only bizhub" aria-labelledby="phH" data-tab="home" id="perHub"><div class="panel-head"><h2 id="phH">👤 Lacagtayda</h2></div><div class="bhgrid" id="phGrid"></div></section>
   <section class="panel biz-only mgr-only bizhub" aria-labelledby="bhH" data-tab="home" id="bizHub"><div class="panel-head"><h2 id="bhH">🏢 Shirkaddaada</h2></div><div class="bhgrid" id="bhGrid"></div></section>
 
   <nav class="hjump no-staff" id="hJump" data-tab="home" aria-label="Qaybaha Guriga"></nav>
 
-  <h3 class="hsec no-staff" data-tab="home">Warbixinno</h3>
-  <section class="panel no-staff wrpanel" aria-labelledby="wrH" data-tab="home" id="wrPanel" data-hubs="rep" data-fold="wr" data-fold-ph="1">
+  <h3 class="hsec no-staff wrsec" data-tab="home">Warbixinno</h3>
+  <section class="panel no-staff wrpanel" aria-labelledby="wrH" data-tab="home" id="wrPanel" data-hubs="rep pwr" data-fold="wr" data-fold-ph="1">
     <div class="panel-head"><h2 id="wrH">📋 Warbixinta bishan</h2></div>
     <div id="wrBody" aria-live="polite"></div>
   </section>
 
-  <section class="panel month-compare no-staff" aria-labelledby="mcH" data-tab="home" data-fold="mc" data-fold-def="1">
+  <section class="panel month-compare no-staff" aria-labelledby="mcH" data-tab="home" data-hubs="rep pwr" id="mcPanel" data-fold="mc" data-fold-def="1">
     <div class="panel-head"><h2 id="mcH">Isbarbardhigga bishan iyo tii hore</h2><span class="note" id="mcPeriod"></span></div>
     <div class="mc-grid" id="monthCompare" aria-live="polite"></div>
   </section>
 
   <h3 class="hsec" data-tab="home">Diiwaanka maalinlaha</h3>
-  <section class="panel daypanel" aria-labelledby="dyH" data-tab="home" id="dyPanel" data-fold="dy">
+  <section class="panel daypanel" aria-labelledby="dyH" data-tab="home" id="dyPanel" data-hubs="pdy" data-fold="dy">
     <div class="panel-head"><h2 id="dyH">📅 Maalin-maalin</h2><span class="dynav"><button type="button" class="icon" data-dynav="-1" aria-label="Bishii hore">‹</button><b id="dyMonth"></b><button type="button" class="icon" data-dynav="1" aria-label="Bisha xigta">›</button></span></div>
     <details class="note helpd dyhelp"><summary>ℹ️ Sida loo isticmaalo</summary>
     <p class="note dyhint">Maalin kasta: lacagta soo gashay, kharashka iyo waxa la galiyay. Riix maalin si aad u aragto.</p>
@@ -1287,13 +1310,13 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
     <div id="dyList" class="dylist"></div>
   </section>
 
-  <h3 class="hsec no-staff" data-tab="home">Falanqayn</h3>
-  <section class="panel biz-only mgr-only mgpanel" aria-labelledby="mgH" data-tab="home" data-hubs="rep" id="mgPanel" data-fold="mg" data-fold-def="1">
+  <h3 class="hsec no-staff ansec" data-tab="home">Falanqayn</h3>
+  <section class="panel biz-only mgr-only mgpanel" aria-labelledby="mgH" data-tab="hub" data-hubs="rep" id="mgPanel" data-fold="mg" data-fold-def="1">
     <div class="panel-head"><h2 id="mgH">🏢 Dashboard-ka maamulaha</h2><span class="note" id="mgMonth"></span></div>
     <div id="mgBody"></div>
   </section>
 
-  <section class="panel no-staff" aria-labelledby="chartH" data-tab="home" data-fold="ch" data-fold-ph="1">
+  <section class="panel no-staff" aria-labelledby="chartH" data-tab="home" data-hubs="rep pch" id="chPanel" data-fold="ch" data-fold-ph="1">
     <div class="panel-head"><h2 id="chartH">Soo galay iyo ka baxay: 6-dii bilood ee u dambeeyay</h2>
       <div class="legend" aria-hidden="true"><span><i class="sw in"></i>Soo galay</span><span><i class="sw out"></i>Ka baxay</span></div></div>
     <div class="chseg" role="group" aria-label="Muddada jaantuska"><button type="button" data-chv="d">📅 Bishan · maalin kasta</button><button type="button" data-chv="m">🗓️ 6 bilood</button></div>
@@ -1323,6 +1346,7 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
     <span class="note ok" id="regMsg" role="status"></span>
     <p class="note" id="regInfo" style="margin:0"></p>
   </section>
+  <section class="panel biz-only mgr-only ihnotes" aria-label="Qaansheegyo la bixiyay" data-tab="hub" data-hubs="inv" id="ihNotes" hidden></section>
   <section class="panel biz-only mgr-only" aria-labelledby="irH" data-tab="hub" data-hubs="inv" id="irPanel" hidden>
     <div class="panel-head"><h2 id="irH">🧾 Xusuusinta qaansheegga</h2></div>
     <div class="irtodo" id="irTodo"></div>
@@ -1581,9 +1605,16 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
         </form>
       </section>
 
-      <section class="panel" aria-labelledby="accH" data-tab="more">
+      <section class="panel acccard" aria-labelledby="accH" data-tab="more" id="accCard">
         <h2 id="accH">Akoonkaaga</h2>
-      <div class="account acc-panel"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option><option value="ar">العربية</option><option value="sw">Kiswahili</option></select></label><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a> <a id="educationLink" href="education.html" hidden>Waxbarasho</a></div>
+      <div class="account acc-panel"><span id="accEmail"></span><span id="accStatus"></span><a id="adminLink" href="admin.html" hidden>Maamul</a> <a id="educationLink" href="education.html" hidden>Waxbarasho</a></div>
+        <button type="button" class="logout outbtn">🚪 Ka bax akoonka</button>
+      </section>
+      <nav class="accmenu" id="accMenu" data-tab="more" aria-label="Akoon"></nav>
+      <div class="accbar" id="accBar" data-tab="more"><button type="button" class="hubback" id="accBack">← Akoon</button><h2 id="accTitle"></h2></div>
+      <section class="panel" aria-labelledby="meH" data-tab="more" data-acc="me" id="meSec">
+        <h2 id="meH">👤 Xogtayda</h2>
+        <label class="field langrow"><span id="meLangL">🌐 Luqadda</span><span class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option><option value="ar">العربية</option><option value="sw">Kiswahili</option></select></span></label>
         <div class="goal-actions" id="accSwRow" style="font-size:.92rem"><span id="accSwTxt"></span><button type="button" class="acvOpen" id="accSwBtn"></button></div>
         <div class="goal-actions" style="font-size:.92rem"><span>👤 <span id="accName">—</span> · 📞 <span id="accPhone">—</span></span><button type="button" class="del" id="meEdit">Beddel</button></div>
         <div id="meForm" class="newcat" hidden><p class="note" style="margin:0">Magacaaga iyo telefoonkaaga waxay ka muuqanayaan rasiidka lacag-bixinta.</p><div class="row">
@@ -1600,10 +1631,9 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
             <div class="err" id="pinErr" role="alert"></div>
             <div class="goal-actions"><button type="button" id="pinSave" class="primary">Kaydi PIN-ka</button><button type="button" id="pinCancel">Jooji</button></div></div>
           <span class="note" id="pinMsg" role="status"></span></div>
-        <button type="button" class="logout outbtn">🚪 Ka bax akoonka</button>
       </section>
 
-      <section class="panel biz-only owner-only" aria-labelledby="coH" data-tab="more" id="coPanel">
+      <section class="panel biz-only owner-only" aria-labelledby="coH" data-tab="more" data-acc="co" id="coPanel">
         <h2 id="coH">🏢 Shirkaddaada</h2>
         <div class="cohead"><img id="coImg" alt="" hidden><div class="coph" id="coPh">🏢</div>
           <div style="display:grid;gap:6px;min-width:0;flex:1"><label class="btnlike" style="justify-self:start">🖼️ Soo geli astaanta (logo)<input type="file" id="coFile" accept="image/*" hidden></label>
@@ -1613,13 +1643,13 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
         <p class="note" id="coMsg" style="margin:0">Magaca iyo astaanta ayaa ka soo baxaya warbixinnada PDF, Word iyo Excel.</p>
       </section>
 
-      <section class="panel" aria-labelledby="helpH" data-tab="more">
+      <section class="panel" aria-labelledby="helpH" data-tab="more" data-acc="help">
         <h2 id="helpH">Caawimaad</h2>
         <p class="note" style="margin:0">Su'aal ma qabtaa? Nagu soo qor WhatsApp.</p>
         <a class="wa wabtn" data-wa href="#" target="_blank" rel="noopener">💬 WhatsApp: <span data-wanum></span></a>
       </section>
 
-      <section class="panel biz-only owner-only" aria-labelledby="teamH" data-tab="more">
+      <section class="panel biz-only owner-only" aria-labelledby="teamH" data-tab="more" data-acc="team">
         <h2 id="teamH">Shaqaalaha akoonka shirkadda</h2>
         <p class="note" style="margin:0">Ku dar email-ka shaqaalaha. Waxay arkayaan qaybta Shirkadda oo keliya.</p>
         <p class="note" style="margin:0">👷 Shaqaale: wuxuu arkaa oo keliya waxa uu isagu qoray, fasaxiisa iyo xanuunkiisa. 🧑‍💼 Maamule: wuxuu arkaa maamulka shirkadda oo dhan (lacagta, mushaharka, tirakoobka, rasiidyada, deymaha, fasaxa iyo warbixinnada).</p>
@@ -1681,7 +1711,7 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
         <p class="note">Lacagta aad kaydka ku shubto akoonka ayaa laga jarayaa. “Ka qaado” ayaa dib u celinaysa.</p>
       </section>
 
-      <section class="panel sub-panel pay-only no-team" aria-labelledby="subH" data-tab="more">
+      <section class="panel sub-panel pay-only no-team" aria-labelledby="subH" data-tab="more" data-acc="pay">
         <div class="panel-head"><h2 id="subH">Lacag bixinta bishii</h2><span class="price pp-m">$3 / bishii</span></div>
         <p class="planline" id="accPlan"></p>
         <div data-autoslot="acc" hidden></div>
@@ -1689,7 +1719,7 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
         <div class="paybox manual" data-paybox="acc"></div>
       </section>
 
-      <section class="panel" aria-labelledby="remH" data-tab="more" id="remPanel">
+      <section class="panel" aria-labelledby="remH" data-tab="more" data-acc="rem" id="remPanel">
         <div class="panel-head"><h2 id="remH">🔔 Xusuusinnada</h2><span class="pill" id="remState">—</span></div>
         <p class="note" style="margin:0">Dooro xusuusinnada aad rabto iyo goorta lagu soo diro. Waxay ka muuqdaan Guriga, ogeysiiskuna taleefanka ayuu kuu imanayaa.</p>
         <div class="remlist">
@@ -1714,9 +1744,9 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
         <span class="note" id="remMsg" role="status"></span>
       </section>
 
-      <section class="panel" aria-labelledby="actH" data-tab="more" id="actPanel" hidden></section>
+      <section class="panel" aria-labelledby="actH" data-tab="more" data-acc="act" id="actPanel" hidden></section>
 
-      <section class="panel" aria-labelledby="repH" data-tab="more">
+      <section class="panel" aria-labelledby="repH" data-tab="more" data-acc="rep">
         <h2 id="repH">Warbixin iyo backup</h2>
         <label class="field"><span>Muddada warbixinta</span><select id="repPeriod"><option value="month">Bisha hadda la muujiyay</option><option value="year">📆 Warbixin sannadle ah</option><option value="range">📅 Taariikh aad doorato (laga bilaabo – ilaa)</option></select></label>
         <div class="field rep-range" id="repRangeRow" hidden><label><span>Laga bilaabo</span><input type="date" id="repFromD"></label><label><span>Ilaa</span><input type="date" id="repToD"></label></div>
@@ -1742,7 +1772,7 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
         </div>
       </section>
 
-  <section class="panel person-only" aria-labelledby="psH" data-tab="home" id="psPanel" data-fold="ps" data-fold-def="1">
+  <section class="panel person-only" aria-labelledby="psH" data-tab="home" data-hubs="pst" id="psPanel" data-fold="ps" data-fold-def="1">
     <div class="panel-head"><h2 id="psH">📊 Tirakoobkayga</h2>
       <select id="psPer" aria-label="Muddada" style="width:auto"><option value="1">Bishan</option><option value="3">3-dii bilood</option><option value="12">12-kii bilood</option></select></div>
     <div class="goal-actions"><button type="button" id="psCsv">⬇ Excel</button><button type="button" id="psDoc">⬇ Word</button><button type="button" id="psPpt">📽 PowerPoint</button><button type="button" id="psPdf">🖨 PDF</button></div>
@@ -1766,14 +1796,14 @@ html:not(.role-staff) #appView[data-tab="plan"] #lvPanel{display:none!important}
     <p class="note stx">8-da shay ee lacagta ugu badan aad ku bixisay muddadan.</p>
     <details class="note"><summary>Eeg tirooyinka</summary><div style="overflow-x:auto"><table class="ctable" id="psTable"></table></div></details>
   </section>
-      <section class="panel catpanel no-staff" aria-labelledby="catH" data-tab="home">
+      <section class="panel catpanel no-staff" aria-labelledby="catH" data-tab="home" data-hubs="pst" id="catPanel">
         <h2 id="catH">Meesha lacagtu ku baxday</h2>
         <div id="extremes" class="extremes"></div>
         <div id="cats" style="display:grid;gap:10px"></div>
       </section>
     </div>
   </div>
-  <div data-install data-tab="more"></div>
+  <div data-install data-tab="more" data-acc="app"></div>
   <footer class="credit" data-tab="more"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b> · <a href="privacy.html">Asturnaanta</a></footer>
   <footer class="credit" data-tab="home"><span>Aasaasaha HantiGo:</span> <b>Asad Moallim</b></footer>
   <nav class="bnav" aria-label="Qaybaha app-ka">
@@ -2318,7 +2348,7 @@ async function enter(user){
   await migrateNames();
   if(addSpace&&pendingMode==="business")savePlan("business");
   fillPrice();
-  applyMode(st.mode);teamUI();showView("appView");render();if(PAY_PICK&&!PAY_DONE){PAY_DONE=true;goTab("more");setTimeout(()=>$("subH")?.scrollIntoView({block:"start"}),300)}if(profile.pay_status==="pending"&&!profile.is_admin){payStatus(profile);payPoll()}seedBills();loadStaff();if(online())checkLocation();netState();setTimeout(autoPayBills,1500);accAfterEnter();try{window.mmShareCheck&&mmShareCheck()}catch{}
+  applyMode(st.mode);teamUI();showView("appView");render();if(PAY_PICK&&!PAY_DONE){PAY_DONE=true;if(typeof accSecOpen==="function")accSecOpen("pay");else goTab("more")}if(profile.pay_status==="pending"&&!profile.is_admin){payStatus(profile);payPoll()}seedBills();loadStaff();if(online())checkLocation();netState();setTimeout(autoPayBills,1500);accAfterEnter();try{window.mmShareCheck&&mmShareCheck()}catch{}
   if(!data&&!error&&items.length){items.forEach(i=>dirty.add(i.id));scheduleSync()}
   else if(dirty.size||gone.size)scheduleSync();
 }
@@ -2390,7 +2420,7 @@ function showMe(){const m=me?.user_metadata||{};if(!$("accName"))return;
   $("meAsk").hidden=!me||later||!!(m.full_name&&m.phone);
   $("accName").textContent=m.full_name||L("Magac lama gelin","No name yet","لا يوجد اسم","Hakuna jina");$("accPhone").textContent=m.phone||"—"}
 $("meEdit").addEventListener("click",()=>{const m=me?.user_metadata||{};$("meName").value=m.full_name||"";$("mePhone").value=m.phone||"";$("meErr").textContent="";$("meForm").hidden=false;$("meName").focus()});
-$("meAskGo").addEventListener("click",()=>{goTab("more");$("meEdit").click();setTimeout(()=>$("meForm").scrollIntoView({behavior:"smooth",block:"center"}),50)});
+$("meAskGo").addEventListener("click",()=>{if(typeof accSecOpen==="function")accSecOpen("me");else goTab("more");$("meEdit").click();setTimeout(()=>$("meForm").scrollIntoView({behavior:"smooth",block:"center"}),50)});
 $("meAskNo").addEventListener("click",()=>{try{sessionStorage.setItem("hantigo.meLater","1")}catch{}$("meAsk").hidden=true});
 $("meCancel").addEventListener("click",()=>{$("meForm").hidden=true});
 $("meSave").addEventListener("click",async()=>{const n=$("meName").value.trim().replace(/\s+/g," ").slice(0,60),ph=$("mePhone").value.trim().replace(/[^\d+ ]/g,"").slice(0,20);
@@ -2449,8 +2479,8 @@ function renderGlance(mi,mo){const g=$("glState");if(!g)return;const biz=MODE===
   g.dataset.st=st;$("glSum").textContent=txt;$("glSum").hidden=!txt;
   const bar=$("glBar");bar.style.width=(mi>0?Math.min(100,pct):mo>0?100:0)+"%";bar.dataset.st=st;bar.parentNode.hidden=!mi&&!mo;
   bar.parentNode.title=mi?L(`Kharashka: ${pct}% dakhliga`,`Spending: ${pct}% of income`,`المصاريف: ${pct}% من الدخل`,`Matumizi: ${pct}% ya mapato`):"";
-  const a=$("glAct");if(!a.dataset.on){a.dataset.on=1;a.addEventListener("click",e=>{if(e.target.closest("[data-tr]")){trOpen();return}if(e.target.closest("[data-mm]")){goTab("add");$("mmBtn").click();return}const b=e.target.closest("[data-quick]");if(!b)return;goTab("add");const r=$(b.dataset.quick==="in"?"tIn":"tOut");if(r&&!r.checked)r.click();setTimeout(()=>{const x=$("amount");(x&&x.offsetParent?x:document.querySelector("#multiList input:not([type=checkbox])"))?.focus()},60)})}
-  a.innerHTML=`<button type="button" data-quick="in"><b>+</b> ${biz?L("Dakhli / iib","Income / sale","دخل / بيع","Mapato / mauzo"):L("Lacag soo gashay","Money in","دخل","Pesa iliyoingia")}</button><button type="button" data-quick="out"><b>−</b> ${L("Kharash","Expense","مصروف","Matumizi")}</button><button type="button" data-tr="1">⇄ ${L("Wareeji lacag (EVC Plus → Bangi)","Move money (EVC Plus → Bank)","تحويل المال (EVC Plus → البنك)","Hamisha pesa (EVC Plus → Benki)")}</button><button type="button" data-mm="1">📋 ${L("Ku dheji fariinta Mobile Money","Paste a Mobile Money message","الصق رسالة Mobile Money","Bandika ujumbe wa Mobile Money")}</button>`}
+  const a=$("glAct");if(!a.dataset.on){a.dataset.on=1;a.addEventListener("click",e=>{if(e.target.closest("[data-glmore]")){a.classList.toggle("more");const m=a.classList.contains("more"),gb=a.querySelector("[data-glmore]");gb.setAttribute("aria-expanded",m);gb.textContent=m?"▴ "+L("Ka yar","Less","أقل","Kidogo"):"⋯ "+L("Kale: wareeji, Mobile Money","More: move money, Mobile Money","المزيد: تحويل، Mobile Money","Zaidi: hamisha, Mobile Money");return}if(e.target.closest("[data-tr]")){trOpen();return}if(e.target.closest("[data-mm]")){goTab("add");$("mmBtn").click();return}const b=e.target.closest("[data-quick]");if(!b)return;goTab("add");const r=$(b.dataset.quick==="in"?"tIn":"tOut");if(r&&!r.checked)r.click();setTimeout(()=>{const x=$("amount");(x&&x.offsetParent?x:document.querySelector("#multiList input:not([type=checkbox])"))?.focus()},60)})}
+  a.innerHTML=`<button type="button" data-quick="in"><b>+</b> ${biz?L("Dakhli / iib","Income / sale","دخل / بيع","Mapato / mauzo"):L("Lacag soo gashay","Money in","دخل","Pesa iliyoingia")}</button><button type="button" data-quick="out"><b>−</b> ${L("Kharash","Expense","مصروف","Matumizi")}</button><button type="button" data-glmore="1" aria-expanded="${a.classList.contains("more")}">${a.classList.contains("more")?"▴ "+L("Ka yar","Less","أقل","Kidogo"):"⋯ "+L("Kale: wareeji, Mobile Money","More: move money, Mobile Money","المزيد: تحويل، Mobile Money","Zaidi: hamisha, Mobile Money")}</button><button type="button" class="glx" data-tr="1">⇄ ${L("Wareeji lacag (EVC Plus → Bangi)","Move money (EVC Plus → Bank)","تحويل المال (EVC Plus → البنك)","Hamisha pesa (EVC Plus → Benki)")}</button><button type="button" class="glx" data-mm="1">📋 ${L("Ku dheji fariinta Mobile Money","Paste a Mobile Money message","الصق رسالة Mobile Money","Bandika ujumbe wa Mobile Money")}</button>`}
 function renderPL(txs){const box=$("glPL");if(!box)return;
   const real=txs.filter(t=>t.cat!=="Kayd"),sm=(a,t)=>a.filter(x=>x.type===t).reduce((s,x)=>s+Number(x.amount||0),0);
   const now=new Date(),cur=view.getFullYear()===now.getFullYear()&&view.getMonth()===now.getMonth();
@@ -2987,13 +3017,13 @@ function renderDays(month){const box=$("dyList");if(!box)return;const ab=$("dyAn
   const gs=dayGroups(month);
   if(!gs.length){box.innerHTML=`<p class="empty" style="margin:0">${L("Bishan weli waxba lama galin. Marka aad wax ku darto, maalin kasta halkan ayay ka muuqan doontaa.","Nothing entered this month yet. When you add something, each day will show here.","لم يتم إدخال أي شيء هذا الشهر بعد. عند الإضافة سيظهر كل يوم هنا.","Bado hujaweka chochote mwezi huu. Ukiongeza, kila siku itaonekana hapa.")}</p>`;return}
   const prev={};box.querySelectorAll("details[data-day]").forEach(d=>prev[d.dataset.day]=d.open);const first=!gs.some(g=>g.date in prev);box.dataset.init="1";
-  const show=DY_ALL?gs:gs.slice(0,7);
+  const inHub=$("appView").dataset.tab==="hub",lim=inHub?9999:2,show=DY_ALL||inHub?gs:gs.slice(0,lim);
   box.innerHTML=show.map((g,i)=>`<details class="dyday" data-day="${esc(g.date)}"${(g.date in prev?prev[g.date]:g.date===today()||(first&&i===0))?" open":""}><summary>${dayHead(g)}</summary><ul class="list">${g.txs.map(t=>t.type==="tr"?trRow(t,"dy"):`<li class="tx">
       <span class="dot ${t.type}" aria-hidden="true">${t.type==="in"?"+":"−"}</span>
       <div style="min-width:0"><div class="name">${esc(T(t.cat))}<span class="pm">${esc(T(t.method||"Kaash"))}</span></div>${t.place||t.note||(t.by&&(TEAM||hasStaff))?`<div class="meta">${[t.place,t.note].filter(Boolean).map(esc).join(" · ")}${t.by&&(TEAM||hasStaff)?(t.place||t.note?" · ":"")+"👤 "+esc(t.by.split("@")[0]):""}</div>`:""}</div>
       <span class="amt ${t.type}">${t.type==="in"?"+":"−"}${money(t.amount)}</span>${dyEditable(t)?`<button type="button" class="del dyed" data-qedit="${esc(t.id)}" aria-label="${L("Beddel","Edit","تعديل","Hariri")}">✏️ ${L("Beddel","Edit","تعديل","Hariri")}</button>`:""}${QE===t.id&&(QESRC||"dy")==="dy"?dyQeForm(t):""}${QOK===t.id?`<span class="dyok" role="status">✓ ${L("Waa la saxay","Corrected","تم التصحيح","Imesahihishwa")}</span>`:""}</li>`).join("")}</ul>${dyAddBtns(g.date)}</details>`).join("")
-    +(gs.length>7?`<button type="button" class="del dymore" id="dyMore">${DY_ALL?L("Muuji 7 maalmood oo kaliya","Show only 7 days","إظهار 7 أيام فقط","Onyesha siku 7 tu"):L("Eeg dhammaan maalmaha","See all days","عرض كل الأيام","Ona siku zote")+" ("+gs.length+")"}</button>`:"");
-  $("dyMore")?.addEventListener("click",()=>{DY_ALL=!DY_ALL;renderDays(month)})}
+    +(!inHub&&gs.length>lim?`<button type="button" class="del dymore" id="dyMore">${DY_ALL?L("Muuji maanta iyo shalay oo kaliya","Show only today and yesterday","إظهار اليوم والأمس فقط","Onyesha leo na jana tu"):L("Eeg dhammaan maalmaha","See all days","عرض كل الأيام","Ona siku zote")+" ("+gs.length+")"}</button>`:"");
+  $("dyMore")?.addEventListener("click",()=>{if(!DY_ALL&&typeof pHubOn==="function"&&pHubOn()){hubOpen("pdy");return}DY_ALL=!DY_ALL;renderDays(month)})}
 function render(){
   if(ACT)actSoft();
   $("monthLabel").textContent=MONTHS[view.getMonth()]+" "+view.getFullYear();
@@ -3319,6 +3349,8 @@ const BILLS_VERSION=4;
 const BILLS_ADDED_V4=["Jaamacad"];   // only these are added for people already on v3, so bills they deleted do not come back
 const billNm=b=>T(b.name)+(b.who?" · "+b.who:"");
 const bills=()=>mine("bill").sort((a,b)=>a.created.localeCompare(b.created));
+/* Biilasha list: in Shirkad the staff salaries live only in 🧑‍💼 Shaqaalaha (no second copy here); empty job rows (Macallin…) hidden too */
+const billsShown=()=>MODE==="business"?bills().filter(b=>!b.emp&&!(ROLES.has(b.name)&&!(Number(b.amount)>0))):bills();
 /* ---------- recurring bills: schedule, automatic payment, paid / part paid / unpaid / late ---------- */
 const BILL_FREQ=[1,2,3,6,12];
 const freqTxt=n=>n===1?L("Bil kasta","Every month","كل شهر","Kila mwezi"):n===12?L("Sannad kasta","Every year","كل سنة","Kila mwaka"):L(n+" biloodba mar","Every "+n+" months","كل "+n+" أشهر","Kila miezi "+n);
@@ -3356,7 +3388,7 @@ const billSec=x=>x.late?0:(x.s==="unpaid"||x.s==="part")?1:x.s==="paid"?2:x.s===
 const BILL_SECS=[["⏰",["Dib u dhacay","Late","متأخرة","Zilizochelewa"]],["📅",["Soo socda","Coming up","القادمة","Zinazokuja"]],["✓",["La bixiyay","Paid","مدفوعة","Zimelipwa"]],["💤",["Bishan ma jiro","Not this month","ليست هذا الشهر","Si mwezi huu"]],["✏",["Qadar la’aan","No amount yet","بلا مبلغ بعد","Bila kiasi bado"]]];
 function renderBills(txs){
   $("billMonth").textContent=MONTHS[view.getMonth()];
-  let bs=bills();let total=0,left=0,cnt={paid:0,part:0,unpaid:0,late:0},rest=0;
+  let bs=billsShown();let total=0,left=0,cnt={paid:0,part:0,unpaid:0,late:0},rest=0;
   const ae=document.activeElement,ka=ae?.dataset?.bamt?"bamt":ae?.dataset?.bdue?"bdue":ae?.dataset?.bpartin?"bpartin":null,keep=ka?{a:ka,id:ae.dataset[ka],v:ae.value}:null;
   const st=new Map(bs.map(b=>[b.id,billState(b,txs)]));
   for(const b of bs){const x=st.get(b.id);if(x.due)total+=x.amt;if(x.due&&x.left>0&&x.amt>0)left++;if(cnt[x.s]!=null)cnt[x.s]++;if(x.late)cnt.late++;if(x.due&&x.amt>0)rest+=x.left}
@@ -3422,7 +3454,7 @@ const BWDAYS=()=>LANG==="ar"?["إث","ثل","أر","خم","جم","سب","أح"]:
 const dShort=iso=>{const d=new Date(iso+"T00:00");return d.getDate()+" "+MONTHS[d.getMonth()].slice(0,3)};
 /* every late bill: this month after its day, or an earlier month (up to 6 back, not before the bill existed) still not fully paid */
 function lateBills(txs){const now=new Date(),out=[];
-  for(const b of bills()){if(!(Number(b.amount)>0))continue;
+  for(const b of billsShown()){if(!(Number(b.amount)>0))continue;
     for(let k=6;k>=0;k--){const d=new Date(now.getFullYear(),now.getMonth()-k,1),x=billState(b,txs,d);if(!x.late)continue;
       const dd=new Date(d.getFullYear(),d.getMonth(),billDay(b,d));out.push({b,d,x,days:Math.max(1,Math.floor((now-dd)/864e5))})}}
   return out.sort((a,c)=>c.days-a.days)}
@@ -3437,7 +3469,7 @@ function billHistory(b,txs){const ps=txs.filter(t=>t.billId===b.id).sort((a,c)=>
 function renderBillView(txs,late){
   document.querySelectorAll("[data-btab]").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.btab===billTab)));
   $("lateN").textContent=late.length?" "+late.length:"";
-  const box=$("billPane"),bs=bills().filter(b=>Number(b.amount)>0);
+  const box=$("billPane"),bs=billsShown().filter(b=>Number(b.amount)>0);
   if(billTab==="cal"){const d0=new Date(view.getFullYear(),view.getMonth(),1),n=dimOf(d0),lead=(d0.getDay()+6)%7,t0=today(),by={};
     for(const b of bs){const x=billState(b,txs);if(!x.due)continue;const k=b.due?billDay(b):0;(by[k]=by[k]||[]).push([b,x])}
     let cells=BWDAYS().map(w=>`<span class="cw">${w}</span>`).join("")+"<span></span>".repeat(lead);
@@ -3556,9 +3588,11 @@ function startEdit(t){editing=t.id;
 /* v160: the same money written twice (same day, type, amount and place, or category when no place) — warn once, a second tap saves it */
 let dupSig="";
 function txDup(type,amount,cat,date,place,skip){const p=ckey(place),a=Math.round(amount*100);
-  return mine("tx").find(t=>t.id!==skip&&t.type===type&&t.date===date&&Math.round((Number(t.amount)||0)*100)===a&&(p?ckey(t.place)===p:(!ckey(t.place)&&t.cat===cat)))||null}
+  const other=items.filter(t=>t.kind==="tx"&&(t.mode||"person")!==MODE&&t.type!=="tr"&&t.id!==skip&&t.type===type&&t.date===date&&Math.round((Number(t.amount)||0)*100)===a&&(p?ckey(t.place)===p:t.cat===cat));
+  const here=mine("tx").find(t=>t.id!==skip&&t.type===type&&t.date===date&&Math.round((Number(t.amount)||0)*100)===a&&(p?ckey(t.place)===p:(!ckey(t.place)&&t.cat===cat)));
+  if(here)return here;if(other.length)return {...other[0],_other:1};return null}
 function dupAsk(hits,sig){if(!hits.length||dupSig===sig){dupSig="";return false}dupSig=sig;
-  $("txErr").innerHTML=`<span class="dupw">⚠️ ${esc(L("Tan oo kale ayaa horay loo qoray","This was already written","تم تسجيل هذا من قبل","Hii tayari imeandikwa"))}: ${hits.map(t=>esc(T(t.cat)+(t.place?" · "+t.place:"")+" · "+money(t.amount)+" · "+fmtD(t.date))).join("; ")}. ${esc(L("Haddii ay tahay lacag kale, riix Kaydi mar kale.","If it is different money, tap Save again.","إذا كان مبلغًا آخر، اضغط حفظ مرة أخرى.","Kama ni pesa nyingine, bonyeza Hifadhi tena."))}</span>`;return true}
+  $("txErr").innerHTML=`<span class="dupw">⚠️ ${esc(L("Tan oo kale ayaa horay loo qoray","This was already written","تم تسجيل هذا من قبل","Hii tayari imeandikwa"))}: ${hits.map(t=>esc(T(t.cat)+(t.place?" · "+t.place:"")+" · "+money(t.amount)+" · "+fmtD(t.date)+(t._other?" ("+((t.mode||"person")==="business"?L("🏢 Shirkad","🏢 Business","🏢 الشركة","🏢 Biashara"):L("👤 Shakhsi","👤 Personal","👤 شخصي","👤 Binafsi"))+")":""))).join("; ")}. ${esc(L("Haddii ay tahay lacag kale, riix Kaydi mar kale.","If it is different money, tap Save again.","إذا كان مبلغًا آخر، اضغط حفظ مرة أخرى.","Kama ni pesa nyingine, bonyeza Hifadhi tena."))}</span>`;return true}
 $("txForm").addEventListener("submit",async e=>{e.preventDefault();
   if(MULTI_ON&&useGroups()&&!editing){const list=[...document.querySelectorAll("[data-mamt]")].map(i=>[i.dataset.mamt,parseFloat(i.value)]).filter(x=>x[1]>0);
     if(!list.length){$("txErr").textContent=L("Geli qiimaha ugu yaraan hal shay.","Enter a price for at least one item.");document.querySelector("[data-mamt]")?.focus();return}
@@ -3824,7 +3858,7 @@ Object.keys(REM_CHK).forEach(id=>$(id).addEventListener("change",e=>setRem({[REM
 Object.keys(REM_SEL).forEach(id=>$(id).addEventListener("change",e=>{const v=e.target.value;setRem({[REM_SEL[id]]:/^\d+$/.test(v)?Number(v):v})}));
 $("remTime").addEventListener("change",e=>{if(/^\d\d:\d\d$/.test(e.target.value)){try{localStorage.removeItem(notifKey())}catch{}setRem({time:e.target.value})}});
 document.addEventListener("click",e=>{const g=e.target.closest("[data-gorem]");if(!g)return;e.preventDefault();
-  document.querySelector('[data-go="more"]')?.click();setTimeout(()=>$("remPanel").scrollIntoView({behavior:"smooth",block:"start"}),60)});
+  if(typeof accSecOpen==="function")accSecOpen("rem");else document.querySelector('[data-go="more"]')?.click()});
 let lastBud=null,lastAlerts=[];
 function renderAlerts(bud){lastBud=bud;
   const out=[],now=new Date(),cur=view.getFullYear()===now.getFullYear()&&view.getMonth()===now.getMonth(),R=remPrefs();
@@ -3841,13 +3875,14 @@ function renderAlerts(bud){lastBud=bud;
   if(R.goals&&cur&&now.getDate()>=R.goalDay&&!STAFF()){const tx=mine("tx");
     for(const g of mine("goal")){const p=goalPlan(g,tx);if(p.done||!(p.todo>0))continue;
       out.push(["warn",L("🎯 "+g.name+": bishan weli ku shub "+money(p.todo)+(g.due?" si aad u gaarto "+dueText(g.due):"")+".","🎯 "+g.name+": put in "+money(p.todo)+" more this month"+(g.due?" to reach it by "+dueText(g.due):"")+".","🎯 "+g.name+": أضف "+money(p.todo)+" هذا الشهر"+(g.due?" لتصل إليه بحلول "+dueText(g.due):"")+".","🎯 "+g.name+": weka "+money(p.todo)+" zaidi mwezi huu"+(g.due?" ili kufikia kabla ya "+dueText(g.due):"")+".")])}}
-  if(R.debts&&MODE==="business")for(const d0 of mine("debt")){const d=d0.note&&/^Q-\d/.test(d0.note)?{...d0,name:d0.name+" ("+d0.note+")"}:d0;const r=Number(d.amount)-Number(d.paid||0);if(!d.due||r<=0)continue;const k=dayDiff(d.due);
+  if(R.debts&&MODE==="business")for(const d0 of mine("debt")){if(d0.dir==="in"&&MGR())continue;   /* customer balances: shown in 👥 Macaamiisha / 🧾 Qaansheegyada (badge on Guriga) */
+    const d=d0.note&&/^Q-\d/.test(d0.note)?{...d0,name:d0.name+" ("+d0.note+")"}:d0;const r=Number(d.amount)-Number(d.paid||0);if(!d.due||r<=0)continue;const k=dayDiff(d.due);
     const who=d.dir==="in"?L("waa inuu bixiyaa","should pay you"):L("waa in la siiyaa","must be paid");
     if(k<0)out.push(["bad",L("💳 "+d.name+" "+who+" "+money(r)+". Taariikhdii way dhaaftay ("+fmtD(d.due)+").","💳 "+d.name+" "+who+" "+money(r)+". Overdue since "+fmtD(d.due)+".","💳 "+d.name+" "+who+" "+money(r)+". متأخر منذ "+fmtD(d.due)+".","💳 "+d.name+" "+who+" "+money(r)+". Imechelewa tangu "+fmtD(d.due)+".")]);
     else if(k<=R.billDays)out.push(["warn",L("💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".","💳 "+d.name+" "+who+" "+money(r)+" "+whenText(k)+".")])}
   if(R.leave&&MODE==="business"&&MGR())for(const v of mine("leave")){
     if(v.type==="buka"&&v.to>=today()&&!v.seen)out.push(["bad",L("🤒 "+v.who+" wuu xanuunsan yahay ("+lvRange(v)+").","🤒 "+v.who+" is sick ("+lvRange(v)+").","🤒 "+v.who+" مريض ("+lvRange(v)+").","🤒 "+v.who+" ni mgonjwa ("+lvRange(v)+").")]);
-    else if(v.status==="wait")out.push(["warn",L("🏖️ "+v.who+" wuxuu codsaday fasax ("+lvRange(v)+"). Eeg Qorshe.","🏖️ "+v.who+" asked for leave ("+lvRange(v)+"). See Plan.","🏖️ "+v.who+" طلب إجازة ("+lvRange(v)+"). انظر الخطة.","🏖️ "+v.who+" ameomba likizo ("+lvRange(v)+"). Angalia Mpango.")])}
+    else if(v.status==="wait"&&!(typeof hubOn==="function"&&hubOn()))out.push(["warn",L("🏖️ "+v.who+" wuxuu codsaday fasax ("+lvRange(v)+"). Eeg 🧑‍💼 Shaqaalaha.","🏖️ "+v.who+" asked for leave ("+lvRange(v)+"). See 🧑‍💼 Staff.","🏖️ "+v.who+" طلب إجازة ("+lvRange(v)+"). انظر 🧑‍💼 الموظفون.","🏖️ "+v.who+" ameomba likizo ("+lvRange(v)+"). Angalia 🧑‍💼 Wafanyakazi.")])}
   if(R.daily&&cur&&hhmm()>=R.time&&!mine("tx").some(t=>t.date===today()&&(!STAFF()||isMine(t))))
     out.push(["warn",L("✍️ Maanta weli waxba ma qorin. Ku dar lacagta soo gashay iyo kharashka maanta.","✍️ Nothing entered today yet. Add today's money in and spending.","✍️ لم تُسجّل شيئًا اليوم بعد. أضف دخل اليوم ومصروفه.","✍️ Bado hujaingiza chochote leo. Ongeza mapato na matumizi ya leo.")]);
   $("alerts").innerHTML=out.map(([c,t])=>`<p class="al ${c}">${esc(t)}</p>`).join("");$("alerts").hidden=!out.length;
@@ -3887,21 +3922,23 @@ else{$("notifyRow").hidden=false;
 /* ---------- debts (company) ---------- */
 const debtLeft=d=>Math.max(0,Number(d.amount)-Number(d.paid||0));
 function renderDebts(){
-  const ds=mine("debt").sort((a,b)=>(debtLeft(b)>0)-(debtLeft(a)>0)||(a.due||"9999").localeCompare(b.due||"9999"));
-  const tin=ds.filter(d=>d.dir==="in").reduce((a,d)=>a+debtLeft(d),0),tout=ds.filter(d=>d.dir==="out").reduce((a,d)=>a+debtLeft(d),0);
-  $("debtSum").innerHTML=`<div class="ext lo"><span class="lbl">${L("Lacag naloo hayo","Owed to us")}</span><b>${money(tin)}</b></div><div class="ext hi"><span class="lbl">${L("Lacag aan u hayno dad kale","We owe others")}</span><b>${money(tout)}</b></div>`;
+  const bizC=MODE==="business"&&MGR(),cin=bizC?mine("debt").filter(d=>d.dir==="in"):[];
+  const ds=mine("debt").filter(d=>!bizC||d.dir!=="in").sort((a,b)=>(debtLeft(b)>0)-(debtLeft(a)>0)||(a.due||"9999").localeCompare(b.due||"9999"));
+  const tin=(bizC?cin:ds).filter(d=>d.dir==="in").reduce((a,d)=>a+debtLeft(d),0),tout=ds.filter(d=>d.dir==="out").reduce((a,d)=>a+debtLeft(d),0);
+  $("debtSum").innerHTML=`<div class="ext lo"><span class="lbl">${L("Lacag naloo hayo","Owed to us")}</span><b>${money(tin)}</b>${bizC?`<button type="button" class="del" data-hub="cust" data-hubgo="1">👥 ${L("Eeg Macaamiisha","See Customers","عرض العملاء","Ona Wateja")} →</button>`:""}</div><div class="ext hi"><span class="lbl">${L("Lacag aan u hayno dad kale","We owe others")}</span><b>${money(tout)}</b></div>`;
   $("debts").innerHTML=ds.length?ds.map(d=>{const r=debtLeft(d),late=d.due&&r>0&&d.due<today(),id=esc(d.id);
     return `<div class="debt"><div class="goal-top"><b>${esc(d.name)}</b><span class="amt ${d.dir}">${money(r)}</span></div>
       <span class="note">${d.dir==="in"?L("Naloo hayo","Owed to us"):L("Aan u hayno","We owe")} · ${L("Wadarta","Total")}: ${money(d.amount)}${d.due?` · <span class="${late?"late":""}">${L("Taariikhda","Due")}: ${fmtD(d.due)}${late?L(" (way dhaaftay)"," (overdue)"):""}</span>`:""}</span>${typeof zBadge==="function"?zBadge(d):""}
       <div class="goal-actions">${r>0?`<input type="number" min="0" step="0.01" inputmode="decimal" placeholder="${L("Qadar","Amount")}" id="din-${id}" aria-label="${L("Qadarka","Amount")}"><button data-dpay="${id}">${d.dir==="in"?L("Lacag ayaa la helay","Received"):L("Bixi","Pay")}</button>`:`<span class="done">${L("✓ Waa la dhammeeyay","✓ Settled")}</span>`}
       ${items.some(i=>i.kind==="tx"&&i.debtId===d.id)?`<button class="del" data-dundo="${id}">${L("↩ Ka noqo lacagtii u dambeysay","↩ Undo last payment")}</button>`:""}
       ${d.dir==="in"&&r>0?`<button type="button" class="del" data-dwa="${id}">💬 ${L("Xusuusin","Remind","تذكير","Kumbusha")}</button>`:""}<button class="del" data-del="${id}">Tirtir</button></div></div>`}).join("")
-    :`<p class="empty" style="margin:0">${L("Weli deyn lama qorin.","No debts recorded yet.")}</p>`}
+    :`<p class="empty" style="margin:0">${bizC?L("Ma jirto lacag aad dad kale u hayso.","You do not owe anyone money.","لا تدين لأحد بالمال.","Huna deni kwa mtu yeyote."):L("Weli deyn lama qorin.","No debts recorded yet.")}</p>`}
 $("debtForm").addEventListener("submit",async e=>{e.preventDefault();
   const name=$("dName").value.trim(),amount=parseFloat($("dAmt").value),dir=document.querySelector('input[name=ddir]:checked').value,due=$("dDue").value||null;
   if(!name||!(amount>0)){$("dErr").textContent=L("Geli magac iyo qadar ka weyn eber.","Enter a name and an amount greater than zero.");return}
   $("dErr").textContent="";
-  try{await put({id:uid(),kind:"debt",name,amount,dir,due,paid:0,created:new Date().toISOString()});$("dName").value="";$("dAmt").value="";$("dDue").value=""}
+  try{await put({id:uid(),kind:"debt",name,amount,dir,due,paid:0,created:new Date().toISOString()});$("dName").value="";$("dAmt").value="";$("dDue").value="";
+    if(dir==="in"&&MODE==="business"&&MGR())$("dErr").innerHTML=`<span class="ok">✓ ${esc(L(`${name} waxaa lagu daray 👥 Macaamiisha.`,`${name} was added to 👥 Customers.`,`تمت إضافة ${name} إلى 👥 العملاء.`,`${name} ameongezwa kwa 👥 Wateja.`))}</span> <button type="button" class="del" data-hub="cust" data-hubgo="1">${esc(L("Eeg","See","عرض","Ona"))} →</button>`}
   catch{$("dErr").textContent="Lama kaydin karo hadda. Isku day mar kale."}});
 document.addEventListener("click",async e=>{
   const dp=e.target.closest("[data-dpay]");
@@ -3953,6 +3990,8 @@ $("lvForm").addEventListener("submit",async e=>{e.preventDefault();
   if(!who){$("lvErr").textContent=L("Geli magaca shaqaalaha.","Enter the staff member's name.");return}
   if(!from||to<from){$("lvErr").textContent=L("Dooro taariikhda bilowga iyo dhammaadka.","Choose the start and end dates.");return}
   $("lvErr").textContent="";
+  {const w=ckey(who),ov=mine("leave").find(v=>v.status!=="no"&&ckey(v.who)===w&&(v.type==="buka")===(type==="buka")&&v.from<=to&&v.to>=from);
+    if(ov){$("lvErr").textContent=L(`${ov.who}: ${lvRange(ov)} horay ayaa loo qoray.`,`${ov.who}: ${lvRange(ov)} is already recorded.`,`${ov.who}: ${lvRange(ov)} مسجّلة مسبقًا.`,`${ov.who}: ${lvRange(ov)} tayari imeandikwa.`);return}}
   const status=owner||type==="buka"?"ok":"wait";
   try{await put({id:uid(),kind:"leave",who,type,from,to,note,status,by:me?.email||"",created:new Date().toISOString()});
     $("lvWho").value="";$("lvFrom").value="";$("lvTo").value="";$("lvNote").value="";
@@ -4357,7 +4396,7 @@ $("coFile").addEventListener("change",async e=>{const f=e.target.files?.[0];e.ta
   catch{$("coMsg").textContent=L("Sawirkan lama furi karo. Isku day sawir kale (PNG ama JPG).","Could not open this image. Try another (PNG or JPG).")}});
 $("coDelLogo").addEventListener("click",async()=>{const s={...settings()};delete s.coLogo;await put(s)});
 $("coSave").addEventListener("click",async()=>{await put({...settings(),coName:$("coName").value.trim().slice(0,60)});$("coMsg").textContent=L("✓ Waa la kaydiyay.","✓ Saved.")});
-$("coAskGo").addEventListener("click",()=>{goTab("more");setTimeout(()=>$("coPanel").scrollIntoView({behavior:"smooth",block:"start"}),50)});
+$("coAskGo").addEventListener("click",()=>{if(typeof accSecOpen==="function")accSecOpen("co");else goTab("more")});
 $("coAskNo").addEventListener("click",async()=>{await put({...settings(),coAskNo:true})});
 
 /* ---------- company staff ---------- */
@@ -4447,6 +4486,31 @@ async function saveFile(name,text,type){const blob=new Blob([text],{type});
   try{const f=new File([blob],name,{type});if(NATIVE&&navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch{}
   const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
   setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+/* ---------- money colours in every download (v164, AM): money in = green, money out = red ----------
+   Works from the column header, the row's first cell or the section heading, in all 4 languages. */
+const MK_NET=/faa'?iid|profit|khasaare|loss|haray|hadhay|left|net\b|farqi|difference|الربح|الخسارة|صافي|تبق|الفرق|faida|hasara|imebaki|tofauti|salio/i;
+const MK_IN=/soo gal|soo gash|money in|income|dakhli|revenue|sales|^\W*iib|iibka|la helay|received|دخل|إيراد|مبيعات|مستلم|iliingia|mapato|mauzo|💰/i;
+const MK_OUT=/ka bax|baxday|money out|went\b|zilienda|ilienda|صُرف|expense|spending|kharash|mushahar|salar|costs?\b|خرج|مصروف|مصاريف|رواتب|تكلف|ilitoka|matumizi|gharama|mishahara|💸/i;
+function moneyKind(t){t=String(t||"").trim();if(!t)return null;const n=MK_NET.test(t),i=MK_IN.test(t),o=MK_OUT.test(t);
+  if(n)return "net";if(i&&o)return null;return i?"in":o?"out":null}
+const MC={in:"#0b7a4b",out:"#c0392b",inBg:"#e2f3ea",outBg:"#fbe4e0"};
+function colorMoneyEl(root){if(!root)return;
+  root.querySelectorAll("table").forEach(tb=>{let hk=null;for(let e=tb.previousElementSibling;e;e=e.previousElementSibling){if(/^H[1-4]$/.test(e.tagName)){hk=moneyKind(e.textContent);break}}
+    const rows=[...tb.rows];if(!rows.length)return;const head=rows.find(r=>r.querySelector("th"));const ck=[],skip=[];
+    if(head)[...head.cells].forEach((c,j)=>{const t=c.textContent;ck[j]=moneyKind(t);skip[j]=/^\s*%\s*$/.test(t)||xlDays(t);
+      if(ck[j]==="in"||ck[j]==="out"){c.style.background=MC[ck[j]+"Bg"];c.style.color=MC[ck[j]]}});
+    let sk=null;
+    rows.forEach(r=>{if(r===head)return;const cells=[...r.cells];if(!cells.length)return;
+      if(!cells.some((c,j)=>j>0&&/\d/.test(c.textContent))){const k0=moneyKind(r.textContent);if(k0)sk=k0;return}   /* a heading row like "💸 Kharashka shaqada" colours the rows under it */
+      const rk=moneyKind(cells[0].textContent)||moneyKind(cells.filter(c=>!/\d/.test(c.textContent)).map(c=>c.textContent).join(" "));
+      cells.forEach((c,j)=>{if(c.tagName==="TH"||(j===0&&cells.length>1&&!ck[0])||skip[j]||c.style.color||c.querySelector("[style*=color]"))return;const t=c.textContent.trim();
+        if(!/\d/.test(t)||/%\s*$/.test(t)||/^\d{4}-\d{2}-\d{2}/.test(t))return;
+        let k=ck[j]||rk||sk||hk;if(!k&&/^[−-]/.test(t))k="out";if(k==="net")k=/^[−-]/.test(t)?"out":/^0([.,]0+)?$|^\$?0\.00$/.test(t.replace(/[^\d.,−-]/g,""))?null:"in";
+        if(k==="in"||k==="out"){c.style.color=MC[k];c.style.fontWeight=c.style.fontWeight||"600"}})})})}
+function colorMoneyHtml(html){try{const m=String(html).match(/<body[^>]*>([\s\S]*)<\/body>/i);if(!m)return html;const d=document.createElement("div");d.innerHTML=m[1];colorMoneyEl(d);return html.replace(m[1],()=>d.innerHTML)}catch{return html}}
+/* Word files and the print/PDF area go through here, so every report gets the colours */
+{const _sf=saveFile;saveFile=function(name,text,type){if(typeof text==="string"&&/msword/.test(type||""))text=colorMoneyHtml(text);return _sf(name,text,type)}}
+{const _pr=window.print.bind(window);window.print=function(){try{colorMoneyEl($("printArea"))}catch{}return _pr()}}
 /* ---------- Excel (.xlsx) with company name + logo; CSV if the library can't load ---------- */
 let xlLib=null;
 function loadExcel(){return xlLib||(xlLib=new Promise((res,rej)=>{if(window.ExcelJS)return res(window.ExcelJS);const sc=document.createElement("script");sc.src="vendor/exceljs.min.js";sc.onload=()=>res(window.ExcelJS);sc.onerror=()=>{xlLib=null;rej()};document.head.appendChild(sc)}))}
@@ -4458,7 +4522,8 @@ function xlColor(h){h=String(h).toLowerCase();
   if(/mushah|mushaar|salar/.test(h))return"FFD9443C";
   if(/kale|other/.test(h))return"FFC98A0C";
   if(/soo gashay|soo galay|income|^iib/.test(h))return"FF1E8E5A";
-  if(/guud|total|ka baxay|expense/.test(h))return"FF8A4B1C";
+  if(/ka baxay|expense|money out/.test(h))return"FFC0392B";
+  if(/guud|total/.test(h))return"FF8A4B1C";
   if(/^kharashka$|^spending$/.test(h))return"FFD9443C";
   if(/kayd|saving/.test(h))return"FF5A8FE0";
   if(/haray|hadhay|left over/.test(h))return"FF2F6FC4";
@@ -4481,9 +4546,13 @@ async function exportSheet(title,sections,base){base=base.replace(/[^\p{L}\p{N}_
       sec.head.forEach((h,j)=>{const c=hr.getCell(j+1);c.value=h;c.font={bold:true,color:{argb:"FFFFFFFF"}};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:j===0&&!sec.colorFirst?"FF34495E":xlColor(h)}};
         c.alignment={horizontal:j===0?"left":"center",vertical:"middle",wrapText:true};c.border=border;w[j]=Math.max(w[j],Math.min(22,String(h).length+2))});
       r++;
-      sec.rows.forEach((row,k)=>{const rr=ws.getRow(r);row.forEach((v,j)=>{const c=rr.getCell(j+1);c.value=v===""||v==null?null:v;c.border=border;
+      let xsk=null;
+      sec.rows.forEach((row,k)=>{const rr=ws.getRow(r);if(!row.some((x,j)=>j>0&&typeof x==="number")){const k0=moneyKind(row.join(" "));if(k0)xsk=k0}
+        row.forEach((v,j)=>{const c=rr.getCell(j+1);c.value=v===""||v==null?null:v;c.border=border;
           if(k%2)c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF5F8FA"}};
-          if(typeof v==="number"){c.numFmt=sec.head[j]==="%"?"0%":xlDays(sec.head[j])?"#,##0":"#,##0.00";c.alignment={horizontal:"right"};if(v<0)c.font={color:{argb:"FFD9443C"}}}
+          if(typeof v==="number"){c.numFmt=sec.head[j]==="%"?"0%":xlDays(sec.head[j])?"#,##0":"#,##0.00";c.alignment={horizontal:"right"};
+            let mk=sec.head[j]==="%"||xlDays(sec.head[j])?null:(moneyKind(sec.head[j])||(j>0?moneyKind(row[0])||moneyKind(row.filter(x=>typeof x==="string"&&!/\d/.test(x)).join(" "))||xsk:null)||moneyKind(sec.title));if(mk==="net")mk=v<0?"out":v>0?"in":null;
+            if(v<0&&!mk)mk="out";if(mk)c.font={bold:true,color:{argb:mk==="in"?"FF0B7A4B":"FFC0392B"}}}
           w[j]=Math.max(w[j],Math.min(34,(typeof v==="number"?v.toLocaleString("en",{minimumFractionDigits:2}):String(v??"")).length+2))});
         if(sec.totalRow&&k===sec.rows.length-1)rr.font={bold:true};r++});
       r++}
@@ -5048,6 +5117,8 @@ async function invSave(){const lines=invLines.map(l=>({n:String(l.n||"").trim(),
   $("invErr").textContent="";const k=invKind(),sum=lines.reduce((a,l)=>a+l.q*l.p,0),adj=invAdj(sum),total=Math.round((sum+adj)*100)/100,date=$("invDate").value||today();
   const sig=JSON.stringify([k,cust,$("invPhone").value,$("invEmail").value,date,lines,$("invNote").value,$("invDue").value,adj,$("invCtype").value]);
   if(invCur&&invCur.sig===sig)return invCur.doc;
+  if(!invCur){const tw=mine("inv").find(d=>d.k===k&&ckey(d.cust)===ckey(cust)&&d.date===date&&Math.abs((Number(d.total)||0)-total)<0.005);
+    if(tw&&invDupSig!==sig){invDupSig=sig;$("invErr").textContent="⚠️ "+L(`${invNoTxt(tw)} oo isku macmiil, taariikh iyo wadar ah (${money(total)}) horay ayaa loo sameeyay. Haddii ay tahay mid kale, riix mar kale.`,`${invNoTxt(tw)} with the same customer, date and total (${money(total)}) already exists. If this is a different one, tap again.`,`${invNoTxt(tw)} بنفس العميل والتاريخ والمجموع (${money(total)}) موجود مسبقًا. إذا كانت مختلفة، اضغط مرة أخرى.`,`${invNoTxt(tw)} yenye mteja, tarehe na jumla sawa (${money(total)}) tayari ipo. Kama ni nyingine, bonyeza tena.`);return null}invDupSig=""}
   try{let doc;
     const cur=invCur&&invCur.doc&&items.find(i=>i.id===invCur.doc.id);
     if(invCur&&invCur.doc&&invCur.doc.k===k){doc={...(cur||invCur.doc)}}
@@ -5416,6 +5487,9 @@ $("pyForm").addEventListener("submit",async e=>{e.preventDefault();const who=$("
   const acc=staffAccounts(),mail=lc(who).includes("@")&&acc.includes(lc(who))?lc(who):(empMail&&$("pyWho").dataset.mail===empMail?empMail:"");
   if(mail&&empOfMail(mail)){$("pyErr").textContent=L("Shaqaalahan mushahar horay ayaa loo geliyay.","This staff member already has a salary.","لهذا الموظف راتب مسجّل مسبقًا.","Mfanyakazi huyu tayari ana mshahara.");return}
   const name=mail&&lc(who)===mail?mailName(mail):who;
+  {const same=emps().find(b=>ckey(b.who||"")===ckey(name));if(same){$("pyErr").textContent=L(`${same.who} horay ayuu ugu jiray liiska shaqaalaha (${T(same.name)}).`,`${same.who} is already on the staff list (${T(same.name)}).`,`${same.who} موجود مسبقًا في قائمة الموظفين (${T(same.name)}).`,`${same.who} tayari yuko kwenye orodha ya wafanyakazi (${T(same.name)}).`);return}
+    const dg=x=>String(x||"").replace(/\D/g,"").slice(-9),ph=dg($("pyPh").value),sig=name+"|"+ph,sp=ph.length>=7&&emps().find(b=>dg(b.phone)===ph);
+    if(sp&&pyDupSig!==sig){pyDupSig=sig;$("pyErr").textContent="⚠️ "+L(`Telefoonkan waxaa horay u leh ${sp.who}. Haddii uu yahay qof kale, riix mar kale.`,`This phone already belongs to ${sp.who}. If it is a different person, tap again.`,`هذا الهاتف مسجّل باسم ${sp.who}. إذا كان شخصًا آخر، اضغط مرة أخرى.`,`Simu hii tayari ni ya ${sp.who}. Kama ni mtu mwingine, bonyeza tena.`);return}pyDupSig=""}
   try{await put({id:uid(),kind:"bill",emp:1,name:role,who:name,...(mail?{mail}:{}),phone:$("pyPh").value.trim(),amount,due:day&&day>=1&&day<=31?day:null,grp:"staff",created:new Date().toISOString()});
     ["pyWho","pyAmt","pyPh","pyDay"].forEach(i=>$(i).value="");delete $("pyWho").dataset.mail;empMail="";empMsg="✓ "+L(`${name} waa la daray.`,`${name} added.`,`تمت إضافة ${name}.`,`${name} ameongezwa.`);renderPayroll()}
   catch{$("pyErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Could not save right now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Haiwezi kuhifadhi sasa. Jaribu tena.")}});
@@ -5792,7 +5866,7 @@ document.addEventListener("click",async e=>{
 {const _r6=render;render=function(){_r6();try{renderZero()}catch(e){console.warn(e)}}}
 /* ================= 11. Shirkad Guriga: register a customer or an employee (v150) =================
    Customer = kind "cust" {name, phone, email} (Shirkad only). Employee = the payroll form in Qorshe (same rules). */
-let regTab="cust",regMsgT="";
+let regTab="cust",regMsgT="",rcDupSig="",pyDupSig="",invDupSig="";
 function renderReg(){const P=$("regPanel");if(!P)return;if(MODE!=="business"||!MGR()){return}
   $("regH").textContent="➕ "+L("Diiwaangeli","Register","تسجيل","Sajili");
   const n=mine("cust").length,ne=typeof emps==="function"?emps().length:0;
@@ -5811,6 +5885,9 @@ $("rcForm").addEventListener("submit",async e=>{e.preventDefault();const name=$(
   $("rcErr").textContent="";
   if(!name){$("rcErr").textContent=L("Geli magaca macmiilka.","Enter the customer's name.","أدخل اسم العميل.","Weka jina la mteja.");$("rcName").focus();return}
   if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){$("rcErr").textContent=L("Email-ku sax maaha.","The email is not valid.","البريد الإلكتروني غير صحيح.","Barua pepe si sahihi.");$("rcEmail").focus();return}
+  {const dg=x=>String(x||"").replace(/\D/g,"").slice(-9),ph=dg(phone),em=lc(email),sig=[name,phone,email].join("|");
+    const ex2=(ph.length>=7||em)&&mine("cust").find(c=>ckey(c.name)!==ckey(name)&&((ph.length>=7&&dg(c.phone)===ph)||(em&&lc(c.email)===em)));
+    if(ex2&&rcDupSig!==sig){rcDupSig=sig;$("rcErr").textContent="⚠️ "+L(`Telefoonkan ama email-kan waxaa horay u leh ${ex2.name}. Haddii uu yahay qof kale, riix Diiwaangeli mar kale.`,`This phone or email already belongs to ${ex2.name}. If it is a different person, tap Register again.`,`هذا الهاتف أو البريد مسجّل باسم ${ex2.name}. إذا كان شخصًا آخر، اضغط تسجيل مرة أخرى.`,`Simu au barua pepe hii tayari ni ya ${ex2.name}. Kama ni mtu mwingine, bonyeza Sajili tena.`);return}rcDupSig=""}
   {const ex=mine("cust").find(c=>ckey(c.name)===ckey(name));if(ex){const name=ex.name;$("rcErr").textContent=L(`${name} horay ayuu u diiwaangashanaa.`,`${name} is already registered.`,`${name} مسجّل مسبقًا.`,`${name} tayari amesajiliwa.`);return}}
   try{const id=uid();await put({id,kind:"cust",name,phone,email,ctype:$("rcType").value==="b"?"b":"p",created:new Date().toISOString()});["rcName","rcPhone","rcEmail"].forEach(i=>$(i).value="");
     regMsgT="✓ "+esc(L(`${name} waa la diiwaangeliyay.`,`${name} registered.`,`تم تسجيل ${name}.`,`${name} amesajiliwa.`))+` <button type="button" class="del" data-regnew="${esc(id)}">🧾 ${L("U samee rasiid / qaansheeg","Make a receipt / invoice","أنشئ إيصالًا / فاتورة","Tengeneza risiti / ankara")}</button>`;renderReg()}
@@ -5964,8 +6041,21 @@ const HUBS={cust:["👥",["Macaamiisha","Customers","العملاء","Wateja"],[
   rep:["📋",["Warbixinta","Reports","التقارير","Ripoti"],["Warbixinta shirkadda, faa'iidada iyo tirakoob","Company report, profit and statistics","تقرير الشركة والربح والإحصاءات","Ripoti ya kampuni, faida na takwimu"]]};
 const HUB_OF={regPanel:"cust",cuPanel:"cust",invPanel:"inv",irPanel:"inv",pyPanel:"staff",lvPanel:"staff",prPanel:"rep",stPanel:"rep"};
 const hubOn=()=>MODE==="business"&&MGR()&&!STAFF();
+/* v168: Shakhsi Guriga gets 4 big buttons too: 📋 Warbixin · 📅 Maalmaha · 📈 Jaantus · 📊 Tirakoob */
+const PHUBS={pwr:["📋",["Warbixin","Report","التقرير","Ripoti"],["Warbixinta bishan iyo isbarbardhigga bishii hore","This month's report and last month compared","تقرير هذا الشهر ومقارنته بالشهر الماضي","Ripoti ya mwezi huu na kulinganisha na uliopita"]],
+  pdy:["📅",["Maalmaha","Days","الأيام","Siku"],["Maalin kasta: lacagta soo gashay iyo kharashka","Each day: money in and spending","كل يوم: الدخل والمصاريف","Kila siku: pesa iliyoingia na matumizi"]],
+  pch:["📈",["Jaantus","Chart","رسم بياني","Chati"],["Soo galay iyo ka baxay, maalin ama bil kasta","Money in and out, by day or month","الدخل والخرج يوميًا أو شهريًا","Pesa iliyoingia na kutoka, kwa siku au mwezi"]],
+  pst:["📊",["Tirakoob","Statistics","إحصاءات","Takwimu"],["Meesha lacagtu ku baxday iyo tirakoobkaaga","Where your money went and your statistics","أين ذهب مالك وإحصاءاتك","Pesa zako zilienda wapi na takwimu zako"]]};
+const pHubOn=()=>MODE!=="business";
+const hubSet=()=>hubOn()?HUBS:pHubOn()?PHUBS:{};
 let hubPushed=false;
 function hubInfo(k){const tx=mine("tx");
+  if(k in PHUBS){const m=tx.filter(inMonth).filter(t=>t.cat!=="Kayd"),sm=(a,y)=>a.filter(t=>t.type===y).reduce((x,t)=>x+Number(t.amount||0),0),mi=sm(m,"in"),mo=sm(m,"out");
+    if(k==="pwr")return {n:MONTHS[view.getMonth()]+": +"+money(mi)+" · −"+money(mo),good:mi>mo&&mi>0,bad:mo>mi,badge:0};
+    if(k==="pdy"){const d=tx.filter(t=>t.date===today()),a=sm(d,"in"),b=sm(d,"out");return {n:L("Maanta","Today","اليوم","Leo")+": "+(d.length?"+"+money(a)+" · −"+money(b):L("weli waxba","nothing yet","لا شيء بعد","bado hakuna")),badge:0}}
+    if(k==="pch")return {n:"",badge:0};
+    const g={};m.filter(t=>t.type==="out").forEach(t=>g[t.cat]=(g[t.cat]||0)+Number(t.amount||0));const top=Object.entries(g).sort((a,b)=>b[1]-a[1])[0];
+    return {n:top?L("Ugu badan","Most","الأكثر","Zaidi")+": "+T(top[0])+" "+money(top[1]):"",badge:0}}
   if(k==="cust"){const cs=customers(),owed=cs.reduce((a,c)=>a+c.owed,0),late=cs.filter(c=>c.late>0).length;
     return {n:L(`${cs.length} macmiil`,`${cs.length} customers`,`${cs.length} عملاء`,`Wateja ${cs.length}`)+(owed>0?" · "+L(`${money(owed)} lagu leeyahay`,`${money(owed)} owed`,`${money(owed)} مستحق`,`${money(owed)} wanadaiwa`):""),bad:late>0,badge:late}}
   if(k==="inv"){const l=irList(),late=l.filter(x=>x.k!=null&&x.k<0).length,uns=invUnsent().length;
@@ -5978,37 +6068,42 @@ function hubInfo(k){const tx=mine("tx");
     return {n,bad:wait>0,badge:wait}}
   const m=tx.filter(inMonth).filter(t=>t.cat!=="Kayd"),inn=m.filter(t=>t.type==="in").reduce((a,t)=>a+Number(t.amount||0),0),out=m.filter(t=>t.type==="out").reduce((a,t)=>a+Number(t.amount||0),0),pl=inn-out;
   return {n:MONTHS[view.getMonth()]+": "+(pl>=0?"📈 "+L("Faa'iido","Profit","ربح","Faida")+" "+money(pl):"📉 "+L("Khasaare","Loss","خسارة","Hasara")+" "+money(-pl)),good:pl>0,bad:pl<0,badge:0}}
-function renderHub(){const g=$("bhGrid");if(!g)return;const av=$("appView");
-  if(av.dataset.tab==="hub"&&!hubOn()){goTab("home");return}
-  if(!hubOn())return;
-  $("bhH").textContent="🏢 "+(coName()||L("Shirkaddaada","Your business","شركتك","Biashara yako"));
-  const inf={};for(const k in HUBS){try{inf[k]=hubInfo(k)}catch(e){inf[k]={n:"",badge:0}}}
+function renderHub(){const av=$("appView"),H=hubSet(),biz=H===HUBS,g=$(biz?"bhGrid":"phGrid");if(!g)return;
+  if(av.dataset.tab==="hub"&&!H[av.dataset.hub]){goTab("home");return}
+  /* Shirkad: payment notices + paid invoices live only in 🧾 Qaansheegyada; Shakhsi keeps them on the home card */
+  {const pn=$("payNote"),gi=$("glInv"),host=$("ihNotes");if(pn&&gi&&host){if(hubOn()){if(pn.parentElement!==host){host.appendChild(pn);host.appendChild(gi)}host.hidden=pn.hidden&&gi.hidden}
+    else{if(pn.parentElement===host){$("glPLd").after(pn);pn.after(gi)}host.hidden=true}}}
+  if(!Object.keys(H).length)return;
+  if(biz)$("bhH").textContent="🏢 "+(coName()||L("Shirkaddaada","Your business","شركتك","Biashara yako"));else $("phH").textContent="👤 "+L("Lacagtayda","My money","أموالي","Pesa zangu");
+  const inf={};for(const k in H){try{inf[k]=hubInfo(k)}catch(e){inf[k]={n:"",badge:0}}}
   const key=JSON.stringify(inf)+LANG;
   if(g.dataset.k!==key){g.dataset.k=key;
-    g.innerHTML=Object.entries(HUBS).map(([k,[ic,t,d]])=>{const i=inf[k];return `<button type="button" class="bhbtn" data-hub="${k}">${i.badge?`<span class="bhbadge">${i.badge}</span>`:""}<span class="bhic" aria-hidden="true">${ic}</span><b>${L(...t)}</b><span class="bhd">${L(...d)}</span>${i.n?`<span class="bhn${i.bad?" bad":i.good?" good":""}">${esc(i.n)}</span>`:""}</button>`}).join("")}
+    g.innerHTML=Object.entries(H).map(([k,[ic,t,d]])=>{const i=inf[k];return `<button type="button" class="bhbtn" data-hub="${k}">${i.badge?`<span class="bhbadge">${i.badge}</span>`:""}<span class="bhic" aria-hidden="true">${ic}</span><b>${L(...t)}</b><span class="bhd">${L(...d)}</span>${i.n?`<span class="bhn${i.bad?" bad":i.good?" good":""}">${esc(i.n)}</span>`:""}</button>`}).join("")}
   if(av.dataset.tab!=="hub")return;
-  const h=av.dataset.hub||"cust",[ic,t]=HUBS[h]||HUBS.cust;
+  const h=av.dataset.hub,[ic,t]=H[h];
   $("hubTitle").textContent=ic+" "+L(...t);
   $("hubBack").textContent=(RTL?"→ ":"← ")+L("Guriga","Home","الرئيسية","Nyumbani");
-  $("hubSw").setAttribute("aria-label",L("Qaybaha shirkadda","Business sections","أقسام الشركة","Sehemu za biashara"));
-  $("hubSw").innerHTML=Object.entries(HUBS).map(([k,[ic2,t2]])=>`<button type="button" data-hub="${k}"${k===h?' aria-current="page"':""}>${inf[k].badge?`<span class="bhbadge">${inf[k].badge}</span>`:""}<i aria-hidden="true">${ic2}</i>${L(...t2)}</button>`).join("");
+  $("hubSw").setAttribute("aria-label",biz?L("Qaybaha shirkadda","Business sections","أقسام الشركة","Sehemu za biashara"):L("Qaybaha","Sections","الأقسام","Sehemu"));
+  $("hubSw").innerHTML=Object.entries(H).map(([k,[ic2,t2]])=>`<button type="button" data-hub="${k}"${k===h?' aria-current="page"':""}>${inf[k].badge?`<span class="bhbadge">${inf[k].badge}</span>`:""}<i aria-hidden="true">${ic2}</i>${L(...t2)}</button>`).join("");
   const A={cust:[["custnew","➕ "+L("Macmiil cusub","New customer","عميل جديد","Mteja mpya"),1]],
     inv:[["invq","📄 "+L("Qaansheeg cusub","New invoice","فاتورة جديدة","Ankara mpya"),1],["invr","🧾 "+L("Rasiid cusub","New receipt","إيصال جديد","Risiti mpya")]],
     staff:[["paysal","💳 "+L("Bixi mushaharka","Pay salaries","دفع الرواتب","Lipa mishahara"),1],["salout","💸 "+L("Mushahar ku qor kharash","Record salary as expense","سجّل راتبًا كمصروف","Andika mshahara kama matumizi")],["lvadd","🏖️ "+L("Ku dar fasax","Add leave","أضف إجازة","Ongeza likizo")]],
-    rep:[["repdl","⬇ "+L("Soo deji warbixinta bishan","Download this month's report","تنزيل تقرير هذا الشهر","Pakua ripoti ya mwezi huu"),1]]}[h]||[];
-  $("hubAct").innerHTML=A.map(([a,txt,pr])=>`<button type="button"${pr?' class="primary"':""} data-hubact="${a}">${txt}</button>`).join("")}
-function hubOpen(h,keep){if(!HUBS[h]||!hubOn())return;const av=$("appView"),was=av.dataset.tab==="hub";
+    rep:[["repdl","⬇ "+L("Soo deji warbixinta bishan","Download this month's report","تنزيل تقرير هذا الشهر","Pakua ripoti ya mwezi huu"),1]],
+    pwr:[["repdl","⬇ "+L("Soo deji warbixinta bishan","Download this month's report","تنزيل تقرير هذا الشهر","Pakua ripoti ya mwezi huu"),1]]}[h]||[];
+  $("hubAct").innerHTML=h==="pdy"?dyBtns(""):A.map(([a,txt,pr])=>`<button type="button"${pr?' class="primary"':""} data-hubact="${a}">${txt}</button>`).join("")}
+function hubOpen(h,keep){if(!hubSet()[h])return;const av=$("appView"),was=av.dataset.tab==="hub";
   av.dataset.hub=h;av.dataset.tab="hub";markTab("home");try{sessionStorage.setItem("hantigo.tab","home")}catch{}
   if(h==="cust"&&typeof regTab!=="undefined")regTab="cust";
   try{if(!was&&!(history.state&&history.state.hub)){history.pushState({hub:h},"");hubPushed=true}else history.replaceState({hub:h},"")}catch{}
-  if(me)render();if(!keep)window.scrollTo(0,0)}
+  if(me)render();if(!keep)window.scrollTo(0,0);
+  if(h in PHUBS||h==="rep")document.querySelectorAll(`[data-hubs~="${h}"].folded .foldbtn`).forEach(b=>{try{b.click()}catch{}})}
 function hubClose(){if(hubPushed&&history.state&&history.state.hub){hubPushed=false;try{history.back();return}catch{}}goTab("home")}
 addEventListener("popstate",()=>{hubPushed=false;if($("appView").dataset.tab==="hub")goTab("home")});
 /* go to the place where a panel lives: its hub page for owner/manager in Shirkad, else the old tab */
 function secGo(id,tab){const h=HUB_OF[id];if(h&&hubOn())hubOpen(h,true);else goTab(tab)}
 function secShow(id){const h=HUB_OF[id],av=$("appView");if(h&&hubOn()&&!(av.dataset.tab==="hub"&&av.dataset.hub===h))hubOpen(h,true)}
 document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-hub]");if(b&&(b.closest("#bhGrid")||b.closest("#hubSw"))){hubOpen(b.dataset.hub);return}
+  const b=e.target.closest("[data-hub]");if(b&&(b.closest("#bhGrid")||b.closest("#phGrid")||b.closest("#hubSw")||b.dataset.hubgo)){hubOpen(b.dataset.hub);return}
   if(e.target.closest("#hubBack")){hubClose();return}
   const a=e.target.closest("[data-hubact]");if(!a)return;const k=a.dataset.hubact;
   const go=(id,f)=>setTimeout(()=>{const el=$(id);if(!el)return;const s=el.tagName==="SECTION"?el:el.closest("section");if(s&&s.classList.contains("folded"))s.querySelector(".foldbtn")?.click();el.scrollIntoView({behavior:"smooth",block:"start"});if(f)setTimeout(()=>$(f)?.focus({preventScroll:true}),350)},60);
@@ -6021,6 +6116,59 @@ document.addEventListener("click",e=>{
   if(k==="repdl"){const w=$("wrPanel");if(w&&w.classList.contains("folded"))w.querySelector(".foldbtn")?.click();go("wrPanel");return}
 });
 {const _rh=render;render=function(){_rh();try{renderHub()}catch(e){console.warn(e)}}}
+/* ================= 13. Akoon as a menu (v168): small account card + buttons; each opens only its part ================= */
+const ACC_MENU=[["me","👤",["Xogtayda","My details","بياناتي","Taarifa zangu"],["Magac, telefoon, magaalo, luqad, PIN","Name, phone, city, language, PIN","الاسم، الهاتف، المدينة، اللغة، PIN","Jina, simu, mji, lugha, PIN"]],
+  ["co","🏢",["Shirkaddaada","Your business","شركتك","Biashara yako"],["Magaca iyo astaanta (logo)","Name and logo","الاسم والشعار","Jina na nembo"]],
+  ["team","👥",["Shaqaalaha akoonka","Staff accounts","حسابات الموظفين","Akaunti za wafanyakazi"],["Email-ka shaqaalaha iyo doorkooda","Staff emails and roles","بريد الموظفين وأدوارهم","Barua pepe na majukumu"]],
+  ["pay","💳",["Lacag bixinta","Payment","الدفع","Malipo"],["EVC Plus / WaafiPay, bishii","EVC Plus / WaafiPay, monthly","EVC Plus / WaafiPay، شهريًا","EVC Plus / WaafiPay, kila mwezi"]],
+  ["rem","🔔",["Xusuusinnada","Reminders","التذكيرات","Vikumbusho"],["Biilasha, miisaaniyadda, deymaha","Bills, budget, debts","الفواتير، الميزانية، الديون","Bili, bajeti, madeni"]],
+  ["act","🕓",["Taariikhda isbeddelka","Change history","سجل التغييرات","Historia ya mabadiliko"],["Cidda wax beddeshay iyo goorta","Who changed what and when","من غيّر ماذا ومتى","Nani alibadilisha nini na lini"]],
+  ["rep","📄",["Warbixin iyo backup","Reports and backup","التقارير والنسخ الاحتياطي","Ripoti na nakala"],["Excel, Word, PDF · backup · tirtir akoonka","Excel, Word, PDF · backup · delete account","Excel وWord وPDF · نسخ احتياطي · حذف الحساب","Excel, Word, PDF · nakala · futa akaunti"]],
+  ["help","💬",["Caawimaad","Help","المساعدة","Msaada"],["WhatsApp","WhatsApp","واتساب","WhatsApp"]],
+  ["app","📲",["Soo deji app-ka","Get the app","تنزيل التطبيق","Pakua programu"],["Ku rakib telefoonka ama kombiyuutarka","Install on phone or computer","ثبّته على الهاتف أو الكمبيوتر","Sakinisha kwenye simu au kompyuta"]]];
+let accPushed=false;
+const accPanel=k=>document.querySelector(`#appView [data-acc="${k}"]`);
+function renderAccMenu(){const m=$("accMenu");if(!m)return;
+  const html=ACC_MENU.map(([k,ic,t,d])=>{const p=accPanel(k);if(!p)return "";const cls=[...p.classList].filter(c=>/^(biz-only|person-only|owner-only|mgr-only|no-staff|no-team|pay-only|staff-only)$/.test(c)).join(" ");
+    if(k==="app"&&!p.innerHTML.trim())return "";
+    const dot=k==="co"&&MODE==="business"&&typeof coLogo==="function"&&!coLogo()?'<span class="dotnew" aria-hidden="true"></span>':"";
+    return `<button type="button" class="${cls}" data-accopen="${k}">${dot}<i aria-hidden="true">${ic}</i><b>${esc(L(...t))}</b><small>${esc(L(...d))}</small></button>`}).join("");
+  if(m.dataset.k!==html+LANG){m.dataset.k=html+LANG;m.innerHTML=html}
+  m.setAttribute("aria-label",L("Akoon","Account","الحساب","Akaunti"));
+  const ml=$("meLangL");if(ml)ml.textContent="🌐 "+L("Luqadda","Language","اللغة","Lugha");
+  const av=$("appView"),k=av.dataset.accsec;if(!k)return;const a=ACC_MENU.find(x=>x[0]===k);
+  if(a)$("accTitle").textContent=a[1]+" "+L(...a[2]);$("accBack").textContent=(RTL?"→ ":"← ")+L("Akoon","Account","الحساب","Akaunti")}
+function accSecOpen(k,then){const av=$("appView");if(av.dataset.tab!=="more")goTab("more");
+  document.querySelectorAll("#appView [data-acc].accon").forEach(x=>x.classList.remove("accon"));const p=accPanel(k);if(!p)return;
+  p.classList.add("accon");av.dataset.accsec=k;renderAccMenu();window.scrollTo(0,0);
+  try{if(!(history.state&&history.state.acc)){history.pushState({acc:k},"");accPushed=true}else history.replaceState({acc:k},"")}catch{}
+  if(k==="act"&&typeof actLoad==="function"&&me)actLoad();
+  if(then)setTimeout(then,60)}
+function accSecClose(){const av=$("appView");if(!av.dataset.accsec)return;delete av.dataset.accsec;document.querySelectorAll("#appView [data-acc].accon").forEach(x=>x.classList.remove("accon"));renderAccMenu();window.scrollTo(0,0)}
+{const _g=goTab;goTab=function(t){accSecClose();return _g(t)}}
+addEventListener("popstate",()=>{accPushed=false;if($("appView").dataset.accsec)accSecClose()});
+document.addEventListener("click",e=>{const o=e.target.closest("[data-accopen]");if(o){accSecOpen(o.dataset.accopen);return}
+  if(e.target.closest("#accBack")){if(accPushed&&history.state&&history.state.acc){accPushed=false;history.back();return}accSecClose()}});
+{const _ra=render;render=function(){_ra();try{renderAccMenu()}catch(e){console.warn(e)}}}
+/* ---- pick a registered customer or employee from a list instead of typing the name again (Shirkad, v164) ---- */
+const NPICK=[["place",()=>[["c",custNames()],["e",empNames()]]],["lvWho",()=>[["e",empNames()]]],["dName",()=>[["c",custNames()]]]];
+function custNames(){return customers().map(c=>c.name)}
+function empNames(){const a=emps().map(b=>b.who||T(b.name)).filter(Boolean),seen=new Set(a.map(ckey));for(const m of staff||[])if(!seen.has(ckey(m))){a.push(m);seen.add(ckey(m))}return a}
+function renderPicks(){const on=MODE==="business"&&MGR();
+  for(const [id,fn] of NPICK){const inp=$(id);if(!inp)continue;const host=inp.closest("label");if(!host)continue;
+    let w=$("np-"+id);if(!w){w=document.createElement("label");w.className="field npick";w.id="np-"+id;w.innerHTML=`<span></span><select data-npick="${id}"></select>`;host.before(w)}
+    const groups=on?fn().filter(g=>g[1].length):[];w.hidden=!groups.length;if(!groups.length)continue;
+    const gl={c:"👥 "+L("Macaamiisha","Customers","العملاء","Wateja"),e:"🧑‍💼 "+L("Shaqaalaha","Staff","الموظفون","Wafanyakazi")};
+    w.querySelector("span").textContent=groups.length>1?L("Dooro macmiil ama shaqaale","Pick a customer or staff member","اختر عميلًا أو موظفًا","Chagua mteja au mfanyakazi"):groups[0][0]==="c"?L("👤 Dooro macmiil diiwaangashan","👤 Pick a registered customer","👤 اختر عميلًا مسجّلًا","👤 Chagua mteja aliyesajiliwa"):L("🧑‍💼 Dooro shaqaale diiwaangashan","🧑‍💼 Pick a registered staff member","🧑‍💼 اختر موظفًا مسجّلًا","🧑‍💼 Chagua mfanyakazi aliyesajiliwa");
+    const sel=w.querySelector("select"),key=JSON.stringify(groups)+LANG;
+    if(sel.dataset.k!==key){sel.dataset.k=key;sel.innerHTML=`<option value="">— ${esc(L("Dooro liiska","Choose from the list","اختر من القائمة","Chagua kwenye orodha"))} —</option>`+groups.map(([g,ns])=>`<optgroup label="${esc(gl[g])}">${ns.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("")}</optgroup>`).join("")}
+    const cur=ckey(inp.value),m=[...sel.options].find(o=>o.value&&ckey(o.value)===cur);sel.value=m?m.value:""}
+  /* typing still works: the lists also appear as suggestions */
+  if(on){const dl=$("lvStaff");if(dl)dl.innerHTML=empNames().map(e=>`<option value="${esc(e)}">`).join("");
+    const pl=$("placeList");if(pl){const have=new Set([...pl.options].map(o=>ckey(o.value)));custNames().forEach(n=>{if(!have.has(ckey(n)))pl.insertAdjacentHTML("afterbegin",`<option value="${esc(n)}">`)})}}}
+document.addEventListener("change",e=>{const s=e.target.closest("[data-npick]");if(!s||!s.value)return;const i=$(s.dataset.npick);if(!i)return;i.value=s.value;i.dispatchEvent(new Event("input",{bubbles:true}))});
+document.addEventListener("input",e=>{const id=e.target.id;if(NPICK.some(x=>x[0]===id))try{renderPicks()}catch{}});
+{const _rp=render;render=function(){_rp();try{renderPicks()}catch(e){console.warn(e)}}}
 for(const f of ["rcForm","reForm"])$(f).addEventListener("submit",e=>{if(canReg())return;e.preventDefault();e.stopImmediatePropagation();regGate()},true);
 $("pyForm").addEventListener("submit",e=>{if(canReg())return;e.preventDefault();e.stopImmediatePropagation();
   $("pyErr").textContent="🔒 "+L("Shaqaale cusub waxaa geli kara mulkiilaha ama maamule uu u oggolaaday.","Only the owner, or a manager they allowed, can add a new employee.","يمكن للمالك أو لمدير سمح له فقط إضافة موظف جديد.","Ni mmiliki au meneja aliyemruhusu tu anayeweza kuongeza mfanyakazi mpya.")},true);
