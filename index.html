@@ -1269,7 +1269,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
       <div class="pldet" id="glPLd" aria-live="polite" hidden></div>
       <div class="paynote mgr-only" id="payNote" hidden></div>
       <div class="glinv mgr-only" id="glInv" hidden></div>
-      <span class="lbl">Lacagta akoonkaaga</span><span class="val" id="sBal">0</span>
+      <span class="lbl" id="sBalL">Lacagta akoonkaaga</span><span class="val" id="sBal">0</span>
       <div class="glbar" aria-hidden="true"><i id="glBar"></i></div><p class="glsum" id="glSum"></p><p class="glsafe" id="glSafe" hidden></p>
       <div class="methods" id="sMethods"></div>
       <div class="glact" id="glAct"></div></div>
@@ -2936,6 +2936,9 @@ document.addEventListener("click",e=>{const g=e.target.closest(".ab-go");if(g){a
 document.addEventListener("change",e=>{const r=e.target.closest(".autobox input[type=radio]");if(!r)return;
   r.closest(".autobox").querySelector(".ab-lbl").textContent=r.value==="waafi"?L("Lambarka WaafiPay ee lacagta laga jarayo","WaafiPay number to pay from","رقم WaafiPay الذي سيُدفع منه","Namba ya WaafiPay ya kulipa"):L("Lambarka EVC Plus ee lacagta laga jarayo","EVC Plus number to pay from","رقم EVC Plus الذي سيُدفع منه","Namba ya EVC Plus ya kulipa")});
 /* ---------- render ---------- */
+/* v170: balances follow the month on screen: a past month shows the money as it stood at the END of that month (0 before the first entry) */
+function vEnd(){return isoOf(view,dimOf(view))}
+const upToView=t=>String(t.date||"")<=vEnd();
 function inMonth(t){const d=new Date(t.date+"T00:00");return d.getFullYear()===view.getFullYear()&&d.getMonth()===view.getMonth()}
 function fillCats(){const type=document.querySelector('input[name=type]:checked').value;const sel=$("cat");const cur=sel.value;
   const opts=a=>a.filter(c=>c!=="Kayd").map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
@@ -3045,8 +3048,10 @@ function render(){
     [L("Dakhliga","Income"),mi,prevIn,trend(mi,prevIn),mi>=prevIn],
     [L("Kharashka","Expenses"),mo,prevOut,trend(mo,prevOut),mo<=prevOut]
   ].map(([label,current,previous,change,good])=>`<div class="mc-item"><span class="note">${label}</span><b>${money(current)}</b><span class="note">${L("Bishan","This month")}</span><span class="note">${L("Bishii hore","Last month")}: ${money(previous)}</span><span class="note ${good?"mc-up":"mc-down"}">${change}</span></div>`).join("");
-  $("sBal").textContent=money(sum(txs,"in")-sum(txs,"out"));renderGlance(mi,mo);renderPL(txs);renderStaffDash(txs);
-  {const mb=methBal(txs,mineTr());$("sMethods").innerHTML=`<div class="mphead"><small>${L("Meesha lacagtu ku jirto","Where your money is","أين يوجد مالك","Pesa zako ziko wapi")}</small><button type="button" class="mptr" data-tr="1">⇄ ${L("Wareeji","Move","تحويل","Hamisha")}</button></div>`
+  {const bt=txs.filter(upToView),past=vEnd()<today();$("sBal").textContent=money(sum(bt,"in")-sum(bt,"out"));
+   $("sBalL").textContent=past?L("Lacagta akoonkaaga · dhammaadka ","Account balance · end of ","رصيد الحساب · نهاية ","Salio la akaunti · mwisho wa ")+MONTHS[view.getMonth()]+" "+view.getFullYear():L("Lacagta akoonkaaga","Account balance","رصيد الحساب","Salio la akaunti")}
+  renderGlance(mi,mo);renderPL(txs);renderStaffDash(txs);
+  {const mb=methBal(txs.filter(upToView),mineTr().filter(upToView));$("sMethods").innerHTML=`<div class="mphead"><small>${L("Meesha lacagtu ku jirto","Where your money is","أين يوجد مالك","Pesa zako ziko wapi")}</small><button type="button" class="mptr" data-tr="1">⇄ ${L("Wareeji","Move","تحويل","Hamisha")}</button></div>`
     +METHODS.map(m=>`<span class="mp${(mb[m]||0)<0?" neg":""}"><i aria-hidden="true">${TR_IC[m]||"💵"}</i><small>${T(m)}</small><b>${(mb[m]||0)<0?"−":""}${money(Math.abs(mb[m]||0))}</b></span>`).join("")}
   const monthL=[...month,...mineTr().filter(inMonth)].sort((a,b)=>(b.date+b.created).localeCompare(a.date+a.created));
   if(!$("trPanel").hidden)trRender();
@@ -4164,9 +4169,9 @@ function mgCalc(){
   const byDay={};sales.forEach(t=>byDay[t.date]=(byDay[t.date]||0)+Number(t.amount||0));
   const best=Object.entries(byDay).sort((a,b)=>b[1]-a[1])[0]||null;
   const isNow=k===ym(new Date()),days=isNow?new Date().getDate():new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
-  /* cash in hand: every Shirkad entry ever, per payment method */
-  const bal=amt(txs.filter(t=>t.type==="in"))-amt(txs.filter(t=>t.type==="out"));
-  const mb=methBal(txs,mineTr()),meth=METHODS.map(m=>[m,mb[m]||0]);
+  /* cash in hand: every Shirkad entry up to the end of the month on screen, per payment method */
+  const btx=txs.filter(upToView),bal=amt(btx.filter(t=>t.type==="in"))-amt(btx.filter(t=>t.type==="out"));
+  const mb=methBal(btx,mineTr().filter(upToView)),meth=METHODS.map(m=>[m,mb[m]||0]);
   /* debts */
   const ds=mine("debt"),owedIn=ds.filter(d=>d.dir==="in").reduce((a,d)=>a+debtLeft(d),0),owedOut=ds.filter(d=>d.dir==="out").reduce((a,d)=>a+debtLeft(d),0);
   const late=ds.filter(d=>d.due&&debtLeft(d)>0&&d.due<today());
@@ -4233,12 +4238,12 @@ function renderMgr(){const panel=$("mgPanel");if(!panel||MODE!=="business"||!MGR
       ${r.recent.length?r.recent.map(t=>li(`<span class="amt ${t.type}">${t.type==="in"?"+":"−"}</span> ${esc(T(t.cat))}${t.place?" · "+esc(t.place):""}`,`<span class="amt ${t.type}">${money(t.amount)}</span>`,fmtD(t.date)+" · "+esc(T(t.method||"Kaash"))+(t.by?" · 👤 "+esc(t.by.split("@")[0]):""))).join(""):none()}</div>
   </div>`;
   $("mgCsv").onclick=mgExcel;$("mgDoc").onclick=mgWord;$("mgPpt").onclick=()=>{renderMgr();exportPpt(mgHead()+mgTables()+stFoot(),mgFile("x").slice(0,-2))};if($("mgPdf"))$("mgPdf").onclick=mgPrint;
-  const mo=tdMonth(),mh=" · "+r.label,all=mine("tx"),first=all.reduce((a,t)=>t.date&&t.date<a?t.date:a,today());
+  const mo=tdMonth(),mh=" · "+r.label,all=mine("tx").filter(upToView),first=all.reduce((a,t)=>t.date&&t.date<a?t.date:a,today()),cEnd=vEnd()<today()?vEnd():today();
   tdReg("mgTD",{
     inc:()=>({arr:r.mIn,head:L("Dakhliga bishan soo galay","Income this month","الدخل هذا الشهر","Mapato mwezi huu")+mh,only:"in",...mo}),
     out:()=>({arr:r.mOut,head:L("Lacagta bishan ka baxday","Spent this month","المصروف هذا الشهر","Matumizi mwezi huu")+mh,only:"out",...mo}),
     prof:()=>({arr:[...r.mIn,...r.mOut],head:(r.prof>=0?L("Faa'iido","Profit","الربح","Faida"):L("Khasaare","Loss","الخسارة","Hasara"))+mh,...mo}),
-    cash:()=>({arr:all,head:L("Lacagta gacanta ku jirta","Cash on hand","النقد المتوفر","Pesa mkononi"),headVal:money(r.bal),from:first,to:today(),
+    cash:()=>({arr:all,head:L("Lacagta gacanta ku jirta","Cash on hand","النقد المتوفر","Pesa mkononi"),headVal:money(r.bal),from:first,to:cEnd,
       why:L(`Lacagta gacanta = wax kasta oo abid soo galay − wax kasta oo abid baxay (bil kasta, kaydka iyo deymaha la bixiyay ku jiraan). `,`Cash on hand = everything that ever came in − everything that ever went out (every month, incl. savings and debt payments). `,`النقد المتوفر = كل ما دخل − كل ما خرج (كل الأشهر، بما فيها المدخرات وسداد الديون). `,`Pesa mkononi = kila kilichowahi kuingia − kila kilichowahi kutoka (miezi yote, pamoja na akiba na madeni yaliyolipwa). `)
         +r.meth.map(([m,v])=>T(m)+": "+money(v)).join(" · ")}),
     sales:()=>({arr:r.sales,head:L("Iibka bishan","Sales this month","المبيعات هذا الشهر","Mauzo mwezi huu")+mh,only:"in",...mo}),
@@ -6087,7 +6092,7 @@ let hubPushed=false;
 function hubInfo(k){const tx=mine("tx");
   if(k in PHUBS){const m=tx.filter(inMonth).filter(t=>t.cat!=="Kayd"),sm=(a,y)=>a.filter(t=>t.type===y).reduce((x,t)=>x+Number(t.amount||0),0),mi=sm(m,"in"),mo=sm(m,"out");
     if(k==="pwr")return {n:MONTHS[view.getMonth()]+": +"+money(mi)+" · −"+money(mo),good:mi>mo&&mi>0,bad:mo>mi,badge:0};
-    if(k==="pdy"){const d=tx.filter(t=>t.date===today()),a=sm(d,"in"),b=sm(d,"out");return {n:L("Maanta","Today","اليوم","Leo")+": "+(d.length?"+"+money(a)+" · −"+money(b):L("weli waxba","nothing yet","لا شيء بعد","bado hakuna")),badge:0}}
+    if(k==="pdy"){const cv=isCurView(),d=tx.filter(cv?t=>t.date===today():inMonth),a=sm(d,"in"),b=sm(d,"out");return {n:(cv?L("Maanta","Today","اليوم","Leo"):MONTHS[view.getMonth()])+": "+(d.length?"+"+money(a)+" · −"+money(b):L("weli waxba","nothing yet","لا شيء بعد","bado hakuna")),badge:0}}
     if(k==="pch")return {n:"",badge:0};
     const g={};m.filter(t=>t.type==="out").forEach(t=>g[t.cat]=(g[t.cat]||0)+Number(t.amount||0));const top=Object.entries(g).sort((a,b)=>b[1]-a[1])[0];
     return {n:top?L("Ugu badan","Most","الأكثر","Zaidi")+": "+T(top[0])+" "+money(top[1]):"",badge:0}}
@@ -6102,6 +6107,7 @@ function hubInfo(k){const tx=mine("tx");
       +(wait?" · "+L(`${wait} codsi fasax`,wait===1?"1 leave request":`${wait} leave requests`,`${wait} طلبات إجازة`,`Maombi ${wait} ya likizo`):"")+(sick?" · 🤒 "+sick:"");
     return {n,bad:wait>0,badge:wait}}
   const m=tx.filter(inMonth).filter(t=>t.cat!=="Kayd"),inn=m.filter(t=>t.type==="in").reduce((a,t)=>a+Number(t.amount||0),0),out=m.filter(t=>t.type==="out").reduce((a,t)=>a+Number(t.amount||0),0),pl=inn-out;
+  if(!m.length)return {n:MONTHS[view.getMonth()]+": "+L("Weli waxba lama qorin","Nothing recorded yet","لا شيء مسجل بعد","Hakuna kilichorekodiwa bado"),badge:0};
   return {n:MONTHS[view.getMonth()]+": "+(pl>=0?"📈 "+L("Faa'iido","Profit","ربح","Faida")+" "+money(pl):"📉 "+L("Khasaare","Loss","خسارة","Hasara")+" "+money(-pl)),good:pl>0,bad:pl<0,badge:0}}
 function renderHub(){const av=$("appView"),H=hubSet(),biz=H===HUBS,g=$(biz?"bhGrid":"phGrid");if(!g)return;
   if(av.dataset.tab==="hub"&&!H[av.dataset.hub]){goTab("home");return}
