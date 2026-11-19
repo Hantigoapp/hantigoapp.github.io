@@ -1307,7 +1307,6 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
     <details class="note helpd dyhelp"><summary>ℹ️ Sida loo isticmaalo</summary>
     <p class="note dyhint">Maalin kasta: lacagta soo gashay, kharashka iyo waxa la galiyay. Riix maalin si aad u aragto.</p>
     <p class="note dyhint">✏️ Qadar khaldan? Riix "Beddel". Bilihii hore ‹ › ka dooro, xisaabta oo dhan way is saxaysaa.</p></details>
-    <div class="dyany"><label class="field"><span>Ku dar maalin kasta</span><input type="date" id="dyAnyDate"></label><div class="dyadd" id="dyAnyBtns"></div></div>
     <div id="dyList" class="dylist"></div>
   </section>
 
@@ -1402,10 +1401,6 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
     <div style="display:grid;gap:20px;min-width:0">
       <section class="panel" aria-labelledby="addH" data-tab="add">
         <div class="panel-head"><h2 id="addH">Ku dar dhaqdhaqaaq</h2>
-          <label class="field" style="grid-auto-flow:column;align-items:center;gap:8px"><span>Nooca lacagta</span>
-            <select id="currency" style="width:auto">
-              <option value="USD">$ Dollar</option><option value="SOS">Sh.So. Shilin Soomaali</option>
-            </select></label>
         </div>
         <form id="txForm" novalidate>
           <div class="seg" role="radiogroup" aria-label="Nooca">
@@ -1445,6 +1440,10 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
             <label class="field"><span>Faahfaahin (ikhtiyaari)</span><input id="note" type="text" maxlength="80" placeholder="Tusaale: bisha Nofembar"></label>
           </div>
           <datalist id="placeList"></datalist>
+          <label class="field curfield"><span>Nooca lacagta</span>
+            <select id="currency" style="width:auto">
+              <option value="USD">$ Dollar</option><option value="SOS">Sh.So. Shilin Soomaali</option>
+            </select></label>
           <div class="err" id="txErr" role="alert"></div>
           <div class="goal-actions"><button class="primary" type="submit" id="txSave">Kaydi</button><button type="button" id="txCancel" hidden>Jooji beddelka</button></div>
         </form>
@@ -2966,7 +2965,7 @@ function fillCats(){const type=document.querySelector('input[name=type]:checked'
   if(CATS[type].includes(cur)||own.includes(cur))sel.value=cur;
   $("ownCats").innerHTML=ownCats(type).map(c=>`<button type="button" class="chip own" data-delcat="${c.id}" aria-label="${L("Ka saar ","Remove ")}${esc(c.name)}">${c.name} ✕</button>`).join("");
   if(sel.value!=="__new")$("newCatRow").hidden=true;$("daily").hidden=true;markChip()}
-let MULTI_ON=true,MULTI_V={};
+let MULTI_ON=false,MULTI_V={};
 function renderMulti(list){const on=MULTI_ON&&useGroups()&&!editing;$("multiRow").hidden=!useGroups()||!!editing;
   $("multiBtn").textContent=on?L("↩ Hal shay keliya","↩ Just one item"):L("☑ Dooro dhowr isla mar (qiimo kasta gooni)","☑ Pick several at once (each with its own price)");$("multiBtn").setAttribute("aria-expanded",on);$("multiList").hidden=!on;
   ["amount","cat"].forEach(id=>$(id).closest(".field").style.display=on?"none":"");
@@ -2997,12 +2996,12 @@ function daySums(g){return `<span class="dysum">${g.si?`<span class="in">+${mone
 function dayHead(g){const d=dayDate(g.date);return `<span class="dyd">${d.rel?`<span class="dytag">${d.rel}</span>`:""}<b>${d.wd?d.wd+(RTL?"، ":", "):""}${d.full}</b></span><span class="dyl"><small>${dayCount(g.n)}</small>${daySums(g)}</span>`}
 let DY_ALL=false,QE=null,QOK=null;
 const dyInLbl=()=>L("Soo galay","Money in","دخل","Pesa iliyoingia");
-const dyAddBtns=date=>`<div class="dyadd">${dyBtns(date)}</div>`;
+const dyAddBtns=date=>`<div class="dyadd dyadd1"><button type="button" class="del" data-dyadd="any" data-date="${esc(date)}">＋ ${L("Ku dar maalintan","Add to this day","أضف إلى هذا اليوم","Ongeza kwa siku hii")}</button></div>`;
 function dyBtns(date){return `<button type="button" data-dyadd="in"${date?` data-date="${esc(date)}"`:""}><b>+</b> ${dyInLbl()}</button><button type="button" data-dyadd="out"${date?` data-date="${esc(date)}"`:""}><b>−</b> ${L("Ka baxay","Money out","خرج","Pesa iliyotoka")}</button>`}
 /* open Ku dar with the type and the day already chosen */
 document.addEventListener("click",e=>{const b=e.target.closest("[data-dyadd]");if(!b)return;
   const d=b.dataset.date||$("dyAnyDate")?.value||today();if(editing)stopEdit();goTab("add");
-  const r=$(b.dataset.dyadd==="in"?"tIn":"tOut");if(r&&!r.checked)r.click();
+  if(b.dataset.dyadd!=="any"){const r=$(b.dataset.dyadd==="in"?"tIn":"tOut");if(r&&!r.checked)r.click()}
   setTimeout(()=>{$("date").value=d;$("date").dispatchEvent(new Event("change",{bubbles:true}));const x=$("amount");(x&&x.offsetParent?x:document.querySelector("#multiList input:not([type=checkbox])"))?.focus()},60)});
 /* quick fix from the home day list: same rule as the Ku dar list (bill/debt/savings entries are changed where they were made) */
 const dyEditable=t=>!(t.billId||t.debtId||t.cat==="Kayd")&&(MGR()||isMine(t));   // staff fix only what they entered themselves
@@ -6139,7 +6138,7 @@ function renderHub(){const av=$("appView"),H=hubSet(),biz=H===HUBS,g=$(biz?"bhGr
   const inf={};for(const k in H){try{inf[k]=hubInfo(k)}catch(e){inf[k]={n:"",badge:0}}}
   const key=JSON.stringify(inf)+LANG;
   if(g.dataset.k!==key){g.dataset.k=key;
-    g.innerHTML=Object.entries(H).map(([k,[ic,t,d]])=>{const i=inf[k];return `<button type="button" class="bhbtn" data-hub="${k}">${i.badge?`<span class="bhbadge">${i.badge}</span>`:""}<span class="bhic" aria-hidden="true">${ic}</span><b>${L(...t)}</b><span class="bhd">${L(...d)}</span>${i.n?`<span class="bhn${i.bad?" bad":i.good?" good":""}">${esc(i.n)}</span>`:""}</button>`}).join("")}
+    g.innerHTML=Object.entries(H).filter(([k])=>k!=="pdy").map(([k,[ic,t,d]])=>{const i=inf[k];return `<button type="button" class="bhbtn" data-hub="${k}">${i.badge?`<span class="bhbadge">${i.badge}</span>`:""}<span class="bhic" aria-hidden="true">${ic}</span><b>${L(...t)}</b><span class="bhd">${L(...d)}</span>${i.n?`<span class="bhn${i.bad?" bad":i.good?" good":""}">${esc(i.n)}</span>`:""}</button>`}).join("")}
   if(av.dataset.tab!=="hub")return;
   const h=av.dataset.hub,[ic,t]=H[h];
   $("hubTitle").textContent=ic+" "+L(...t);
@@ -6149,7 +6148,7 @@ function renderHub(){const av=$("appView"),H=hubSet(),biz=H===HUBS,g=$(biz?"bhGr
   const A={cust:[["custnew","➕ "+L("Macmiil cusub","New customer","عميل جديد","Mteja mpya"),1]],
     inv:[["invq","📄 "+L("Qaansheeg cusub","New invoice","فاتورة جديدة","Ankara mpya"),1],["invr","🧾 "+L("Rasiid cusub","New receipt","إيصال جديد","Risiti mpya")]],
     staff:[["paysal","💳 "+L("Bixi mushaharka","Pay salaries","دفع الرواتب","Lipa mishahara"),1],["salout","💸 "+L("Mushahar ku qor kharash","Record salary as expense","سجّل راتبًا كمصروف","Andika mshahara kama matumizi")],["lvadd","🏖️ "+L("Ku dar fasax","Add leave","أضف إجازة","Ongeza likizo")]],
-    rep:[["repdl","⬇ "+L("Soo deji warbixinta bishan","Download this month's report","تنزيل تقرير هذا الشهر","Pakua ripoti ya mwezi huu"),1]],
+    rep:[["repdl","⬇ "+L("Soo deji warbixinta","Download the report","تنزيل التقرير","Pakua ripoti"),1],["repmore",$("appView").classList.contains("repmore")?"▴ "+L("Qari faahfaahinta","Hide details","إخفاء التفاصيل","Ficha maelezo"):"📊 "+L("Faahfaahin dheeraad ah","More details","تفاصيل أكثر","Maelezo zaidi")]],
     pwr:[["repdl","⬇ "+L("Soo deji warbixinta bishan","Download this month's report","تنزيل تقرير هذا الشهر","Pakua ripoti ya mwezi huu"),1]]}[h]||[];
   $("hubAct").innerHTML=h==="pdy"?dyBtns(""):A.map(([a,txt,pr])=>`<button type="button"${pr?' class="primary"':""} data-hubact="${a}">${txt}</button>`).join("")}
 function hubOpen(h,keep){if(!hubSet()[h])return;const av=$("appView"),was=av.dataset.tab==="hub";
@@ -6510,5 +6509,58 @@ fv.querySelector('[data-fvstart]').addEventListener('click',()=>{opener=null;clo
 addEventListener('popstate',()=>{if(!fv.hidden){pushed=false;hide()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!fv.hidden)close()});})();</script>
 <script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{r.update();document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update()})}).catch(()=>{}));</script>
+<style>
+/* v175 Guriga gaabi: the money shows once (top card); the small cards under it are gone */
+#appView[data-tab="home"] .summary>.stat:not(.bal){display:none!important}
+.dyadd1{padding:6px 12px 10px}.dyadd1 button{flex:0 0 auto;font-weight:600;color:var(--accent)}
+#phGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:520px){#phGrid .bhd{display:none}#phGrid .bhbtn{padding:12px 8px}}
+.curfield{grid-auto-flow:column;justify-content:start;align-items:center;gap:8px}.curfield span{font-size:.85rem}
+/* v175 Shirkad Warbixinta: one report + one download; the rest only after "Faahfaahin dheeraad ah" */
+html[data-mode="business"] #appView[data-tab="hub"][data-hub="rep"]:not(.repmore) :is(#mcPanel,#mgPanel,#chPanel,#prPanel,#stPanel){display:none!important}
+html[data-mode="business"] #appView[data-tab="hub"][data-hub="rep"] :is(#wrPanel .wr-dl,#prPanel>.goal-actions,#stPanel>.goal-actions,#mgBody>.goal-actions){display:none!important}
+.repdl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-sizing:border-box}
+.repdl p{flex:1 1 100%;margin:0}.repdl button{flex:1 1 120px;font-weight:600}
+</style>
+<script>
+/* v175: Shirkad report hub = one report and one "Soo deji" (Excel / Word / PDF / PowerPoint).
+   The file holds the simple month report + the profit report + the manager tables, in one file. */
+let XCAP=null;
+{const _es=exportSheet;exportSheet=async function(t,secs,b){if(XCAP){XCAP.push(...secs);return}return _es(t,secs,b)}}
+const repOn=()=>MODE==="business"&&typeof hubOn==="function"&&hubOn()&&$("appView").dataset.tab==="hub"&&$("appView").dataset.hub==="rep";
+function repFresh(){try{if(typeof renderMgr==="function")renderMgr()}catch(e){}try{if(typeof prRender==="function")prRender()}catch(e){}}
+const repFile=ext=>wrFile(ext).replace("-warbixin-fudud-","-warbixin-");
+function repHtml(print){repFresh();const ch=coHead();
+  return wrHtml(print)
+    +(typeof PRD!=="undefined"&&PRD?prHtml().replace(ch,""):"")
+    +(typeof MG!=="undefined"&&MG?`<h2>${L("Faahfaahinta bisha","Month details","تفاصيل الشهر","Maelezo ya mwezi")}: ${esc(MG.label||"")}</h2>`+mgTables():"")
+    +stFoot()}
+async function repExport(k){if(!WR)return;
+  if(k==="pp"){exportPpt(repHtml(false),repFile("x").slice(0,-2));return}
+  if(k==="p"){$("printArea").innerHTML=repHtml(true);document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
+    window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50);return}
+  if(k==="w"){const doc=`<html${RTL?' dir="rtl"':""} xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
+<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b}h2{font-size:13pt;margin-top:14pt}table{border-collapse:collapse;width:100%;margin:6pt 0}th,td{border:1px solid #999;padding:4pt 6pt;text-align:${RTL?"right":"left"}}th{background:#e8f5ee}.n{text-align:right}</style></head><body>${repHtml(false)}</body></html>`;
+    saveFile(repFile("doc"),"﻿"+doc,"application/msword");return}
+  repFresh();XCAP=[];let secs;
+  try{wrExport("x");if(typeof PRD!=="undefined"&&PRD)prExport("x");if(typeof MG!=="undefined"&&MG)mgExcel()}finally{secs=XCAP;XCAP=null}
+  const t=strip(WR.S.title);exportSheet(t+(t.includes(WR.d.mName)?"":" · "+WR.d.mName),secs,repFile("x").slice(0,-2))}
+function repDlBox(){const act=$("hubAct");if(!act)return;let b=$("repDl");
+  if(b){b.remove();return}
+  b=document.createElement("div");b.className="repdl";b.id="repDl";b.setAttribute("role","group");
+  b.innerHTML=`<p class="note">${L("Hal fayl oo leh warbixinta bisha, faa'iidada iyo faahfaahinta. Dooro nooca:","One file with the month report, profit and details. Choose the type:","ملف واحد فيه تقرير الشهر والربح والتفاصيل. اختر النوع:","Faili moja lenye ripoti ya mwezi, faida na maelezo. Chagua aina:")}</p>`
+    +`<button type="button" data-repx="x">⬇ Excel</button><button type="button" data-repx="w">⬇ Word</button>${NATIVE?"":`<button type="button" data-repx="p">🖨 PDF</button>`}<button type="button" data-repx="pp">📽 PowerPoint</button>`;
+  act.after(b)}
+document.addEventListener("click",e=>{
+  const x=e.target.closest("[data-repx]");if(x){repExport(x.dataset.repx);return}
+  const a=e.target.closest('[data-hubact="repdl"],[data-hubact="repmore"]');if(!a||!repOn())return;
+  e.stopImmediatePropagation();e.preventDefault();
+  if(a.dataset.hubact==="repdl"){repDlBox();return}
+  const av=$("appView");av.classList.toggle("repmore");
+  if(av.classList.contains("repmore"))document.querySelectorAll('[data-hubs~="rep"].folded .foldbtn').forEach(f=>{try{f.click()}catch{}});
+  render()},true);
+/* leaving the report page closes the extras and the download box */
+{const _r=render;render=function(){const av=$("appView");if(!(av.dataset.tab==="hub"&&av.dataset.hub==="rep")){av.classList.remove("repmore");$("repDl")?.remove()}_r()}}
+</script>
 </body>
 </html>
