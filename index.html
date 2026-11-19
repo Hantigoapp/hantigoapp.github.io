@@ -475,6 +475,7 @@ body.locked{overflow:hidden}.lkcard{display:grid;justify-items:center;gap:12px;m
 .invrev{margin:10px 0;padding:10px 12px;border:1px solid var(--line,#2a3446);border-radius:12px}.invrev .irh{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between}.revt{width:100%;border-collapse:collapse;margin:6px 0;font-size:14px}.revt th,.revt td{padding:5px 4px;border-bottom:1px solid var(--line,#2a3446);text-align:start}.revt .n{text-align:end;white-space:nowrap}.revt tr.bad td{color:var(--out,#ff6b6b)}.revt tr.tot td{border-bottom:0}.invrev .late{color:var(--out,#ff6b6b)}#invFixInfo{margin:22px 0 0}
 .invpick{margin:4px 0 10px;padding:10px;border:1px dashed var(--line,#2a3446);border-radius:12px}.invpick .field{margin:0}.invpick select{font-weight:600}#invPickInfo{margin:6px 0 0}#invPickInfo.warn{color:var(--warn,#f0b429)}
 #regTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}#regTabs button{justify-content:center;font-weight:700;padding:10px 8px}#regPanel #regMsg .del{margin-left:6px}
+.irbulk{display:grid;gap:8px;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:12px}.irbulk .ira button{flex:1 1 auto}.irbulk progress{width:100%;height:10px}.irbt{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}.irbt label{display:flex;flex-direction:row;gap:8px;align-items:center;font-weight:700;margin:0}.irbt input{width:22px;height:22px;margin:0;flex:none}.irbr{display:grid;gap:4px;max-height:320px;overflow:auto}.irbr div{display:flex;justify-content:space-between;gap:8px;font-size:14px;border-top:1px solid var(--line);padding-top:4px}.irbr .ok{color:var(--in)}.irbr .bad{color:var(--out)}.irck{display:flex;align-items:center;gap:8px;font-weight:700}.irck input{width:22px;height:22px;margin:0}
 .irlist{display:grid}.irow{border-top:1px solid var(--line);padding:10px 0;display:grid;gap:6px}.irow:first-child{border-top:0}.irow.irlate{box-shadow:inset 3px 0 0 var(--out);padding-left:8px}
 .irh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.irr{display:grid;justify-items:end;gap:3px}.ira{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ira input{max-width:110px}
 .prtips{margin:0;padding-left:18px;display:grid;gap:4px;font-size:.88rem}.prm{width:100%}
@@ -1353,6 +1354,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
     <div class="extremes cusum" id="irSum"></div>
     <div class="chips invf" id="irTabs" role="group"></div>
     <div id="irNew" class="irnew"></div>
+    <div id="irBulk" class="irbulk" hidden></div>
     <span class="note ok" id="irMsg" role="status"></span>
     <div id="irList" class="irlist"></div>
   </section>
@@ -5313,7 +5315,7 @@ function mailWhy(w){w=String(w||"");
   if(/Missing credentials|PLAIN|EAUTH/i.test(w))return L("Secret-yada SMTP_USER / SMTP_PASS lama helin.","The SMTP_USER / SMTP_PASS secrets are missing.");
   if(/Invalid JWT|JWT|401|"auth"/i.test(w))return L("Supabase ayaa diiday gelitaanka (JWT). Dami \"Verify JWT\" ee send-receipt.","Supabase rejected the login (JWT). Turn off \"Verify JWT\" on send-receipt.");
   if(/"plan"|^403/i.test(w))return L("Rasiidka email-ka waxaa diri kara akoon Shirkad ah oo furan (tijaabo ama la bixiyay).","Receipts by email need an open Business account (trial or paid).","إرسال الإيصالات بالبريد يتطلب حساب شركة مفعّلًا (تجربة أو مدفوع).","Kutuma risiti kwa barua pepe kunahitaji akaunti ya Biashara iliyo hai (majaribio au imelipwa).");
-  if(/"limit"|^429/i.test(w))return L("Saacaddii 10 rasiid ayaa email lagu diri karaa. Wax yar sug, kadib mar kale isku day.","You can email 10 receipts an hour. Wait a little and try again.","يمكنك إرسال 10 إيصالات في الساعة. انتظر قليلًا ثم حاول مرة أخرى.","Unaweza kutuma risiti 10 kwa saa. Subiri kidogo kisha ujaribu tena.");
+  if(/"limit"|^limit$|^429/i.test(w))return L("Saacaddii 40 email ayaa la diri karaa. Wax yar sug, kadib mar kale isku day.","You can send 40 emails an hour. Wait a little and try again.","يمكنك إرسال 40 رسالة في الساعة. انتظر قليلًا ثم حاول مرة أخرى.","Unaweza kutuma barua pepe 40 kwa saa. Subiri kidogo kisha ujaribu tena.");
   if(/404|not found/i.test(w))return L("send-receipt lama helin (lama gelin).","send-receipt was not found (not deployed).");
   if(/Failed to send a request|Failed to fetch|NetworkError|FunctionsFetchError/i.test(w))return L("Adeegga lama gaari karo. Hubi internetka.","Could not reach the service. Check the internet.");
   return ""}
@@ -5760,16 +5762,16 @@ function renderInvRem(){const P=$("irPanel");if(!P)return;const l=irList();
   const tb=(k,t)=>`<button type="button" data-irtab="${k}" class="${irTab===k?"on":""}" aria-pressed="${irTab===k}">${t}</button>`;
   const uns=invUnsent();
   $("irTabs").innerHTML=tb("send","📤 "+L("Aan la dirin","Not sent","غير مرسلة","Hazijatumwa")+` (${uns.length})`)+tb("open","⏳ "+L("Aan weli la bixin","Not paid yet","غير مدفوعة بعد","Bado hazijalipwa")+` (${l.length})`)+tb("paid","✓ "+L("La bixiyay","Paid","مدفوعة","Zimelipwa")+` (${paidL.length})`);
-  renderIrTodo(l,uns);
-  if(irTab==="send"){$("irNew").innerHTML="";$("irList").innerHTML=uns.length?uns.slice(0,irAll?999:8).map(irSendRow).join("")+(uns.length>8?`<button type="button" class="del" data-irall="1">${irAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${uns.length}) ▾`,`See all (${uns.length}) ▾`,`عرض الكل (${uns.length}) ▾`,`Ona zote (${uns.length}) ▾`)}</button>`:"")
+  renderIrTodo(l,uns);irPool=irTab==="send"?uns:irTab==="paid"?paidL.map(x=>x.d):[];renderIrBulk();
+  if(irTab==="send"){$("irNew").innerHTML="";$("irList").innerHTML=uns.length?uns.slice(0,irAll||irBulk.on?999:8).map(irSendRow).join("")+(uns.length>8?`<button type="button" class="del" data-irall="1">${irAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${uns.length}) ▾`,`See all (${uns.length}) ▾`,`عرض الكل (${uns.length}) ▾`,`Ona zote (${uns.length}) ▾`)}</button>`:"")
       :`<p class="empty" style="margin:0">✓ ${L("Qaansheeg kasta waa loo diray macmiilka.","Every invoice was sent to the customer.","أُرسلت كل الفواتير إلى العملاء.","Kila ankara imetumwa kwa mteja.")}</p>`;$("irMsg").textContent=irMsgT;return}
   const late=l.filter(x=>x.g===0),soon=l.filter(x=>x.g===1),sum=a=>a.reduce((s,x)=>s+x.s.left,0);
   $("irSum").innerHTML=`<div class="ext ${late.length?"hi":""}"><span class="lbl">${L("Dib u dhacay","Overdue","متأخرة","Zimechelewa")}</span><b>${late.length} · ${money(sum(late))}</b></div><div class="ext"><span class="lbl">${L("Dhowaan la gaarayo","Due soon","تستحق قريبًا","Zinakaribia")}</span><b>${soon.length} · ${money(sum(soon))}</b></div><div class="ext"><span class="lbl">${L("Dhammaan aan la bixin","All unpaid","كل غير المدفوعة","Zote hazijalipwa")}</span><b>${l.length} · ${money(sum(l))}</b></div>`;
   $("irH").textContent="🧾 "+L("Qaansheegyada","Invoices","الفواتير","Ankara");
   $("irNew").innerHTML=irTab==="paid"?`<button type="button" class="primary" data-irnew="r">+ ${L("Ku dar mid la bixiyay (rasiid)","Add a paid one (receipt)","أضف مدفوعة (إيصال)","Ongeza iliyolipwa (risiti)")}</button>`
     :`<button type="button" class="primary" data-irnew="q">+ ${L("Ku dar qaansheeg aan la bixin","Add an unpaid invoice","أضف فاتورة غير مدفوعة","Ongeza ankara isiyolipwa")}</button>`;
-  if(irTab==="paid"){const pv=irAll?paidL:paidL.slice(0,8);
-    $("irList").innerHTML=(pv.length?pv.map(({d,s})=>`<div class="irow"><div class="irh"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)}<br><small class="note">${fmtD(d.date)}${d.k==="q"&&s.paid?" · "+L("Qaansheeg la bixiyay","Invoice paid","فاتورة مدفوعة","Ankara imelipwa"):""}</small>${invItems(d)}</span><span class="irr"><b class="amt in">${money(d.total)}</b>${invPill(s)}</span></div>
+  if(irTab==="paid"){const pv=irAll||irBulk.on?paidL:paidL.slice(0,8);
+    $("irList").innerHTML=(pv.length?pv.map(({d,s})=>`<div class="irow">${irCk(d)}<div class="irh"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)}<br><small class="note">${fmtD(d.date)}${d.k==="q"&&s.paid?" · "+L("Qaansheeg la bixiyay","Invoice paid","فاتورة مدفوعة","Ankara imelipwa"):""}</small>${invItems(d)}</span><span class="irr"><b class="amt in">${money(d.total)}</b>${invPill(s)}</span></div>
       <div class="ira"><button type="button" class="del" data-invp="${esc(d.id)}">⬇ PDF</button><button type="button" class="del" data-invw="${esc(d.id)}">📤 ${L("Dir mar kale","Send again","أرسل مرة أخرى","Tuma tena")}</button></div></div>`).join("")
       :`<p class="empty" style="margin:0">${L("Weli qaansheeg la bixiyay ma jiro.","No paid invoices yet.","لا توجد فواتير مدفوعة بعد.","Bado hakuna ankara zilizolipwa.")}</p>`)+
       (paidL.length>8?`<button type="button" class="del" data-irall="1">${irAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${paidL.length}) ▾`,`See all (${paidL.length}) ▾`,`عرض الكل (${paidL.length}) ▾`,`Ona zote (${paidL.length}) ▾`)}</button>`:"");
@@ -5783,6 +5785,55 @@ function renderInvRem(){const P=$("irPanel");if(!P)return;const l=irList();
     (l.length>vis.length||irAll?`<button type="button" class="del" data-irall="1">${irAll?L("Yaree ▴","Show less ▴","عرض أقل ▴","Onyesha kidogo ▴"):L(`Eeg dhammaan (${l.length}) ▾`,`See all (${l.length}) ▾`,`عرض الكل (${l.length}) ▾`,`Ona zote (${l.length}) ▾`)}</button>`:"");
   $("irMsg").textContent=irMsgT}
 let irMsgT="",irTab="open";
+/* v180: send many invoices / receipts by email at once — one PDF per customer, one after another, with progress and a result per customer */
+let irPool=[];const irBulk={on:false,sel:new Set(),run:false,stop:false,list:null,res:{},done:0,why:""};
+const irEm=d=>d.email||(custOf(d.cust)||{}).email||"";
+function irCk(d){if(!irBulk.on)return "";const em=irEm(d),id=esc(d.id);
+  return `<label class="irck"><input type="checkbox" data-irck="${id}" ${irBulk.sel.has(d.id)?"checked":""} ${!em||irBulk.run?"disabled":""}> ${em?esc(L("Dooro","Select","تحديد","Chagua")):`<small class="note late">${esc(L("Email ma laha","No email","لا يوجد بريد","Hakuna barua pepe"))}</small>`}</label>`}
+function irBulkOk(){return irPool.filter(d=>irEm(d))}
+function renderIrBulk(){const b=$("irBulk");if(!b)return;
+  if(irTab!=="send"&&irTab!=="paid"){b.hidden=true;return}
+  const ok=irBulkOk();if(!ok.length&&!irBulk.list){b.hidden=true;return}b.hidden=false;
+  for(const id of [...irBulk.sel])if(!irBulk.run&&!ok.some(d=>d.id===id))irBulk.sel.delete(id);
+  const n=irBulk.sel.size,all=n&&ok.every(d=>irBulk.sel.has(d.id));let h="";
+  if(!irBulk.on&&!irBulk.list){b.innerHTML=`<div class="ira"><button type="button" data-irbulk="on">☑ ${esc(L("U dir macaamiil badan hal mar","Send to many customers at once","أرسل إلى عدة عملاء مرة واحدة","Tuma kwa wateja wengi kwa mara moja"))} (${ok.length})</button></div>`;return}
+  if(irBulk.on&&!irBulk.run)h+=`<div class="irbt"><label><input type="checkbox" data-irckall="1" ${all?"checked":""}> ${esc(L("Dooro dhammaan","Select all","تحديد الكل","Chagua zote"))} (${ok.length})</label><small class="note">${esc(L(`${n} la doortay`,`${n} selected`,`${n} محددة`,`${n} zimechaguliwa`))}</small></div>
+    <p class="note" style="margin:0">${esc(L("Macmiil kasta wuxuu helayaa qaansheeggiisa oo PDF ah. Nuqul ayaa email-kaaga laguu soo dirayaa.","Each customer gets their own invoice as a PDF. A copy is emailed to you.","يتلقى كل عميل فاتورته الخاصة بصيغة PDF. تُرسل نسخة إلى بريدك.","Kila mteja anapata ankara yake kama PDF. Nakala inatumwa kwa barua pepe yako."))}</p>
+    <div class="ira"><button type="button" class="primary" data-irbulk="send" ${n?"":"disabled"}>📧 ${esc(L(`Dir ${n} email`,`Send ${n} emails`,`أرسل ${n} رسائل`,`Tuma barua pepe ${n}`))}</button><button type="button" class="del" data-irbulk="off">${esc(L("Xir","Close","إغلاق","Funga"))}</button></div>`;
+  if(irBulk.list){const t=irBulk.list.length,R=irBulk.res,c=k=>irBulk.list.filter(x=>R[x.id]?.s===k).length,okN=c("ok"),bad=c("err")+c("skip");
+    h+=`<div class="irbt"><b>${irBulk.run?"⏳ "+esc(L("Waa la dirayaa…","Sending…","جارٍ الإرسال…","Inatuma…")):"📧 "+esc(L("Natiijada","Result","النتيجة","Matokeo"))}</b><span>${irBulk.done} / ${t}</span></div><progress max="${t}" value="${irBulk.done}"></progress>
+      ${irBulk.run?"":`<p class="note ${bad?"late":"ok"}" style="margin:0">✓ ${esc(L(`${okN} waa la diray`,`${okN} sent`,`أُرسلت ${okN}`,`${okN} zimetumwa`))}${bad?" · ✗ "+esc(L(`${bad} lama dirin`,`${bad} not sent`,`${bad} لم تُرسل`,`${bad} hazijatumwa`)):""}${irBulk.why?" · "+esc(irBulk.why):""}</p>`}
+      <div class="irbr">${irBulk.list.map(x=>{const r=R[x.id]||{s:"wait"},st=r.s==="ok"?`<b class="ok">✓ ${esc(L("La diray","Sent","أُرسلت","Imetumwa"))}</b>`:r.s==="err"?`<b class="bad">✗ ${esc(L("Lama dirin","Failed","فشل","Imeshindwa"))}${r.w?": "+esc(r.w):""}</b>`:r.s==="skip"?`<b class="bad">✗ ${esc(L("Lama dirin (waa la joojiyay)","Not sent (stopped)","لم تُرسل (أُوقف)","Haijatumwa (imesimamishwa)"))}</b>`:r.s==="run"?`<b>⏳ ${esc(L("Hadda","Now","الآن","Sasa"))}</b>`:`<small class="note">• ${esc(L("Sugaya","Waiting","بالانتظار","Inasubiri"))}</small>`;
+        return `<div><span><b>${esc(x.no)}</b> · ${esc(x.cust)}<br><small class="note">✉ ${esc(x.to)}</small></span><span>${st}</span></div>`}).join("")}</div>
+      <div class="ira">${irBulk.run?`<button type="button" class="del" data-irbulk="stop" ${irBulk.stop?"disabled":""}>⏹ ${esc(L("Jooji","Stop","إيقاف","Simamisha"))}</button>`
+        :`${bad&&irBulk.list.some(x=>R[x.id]?.s!=="ok"&&items.some(i=>i.id===x.id))?`<button type="button" class="primary" data-irbulk="retry">↻ ${esc(L("Isku day kuwii aan la dirin","Retry the ones not sent","أعد محاولة غير المرسلة","Jaribu tena zisizotumwa"))}</button>`:""}<button type="button" class="del" data-irbulk="clear">${esc(L("Xir natiijada","Close result","إغلاق النتيجة","Funga matokeo"))}</button>`}</div>`}
+  b.innerHTML=h}
+const irFatal=w=>/^(limit|plan|auth)$|"limit"|^429|"plan"|^403|JWT|^401|"auth"|404|not found|535|Invalid login|BadCredentials|Missing credentials|EAUTH|Failed to send a request|Failed to fetch|NetworkError|FunctionsFetchError/i.test(w);
+async function irBulkSend(ids){ids=ids.filter(id=>items.some(i=>i.id===id));if(!ids.length||irBulk.run)return;
+  Object.assign(irBulk,{run:true,stop:false,done:0,why:"",res:{},list:ids.map(id=>{const d=items.find(i=>i.id===id);return {id,no:invNoTxt(d),cust:d.cust||"",to:irEm(d)}})});
+  irMsgT="";renderInvRem();
+  for(const x of irBulk.list){const id=x.id;
+    if(irBulk.stop){irBulk.res[id]={s:"skip"};irBulk.done++;continue}
+    const d0=items.find(i=>i.id===id),to=d0?irEm(d0):"";
+    if(!d0||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)){irBulk.res[id]={s:"err",w:L("Email sax ah ma laha","No correct email","لا يوجد بريد صحيح","Hakuna barua pepe sahihi")};irBulk.done++;renderIrBulk();continue}
+    irBulk.res[id]={s:"run"};renderIrBulk();
+    try{const d={...d0,email:to},p=await invPdf(d);await mailPdf(d,p,to);irBulk.res[id]={s:"ok"};
+      try{await put({...(items.find(i=>i.id===id)||d0),email:to,sentTo:to,sentAt:new Date().toISOString()})}catch{}}
+    catch(err){const w=String(err?.why||err?.message||"");irBulk.res[id]={s:"err",w:mailWhy(w)||w.slice(0,120)};
+      if(irFatal(w)){irBulk.stop=true;irBulk.why=mailWhy(w)}}
+    irBulk.done++;renderIrBulk()}
+  irBulk.run=false;irBulk.sel.clear();irBulk.on=false;renderInvRem();$("irBulk").scrollIntoView({behavior:"smooth",block:"nearest"})}
+document.addEventListener("change",e=>{const c=e.target.closest("[data-irck]");if(c){c.checked?irBulk.sel.add(c.dataset.irck):irBulk.sel.delete(c.dataset.irck);renderIrBulk();return}
+  if(e.target.closest("[data-irckall]")){const ok=irBulkOk();if(e.target.checked)ok.forEach(d=>irBulk.sel.add(d.id));else irBulk.sel.clear();renderInvRem()}});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-irbulk]");if(!b)return;const v=b.dataset.irbulk;
+  if(v==="on"){irBulk.on=true;irBulk.list=null;irBulk.sel.clear();renderInvRem();return}
+  if(v==="off"){irBulk.on=false;irBulk.sel.clear();renderInvRem();return}
+  if(v==="stop"){irBulk.stop=true;renderIrBulk();return}
+  if(v==="clear"){irBulk.list=null;renderInvRem();return}
+  if(v==="retry"){irBulkSend(irBulk.list.filter(x=>irBulk.res[x.id]?.s!=="ok").map(x=>x.id));return}
+  if(v==="send"){const n=irBulk.sel.size;if(!n)return;
+    if(!confirm(L(`Ma u diraysaa ${n} macmiil qaansheeggooda email ahaan?`,`Send ${n} customers their invoice by email?`,`هل ترسل الفواتير إلى ${n} عملاء بالبريد؟`,`Tuma ankara kwa wateja ${n} kwa barua pepe?`)))return;
+    irBulkSend([...irBulk.sel])}});
 /* v157: an invoice approved as paid shows on the dashboard at once (Guriga glance card) — the money is income there too */
 function invPaidRecent(days=7){const from=new Date(Date.now()-days*864e5).toISOString().slice(0,10),out=[];
   if(MODE!=="business")return out;   /* Shakhsi has no Deymaha panel, so no debt notices on Guriga (saved debts stay untouched) */
@@ -5887,7 +5938,7 @@ function renderIrTodo(l,uns){const box=$("irTodo");if(!box)return;const late=l.f
   box.innerHTML=t("send","📤",uns.length,L("U baahan in la diro","Need sending","تحتاج إرسال","Zinahitaji kutumwa"),"hot")+t("open","⏰",late.length,L("Dib u dhacay","Overdue","متأخرة","Zimechelewa"),"bad")+
     t("nums","🔢",nb,dupN?L("Lambar isku mid ah","Same number","رقم مكرر","Namba moja"):L("Lambar maqan","Missing number","رقم مفقود","Namba inakosekana"),dupN?"bad":"warn")+t("link","💡",un,L("Lacag aan la xirin","Money not linked","مبالغ غير مربوطة","Pesa haijaunganishwa"),"warn")}
 function irSendRow(d){const id=esc(d.id),ph=irPhone(d),em=d.email||(custOf(d.cust)||{}).email||"",s=invState(d);
-  return `<div class="irow"><div class="irh"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)}<br><small class="note">${fmtD(d.date)} · ${esc(invLabel(d.k))}${em?" · ✉ "+esc(em):""}${ph?" · 💬 "+esc(ph):""}</small>${!em&&!ph?`<br><small class="note late">⚠ ${L("Email ama taleefan ma laha","No email or phone","لا بريد ولا هاتف","Hakuna barua pepe wala simu")}</small>`:""}${invItems(d)}</span><span class="irr"><b class="amt ${d.k==="q"&&s.left>0?"q":"in"}">${money(d.total)}</b>${invPill(s)}</span></div>
+  return `<div class="irow">${irCk(d)}<div class="irh"><span><b>${esc(invNoTxt(d))}</b> · ${esc(d.cust)}<br><small class="note">${fmtD(d.date)} · ${esc(invLabel(d.k))}${em?" · ✉ "+esc(em):""}${ph?" · 💬 "+esc(ph):""}</small>${!em&&!ph?`<br><small class="note late">⚠ ${L("Email ama taleefan ma laha","No email or phone","لا بريد ولا هاتف","Hakuna barua pepe wala simu")}</small>`:""}${invItems(d)}</span><span class="irr"><b class="amt ${d.k==="q"&&s.left>0?"q":"in"}">${money(d.total)}</b>${invPill(s)}</span></div>
   <div class="ira">${em?`<button type="button" class="primary" data-irsend="${id}">📧 ${L("Dir email","Send email","إرسال بريد","Tuma barua pepe")}</button>`:""}<button type="button" class="${em?"":"primary "}wa-bg" data-invw="${id}">💬 WhatsApp</button>${!em&&!ph?`<button type="button" data-irfix="${id}">✏ ${L("Ku dar email / taleefan","Add email / phone","أضف بريدًا / هاتفًا","Ongeza barua pepe / simu")}</button>`:""}<button type="button" class="del" data-irdone="${id}">✓ ${L("Waan diray","I sent it","أرسلتها","Nimeituma")}</button></div></div>`}
 document.addEventListener("click",async e=>{
   const g=e.target.closest("[data-irgo]");if(g){const v=g.dataset.irgo;if(v==="send"||v==="open"){irTab=v;irAll=false;renderInvRem();$("irList").scrollIntoView({behavior:"smooth",block:"nearest"});return}
