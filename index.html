@@ -6367,16 +6367,23 @@ function renderBudMore(month,bud){const box=$("budMore");if(!box)return;const cu
       <div class="bar bud ${budCls(p)}" role="progressbar" aria-valuenow="${Math.round(p)}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(grpLabel(g))}"><i style="width:${Math.min(100,p)}%"></i></div>
       <span class="note bud-${budCls(p)}">${p>=100?L4("Waad dhaaftay: ","Over by: ","تجاوزت بـ: ","Umezidi: ")+money(s-v):L4("Haray: ","Left: ","المتبقي: ","Imebaki: ")+money(v-s)}</span></div>`}).join("")
     :`<p class="note" style="margin:0">${MODE==="business"?L4("Tusaale: Kirada $500, Gaadiid $100. Digniin ayaad helaysaa marka mowduuc uu u dhowaado xadkiisa.","Example: Rent $500, Transport $100. You get a warning when a topic gets close to its limit.","مثال: الإيجار 500$، المواصلات 100$. ستصلك تنبيهات عند الاقتراب من الحد.","Mfano: Kodi $500, Usafiri $100. Utapata tahadhari kundi likikaribia kikomo."):L4("Tusaale: Cunto $150, Gaadiid $40. Digniin ayaad helaysaa marka mowduuc uu u dhowaado xadkiisa.","Example: Food $150, Transport $40. You get a warning when a topic gets close to its limit.","مثال: الطعام 150$، المواصلات 40$. ستصلك تنبيهات عند الاقتراب من الحد.","Mfano: Chakula $150, Usafiri $40. Utapata tahadhari kundi likikaribia kikomo.")}</p>`;
-  h+=`<details class="bcatset owner-only"><summary>${set.length?L4("✏️ Beddel xadyada","✏️ Change limits","✏️ تعديل الحدود","✏️ Badilisha vikomo"):L4("➕ Xad u dhig mowduucyada","➕ Set topic limits","➕ ضع حدودًا للفئات","➕ Weka vikomo vya makundi")}</summary>
-    <div class="bcatgrid">${gs.filter(g=>g!=="Deyn").map(g=>`<label class="field"><span>${esc(grpLabel(g))}${sp[g]?` <small class="note">(${L4("bishan","this month","هذا الشهر","mwezi huu")} ${money(sp[g])})</small>`:""}</span><input type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" data-cblim="${esc(g)}" value="${lim[g]>0?esc(lim[g]):""}"></label>`).join("")}</div>
-    <div class="goal-actions"><button type="button" class="primary" id="cbSave">${L4("Kaydi xadyada","Save limits","حفظ الحدود","Hifadhi vikomo")}</button><span class="note ok" id="cbMsg" role="status"></span></div></details>`;
-  const op=box.querySelector("details.bcatset")?.open,focus=document.activeElement?.dataset?.cblim;
-  if(box.contains(document.activeElement)&&focus)return;   // don't redraw while typing
-  box.innerHTML=h;if(op!=null&&set.length)box.querySelector("details.bcatset").open=op}
-document.addEventListener("click",async e=>{if(e.target.id!=="cbSave")return;const o={};
-  document.querySelectorAll("[data-cblim]").forEach(i=>{const v=Math.max(0,parseFloat(i.value)||0);if(v>0)o[i.dataset.cblim]=Math.round(v*100)/100});
-  const st=settings();try{await put({...st,catBud:{...(st.catBud||{}),[MODE]:o}})}catch{}
-  const m=$("cbMsg");if(m)m.textContent="✓ "+L4("Waa la kaydiyay","Saved","تم الحفظ","Imehifadhiwa")});
+  /* v176: pick one topic, write its limit (no long list of boxes) */
+  const choices=gs.filter(g=>g!=="Deyn");if(!choices.includes(CB_G))CB_G=choices[0]||"";
+  h+=`<div class="bcatpick owner-only" role="group" aria-label="${esc(L4("Xad u dhig mowduuc","Set a topic limit","ضع حدًا لفئة","Weka kikomo cha kundi"))}">
+    <label class="field"><span>${L4("Dooro mowduuca","Choose the topic","اختر الفئة","Chagua kundi")}</span><select id="cbGrp">${choices.map(g=>`<option value="${esc(g)}"${g===CB_G?" selected":""}>${esc(grpLabel(g))}${lim[g]>0?" · "+money(lim[g]):""}</option>`).join("")}</select></label>
+    <label class="field"><span>${L4("Xadka bishii","Monthly limit","الحد الشهري","Kikomo cha mwezi")}</span><input type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" id="cbAmt" value="${lim[CB_G]>0?esc(lim[CB_G]):""}"></label>
+    <span class="note cbhint" id="cbHint">${sp[CB_G]?L4("Bishan waxaa ku baxay","Spent this month","أُنفق هذا الشهر","Imetumika mwezi huu")+": "+money(sp[CB_G]):""}</span>
+    <div class="goal-actions"><button type="button" class="primary" id="cbOne">${L4("Kaydi xadka","Save the limit","حفظ الحد","Hifadhi kikomo")}</button>${lim[CB_G]>0?`<button type="button" class="del" id="cbDel">${L4("Ka saar xadka","Remove the limit","إزالة الحد","Ondoa kikomo")}</button>`:""}<span class="note ok" id="cbMsg" role="status"></span></div></div>`;
+  const ae=document.activeElement;if(box.contains(ae)&&(ae.id==="cbAmt"||ae.id==="cbGrp"))return;   // don't redraw while typing
+  box.innerHTML=h}
+let CB_G="";
+document.addEventListener("change",e=>{if(e.target.id!=="cbGrp")return;CB_G=e.target.value;const lim=catLims(),sp=grpSpent(mine("tx").filter(inMonth));
+  $("cbAmt").value=lim[CB_G]>0?lim[CB_G]:"";$("cbHint").textContent=sp[CB_G]?L4("Bishan waxaa ku baxay","Spent this month","أُنفق هذا الشهر","Imetumika mwezi huu")+": "+money(sp[CB_G]):"";$("cbMsg").textContent="";$("cbAmt").focus()});
+document.addEventListener("click",async e=>{const del=e.target.id==="cbDel";if(e.target.id!=="cbOne"&&!del)return;
+  const g=$("cbGrp")?.value;if(!g)return;const v=del?0:Math.max(0,parseFloat($("cbAmt").value)||0);
+  const st=settings(),cur={...((st.catBud||{})[MODE]||{})};if(v>0)cur[g]=Math.round(v*100)/100;else delete cur[g];CB_G=g;
+  try{await put({...st,catBud:{...(st.catBud||{}),[MODE]:cur}})}catch{}
+  document.activeElement?.blur?.();render();const m=$("cbMsg");if(m)m.textContent="✓ "+(v>0?L4("Waa la kaydiyay","Saved","تم الحفظ","Imehifadhiwa"):L4("Waa laga saaray","Removed","تمت الإزالة","Imeondolewa"))});
 function renderSafe(bud){const el=$("glSafe");if(!el)return;
   if(!isCurView()||STAFF()){el.hidden=true;return}
   if(bud){const dl=dimOf(view)-new Date().getDate()+1,safe=Math.max(0,bud.left)/dl;el.hidden=false;
@@ -6580,6 +6587,10 @@ document.addEventListener("click",e=>{
 #appView[data-tab="plan"][data-plsec="debt"] :is(#budPanel,#goalPanel){display:none!important}
 #appView .plhide{display:none!important}
 .pltog{justify-self:start;font-weight:600}
+.plsw button .pltap{font-size:.78rem;font-weight:600;color:var(--accent)}
+.plsw button:active{transform:scale(.98)}
+.bcatpick{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px 10px;align-items:end;padding:12px;border:1px solid var(--line);border-radius:14px}
+.bcatpick .field{margin:0}.bcatpick .cbhint:empty{display:none}.bcatpick .cbhint,.bcatpick .goal-actions{grid-column:1/-1}
 @media (min-width:900px){#appView #plSw,#appView[data-tab="plan"] :is(#budPanel,#goalPanel,#debtPanel){grid-column:1/-1}}
 </style>
 <script>
@@ -6596,7 +6607,7 @@ function plRender(){const nav=$("plSw");if(!nav)return;const S=plSecs();plSet(PL
     goal:["🎯",MODE==="business"?L("Kaydka shirkadda","Company savings","مدخرات الشركة","Akiba ya kampuni"):L("Kayd","Savings","الادخار","Akiba"),goals.length?`${money(gs)} / ${money(gt)}`:L("Weli yool ma jiro","No goal yet","لا يوجد هدف بعد","Bado hakuna lengo"),goals.length?"ok":""],
     debt:["💳",L("Deymaha","Debts","الديون","Madeni"),owe>0?L(`Waxaan bixinaynaa ${money(owe)}`,`We owe ${money(owe)}`,`علينا ${money(owe)}`,`Tunadaiwa ${money(owe)}`):L("Wax lama hayo","Nothing owed","لا ديون","Hakuna deni"),late?"bad":""]};
   const key=JSON.stringify([S,PL_SEC,T,LANG]);if(nav.dataset.k!==key){nav.dataset.k=key;
-    nav.innerHTML=S.map(k=>`<button type="button" data-plsec="${k}"${k===PL_SEC?' aria-current="page"':""}><i aria-hidden="true">${T[k][0]}</i><b>${T[k][1]}</b><span class="${T[k][3]}">${esc(T[k][2])}</span></button>`).join("")}
+    nav.innerHTML=S.map(k=>`<button type="button" data-plsec="${k}"${k===PL_SEC?' aria-current="page"':""}><i aria-hidden="true">${T[k][0]}</i><b>${T[k][1]}</b><span class="${T[k][3]}">${esc(T[k][2])}</span><small class="pltap">✏️ ${L("Riix oo qor","Tap to write","اضغط واكتب","Gusa uandike")}</small></button>`).join("")}
   /* Miisaaniyad: the limit form only when no limit yet or after ✏️ */
   const bf=$("budForm"),bn=$("budNote"),bt=$("budTog"),has=bud.b>0;
   if(bf){const open=!has||PL_OPEN.bud;bf.classList.toggle("plhide",!open);if(bn)bn.classList.toggle("plhide",has);
@@ -6613,7 +6624,7 @@ function plRender(){const nav=$("plSw");if(!nav)return;const S=plSecs();plSet(PL
     dp.querySelector("#debtSum .ext.lo")?.classList.toggle("plhide",bizC);
     const dn=$("debtNote");if(dn)dn.textContent=bizC?L("Lacagta macaamiishu na hayaan waxay ku jirtaa 👥 Macaamiisha (Guriga).","Money customers owe us is in 👥 Customers (Home).","المبالغ المستحقة من العملاء موجودة في 👥 العملاء (الرئيسية).","Pesa ambazo wateja wanadaiwa ziko kwenye 👥 Wateja (Nyumbani)."):"“Naloo hayo” = lacag dad kale nagu leeyihiin. “Aan u hayno” = lacag aan dad kale ku leenahay.";
     if(df){const open=!n||PL_OPEN.debt;df.classList.toggle("plhide",!open);if(dt){dt.hidden=!n;dt.textContent=PL_OPEN.debt?L("Jooji","Cancel","إلغاء","Ghairi"):"+ "+L("Ku dar deyn","Add a debt","أضف دينًا","Ongeza deni");dt.classList.toggle("primary",!PL_OPEN.debt)}}}}
-document.addEventListener("click",e=>{const b=e.target.closest("#plSw [data-plsec]");if(b){plSet(b.dataset.plsec);render();return}
+document.addEventListener("click",e=>{const b=e.target.closest("#plSw [data-plsec]");if(b){const k=b.dataset.plsec;plSet(k);PL_OPEN={bud:false,goal:false,debt:false};PL_OPEN[k]=true;render();return}
   const t=e.target.closest("#budTog,#goalTog,#debtTog");if(!t)return;const k={budTog:"bud",goalTog:"goal",debtTog:"debt"}[t.id];PL_OPEN[k]=!PL_OPEN[k];plRender();
   if(PL_OPEN[k])setTimeout(()=>$({bud:"budAmt",goal:"gPreset",debt:"dName"}[k])?.focus(),30)});
 /* the "Deji miisaaniyad" link on Guriga opens the budget part with its form */
