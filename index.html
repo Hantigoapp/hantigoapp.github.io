@@ -1243,6 +1243,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
 
   <div id="net" class="net" role="status" aria-live="polite" hidden></div>
   <div id="banner" class="banner" hidden></div>
+  <div id="preNote" class="banner" role="status" hidden></div>
   <div id="spaceNote" class="banner" hidden></div>
   <div id="cityAsk" class="banner" hidden><b>Xagee joogtaa?</b> Dooro wadanka iyo magaalada.
     <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><select id="askCountry" data-loc="ask" aria-label="Wadanka aad joogto" style="flex:1;min-width:140px"><option value="">— Dooro —</option></select><select id="askCity" aria-label="Magaalada aad joogto" style="flex:1;min-width:140px"><option value="">— Dooro —</option></select><input id="askCityTxt" type="text" maxlength="40" placeholder="Ku qor magaalada" aria-label="Magaalada aad joogto" style="flex:1;min-width:140px" hidden><button type="button" class="primary" id="askSave">Kaydi</button><button type="button" class="del" id="askLater">Mar dambe</button></div></div>
@@ -2051,9 +2052,13 @@ const B_CATS={
 };
 const B_STAFF=["Macallin","Maamulaha iskuulka","Maamulaha jaamacadda","Maamulaha dugsiga","Dhakhtar","Kalkaaliso","Xisaabiye","Waardiye","Xoghaye","Karraani","Darawal","Nadiifiye","Kariye","Farsamayaqaan","Khabiir IT","Iibiye","Shaqaale kale"];
 let MODE="person",DAILY=P_DAILY,CATS=P_CATS;
-const mine=k=>items.filter(i=>i.kind===k&&(i.mode||"person")===MODE&&!(k==="tx"&&i.type==="tr"));
+/* v171: a month BEFORE the account was opened shows nothing at all (money, customers, staff, bills, debts, goals = 0): the account did not exist then.
+   Start = earliest of sign-up (profile/auth created_at) and the start date picked at sign-up. Staff viewing a company keep its full history. */
+function accStartM(){if(TEAM)return "";const ds=[profile&&profile.created_at,me&&me.created_at,me&&me.user_metadata&&me.user_metadata.start_date].filter(Boolean).map(x=>String(x).slice(0,7)).filter(x=>/^\d{4}-\d\d$/.test(x)).sort();return ds[0]||""}
+function PRE(){try{const s=accStartM();return !!s&&(view.getFullYear()+"-"+String(view.getMonth()+1).padStart(2,"0"))<s}catch{return false}}
+const mine=k=>k!=="cat"&&PRE()?[]:items.filter(i=>i.kind===k&&(i.mode||"person")===MODE&&!(k==="tx"&&i.type==="tr"));
 /* ⇄ transfers (EVC Plus → Bangi …) are kind "tx" with type "tr": not income, not expense, so mine("tx") leaves them out */
-function mineTr(){return items.filter(i=>i.kind==="tx"&&i.type==="tr"&&(i.mode||"person")===MODE)}
+function mineTr(){if(PRE())return [];return items.filter(i=>i.kind==="tx"&&i.type==="tr"&&(i.mode||"person")===MODE)}
 /* balance per place (EVC Plus, Bangi, Kaash): income − expense ± transfers */
 function methBal(txs,trs){const b={};METHODS.forEach(m=>b[m]=0);const add=(m,v)=>{m=m||"Kaash";b[m]=(b[m]||0)+v};
   txs.forEach(t=>add(t.method,(t.type==="in"?1:t.type==="out"?-1:0)*Number(t.amount||0)));
@@ -3034,6 +3039,8 @@ function renderDays(month){const box=$("dyList");if(!box)return;const ab=$("dyAn
 function render(){
   if(ACT)actSoft();
   $("monthLabel").textContent=MONTHS[view.getMonth()]+" "+view.getFullYear();
+  {const pn=$("preNote");if(pn){const pre=PRE();pn.hidden=!pre;if(pre){const s=accStartM(),sm=MONTHS[+s.slice(5)-1]+" "+s.slice(0,4);
+    pn.textContent="🗓 "+L(`Akoonkaagu wuxuu bilaabmay ${sm}. ${MONTHS[view.getMonth()]} ${view.getFullYear()} akoon ma jirin, sidaas darteed wax walba waa eber.`,`Your account started in ${sm}. It did not exist in ${MONTHS[view.getMonth()]} ${view.getFullYear()}, so everything is zero.`,`بدأ حسابك في ${sm}. لم يكن موجودًا في ${MONTHS[view.getMonth()]} ${view.getFullYear()}، لذلك كل شيء صفر.`,`Akaunti yako ilianza ${sm}. Haikuwepo ${MONTHS[view.getMonth()]} ${view.getFullYear()}, kwa hiyo kila kitu ni sifuri.`)}}}
   $("currency").value=currency();
   const txs=mine("tx");
   const month=txs.filter(inMonth).sort((a,b)=>(b.date+b.created).localeCompare(a.date+a.created));
