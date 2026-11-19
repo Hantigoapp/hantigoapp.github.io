@@ -1615,7 +1615,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
       <div class="accbar" id="accBar" data-tab="more"><button type="button" class="hubback" id="accBack">← Akoon</button><h2 id="accTitle"></h2></div>
       <section class="panel" aria-labelledby="meH" data-tab="more" data-acc="me" id="meSec">
         <h2 id="meH">👤 Xogtayda</h2>
-        <label class="field langrow"><span id="meLangL">🌐 Luqadda</span><span class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option><option value="ar">العربية</option><option value="sw">Kiswahili</option></select></span></label>
+        <label class="field langrow"><span id="meLangL">🌐 Luqadda</span><span class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option></select></span></label>
         <div class="goal-actions" id="accSwRow" style="font-size:.92rem"><span id="accSwTxt"></span><button type="button" class="acvOpen" id="accSwBtn"></button></div>
         <div class="goal-actions" style="font-size:.92rem"><span>👤 <span id="accName">—</span> · 📞 <span id="accPhone">—</span></span><button type="button" class="del" id="meEdit">Beddel</button></div>
         <div id="meForm" class="newcat" hidden><p class="note" style="margin:0">Magacaaga iyo telefoonkaaga waxay ka muuqanayaan rasiidka lacag-bixinta.</p><div class="row">
@@ -1818,10 +1818,8 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
 
 <script>
 /* ---------- language: Somali (default), English, Arabic (RTL) or Swahili ---------- */
-let LANG="so",SAVED_LANG="so";try{const l=localStorage.getItem("hantigo.lang");if(["en","ar","sw"].includes(l))LANG=SAVED_LANG=l}catch{}
-/* the home page (signed out) is only Somali or English: a saved Arabic/Swahili choice applies once signed in */
-function hasSignIn(){try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){const s=JSON.parse(localStorage.getItem(k)||"null");if(s?.refresh_token)return true}}}catch{}return false}
-if((LANG==="ar"||LANG==="sw")&&!hasSignIn())LANG="en";
+/* AM 2026-11-19: the whole app is shown only in Somali or English; a saved Arabic/Swahili choice opens in English (ar/sw translations kept in the code) */
+let LANG="so";try{const l=localStorage.getItem("hantigo.lang");if(l==="en"||l==="ar"||l==="sw")LANG="en"}catch{}
 const RTL=LANG==="ar";
 /* L(somali, english[, arabic, swahili]): Arabic/Swahili fall back to the AR/SW dictionaries (keyed by the English text), then English */
 const L=(so,en,ar,sw)=>LANG==="so"?so:LANG==="en"?en:LANG==="ar"?(ar??XL(en)):(sw??XL(en));
@@ -1984,7 +1982,7 @@ function trAttrs(el){for(const a of ["placeholder","aria-label","label","title"]
 function trTree(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode()))trText(n);
   if(root.nodeType===1){trAttrs(root);root.querySelectorAll("[placeholder],[aria-label],optgroup[label],[title]").forEach(trAttrs)}}
 function initLang(){
-  document.querySelectorAll(".langSel").forEach(s=>{if(![...s.options].some(o=>o.value===LANG)){const o=document.createElement("option");o.value=LANG;o.textContent={ar:"العربية",sw:"Kiswahili"}[LANG]||LANG;s.appendChild(o)}s.value=LANG;s.addEventListener("change",()=>{try{localStorage.setItem("hantigo.lang",s.value)}catch{}location.reload()})});
+  document.querySelectorAll(".langSel").forEach(s=>{s.value=LANG;s.addEventListener("change",()=>{try{localStorage.setItem("hantigo.lang",s.value)}catch{}location.reload()})});
   if(LANG==="so")return;
   document.documentElement.lang=LANG;if(RTL){document.documentElement.dir="rtl";const pv=document.getElementById("prev"),nx=document.getElementById("next");if(pv&&nx){pv.dir=nx.dir="ltr";pv.textContent="›";nx.textContent="‹"}}const STX={"Bil kasta 3 tiir: <b>cagaar</b> = lacagta soo gashay, <b>cas</b> = mushaharka, <b>oranji</b> = kharashka kale. Haddii cagaarku ka dheer yahay labada kale, faa'iido ayaa jirta.": ["Each month has 3 bars: <b>green</b> = income, <b>red</b> = salaries, <b>orange</b> = other spending. If green is taller than the other two, there is a profit.", "لكل شهر 3 أعمدة: <b>الأخضر</b> = الدخل، <b>الأحمر</b> = الرواتب، <b>البرتقالي</b> = المصاريف الأخرى. إذا كان الأخضر أطول من الاثنين معًا فهناك ربح.", "Kila mwezi una nguzo 3: <b>kijani</b> = mapato, <b>nyekundu</b> = mishahara, <b>machungwa</b> = matumizi mengine. Kijani kikiwa kirefu kuliko hizo mbili, kuna faida."], "Mushaharka la siiyay shaqaalaha, shaqo kasta. Tiirka ugu dheer waa shaqada ugu lacagta badan.": ["Salaries paid to staff, by role. The longest bar is the role that costs the most.", "الرواتب المدفوعة للموظفين حسب الوظيفة. أطول عمود هو الوظيفة الأعلى تكلفة.", "Mishahara iliyolipwa kwa wafanyakazi, kwa kila cheo. Nguzo ndefu zaidi ni cheo kinachogharimu zaidi."], "Meelaha lacagta shirkaddu ku baxday, laga bilaabo kan ugu badan. <b>Cas</b> = mushahar, <b>oranji</b> = kharash kale.": ["Where the company's money went, largest first. <b>Red</b> = salary, <b>orange</b> = other spending.", "أين ذهب مال الشركة، من الأكبر إلى الأصغر. <b>الأحمر</b> = رواتب، <b>البرتقالي</b> = مصاريف أخرى.", "Pesa za kampuni zilienda wapi, kuanzia kubwa zaidi. <b>Nyekundu</b> = mishahara, <b>machungwa</b> = matumizi mengine."], "Bil kasta: <b>cas</b> = maalmaha shaqaaluhu xanuunsanaayeen, <b>buluug</b> = maalmaha fasaxa.": ["Each month: <b>red</b> = days staff were sick, <b>blue</b> = leave days.", "كل شهر: <b>الأحمر</b> = أيام مرض الموظفين، <b>الأزرق</b> = أيام الإجازة.", "Kila mwezi: <b>nyekundu</b> = siku wafanyakazi walikuwa wagonjwa, <b>bluu</b> = siku za likizo."], "Bil kasta 3 tiir: <b>cagaar</b> = lacagta soo gashay, <b>cas</b> = kharashka, <b>buluug</b> = kaydka. Haddii cagaarku ka dheer yahay casaanka, lacag ayaa kuu haray.": ["Each month has 3 bars: <b>green</b> = income, <b>red</b> = spending, <b>blue</b> = savings. If green is taller than red, you have money left.", "لكل شهر 3 أعمدة: <b>الأخضر</b> = الدخل، <b>الأحمر</b> = المصاريف، <b>الأزرق</b> = الادخار. إذا كان الأخضر أطول من الأحمر فقد تبقّى لديك مال.", "Kila mwezi una nguzo 3: <b>kijani</b> = mapato, <b>nyekundu</b> = matumizi, <b>bluu</b> = akiba. Kijani kikiwa kirefu kuliko nyekundu, umebakiwa na pesa."]};document.querySelectorAll("p.stx").forEach(p=>{const t=STX[p.innerHTML.trim()];if(t)p.innerHTML=t[["en","ar","sw"].indexOf(LANG)]});trTree(document.body);
   new MutationObserver(ms=>{for(const m of ms){
@@ -2312,7 +2310,6 @@ let offlineStart=false;
 /* the saved sign-in on this phone, used when the app is opened without internet */
 function savedUser(){try{const ref=new URL(SUPABASE_URL).hostname.split(".")[0];const s=JSON.parse(localStorage.getItem("sb-"+ref+"-auth-token")||"null");return (s?.user&&s.refresh_token)?(s.user):null}catch{return null}}
 async function enter(user){
-  if(SAVED_LANG!==LANG&&hasSignIn()&&!recovering&&!addSpace&&!ACC_NEW&&!SWITCHING){try{if(ACC_PICK)sessionStorage.setItem("hantigo.accPick","1")}catch{}location.reload();return}   // signed in from the Somali/English home page: open the app in the saved Arabic/Swahili
   me=user;showMe();ensureMe();
   if(recovering){showView("resetView");return}
   showView("loadingView");
@@ -2370,7 +2367,7 @@ async function enter(user){
 async function init(){
   if(!sb){showView("authView");$("aErr").textContent="Server-ka lama gaari karo. Hubi internetka, kadibna bogga dib u fur.";return}
   sb.auth.onAuthStateChange((ev,session)=>{
-    if(ev==="SIGNED_OUT"){if((LANG==="ar"||LANG==="sw")&&!SWITCHING){location.reload();return}me=null;items=[];goStep(3);showView("authView");return}
+    if(ev==="SIGNED_OUT"){me=null;items=[];goStep(3);showView("authView");return}
     if(ev==="PASSWORD_RECOVERY"){recovering=true;me=session?.user||me;showView("resetView");return}
     if(SWITCHING)return;
     if(session?.user&&(!me||me.id!==session.user.id)){const u=session.user;me=u;setTimeout(()=>enter(u),0)}
@@ -2618,7 +2615,6 @@ initFold();
    Each account has its own type, data, staff, trial and payment. Sign in with the normal email + password
    (= the first account), then switch here. An extra account's login email is name+hgN@… (never shown). */
 let SWITCHING=false,ACC_PICK=false,ACC_NEW=null,ACCS=null,acvBackTo="appView";
-try{if(sessionStorage.getItem("hantigo.accPick")){sessionStorage.removeItem("hantigo.accPick");ACC_PICK=true}}catch{}   // kept across the language reload after sign-in
 const realMail=()=>String(me?.app_metadata?.hg_email||me?.email||"");
 const accLinked=()=>!!me?.app_metadata?.hg_owner||(Array.isArray(me?.app_metadata?.hg_accounts)&&me.app_metadata.hg_accounts.length>0);
 const accType=t=>t==="business"?L("🏢 Shirkad","🏢 Business","🏢 شركة","🏢 Biashara"):L("👤 Shakhsi","👤 Personal","👤 شخصي","👤 Binafsi");

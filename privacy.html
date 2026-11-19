@@ -45,8 +45,6 @@ article[hidden]{display:none}
   <nav class="langs" aria-label="Luuqad / Language">
     <button type="button" data-set="so">Soomaali</button>
     <button type="button" data-set="en">English</button>
-    <button type="button" data-set="ar">العربية</button>
-    <button type="button" data-set="sw">Kiswahili</button>
   </nav>
 </div></header>
 <main>
@@ -286,6 +284,7 @@ Barua pepe: <a href="mailto:asad.moallim@gmail.com">asad.moallim@gmail.com</a> �
   var ok=["so","en","ar","sw"],q=new URLSearchParams(location.search).get("lang"),l="so";
   try{var s=localStorage.getItem("hantigo.lang");if(ok.indexOf(s)>0)l=s}catch(e){}
   if(ok.indexOf(q)>=0)l=q;
+  if(l==="ar"||l==="sw")l="en";   // AM 2026-11-19: only Somali or English are shown
   var back={so:"← Ku noqo HantiGo",en:"← Back to HantiGo",ar:"→ العودة إلى HantiGo",sw:"← Rudi HantiGo"};
   var title={so:"HantiGo – Siyaasadda Asturnaanta",en:"HantiGo – Privacy Policy",ar:"HantiGo – سياسة الخصوصية",sw:"HantiGo – Sera ya Faragha"};
   function show(x){
