@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
     if (!owner && !staff) return json({ ok: false, error: "plan" }, 403);
 
     const now = Date.now(), h = (hits.get(user.id) ?? []).filter((t) => now - t < 3600_000);
-    if (h.length >= 40) return json({ ok: false, error: "limit" }, 429);
+    if (h.length >= 100) return json({ ok: false, error: "limit" }, 429);
     h.push(now); hits.set(user.id, h);
 
     const b = await req.json();

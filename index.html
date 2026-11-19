@@ -5315,7 +5315,7 @@ function mailWhy(w){w=String(w||"");
   if(/Missing credentials|PLAIN|EAUTH/i.test(w))return L("Secret-yada SMTP_USER / SMTP_PASS lama helin.","The SMTP_USER / SMTP_PASS secrets are missing.");
   if(/Invalid JWT|JWT|401|"auth"/i.test(w))return L("Supabase ayaa diiday gelitaanka (JWT). Dami \"Verify JWT\" ee send-receipt.","Supabase rejected the login (JWT). Turn off \"Verify JWT\" on send-receipt.");
   if(/"plan"|^403/i.test(w))return L("Rasiidka email-ka waxaa diri kara akoon Shirkad ah oo furan (tijaabo ama la bixiyay).","Receipts by email need an open Business account (trial or paid).","إرسال الإيصالات بالبريد يتطلب حساب شركة مفعّلًا (تجربة أو مدفوع).","Kutuma risiti kwa barua pepe kunahitaji akaunti ya Biashara iliyo hai (majaribio au imelipwa).");
-  if(/"limit"|^limit$|^429/i.test(w))return L("Saacaddii 40 email ayaa la diri karaa. Wax yar sug, kadib mar kale isku day.","You can send 40 emails an hour. Wait a little and try again.","يمكنك إرسال 40 رسالة في الساعة. انتظر قليلًا ثم حاول مرة أخرى.","Unaweza kutuma barua pepe 40 kwa saa. Subiri kidogo kisha ujaribu tena.");
+  if(/"limit"|^limit$|^429/i.test(w))return L("Saacaddii 100 email ayaa la diri karaa. Wax yar sug, kadib mar kale isku day.","You can send 100 emails an hour. Wait a little and try again.","يمكنك إرسال 100 رسالة في الساعة. انتظر قليلًا ثم حاول مرة أخرى.","Unaweza kutuma barua pepe 100 kwa saa. Subiri kidogo kisha ujaribu tena.");
   if(/404|not found/i.test(w))return L("send-receipt lama helin (lama gelin).","send-receipt was not found (not deployed).");
   if(/Failed to send a request|Failed to fetch|NetworkError|FunctionsFetchError/i.test(w))return L("Adeegga lama gaari karo. Hubi internetka.","Could not reach the service. Check the internet.");
   return ""}
