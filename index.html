@@ -1499,7 +1499,8 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
     </div>
 
     <div style="display:grid;gap:20px;min-width:0">
-      <section class="panel no-staff" aria-labelledby="budH" data-tab="plan">
+      <nav class="plsw no-staff" id="plSw" data-tab="plan" aria-label="Qorshe"></nav>
+      <section class="panel no-staff" aria-labelledby="budH" data-tab="plan" id="budPanel">
         <div class="panel-head"><h2 id="budH">Miisaaniyadda bishii</h2><span class="note" id="budMonth"></span></div>
         <div id="budView"></div>
         <form id="budForm" class="owner-only" novalidate>
@@ -1508,7 +1509,8 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
             <div class="field" style="align-self:end"><button type="submit">Kaydi xadka</button></div>
           </div>
         </form>
-        <p class="note" style="margin:0">Digniin ayaad helaysaa marka aad u dhowaato xadka.</p>
+        <p class="note" id="budNote" style="margin:0">Digniin ayaad helaysaa marka aad u dhowaato xadka.</p>
+        <button type="button" class="pltog owner-only" id="budTog" hidden></button>
         <div id="budMore"></div>
       </section>
 
@@ -1557,10 +1559,11 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
         <p class="note" id="pyNote" style="margin:0"></p>
       </section>
 
-      <section class="panel biz-only no-staff" aria-labelledby="debtH" data-tab="plan">
+      <section class="panel biz-only no-staff" aria-labelledby="debtH" data-tab="plan" id="debtPanel">
         <div class="panel-head"><h2 id="debtH">Deymaha</h2></div>
         <div class="extremes" id="debtSum"></div>
         <div id="debts"></div>
+        <button type="button" class="pltog" id="debtTog" hidden></button>
         <form id="debtForm" novalidate>
           <div class="seg" role="radiogroup" aria-label="Nooca deynta">
             <input type="radio" name="ddir" id="dIn" value="in" checked><label for="dIn" class="l-in">Lacag naloo hayo</label>
@@ -1574,7 +1577,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
           <div class="err" id="dErr" role="alert"></div>
           <button type="submit">+ Ku dar deyn</button>
         </form>
-        <p class="note" style="margin:0">“Naloo hayo” = lacag dad kale nagu leeyihiin. “Aan u hayno” = lacag aan dad kale ku leenahay.</p>
+        <p class="note" id="debtNote" style="margin:0">“Naloo hayo” = lacag dad kale nagu leeyihiin. “Aan u hayno” = lacag aan dad kale ku leenahay.</p>
       </section>
 
       <section class="panel biz-only" aria-labelledby="lvH" data-tab="plan" data-hubs="staff" id="lvPanel">
@@ -1667,6 +1670,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
         <h2 id="goalH">Kaydka iyo kayd degdeg</h2>
         <div id="goalTop" class="gtop" hidden></div>
         <div id="goals" style="display:grid;gap:10px"></div>
+        <button type="button" class="pltog" id="goalTog" hidden></button>
         <form id="goalForm" novalidate>
           <label class="field"><span>Dooro fikrad yool kayd ah (ikhtiyaari)</span>
             <select id="gPreset">
@@ -3371,7 +3375,7 @@ function renderGoals(){
         ${goalAutoHtml(g)}
         <div class="goal-actions"><button type="button" class="primary" data-gpsave="${id}">${L("Kaydi","Save","حفظ","Hifadhi")}</button><button type="button" data-gpclose="1">${L("Jooji","Cancel","إلغاء","Ghairi")}</button></div></div>`:""}
       <div class="goal-actions">${p>=100?`<span class="done">✓ Yoolka waa la gaaray</span><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="Qadar" id="gin-${id}" aria-label="Qadarka">`:`<input type="number" min="0" step="0.01" inputmode="decimal" placeholder="${pl.todo>0?esc(Math.round(pl.todo*100)/100):"Qadar"}" id="gin-${id}" aria-label="Qadarka lagu shubayo"><button data-dep="${id}">Ku shub</button>`}${g.saved>0?`<button data-wd="${id}">Ka qaado</button>`:""}
-      ${p<100?`<button type="button" data-gplan="${id}">📅 ${L("Qorshe","Plan","الخطة","Mpango")}</button>`:""}<button class="del" data-del="${id}">Tirtir</button></div></div>`}).join("")
+      ${p<100?`<button type="button" data-gplan="${id}">📅 ${L("Taariikh & bil kasta","Date & monthly","التاريخ والشهري","Tarehe na kila mwezi")}</button>`:""}<button class="del" data-del="${id}">Tirtir</button></div></div>`}).join("")
     :`<p class="empty" style="margin:0">${MODE==="business"?L("Shirkaddu weli yool kayd ah ma dejin. Tusaale: raasamaal ganacsi, alaab, ama qalab cusub.","The company has no savings goal yet. Example: business capital, stock, or new equipment.","لم تضع الشركة هدف ادخار بعد. مثال: رأس مال العمل، البضائع، أو معدات جديدة.","Kampuni bado haina lengo la akiba. Mfano: mtaji wa biashara, bidhaa, au vifaa vipya."):"Weli ma aadan dejin kayd degdeg ama yool. Tusaale: lacag xaalad degdeg ah, Xajka, ama guri."}</p>`;
 }
 function goalHint(){
@@ -6561,6 +6565,63 @@ document.addEventListener("click",e=>{
   render()},true);
 /* leaving the report page closes the extras and the download box */
 {const _r=render;render=function(){const av=$("appView");if(!(av.dataset.tab==="hub"&&av.dataset.hub==="rep")){av.classList.remove("repmore");$("repDl")?.remove()}_r()}}
+</script>
+<style>
+/* v176 Qorshe: one part at a time (Miisaaniyad · Kayd · Deymaha), forms open only when asked */
+.plsw{display:grid!important;grid-template-columns:repeat(var(--pln,2),minmax(0,1fr));gap:10px}
+.plsw button{display:grid;gap:4px;justify-items:start;text-align:start;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:var(--surface);min-width:0}
+.plsw button b{font-size:1rem}.plsw button i{font-style:normal;font-size:1.25rem}
+.plsw button span{font-size:.85rem;color:var(--muted);overflow-wrap:anywhere}
+.plsw button[aria-current="page"]{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent);background:var(--accent-soft,var(--surface))}
+.plsw button span.ok{color:var(--in)}.plsw button span.bad{color:var(--out)}
+@media (max-width:420px){.plsw{gap:8px}.plsw button{padding:10px}.plsw button b{font-size:.92rem}}
+#appView[data-tab="plan"][data-plsec="bud"] :is(#goalPanel,#debtPanel),
+#appView[data-tab="plan"][data-plsec="goal"] :is(#budPanel,#debtPanel),
+#appView[data-tab="plan"][data-plsec="debt"] :is(#budPanel,#goalPanel){display:none!important}
+#appView .plhide{display:none!important}
+.pltog{justify-self:start;font-weight:600}
+@media (min-width:900px){#appView #plSw,#appView[data-tab="plan"] :is(#budPanel,#goalPanel,#debtPanel){grid-column:1/-1}}
+</style>
+<script>
+/* v176: Qorshe = small switch on top + one part at a time.
+   Shakhsi: 🛡️ Miisaaniyad · 🎯 Kayd. Shirkad: + 💳 Deymaha (only what the company owes; customers' debts live in 👥 Macaamiisha). */
+let PL_BUD=null,PL_SEC=(()=>{try{return sessionStorage.getItem("hantigo.plsec")||"bud"}catch{return "bud"}})(),PL_OPEN={bud:false,goal:false,debt:false},PL_GN=null;
+{const _rb=renderBudget;renderBudget=function(s){const r=_rb(s);PL_BUD={s:Number(s)||0,b:budgetVal()||0};return r}}
+function plSecs(){return MODE==="business"&&MGR()?["bud","goal","debt"]:["bud","goal"]}
+function plSet(k){if(!plSecs().includes(k))k="bud";PL_SEC=k;try{sessionStorage.setItem("hantigo.plsec",k)}catch{}$("appView").dataset.plsec=k}
+function plRender(){const nav=$("plSw");if(!nav)return;const S=plSecs();plSet(PL_SEC);nav.style.setProperty("--pln",S.length);
+  const bud=PL_BUD||{s:0,b:budgetVal()||0},goals=mine("goal"),gs=goals.reduce((a,g)=>a+Number(g.saved||0),0),gt=goals.reduce((a,g)=>a+Number(g.target||0),0);
+  const owe=mine("debt").filter(d=>d.dir==="out").reduce((a,d)=>a+debtLeft(d),0),late=mine("debt").filter(d=>d.dir==="out"&&d.due&&debtLeft(d)>0&&d.due<today()).length;
+  const T={bud:["🛡️",L("Miisaaniyad","Budget","الميزانية","Bajeti"),bud.b>0?`${money(bud.s)} / ${money(bud.b)}`:L("Weli lama dejin","Not set yet","لم تُحدد بعد","Bado haijawekwa"),bud.b>0?(bud.s>bud.b?"bad":"ok"):""],
+    goal:["🎯",MODE==="business"?L("Kaydka shirkadda","Company savings","مدخرات الشركة","Akiba ya kampuni"):L("Kayd","Savings","الادخار","Akiba"),goals.length?`${money(gs)} / ${money(gt)}`:L("Weli yool ma jiro","No goal yet","لا يوجد هدف بعد","Bado hakuna lengo"),goals.length?"ok":""],
+    debt:["💳",L("Deymaha","Debts","الديون","Madeni"),owe>0?L(`Waxaan bixinaynaa ${money(owe)}`,`We owe ${money(owe)}`,`علينا ${money(owe)}`,`Tunadaiwa ${money(owe)}`):L("Wax lama hayo","Nothing owed","لا ديون","Hakuna deni"),late?"bad":""]};
+  const key=JSON.stringify([S,PL_SEC,T,LANG]);if(nav.dataset.k!==key){nav.dataset.k=key;
+    nav.innerHTML=S.map(k=>`<button type="button" data-plsec="${k}"${k===PL_SEC?' aria-current="page"':""}><i aria-hidden="true">${T[k][0]}</i><b>${T[k][1]}</b><span class="${T[k][3]}">${esc(T[k][2])}</span></button>`).join("")}
+  /* Miisaaniyad: the limit form only when no limit yet or after ✏️ */
+  const bf=$("budForm"),bn=$("budNote"),bt=$("budTog"),has=bud.b>0;
+  if(bf){const open=!has||PL_OPEN.bud;bf.classList.toggle("plhide",!open);if(bn)bn.classList.toggle("plhide",has);
+    if(bt){bt.hidden=!has;bt.textContent=PL_OPEN.bud?L("Jooji","Cancel","إلغاء","Ghairi"):"✏️ "+L("Beddel xadka bishii","Change the monthly limit","تعديل الحد الشهري","Badilisha kikomo cha mwezi")}}
+  /* Kayd: list first; the new-goal form only after "+ Yool cusub" (open when there is no goal yet) */
+  if(PL_GN!==null&&goals.length>PL_GN)PL_OPEN.goal=false;PL_GN=goals.length;
+  const gf=$("goalForm"),gtg=$("goalTog");if(gf){const open=!goals.length||PL_OPEN.goal;gf.classList.toggle("plhide",!open);
+    if(gtg){gtg.hidden=!goals.length;gtg.textContent=PL_OPEN.goal?L("Jooji","Cancel","إلغاء","Ghairi"):"+ "+L("Yool cusub","New goal","هدف جديد","Lengo jipya");gtg.classList.toggle("primary",!PL_OPEN.goal)}
+    const sb=gf.querySelector('button[type="submit"]');if(sb)sb.textContent="✓ "+L("Kaydi yoolka","Save the goal","حفظ الهدف","Hifadhi lengo")}
+  /* Deymaha (Shirkad owner/manager): only what we owe; form after "+ Ku dar deyn" */
+  const dp=$("debtPanel");if(dp){const bizC=MODE==="business"&&MGR(),df=$("debtForm"),dt=$("debtTog"),n=mine("debt").filter(d=>!bizC||d.dir!=="in").length;
+    $("debtH").textContent=bizC?L("Deymaha aan bixinayno","Money we owe","ما علينا من ديون","Madeni tunayodaiwa"):L("Deymaha","Debts","الديون","Madeni");
+    const seg=df?.querySelector(".seg");if(seg)seg.classList.toggle("plhide",bizC);if(bizC&&$("dOut")&&!$("dOut").checked)$("dOut").checked=true;
+    dp.querySelector("#debtSum .ext.lo")?.classList.toggle("plhide",bizC);
+    const dn=$("debtNote");if(dn)dn.textContent=bizC?L("Lacagta macaamiishu na hayaan waxay ku jirtaa 👥 Macaamiisha (Guriga).","Money customers owe us is in 👥 Customers (Home).","المبالغ المستحقة من العملاء موجودة في 👥 العملاء (الرئيسية).","Pesa ambazo wateja wanadaiwa ziko kwenye 👥 Wateja (Nyumbani)."):"“Naloo hayo” = lacag dad kale nagu leeyihiin. “Aan u hayno” = lacag aan dad kale ku leenahay.";
+    if(df){const open=!n||PL_OPEN.debt;df.classList.toggle("plhide",!open);if(dt){dt.hidden=!n;dt.textContent=PL_OPEN.debt?L("Jooji","Cancel","إلغاء","Ghairi"):"+ "+L("Ku dar deyn","Add a debt","أضف دينًا","Ongeza deni");dt.classList.toggle("primary",!PL_OPEN.debt)}}}}
+document.addEventListener("click",e=>{const b=e.target.closest("#plSw [data-plsec]");if(b){plSet(b.dataset.plsec);render();return}
+  const t=e.target.closest("#budTog,#goalTog,#debtTog");if(!t)return;const k={budTog:"bud",goalTog:"goal",debtTog:"debt"}[t.id];PL_OPEN[k]=!PL_OPEN[k];plRender();
+  if(PL_OPEN[k])setTimeout(()=>$({bud:"budAmt",goal:"gPreset",debt:"dName"}[k])?.focus(),30)});
+/* the "Deji miisaaniyad" link on Guriga opens the budget part with its form */
+document.addEventListener("click",e=>{if(e.target.closest("[data-gobud]")){plSet("bud");PL_OPEN.bud=true}},true);
+/* after saving a budget or a debt, close the form again */
+$("budForm").addEventListener("submit",()=>{PL_OPEN.bud=false});
+$("debtForm").addEventListener("submit",()=>setTimeout(()=>{if(!$("dErr").textContent){PL_OPEN.debt=false;plRender()}},400));
+{const _r=render;render=function(){_r();try{plRender()}catch(e){console.error(e)}}}
 </script>
 </body>
 </html>
