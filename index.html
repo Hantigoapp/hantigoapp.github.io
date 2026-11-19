@@ -1818,7 +1818,10 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
 
 <script>
 /* ---------- language: Somali (default), English, Arabic (RTL) or Swahili ---------- */
-let LANG="so";try{const l=localStorage.getItem("hantigo.lang");if(["en","ar","sw"].includes(l))LANG=l}catch{}
+let LANG="so",SAVED_LANG="so";try{const l=localStorage.getItem("hantigo.lang");if(["en","ar","sw"].includes(l))LANG=SAVED_LANG=l}catch{}
+/* the home page (signed out) is only Somali or English: a saved Arabic/Swahili choice applies once signed in */
+function hasSignIn(){try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){const s=JSON.parse(localStorage.getItem(k)||"null");if(s?.refresh_token)return true}}}catch{}return false}
+if((LANG==="ar"||LANG==="sw")&&!hasSignIn())LANG="en";
 const RTL=LANG==="ar";
 /* L(somali, english[, arabic, swahili]): Arabic/Swahili fall back to the AR/SW dictionaries (keyed by the English text), then English */
 const L=(so,en,ar,sw)=>LANG==="so"?so:LANG==="en"?en:LANG==="ar"?(ar??XL(en)):(sw??XL(en));
@@ -2309,6 +2312,7 @@ let offlineStart=false;
 /* the saved sign-in on this phone, used when the app is opened without internet */
 function savedUser(){try{const ref=new URL(SUPABASE_URL).hostname.split(".")[0];const s=JSON.parse(localStorage.getItem("sb-"+ref+"-auth-token")||"null");return (s?.user&&s.refresh_token)?(s.user):null}catch{return null}}
 async function enter(user){
+  if(SAVED_LANG!==LANG&&hasSignIn()&&!recovering&&!addSpace&&!ACC_NEW&&!SWITCHING){try{if(ACC_PICK)sessionStorage.setItem("hantigo.accPick","1")}catch{}location.reload();return}   // signed in from the Somali/English home page: open the app in the saved Arabic/Swahili
   me=user;showMe();ensureMe();
   if(recovering){showView("resetView");return}
   showView("loadingView");
@@ -2366,7 +2370,7 @@ async function enter(user){
 async function init(){
   if(!sb){showView("authView");$("aErr").textContent="Server-ka lama gaari karo. Hubi internetka, kadibna bogga dib u fur.";return}
   sb.auth.onAuthStateChange((ev,session)=>{
-    if(ev==="SIGNED_OUT"){me=null;items=[];goStep(3);showView("authView");return}
+    if(ev==="SIGNED_OUT"){if((LANG==="ar"||LANG==="sw")&&!SWITCHING){location.reload();return}me=null;items=[];goStep(3);showView("authView");return}
     if(ev==="PASSWORD_RECOVERY"){recovering=true;me=session?.user||me;showView("resetView");return}
     if(SWITCHING)return;
     if(session?.user&&(!me||me.id!==session.user.id)){const u=session.user;me=u;setTimeout(()=>enter(u),0)}
@@ -2614,6 +2618,7 @@ initFold();
    Each account has its own type, data, staff, trial and payment. Sign in with the normal email + password
    (= the first account), then switch here. An extra account's login email is name+hgN@… (never shown). */
 let SWITCHING=false,ACC_PICK=false,ACC_NEW=null,ACCS=null,acvBackTo="appView";
+try{if(sessionStorage.getItem("hantigo.accPick")){sessionStorage.removeItem("hantigo.accPick");ACC_PICK=true}}catch{}   // kept across the language reload after sign-in
 const realMail=()=>String(me?.app_metadata?.hg_email||me?.email||"");
 const accLinked=()=>!!me?.app_metadata?.hg_owner||(Array.isArray(me?.app_metadata?.hg_accounts)&&me.app_metadata.hg_accounts.length>0);
 const accType=t=>t==="business"?L("🏢 Shirkad","🏢 Business","🏢 شركة","🏢 Biashara"):L("👤 Shakhsi","👤 Personal","👤 شخصي","👤 Binafsi");
