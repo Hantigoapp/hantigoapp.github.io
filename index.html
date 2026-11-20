@@ -1056,23 +1056,34 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
 <section id="authView" class="gate gate-home" hidden>
   <div class="home-top">
     <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub">Maamul lacagtaada meel kasta oo aad joogto.</p></div>
-    <div class="home-lang"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option></select></label></div>
+    <div class="home-lang"><label class="langsw"><span class="sr">Luqadda</span><select class="langSel" aria-label="Luqadda"><option value="so">Soomaali</option><option value="en">English</option></select></label><button type="button" class="ghost navgal" data-go="3">Gal</button></div>
   </div>
   <div class="home-grid">
   <aside class="hero">
+    <div class="hero-txt">
+    <div class="hero-chips"><span>🎁 <b>7 maalmood bilaash</b></span></div>
     <h2>Maamul dhaqaalahaaga.<br><span>Kobci mustaqbalkaaga.</span></h2>
     <p class="hero-lead">Soo galay, ka baxay, kayd iyo ganacsi: hal meel.</p>
-    <div class="hero-chips"><span>🎁 <b>7 maalmood bilaash</b></span></div>
     <div class="hero-cta"><button type="button" class="primary" data-go="1">Bilow: 3 tallaabo oo fudud ↓</button><button type="button" class="ghost" data-go="3">Horay akoon u leedahay? Gal</button></div>
-    <div class="hero-sep"></div>
-    <p class="hero-h">Adeegyada muhiimka ah</p>
+    <p class="hero-price"><span>👤 Shakhsi $3</span> · <span>🏢 Shirkad $12</span> · <span>bishii</span></p>
+    </div>
+    <div class="hero-phone" aria-hidden="true"><div class="hp-scr">
+      <p class="hp-k">Ku haray bishan</p><p class="hp-bal" dir="ltr">$1,240</p>
+      <div class="hp-two"><div class="hp-in"><span>Soo galay</span><b dir="ltr">$2,100</b></div><div class="hp-out"><span>Ka baxay</span><b dir="ltr">$860</b></div></div>
+      <div class="hp-bars"><i style="height:60%"></i><i style="height:35%"></i><i style="height:80%"></i><i style="height:40%"></i><i style="height:70%"></i><i style="height:30%"></i><i style="height:95%"></i></div>
+      <div class="hp-row"><span>🛒 Cunto</span><b dir="ltr">$240</b></div><div class="hp-row"><span>🏠 Kiro</span><b dir="ltr">$300</b></div><div class="hp-row"><span>⚡ Koronto</span><b dir="ltr">$45</b></div>
+    </div></div>
+  </aside>
+  <section class="home-feat">
+    <h2 class="hf-h">Adeegyada muhiimka ah</h2>
+    <p class="hf-sub">Wax kasta oo lacagtaada ku saabsan, hal app.</p>
     <div class="hero-list">
       <button type="button" data-feat="0" aria-haspopup="dialog" style="--fc:var(--in)"><i aria-hidden="true">💰</i><b>Soo galay &amp; ka baxay</b><span>La soco lacagtaada.</span><small aria-hidden="true">→</small></button>
       <button type="button" data-feat="1" aria-haspopup="dialog" style="--fc:var(--warn)"><i aria-hidden="true">🎯</i><b>Miisaaniyad &amp; kayd</b><span>Xad iyo yool u dhig.</span><small aria-hidden="true">→</small></button>
       <button type="button" data-feat="2" aria-haspopup="dialog" style="--fc:var(--biz)"><i aria-hidden="true">🏢</i><b>Iib &amp; shaqaale</b><span>Ganacsigaaga maamul.</span><small aria-hidden="true">→</small></button>
       <button type="button" data-feat="3" aria-haspopup="dialog" style="--fc:var(--violet)"><i aria-hidden="true">📊</i><b>Warbixinno</b><span>Excel, Word, PowerPoint iyo PDF.</span><small aria-hidden="true">→</small></button>
     </div>
-  </aside>
+  </section>
   <div class="home-side">
   <div class="panel steps-panel" id="stepsPanel" data-step="1">
     <ol class="stepper">
@@ -1082,8 +1093,8 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
     </ol>
     <div class="step" id="step1">
       <h2 class="step-h"><b>1</b><span>Dooro Shakhsi ama Shirkad</span></h2>
-      <button type="button" class="typecard" data-pick="person"><b>👤 Shakhsi</b><span>Soo galay, ka baxay, miisaaniyad iyo kayd.</span><em class="tprice">$3 / bishii</em></button>
-      <button type="button" class="typecard" data-pick="business"><b>🏢 Shirkad</b><span>Iib, kharash, shaqaale iyo warbixinno.</span><em class="tprice">$12 / bishii</em></button>
+      <button type="button" class="typecard" data-pick="person"><b>👤 Shakhsi</b><span>Soo galay, ka baxay, miisaaniyad iyo kayd.</span><em class="tprice">$3 / bishii</em><ul class="tc-list" aria-hidden="true"><li>Kharashka iyo dakhliga</li><li>Miisaaniyad iyo biilal</li><li>Warbixin Excel / PDF</li></ul><strong class="tc-go">Samee akoon Shakhsi →</strong></button>
+      <button type="button" class="typecard" data-pick="business"><b>🏢 Shirkad</b><span>Iib, kharash, shaqaale iyo warbixinno.</span><em class="tprice">$12 / bishii</em><ul class="tc-list" aria-hidden="true"><li>Iibka iyo faa'iidada</li><li>Shaqaale iyo mushahar</li><li>Rasiid iyo deymaha</li></ul><strong class="tc-go">Samee akoon Shirkad →</strong></button>
       <p class="note t1note">🎁 7 maalmood bilaash · labaduba</p>
       <p class="note paynote pay-only">💳 <span>Lacag-bixinta: EVC Plus ama WaafiPay</span> · <b dir="ltr">+252 61 373 5086</b></p>
       <p class="step-alt"><span>Horay akoon u leedahay?</span> <button type="button" class="linkbtn" data-go="3">Gal dashboard-kaaga →</button></p>
@@ -1981,6 +1992,7 @@ Object.assign(SW,{"Income, spending, savings and business: one place.":"Mapato, 
 /* v134 chart day view */Object.assign(EN,{"📅 Bishan · maalin kasta":"📅 This month · each day","🗓️ 6 bilood":"🗓️ 6 months","Muddada jaantuska":"Chart period"});Object.assign(AR,{"📅 This month · each day":"📅 هذا الشهر · كل يوم","🗓️ 6 months":"🗓️ 6 أشهر","Chart period":"مدة الرسم"});Object.assign(SW,{"📅 This month · each day":"📅 Mwezi huu · kila siku","🗓️ 6 months":"🗓️ Miezi 6","Chart period":"Kipindi cha chati"});
 /* v172 one name: Soo galay / Ka baxay */Object.assign(EN,{"Soo galay":"Money in","Ka baxay":"Money out","+ Soo galay":"+ Money in","− Ka baxay":"− Money out","Ku dar Soo galay":"Add to Money in","Ka baxay: mowduuc kasta":"Money out by topic","Soo galay iyo ka baxay: 6-dii bilood ee u dambeeyay":"Money in and money out: last 6 months","Soo galay, ka baxay, kayd iyo ganacsi: hal meel.":"Money in, money out, savings and business: one place.","Soo galay & ka baxay":"Money in & money out","Soo galay, ka baxay, miisaaniyad iyo kayd.":"Money in, money out, budget and savings.","La soco lacagta soo galay iyo ka baxay.":"Track your money in and money out."});Object.assign(AR,{"Money in":"دخل","Money out":"خرج","+ Money in":"+ دخل","− Money out":"− خرج","Add to Money in":"أضف إلى دخل","Money out by topic":"خرج حسب الموضوع","Money in and money out: last 6 months":"الدخل والخرج: آخر 6 أشهر","Money in, money out, savings and business: one place.":"الدخل والخرج والادخار والعمل: في مكان واحد.","Money in & money out":"الدخل والخرج","Money in, money out, budget and savings.":"الدخل والخرج والميزانية والادخار.","Track your money in and money out.":"تابع الدخل والخرج."});Object.assign(SW,{"Money in":"Pesa iliyoingia","Money out":"Pesa iliyotoka","+ Money in":"+ Pesa iliyoingia","− Money out":"− Pesa iliyotoka","Add to Money in":"Ongeza kwenye Pesa iliyoingia","Money out by topic":"Pesa iliyotoka kwa mada","Money in and money out: last 6 months":"Pesa iliyoingia na iliyotoka: miezi 6 iliyopita","Money in, money out, savings and business: one place.":"Pesa iliyoingia, iliyotoka, akiba na biashara: mahali pamoja.","Money in & money out":"Pesa iliyoingia na iliyotoka","Money in, money out, budget and savings.":"Pesa iliyoingia, iliyotoka, bajeti na akiba.","Track your money in and money out.":"Fuatilia pesa iliyoingia na iliyotoka."});
 /* v135 statistics dates */Object.assign(EN,{"🕓 Taariikhda: goorta lacagtu soo gashay iyo goorta ay baxday":"🕓 Dates: when money came in and when it went out"});Object.assign(AR,{"🕓 Dates: when money came in and when it went out":"🕓 التواريخ: متى دخل المال ومتى خرج"});Object.assign(SW,{"🕓 Dates: when money came in and when it went out":"🕓 Tarehe: pesa ilipoingia na ilipotoka"});
+/* home A (Iftiin) */Object.assign(EN,{"👤 Shakhsi $3":"👤 Personal $3","🏢 Shirkad $12":"🏢 Business $12","bishii":"per month","🛒 Cunto":"🛒 Food","🏠 Kiro":"🏠 Rent","⚡ Koronto":"⚡ Electricity","Wax kasta oo lacagtaada ku saabsan, hal app.":"Everything about your money, in one app.","Kharashka iyo dakhliga":"Spending and income","Miisaaniyad iyo biilal":"Budget and bills","Warbixin Excel / PDF":"Excel / PDF reports","Iibka iyo faa'iidada":"Sales and profit","Shaqaale iyo mushahar":"Staff and salaries","Rasiid iyo deymaha":"Receipts and debts","Samee akoon Shakhsi →":"Create a Personal account →","Samee akoon Shirkad →":"Create a Business account →"});
 const T=s=>LANG==="so"||!Object.prototype.hasOwnProperty.call(EN,s)?s:LANG==="en"?EN[s]:XL(EN[s]);
 function trText(n){const p=n.parentNode;if(!p||p.nodeName==="SCRIPT"||p.nodeName==="STYLE")return;
   const v=n.nodeValue,t=v.trim();if(!t)return;const x=T(t);if(x!==t)n.nodeValue=v.replace(t,x)}
@@ -6757,5 +6769,112 @@ renderDebts=function(){const biz=MODE==="business",all=mine("debt");
     :`<p class="empty" style="margin:0">${L("Weli deyn lama qorin. Riix “+ Ku dar deyn”.","No debts recorded yet. Tap “+ Add a debt”.","لا توجد ديون بعد. اضغط “+ أضف دينًا”.","Bado hakuna deni. Gusa “+ Ongeza deni”.")}</p>`}
 </script>
 <script>/* Isbitaal & Farmashi topic (sw v179) */Object.assign(EN,{"Daawo": "Medicine", "Daawo dhakhtar qoray": "Prescription medicine", "Daawo bille ah (sonkorow, dhiig-kar)": "Monthly medicine (diabetes, blood pressure)", "Kaniini xanuun (paracetamol)": "Painkillers (paracetamol)", "Antibiyootig": "Antibiotics", "Daawo qufac & hargab": "Cough & cold medicine", "Daawo calool": "Stomach medicine", "Daawo carruur": "Children's medicine", "Fitamiin": "Vitamins", "Kareem & daawo maqaar": "Skin cream & medicine", "Dhibco indho & dheg": "Eye & ear drops", "Irbad (duro)": "Injection", "Faashad & boolaati": "Bandages & plasters", "Qalabka gargaarka degdegga": "First aid kit", "Cabbirka sonkorta": "Blood sugar meter", "Cabbirka dhiig-karka": "Blood pressure monitor", "Termometer": "Thermometer", "Maaskaro & galoofis": "Masks & gloves", "Caano carruur (formula)": "Baby formula", "Xafaayad carruur": "Baby diapers", "Xafaayad haweeney": "Sanitary pads", "Jeermis-dile & saabuun caafimaad": "Disinfectant & medical soap", "Qalab caafimaad": "Medical supplies", "Farmashiye": "Pharmacy", "Isbitaal": "Hospital", "Kaarka isbitaalka (diiwaangelin)": "Hospital card (registration)", "Dhakhtar (ballan)": "Doctor visit", "Dhakhtar takhasus": "Specialist doctor", "Shaybaar (baaritaan)": "Lab tests", "Raajo & sawir": "X-ray & scan", "Ultrasound": "Ultrasound", "Jiif isbitaal": "Hospital stay", "Qalliin": "Surgery", "Dhalmo & uur": "Pregnancy & birth", "Caafimaadka carruurta": "Children's health", "Tallaal": "Vaccination", "Ilko (dhakhtarka ilkaha)": "Dentist", "Indho & muraayad": "Eyes & glasses", "Daaweyn joogto ah (sonkorow, dhiig-kar)": "Ongoing treatment (diabetes, blood pressure)", "Kelyo-sifeyn (dialysis)": "Dialysis", "Dhiig-shubid": "Blood transfusion", "Fiisiyoterabi": "Physiotherapy", "Caafimaadka dhimirka": "Mental health", "Daawo dhaqameed": "Traditional medicine", "Ambalaas": "Ambulance", "Kalkaaliso guri": "Home nurse", "Iib daawo": "Medicine sales", "Adeeg caafimaad (dhakhtar / kalkaaliso)": "Health service (doctor / nurse)", "Shaqo isbitaal / farmashi": "Hospital / pharmacy work", "Caymis caafimaad (lacag-celin)": "Health insurance refund", "Lacag-celin isbitaal / farmashi": "Hospital / pharmacy refund", "Kaalmo caafimaad": "Medical help received", "Iib daawo dhakhtar qoray": "Prescription sales", "Iib daawo jumlad": "Wholesale medicine sales", "Iib fitamiin": "Vitamin sales", "Iib qalab caafimaad": "Medical supplies sales", "Iib caano & xafaayad carruur": "Baby milk & diaper sales", "Kaarka bukaanka (diiwaangelin)": "Patient card (registration)", "Ballan dhakhtar (lacag)": "Doctor visit fee", "Baaritaan shaybaar (lacag)": "Lab test fee", "Raajo & sawir (lacag)": "X-ray & scan fee", "Ultrasound (lacag)": "Ultrasound fee", "Jiif bukaan": "Patient stay", "Qalliin (lacag)": "Surgery fee", "Dhalmo (lacag)": "Birth delivery fee", "Tallaal (lacag)": "Vaccination fee", "Irbad & faashad (lacag)": "Injection & dressing fee", "Ambalaas (lacag)": "Ambulance fee", "Caymis caafimaad (lacag la helay)": "Health insurance payment received", "Isbitaal & Farmashi": "Hospital & Pharmacy"});Object.assign(AR,{"Medicine": "الدواء", "Prescription medicine": "دواء بوصفة طبية", "Monthly medicine (diabetes, blood pressure)": "دواء شهري (السكري، الضغط)", "Painkillers (paracetamol)": "مسكنات (باراسيتامول)", "Antibiotics": "مضادات حيوية", "Cough & cold medicine": "دواء السعال والزكام", "Stomach medicine": "دواء المعدة", "Children's medicine": "دواء الأطفال", "Vitamins": "فيتامينات", "Skin cream & medicine": "كريمات وأدوية الجلد", "Eye & ear drops": "قطرات العين والأذن", "Injection": "حقنة", "Bandages & plasters": "ضمادات ولصقات", "First aid kit": "حقيبة الإسعافات الأولية", "Blood sugar meter": "جهاز قياس السكر", "Blood pressure monitor": "جهاز قياس الضغط", "Thermometer": "مقياس الحرارة", "Masks & gloves": "كمامات وقفازات", "Baby formula": "حليب الأطفال", "Baby diapers": "حفاضات الأطفال", "Sanitary pads": "فوط صحية", "Disinfectant & medical soap": "مطهر وصابون طبي", "Medical supplies": "مستلزمات طبية", "Pharmacy": "الصيدلية", "Hospital": "المستشفى", "Hospital card (registration)": "بطاقة المستشفى (تسجيل)", "Doctor visit": "زيارة الطبيب", "Specialist doctor": "طبيب أخصائي", "Lab tests": "فحوصات المختبر", "X-ray & scan": "أشعة وتصوير", "Ultrasound": "موجات فوق صوتية", "Hospital stay": "الإقامة في المستشفى", "Surgery": "عملية جراحية", "Pregnancy & birth": "الحمل والولادة", "Children's health": "صحة الأطفال", "Vaccination": "التطعيم", "Dentist": "طبيب الأسنان", "Eyes & glasses": "العيون والنظارات", "Ongoing treatment (diabetes, blood pressure)": "علاج مستمر (السكري، الضغط)", "Dialysis": "غسيل الكلى", "Blood transfusion": "نقل الدم", "Physiotherapy": "العلاج الطبيعي", "Mental health": "الصحة النفسية", "Traditional medicine": "الطب التقليدي", "Ambulance": "سيارة إسعاف", "Home nurse": "ممرضة منزلية", "Medicine sales": "مبيعات الأدوية", "Health service (doctor / nurse)": "خدمة صحية (طبيب / ممرضة)", "Hospital / pharmacy work": "عمل في مستشفى / صيدلية", "Health insurance refund": "استرداد التأمين الصحي", "Hospital / pharmacy refund": "استرداد من المستشفى / الصيدلية", "Medical help received": "مساعدة طبية", "Prescription sales": "مبيعات الوصفات الطبية", "Wholesale medicine sales": "بيع الأدوية بالجملة", "Vitamin sales": "مبيعات الفيتامينات", "Medical supplies sales": "مبيعات المستلزمات الطبية", "Baby milk & diaper sales": "مبيعات حليب وحفاضات الأطفال", "Patient card (registration)": "بطاقة المريض (تسجيل)", "Doctor visit fee": "رسوم زيارة الطبيب", "Lab test fee": "رسوم فحص المختبر", "X-ray & scan fee": "رسوم الأشعة والتصوير", "Ultrasound fee": "رسوم الموجات فوق الصوتية", "Patient stay": "إقامة المريض", "Surgery fee": "رسوم العملية", "Birth delivery fee": "رسوم الولادة", "Vaccination fee": "رسوم التطعيم", "Injection & dressing fee": "رسوم الحقن والضماد", "Ambulance fee": "رسوم الإسعاف", "Health insurance payment received": "دفعة تأمين صحي مستلمة", "Hospital & Pharmacy": "المستشفى والصيدلية"});Object.assign(SW,{"Medicine": "Dawa", "Prescription medicine": "Dawa ya daktari", "Monthly medicine (diabetes, blood pressure)": "Dawa ya kila mwezi (kisukari, shinikizo la damu)", "Painkillers (paracetamol)": "Dawa za maumivu (paracetamol)", "Antibiotics": "Antibiotiki", "Cough & cold medicine": "Dawa ya kikohozi na mafua", "Stomach medicine": "Dawa ya tumbo", "Children's medicine": "Dawa ya watoto", "Vitamins": "Vitamini", "Skin cream & medicine": "Krimu na dawa ya ngozi", "Eye & ear drops": "Matone ya macho na masikio", "Injection": "Sindano", "Bandages & plasters": "Bendeji na plasta", "First aid kit": "Kifaa cha huduma ya kwanza", "Blood sugar meter": "Kipimo cha sukari", "Blood pressure monitor": "Kipimo cha shinikizo la damu", "Thermometer": "Kipimajoto", "Masks & gloves": "Barakoa na glavu", "Baby formula": "Maziwa ya watoto (formula)", "Baby diapers": "Nepi za watoto", "Sanitary pads": "Pedi za wanawake", "Disinfectant & medical soap": "Dawa ya kuua vijidudu na sabuni", "Medical supplies": "Vifaa vya matibabu", "Pharmacy": "Duka la dawa", "Hospital": "Hospitali", "Hospital card (registration)": "Kadi ya hospitali (usajili)", "Doctor visit": "Kumwona daktari", "Specialist doctor": "Daktari bingwa", "Lab tests": "Vipimo vya maabara", "X-ray & scan": "X-ray na picha", "Ultrasound": "Ultrasound", "Hospital stay": "Kulazwa hospitalini", "Surgery": "Upasuaji", "Pregnancy & birth": "Ujauzito na kujifungua", "Children's health": "Afya ya watoto", "Vaccination": "Chanjo", "Dentist": "Daktari wa meno", "Eyes & glasses": "Macho na miwani", "Ongoing treatment (diabetes, blood pressure)": "Matibabu ya kudumu (kisukari, shinikizo)", "Dialysis": "Dialisisi", "Blood transfusion": "Kuongezewa damu", "Physiotherapy": "Fiziotherapia", "Mental health": "Afya ya akili", "Traditional medicine": "Dawa za asili", "Ambulance": "Gari la wagonjwa", "Home nurse": "Muuguzi wa nyumbani", "Medicine sales": "Mauzo ya dawa", "Health service (doctor / nurse)": "Huduma ya afya (daktari / muuguzi)", "Hospital / pharmacy work": "Kazi ya hospitali / duka la dawa", "Health insurance refund": "Marejesho ya bima ya afya", "Hospital / pharmacy refund": "Marejesho ya hospitali / duka la dawa", "Medical help received": "Msaada wa matibabu", "Prescription sales": "Mauzo ya dawa za daktari", "Wholesale medicine sales": "Mauzo ya jumla ya dawa", "Vitamin sales": "Mauzo ya vitamini", "Medical supplies sales": "Mauzo ya vifaa vya matibabu", "Baby milk & diaper sales": "Mauzo ya maziwa na nepi za watoto", "Patient card (registration)": "Kadi ya mgonjwa (usajili)", "Doctor visit fee": "Ada ya kumwona daktari", "Lab test fee": "Ada ya kipimo cha maabara", "X-ray & scan fee": "Ada ya X-ray na picha", "Ultrasound fee": "Ada ya ultrasound", "Patient stay": "Kulazwa kwa mgonjwa", "Surgery fee": "Ada ya upasuaji", "Birth delivery fee": "Ada ya kujifungua", "Vaccination fee": "Ada ya chanjo", "Injection & dressing fee": "Ada ya sindano na bendeji", "Ambulance fee": "Ada ya gari la wagonjwa", "Health insurance payment received": "Malipo ya bima ya afya yaliyopokelewa", "Hospital & Pharmacy": "Hospitali na Duka la dawa"});</script>
+<style id="homeA">
+/* home A "Iftiin" (2026-11-20): light landing page, always light (own tokens), phone picture beside the headline, plan cards, dark install band */
+#authView.gate-home{--bg:#f6faf8;--surface:#fff;--card:#fff;--ink:#10231b;--muted:#5d6f67;--line:#e3ebe7;--accent:#0a8f63;--accent-soft:#e7f7ef;--hA-b:#2f6fe4;--hA-b2:#eaf1fe;color:var(--ink);color-scheme:light;max-width:1180px;padding-top:14px;gap:0}
+html:has(#authView:not([hidden])),body:has(#authView:not([hidden])){background:#f6faf8!important}
+#authView.gate-home .home-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0 0}
+#authView.gate-home .brand{text-align:start}
+#authView.gate-home .brand h1{font-size:1.8rem;color:var(--ink)}#authView.gate-home .brand h1 span{color:var(--accent)}
+#authView.gate-home .brand .sub{color:var(--muted);font-size:.85rem;margin:0}
+#authView.gate-home .home-lang{display:flex;gap:8px;align-items:center}
+#authView.gate-home .home-lang select{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:999px;font-weight:600}
+#authView.gate-home .navgal{border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:9px 18px;font-weight:700;width:auto;min-height:0}
+#authView.gate-home .home-grid{display:block}
+/* hero */
+#authView.gate-home .hero{background:none;border:0;box-shadow:none;border-radius:0;color:var(--ink);padding:34px 0 46px;display:grid;gap:34px;overflow:visible}
+#authView.gate-home .hero-txt{display:grid;gap:16px;align-content:center;justify-items:start}
+#authView.gate-home .hero-chips{margin:0}
+#authView.gate-home .hero-chips span{background:var(--accent-soft);color:var(--accent);border:0;border-radius:999px;padding:8px 14px;font-weight:700}
+#authView.gate-home .hero h2{font-size:clamp(2.3rem,5.4vw,3.9rem);line-height:1.03;letter-spacing:-.045em;max-width:none;color:var(--ink)}
+#authView.gate-home .hero h2 span{color:var(--accent)}
+#authView.gate-home .hero-lead{color:var(--muted);font-size:1.15rem;max-width:36ch;margin:0}
+#authView.gate-home .hero-cta{display:flex;flex-wrap:wrap;gap:12px;max-width:none;width:100%}
+#authView.gate-home .hero-cta button{width:auto;flex:0 1 auto;border-radius:14px;padding:15px 22px;font-weight:700;font-size:1rem}
+#authView.gate-home .hero-cta .primary{background:var(--accent);color:#fff;border:0;box-shadow:0 8px 20px rgba(10,143,99,.25)}
+#authView.gate-home .hero-cta .ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+#authView.gate-home .hero-price{margin:0;color:var(--muted);font-size:.92rem}
+/* phone picture (decoration only) */
+#authView.gate-home .hero-phone{justify-self:center;width:290px;max-width:78vw;border-radius:40px;background:#0f1c17;padding:11px;box-shadow:0 30px 60px rgba(16,35,27,.22);transform:rotate(2deg)}
+#authView.gate-home .hp-scr{background:#fff;border-radius:30px;padding:20px 16px 22px;display:grid;gap:4px}
+#authView.gate-home .hp-scr p{margin:0}
+#authView.gate-home .hp-k{font-size:.8rem;color:var(--muted)}
+#authView.gate-home .hp-bal{font:800 2.1rem/1.1 "Bricolage Grotesque",sans-serif;letter-spacing:-.03em;margin-bottom:10px!important}
+#authView.gate-home .hp-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#authView.gate-home .hp-two div{border-radius:14px;padding:11px 12px;font-size:.78rem;color:var(--muted);display:grid;gap:2px}
+#authView.gate-home .hp-two b{font-size:1.08rem;color:var(--ink)}
+#authView.gate-home .hp-in{background:#e8f8ef}#authView.gate-home .hp-out{background:#fdecec}
+#authView.gate-home .hp-bars{display:flex;gap:7px;align-items:flex-end;height:104px;margin:12px 0 6px;padding:10px;border:1px solid var(--line);border-radius:14px}
+#authView.gate-home .hp-bars i{flex:1;border-radius:6px 6px 2px 2px;background:var(--accent)}#authView.gate-home .hp-bars i:nth-child(even){background:#f08a8a}
+#authView.gate-home .hp-row{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid var(--line);font-size:.85rem}
+/* services */
+#authView.gate-home .home-feat{padding:20px 0 36px}
+#authView.gate-home .hf-h{font-size:clamp(1.6rem,3vw,2.1rem);letter-spacing:-.035em;margin:0 0 6px}
+#authView.gate-home .hf-sub{color:var(--muted);margin:0 0 22px}
+#authView.gate-home .home-feat .hero-list{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#authView.gate-home .home-feat .hero-list button{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;color:var(--ink);box-shadow:none;position:relative;gap:6px}
+#authView.gate-home .home-feat .hero-list button:hover{border-color:var(--accent);background:#fff}
+#authView.gate-home .home-feat .hero-list i{width:50px;height:50px;border-radius:14px;background:var(--accent-soft);font-size:1.5rem;margin-bottom:8px}
+#authView.gate-home .home-feat .hero-list b{font-size:1.05rem}
+#authView.gate-home .home-feat .hero-list span{color:var(--muted);font-weight:500}
+#authView.gate-home .home-feat .hero-list small{position:absolute;top:18px;inset-inline-end:18px;color:var(--accent)}
+/* plans + sign-up */
+#authView.gate-home .home-side{max-width:none;width:100%;display:grid;gap:22px;padding-bottom:10px}
+#authView.gate-home .steps-panel{background:#fff;border:1px solid var(--line);border-radius:26px;box-shadow:0 10px 30px rgba(16,35,27,.06);padding:24px;width:100%;max-width:560px;justify-self:center}
+#authView.gate-home .steps-panel[data-step="1"]{max-width:none;background:none;border:0;box-shadow:none;padding:0}
+#authView.gate-home .steps-panel[data-step="1"] .stepper{max-width:560px;margin:0 auto 6px;width:100%}
+#authView.gate-home .stepper i{background:#fff}
+#authView.gate-home .stepper li.on i{background:var(--accent);border-color:var(--accent);color:#fff}
+#authView.gate-home [data-step="1"] #step1{display:grid;gap:16px}
+#authView.gate-home #step1 .step-h{font-size:clamp(1.6rem,3vw,2.1rem);letter-spacing:-.035em}
+#authView.gate-home #step1 .step-h b{display:none}
+#authView.gate-home .typecard{background:#fff;border:1.5px solid var(--line);border-radius:24px;padding:26px;box-shadow:0 6px 20px rgba(16,35,27,.05);display:grid;grid-template-columns:1fr;gap:10px;align-content:start;color:var(--ink)}
+#authView.gate-home .typecard:hover,#authView.gate-home .typecard:focus-visible{transform:translateY(-2px);border-color:var(--accent);background:#fff}
+#authView.gate-home .typecard[data-pick="business"]{background:#fff;border-color:#c9d9fb}
+#authView.gate-home .typecard[data-pick="business"]:hover,#authView.gate-home .typecard[data-pick="business"]:focus-visible,#authView.gate-home .typecard[data-pick="business"].on{border-color:var(--hA-b);background:#fff}
+#authView.gate-home .typecard b{font-size:1.4rem}
+#authView.gate-home .typecard em{grid-column:1;grid-row:auto;justify-self:start;background:none;border:0;padding:0;font:800 2.3rem/1 "Bricolage Grotesque",sans-serif;letter-spacing:-.03em;color:var(--ink)}
+#authView.gate-home .typecard[data-pick="business"] em{color:var(--ink);background:none}
+#authView.gate-home .typecard>span{color:var(--muted);font-size:.95rem}
+#authView.gate-home .tc-list{list-style:none;margin:2px 0 6px;padding:0;display:grid;gap:7px;color:var(--muted);font-size:.95rem}
+#authView.gate-home .tc-list li::before{content:"✓  ";color:var(--accent);font-weight:800}
+#authView.gate-home .typecard[data-pick="business"] .tc-list li::before{color:var(--hA-b)}
+#authView.gate-home .tc-go{display:block;text-align:center;background:var(--accent);color:#fff;border-radius:14px;padding:15px;font-weight:700;box-shadow:0 8px 20px rgba(10,143,99,.22)}
+#authView.gate-home .typecard[data-pick="business"] .tc-go{background:var(--hA-b);box-shadow:0 8px 20px rgba(47,111,228,.22)}
+#authView.gate-home .t1note{text-align:start;margin:0;color:var(--muted)}
+#authView.gate-home #step1 .paynote{justify-self:start;background:#fff8e6;border:1px solid #f1dfaa;border-radius:14px;padding:12px 16px;color:var(--ink);display:block;text-align:start}
+#authView.gate-home #step1 .step-alt{border:0;justify-content:flex-start;padding:0}
+#authView.gate-home .chosen{background:var(--accent-soft)}
+#authView.gate-home .linkbtn,#authView.gate-home a.wa,#authView.gate-home .del,#authView.gate-home .privacy-note a{color:var(--accent)}
+#authView.gate-home .step-h b{background:var(--accent);color:#fff}
+#authView.gate-home input,#authView.gate-home select{background:#fff;color:var(--ink);border-color:#d5e0da}
+#authView.gate-home #authForm .primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* install band */
+#authView.gate-home [data-install] .install{background:var(--ink);color:#fff;border:0;border-radius:28px;padding:28px;gap:14px;box-shadow:none}
+#authView.gate-home [data-install] .install h2{color:#fff;font-size:1.5rem}
+#authView.gate-home [data-install] .install .big{background:var(--accent);color:#fff;border:0}
+#authView.gate-home [data-install] .ihint span{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#dfe9e4}
+#authView.gate-home [data-install] .note{color:#b7c9c0}
+#authView.gate-home .gate-credit{color:var(--muted);border-color:var(--line)}#authView.gate-home .gate-credit b{color:var(--ink)}#authView.gate-home .gate-credit a{color:var(--accent)}
+@media(max-width:899px){
+  #authView.gate-home .hero{padding:18px 0 34px;gap:30px}
+  #authView.gate-home .hero-cta button{flex:1 1 100%}
+  #authView.gate-home .hero-phone{width:250px;transform:none}
+  #authView.gate-home .home-feat .hero-list button{padding:16px}
+}
+@media(min-width:900px){
+  #authView.gate-home .hero{grid-template-columns:1.1fr .9fr;align-items:center;padding:44px 0 60px}
+  #authView.gate-home .home-feat{padding:30px 0 54px}
+  #authView.gate-home .home-feat .hero-list{grid-template-columns:repeat(4,1fr);gap:16px}
+  #authView.gate-home [data-step="1"] #step1{grid-template-columns:1fr 1fr;gap:20px;max-width:880px}
+  #authView.gate-home #step1>*{grid-column:1/-1}
+  #authView.gate-home #step1>.typecard{grid-column:auto}
+  #authView.gate-home #step1{margin:0 auto;width:100%}
+  #authView.gate-home [data-install] .ihint{justify-content:flex-start}
+  #authView.gate-home [data-install] .install{grid-template-columns:1fr auto;align-items:center;padding:32px 36px}
+  #authView.gate-home [data-install] .install h2{grid-column:1}
+  #authView.gate-home [data-install] .install>.big{grid-column:2;grid-row:1/span 2;width:auto;padding:16px 28px}
+}
+</style>
 </body>
 </html>
