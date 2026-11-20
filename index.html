@@ -1102,9 +1102,9 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
       <label class="field" id="aCountryRow" data-sub="1" hidden><span>Wadanka aad joogto</span><select id="aCountry" data-loc="a"><option value="">— Dooro —</option></select></label>
       <label class="field" id="aCityRow" data-sub="1" hidden><span>Magaalada aad joogto</span><select id="aCity"><option value="">— Dooro —</option></select><input id="aCityTxt" type="text" maxlength="40" placeholder="Ku qor magaalada" hidden></label>
       <label class="field" id="aStartRow" data-sub="1" hidden><span>Taariikhda diiwaangelintu bilaabatay</span><input id="aStart" type="date" min="2000-01-01" max="2100-12-31"></label>
-      <label class="field" id="aNameRow" data-sub="2" hidden><span>Magacaaga oo buuxa</span><input id="aName" type="text" maxlength="60" autocomplete="name" placeholder="Tusaale: Axmed Cali Faarax"></label>
-      <label class="field" id="aPhoneRow" data-sub="2" hidden><span>Lambarka telefoonkaaga</span><input id="aPhone" type="tel" maxlength="20" autocomplete="tel" inputmode="tel" placeholder="+252 61 234 5678"></label>
-      <label class="field" data-sub="3"><span>Email</span><input id="aEmail" type="email" autocomplete="email" required placeholder="tusaale@gmail.com"></label>
+      <label class="field" id="aNameRow" data-sub="2" hidden><span id="aNameL">Magacaaga oo buuxa</span><input id="aName" type="text" maxlength="60" autocomplete="name" placeholder="Tusaale: Axmed Cali Faarax"></label>
+      <label class="field" id="aPhoneRow" data-sub="2" hidden><span id="aPhoneL">Lambarka telefoonkaaga</span><input id="aPhone" type="tel" maxlength="20" autocomplete="tel" inputmode="tel" placeholder="+252 61 234 5678"></label>
+      <label class="field" data-sub="3"><span id="aEmailL">Email</span><input id="aEmail" type="email" autocomplete="email" required placeholder="tusaale@gmail.com"><small class="note" id="aEmailHint" hidden></small></label>
       <label class="field" data-sub="3"><span>Erayga sirta ah (ugu yaraan 6 xaraf)</span><input id="aPass" type="password" autocomplete="current-password" minlength="6" required></label>
       <div class="err" id="aErr" role="alert"></div>
       <div class="subnav" id="aSubNav"><button type="button" class="ghost" id="aBack">← Dib</button><button type="button" class="primary" id="aNext">Xiga →</button></div>
@@ -2713,9 +2713,17 @@ document.querySelectorAll("[data-wanum]").forEach(e=>e.textContent="+46 76 715 7
 /* auth form */
 let addSpace=false,signUp=false,pendingMode=null,pendingCity="",pendingCountry="",pendingCo="";
 function coRowSync(){$("aCoRow").hidden=$("aTypeRow").hidden||!$("atB").checked}
+/* Shirkad sign-up asks clearly for: full name of the person signing up, phone (company or owner), email (company or owner = the login email) */
+function signLabels(){const biz=signUp&&$("atB").checked;
+  $("aNameL").textContent=biz?L("Magaca qofka diiwaangelinaya oo buuxa","Full name of the person signing up","الاسم الكامل للشخص الذي يسجّل","Jina kamili la mtu anayesajili"):L("Magacaaga oo buuxa","Your full name","اسمك الكامل","Jina lako kamili");
+  $("aPhoneL").textContent=biz?L("Lambarka telefoonka (shirkadda ama milkiilaha)","Phone number (company or owner)","رقم الهاتف (الشركة أو المالك)","Namba ya simu (kampuni au mmiliki)"):L("Lambarka telefoonkaaga","Your phone number","رقم هاتفك","Namba yako ya simu");
+  $("aEmailL").textContent=biz?L("Email-ka shirkadda ama milkiilaha","Company or owner email","البريد الإلكتروني للشركة أو المالك","Barua pepe ya kampuni au mmiliki"):L("Email","Email","البريد الإلكتروني","Barua pepe");
+  $("aEmailHint").textContent=L("Email-kan ayaad ku geli doontaa HantiGo, rasiidhadana waa loo diraa.","You will log in to HantiGo with this email, and receipts are sent to it.","ستدخل إلى HantiGo بهذا البريد، وتُرسل إليه الإيصالات.","Utaingia HantiGo kwa barua pepe hii, na risiti hutumwa kwake.");
+  $("aEmailHint").hidden=!biz}
+const EMAIL_OK=e=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 document.querySelectorAll("input[name=atype]").forEach(r=>r.addEventListener("change",coRowSync));
 function setTab(up){signUp=up;
-  $("aBtn").textContent=up?"Samee akoon":"Gal";$("aTypeRow").hidden=true;$("aPriceNote").hidden=true;if(!NATIVE)$("aPayNote").hidden=!up;coRowSync();$("aCoRow").hidden=!up||!$("atB").checked;$("aCityRow").hidden=!up;$("aStartRow").hidden=!up;$("aNameRow").hidden=!up;$("aPhoneRow").hidden=!up;if(up&&!$("aStart").value)$("aStart").value=today();$("aCountryRow").hidden=!up;$("aPass").autocomplete=up?"new-password":"current-password";$("aErr").textContent=""}
+  $("aBtn").textContent=up?"Samee akoon":"Gal";$("aTypeRow").hidden=true;$("aPriceNote").hidden=true;if(!NATIVE)$("aPayNote").hidden=!up;coRowSync();$("aCoRow").hidden=!up||!$("atB").checked;$("aCityRow").hidden=!up;$("aStartRow").hidden=!up;$("aNameRow").hidden=!up;$("aPhoneRow").hidden=!up;if(up&&!$("aStart").value)$("aStart").value=today();$("aCountryRow").hidden=!up;$("aPass").autocomplete=up?"new-password":"current-password";$("aErr").textContent="";signLabels()}
 /* step 2 (new account) in 3 short parts: 1 where you live · 2 name + phone · 3 email + password */
 let subNow=1;
 const SUBT=()=>[L("Meesha aad joogto","Where you live","مكان إقامتك","Unapoishi"),L("Magacaaga iyo telefoonka","Your name and phone","اسمك وهاتفك","Jina lako na simu"),L("Email iyo erayga sirta ah","Email and password","البريد وكلمة المرور","Barua pepe na nenosiri")];
@@ -2725,7 +2733,8 @@ function goSub(n,focus){subNow=n;const f=$("authForm");f.dataset.sub=n;f.querySe
     const r=$("stepsPanel").getBoundingClientRect();if(r.top<0)$("stepsPanel").scrollIntoView({behavior:"smooth",block:"start"});
     if(el)setTimeout(()=>{try{el.focus({preventScroll:true})}catch(e){}},250)}}
 function subNext(){const er=(m,id)=>{$("aErr").textContent=m;if(id)try{$(id).focus()}catch(e){}return false};
-  if(subNow===1){if(!$("aCountry").value)return er(L("Dooro wadanka aad joogto.","Choose the country you live in."),"aCountry");
+  if(subNow===1){if($("atB").checked&&$("aCoName").value.trim().length<2)return er(L("Ku qor magaca shirkadda.","Enter the company name.","اكتب اسم الشركة.","Andika jina la kampuni."),"aCoName");
+    if(!$("aCountry").value)return er(L("Dooro wadanka aad joogto.","Choose the country you live in."),"aCountry");
     if(!locCity("a"))return er(L("Dooro magaalada aad joogto.","Choose the city you live in."),$("aCityTxt").hidden?"aCity":"aCityTxt");
     if(!/^\d{4}-\d{2}-\d{2}$/.test($("aStart").value))return er(L("Dooro taariikhda diiwaangelintu bilaabatay.","Choose the registration start date.","اختر تاريخ بدء التسجيل.","Chagua tarehe ya kuanza usajili."),"aStart")}
   if(subNow===2){if($("aName").value.trim().length<2)return er(L("Ku qor magacaaga oo buuxa.","Enter your full name.","اكتب اسمك الكامل.","Andika jina lako kamili."),"aName");
@@ -2738,7 +2747,7 @@ let stepNow=1,typeChosen=false;
 function goStep(n,focus){if(n===2&&!typeChosen)n=1;stepNow=n;const pn=$("stepsPanel");pn.dataset.step=n;$("authForm").hidden=n===1;
   if(n>1)setTab(n===2);if(n===2)goSub(1);
   pn.querySelectorAll(".stepper li").forEach((li,i)=>{li.classList.toggle("on",i+1===n);li.classList.toggle("done",i+1<n&&(n!==3||typeChosen))});
-  const biz=$("atB").checked;$("aChosenP").hidden=biz;$("aChosenB").hidden=!biz;
+  const biz=$("atB").checked;$("aChosenP").hidden=biz;$("aChosenB").hidden=!biz;signLabels();
   document.querySelectorAll(".typecard").forEach(x=>x.classList.toggle("on",typeChosen&&(x.dataset.pick==="business")===biz));
   if(focus){const r=pn.getBoundingClientRect();if(r.top<0||r.top>innerHeight*.6)pn.scrollIntoView({behavior:"smooth",block:"start"});
     setTimeout(()=>{try{(n===1?pn.querySelector(".typecard"):n===2?$(biz?"aCoName":"aCountry"):$("aEmail")).focus({preventScroll:true})}catch(e){}},350)}}
@@ -2751,11 +2760,12 @@ new MutationObserver(()=>{if($("aErr").textContent.trim()&&stepNow===1)goStep(3)
 $("authForm").addEventListener("submit",async e=>{e.preventDefault();
   if(signUp&&stepNow===2&&subNow<3){subNext();return}
   const email=$("aEmail").value.trim(),password=$("aPass").value;
-  if(!email.includes("@")){$("aErr").textContent="Geli email sax ah.";return}
+  if(signUp?!EMAIL_OK(email):!email.includes("@")){$("aErr").textContent=L("Geli email sax ah.","Enter a valid email.","أدخل بريدًا إلكترونيًا صحيحًا.","Weka barua pepe sahihi.");$("aEmail").focus();return}
   if(password.length<6){$("aErr").textContent="Erayga sirta ah waa inuu ka koobnaadaa ugu yaraan 6 xaraf.";return}
   $("aErr").textContent="";$("aBtn").disabled=true;
   try{
     if(signUp){const am=document.querySelector('input[name=atype]:checked').value;pendingMode=am;pendingCo=am==="business"?$("aCoName").value.trim().slice(0,60):"";pendingCountry=$("aCountry").value;pendingCity=locCity("a");
+      if(am==="business"&&pendingCo.length<2){goSub(1);$("aErr").textContent=L("Ku qor magaca shirkadda.","Enter the company name.","اكتب اسم الشركة.","Andika jina la kampuni.");$("aCoName").focus();$("aBtn").disabled=false;return}
       if(!pendingCountry){goSub(1);$("aErr").textContent=L("Dooro wadanka aad joogto.","Choose the country you live in.");$("aBtn").disabled=false;return}
       if(!pendingCity){goSub(1);$("aErr").textContent=L("Dooro magaalada aad joogto.","Choose the city you live in.");$("aBtn").disabled=false;return}
       const fullName=$("aName").value.trim().replace(/\s+/g," ").slice(0,60),phoneNo=$("aPhone").value.trim().replace(/[^\d+ ]/g,"").slice(0,20);
