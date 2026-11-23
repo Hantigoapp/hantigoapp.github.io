@@ -2175,7 +2175,7 @@ function netState(){const el=$("net");if(!el||$("appView").hidden){if(el)el.hidd
   el.className="net "+cls;el.innerHTML=txt+btn;el.hidden=false;
   const b=$("netRetry");if(b)b.onclick=()=>syncNow()}
 window.addEventListener("online",()=>{netState();if(dirty.size||gone.size)syncNow();else pull()});
-window.addEventListener("offline",netState);
+window.addEventListener("offline",()=>{needCheck=true;netState()});
 
 function scheduleSync(){clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,700)}
 /* after time offline: an item changed on another phone/website AFTER the change made here keeps the newer version */
@@ -2195,7 +2195,7 @@ async function syncNow(){
   if(!sb||!me)return;
   if(syncing){syncAgain=true;return}
   if(!dirty.size&&!gone.size){netState();return}
-  if(!online()){netState();return}   // the "online" event starts the sync
+  if(!online()){needCheck=true;netState();return}   // the "online" event starts the sync; changes made offline are compared with the server first (newest wins)
   clearTimeout(syncTimer);syncing=true;netState();
   let error,kept=0;
   try{
