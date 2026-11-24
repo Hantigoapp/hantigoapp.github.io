@@ -2149,6 +2149,9 @@ function saveLocal(){const k=cacheKey();try{localStorage.setItem(k,JSON.stringif
 const goneT={};   // when each item was deleted on this phone (so a newer edit elsewhere is not lost)
 function savePending(){try{const k=cacheKey()+".pending";if(dirty.size||gone.size)localStorage.setItem(k,JSON.stringify({d:[...dirty],g:[...gone],t:goneT}));else localStorage.removeItem(k)}catch{}netState()}
 function loadPending(){try{return JSON.parse(localStorage.getItem(cacheKey()+".pending")||"null")}catch{return null}}
+/* ids this phone last saw on the server: an item changed here that is later missing there was deleted on another phone/website */
+function markSeen(list){try{localStorage.setItem(cacheKey()+".seen",JSON.stringify({t:Date.now(),ids:(list||[]).map(x=>x?.id).filter(Boolean)}))}catch{}}
+function loadSeen(){try{return JSON.parse(localStorage.getItem(cacheKey()+".seen")||"null")}catch{return null}}
 /* put back the changes waiting on this phone for the account now open (own, Shirkad or company staff) */
 function restorePending(){const pend=loadPending(),cached=loadLocal();if(!pend)return;
   for(const id of pend.d||[]){const d=Array.isArray(cached)&&cached.find(x=>x.id===id);if(!d)continue;const i=items.findIndex(x=>x.id===id);if(i>=0)items[i]=d;else items.push(d);dirty.add(id)}
@@ -2187,6 +2190,13 @@ async function resolveConflicts(){
   const byId=new Map(srv.map(x=>[x?.id,x]));let n=0;
   for(const id of [...dirty]){const S=byId.get(id),i=items.findIndex(x=>x.id===id),Lc=items[i];
     if(S&&Lc&&(S.u||0)>(Lc.u||0)){items[i]=S;dirty.delete(id);n++}}
+  /* changed here but deleted elsewhere meanwhile: the delete wins, unless the history shows the delete was older than this change (newest wins) */
+  const seen=loadSeen(),was=new Set(seen?.ids||[]),delElse=[...dirty].filter(id=>!byId.has(id)&&was.has(id)&&items.some(x=>x.id===id));
+  if(delElse.length){const delAt={};
+    try{const r=await sb.rpc("activity_list",{owner:TEAM||null,since:new Date((seen.t||0)-60000).toISOString(),upto:null,lim:2000});
+      if(!r.error&&Array.isArray(r.data))for(const a of r.data)if(a?.action==="delete"&&delElse.includes(a.item_id))delAt[a.item_id]=Math.max(delAt[a.item_id]||0,Date.parse(a.at)||0)}catch{}
+    for(const id of delElse){const Lc=items.find(x=>x.id===id);if(delAt[id]&&delAt[id]<(Lc.u||0))continue;
+      items=items.filter(x=>x.id!==id);dirty.delete(id);n++}}
   for(const id of [...gone]){const S=byId.get(id);
     if(!S){gone.delete(id);delete goneT[id];continue}            // already gone on the server
     if((S.u||0)>(goneT[id]||0)){items.push(S);gone.delete(id);delete goneT[id];n++}}
@@ -2206,7 +2216,7 @@ async function syncNow(){
       else{({error}=await sb.rpc("my_save",{upserts:ups,deletes:del}));   // merge item by item, so phone and website never overwrite each other
         if(error&&error.code==="PGRST202")({error}=await sb.from("user_data").upsert({user_id:me.id,items,updated_at:new Date().toISOString()}))}
     }
-    if(!error){ups.forEach(u=>{if(items.find(i=>i.id===u.id)===u)dirty.delete(u.id)});del.forEach(id=>{gone.delete(id);delete goneT[id]})}
+    if(!error){ups.forEach(u=>{if(items.find(i=>i.id===u.id)===u)dirty.delete(u.id)});del.forEach(id=>{gone.delete(id);delete goneT[id]});markSeen(items.filter(i=>!dirty.has(i.id)))}
   }catch(e){error=e}
   syncing=false;
   if(error){syncFail=true;needCheck=true;savePending();setTimeout(scheduleSync,15000);return}
@@ -2244,7 +2254,7 @@ async function pull(){
   try{if(TEAM){const r=await teamLoad(TEAM);if(!r.error)data=r.data}
     else{const r=await sb.from("user_data").select("items").eq("user_id",me.id).maybeSingle();if(!r.error)data=r.data?.items}}catch{}
   if(!Array.isArray(data)||dirty.size||gone.size||syncing)return;
-  if(JSON.stringify(data)===JSON.stringify(items))return;
+  markSeen(data);if(JSON.stringify(data)===JSON.stringify(items))return;
   items=data;saveLocal();render();
 }
 setInterval(pull,60000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)pull()});
@@ -2264,13 +2274,13 @@ function teamUI(){ROLE=TEAM?roleOf(TEAM):"owner";const h=document.documentElemen
   fillModeSel()}
 async function enterTeam(owner){
   await flush();
-  let data=null,denied=false;try{const r=await teamLoad(owner);if(!r.error)data=r.data;else denied=/not a member|owner inactive/i.test(r.error.message||"")}catch{}
+  let data=null,denied=false,fresh=false;try{const r=await teamLoad(owner);if(!r.error){data=r.data;fresh=Array.isArray(data)}else denied=/not a member|owner inactive/i.test(r.error.message||"")}catch{}
   if(denied)dropTeamCache(owner);   // removed from the company (or it is closed): never show the old copy kept on this phone
   if(!Array.isArray(data)&&!denied){try{data=JSON.parse(localStorage.getItem("hantigo.cache."+me.id+".team."+owner)||"null")}catch{}
     if(!Array.isArray(data))data=await idbGet("hantigo.cache."+me.id+".team."+owner);data=teamScope(data,roleOf(owner))}
   if(!Array.isArray(data)){showBanner(L("Akoonka shirkadda lama furi karo hadda. Isku day mar kale.","Cannot open the company account right now. Try again.","تعذّر فتح حساب الشركة الآن. حاول مرة أخرى.","Akaunti ya kampuni haiwezi kufunguliwa sasa. Jaribu tena."));fillModeSel();return false}
   if(!TEAM)ownItems=items;
-  TEAM=owner;ROLE=roleOf(owner);loadRegPerm(owner);items=data;mode="cloud";dirty.clear();gone.clear();restorePending();saveLocal();if(dirty.size||gone.size)scheduleSync();
+  TEAM=owner;ROLE=roleOf(owner);loadRegPerm(owner);items=data;mode="cloud";if(fresh&&!loadPending())markSeen(data);dirty.clear();gone.clear();restorePending();saveLocal();if(dirty.size||gone.size)scheduleSync();
   applyMode("business");teamUI();render();return true}
 async function leaveTeam(){await flush();TEAM=null;items=ownItems||loadLocal()||[];ownItems=null;dirty.clear();gone.clear();restorePending();teamUI();if(dirty.size||gone.size)scheduleSync()}
 async function loadStaff(){
@@ -2357,7 +2367,7 @@ async function enter(user){
   let cached=loadLocal();if(!Array.isArray(cached))cached=await idbGet(cacheKey());const pend=loadPending();
   let data=null,error=null;
   if(online())try{({data,error}=await sb.from("user_data").select("items").eq("user_id",me.id).maybeSingle())}catch(e){error=e}else error={message:"offline"};
-  if(data){items=data.items||[];
+  if(data){items=data.items||[];if(!pend)markSeen(items);   // with changes waiting, keep the old list so they are compared with it
     if(pend&&Array.isArray(cached)){for(const id of pend.d||[]){const d=cached.find(x=>x.id===id);if(!d)continue;const i=items.findIndex(x=>x.id===id);if(i>=0)items[i]=d;else items.push(d);dirty.add(id)}
       for(const id of pend.g||[]){items=items.filter(x=>x.id!==id);gone.add(id)}}}
   else if(cached)items=cached;
