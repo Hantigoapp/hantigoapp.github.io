@@ -4988,13 +4988,24 @@ function actWhat(x){if(!x)return"";const k=x.kind;
   if(k==="debt")return `💳 ${L("Deyn","Debt","دين","Deni")} · ${x.name||""}`;
   if(k==="bill")return `🧾 ${L("Kharash joogto ah","Regular expense","مصروف ثابت","Gharama ya kawaida")} · ${T(x.name||"")}`;
   if(k==="goal")return `🎯 ${L("Yool / kayd","Goal / savings","هدف / ادخار","Lengo / akiba")} · ${x.name||""}`;
+  if(k==="stk")return `📦 ${L("Bakhaarka","Inventory","المخزون","Hifadhi")} · ${x.name||""}${x.del?" (🗑 "+L("la tirtiray","deleted","محذوف","imefutwa")+")":""}`;
   if(k==="inv")return `🧾 ${x.k==="q"?L("Qaansheeg","Invoice","فاتورة","Ankara"):L("Rasiid","Receipt","إيصال","Risiti")} ${x.no?"#"+x.no:""} · ${x.cust||""}`;
   return k||""}
 const ACT_F=[["amount",()=>L("Qadarka","Amount","المبلغ","Kiasi")],["total",()=>L("Wadarta","Total","المجموع","Jumla")],["target",()=>L("Hadafka","Target","الهدف","Lengo")],["saved",()=>L("La kaydiyay","Saved","المدخر","Imehifadhiwa")],["paid",()=>L("La bixiyay","Paid","المدفوع","Imelipwa")],
   ["type",()=>L("Nooca","Type","النوع","Aina")],["cat",()=>L("Qaybta","Category","الفئة","Aina")],["date",()=>L("Taariikhda","Date","التاريخ","Tarehe")],["method",()=>L("Habka","Method","الطريقة","Njia")],["place",()=>L("Meesha","Place","المكان","Mahali")],["note",()=>L("Faahfaahin","Details","التفاصيل","Maelezo")],["name",()=>L("Magaca","Name","الاسم","Jina")],["due",()=>L("Taariikhda la bixinayo","Due date","تاريخ الاستحقاق","Tarehe ya kulipa")],["cust",()=>L("Macmiilka","Customer","العميل","Mteja")]];
 const ACT_MONEY=new Set(["amount","total","target","saved","paid"]);
 function actFv(f,v){if(v==null||v==="")return"—";if(ACT_MONEY.has(f))return money(Number(v));if(f==="type")return v==="tr"?L("Wareejin","Transfer","تحويل","Uhamisho"):v==="in"?L("Soo galay","Money in","دخل","Pesa iliyoingia"):L("Ka baxay","Money out","خرج","Pesa iliyotoka");if(f==="date"||f==="due")return fmtD(v)||String(v);if(f==="cat"||f==="method")return T(String(v));return String(v)}
-function actDiff(b,a){if(!b||!a)return[];return ACT_F.filter(([f])=>String(b[f]??"")!==String(a[f]??"")).map(([f,lab])=>({f,lab:lab(),from:actFv(f,b[f]),to:actFv(f,a[f])}))}
+function actDiff(b,a){if(!b||!a)return[];if(a.kind==="stk")return actStkDiff(b,a);return ACT_F.filter(([f])=>String(b[f]??"")!==String(a[f]??"")).map(([f,lab])=>({f,lab:lab(),from:actFv(f,b[f]),to:actFv(f,a[f])}))}
+/* v189: inventory items: quantity fixed (from → to, reason), deleted, brought back, prices / name changed */
+function actStkDiff(b,a){const seen=new Set((Array.isArray(b.fx)?b.fx:[]).map(x=>x.at)),out=[],u=a.unit?" "+a.unit:"";
+  for(const x of (Array.isArray(a.fx)?a.fx:[]))if(!seen.has(x.at)){const r=x.r?` (“${x.r}”)`:"";
+    if(x.k==="q")out.push({f:"q",lab:L("Tirada","Quantity","الكمية","Idadi")+r,from:stkN(x.f)+u,to:stkN(x.t)+u});
+    else if(x.k==="del")out.push({f:"del",lab:"🗑 "+L("La tirtiray","Deleted","حُذف","Imefutwa")+r,from:stkN(x.f)+u,to:"—"});
+    else if(x.k==="back")out.push({f:"back",lab:"↩ "+L("Dib loo soo celiyay","Brought back","أُعيد","Imerudishwa"),from:"🗑",to:"✓"})}
+  for(const [f,lab,m] of [["name",L("Magaca","Name","الاسم","Jina")],["buy",L("Qiimaha iibsiga","Buying price","سعر الشراء","Bei ya kununua"),1],["sell",L("Qiimaha iibka","Selling price","سعر البيع","Bei ya kuuza"),1],["unit",L("Halbeegga","Unit","الوحدة","Kipimo")],["grp",L("Qaybta","Section","القسم","Sehemu")]])
+    if(String(b[f]??"")!==String(a[f]??""))out.push({f,lab,from:b[f]==null||b[f]===""?"—":m?money(Number(b[f])):String(b[f]),to:a[f]==null||a[f]===""?"—":m?money(Number(a[f])):String(a[f])});
+  if(!out.length&&String(b.q??"")!==String(a.q??""))out.push({f:"q",lab:L("Tirada","Quantity","الكمية","Idadi"),from:stkN(b.q),to:stkN(a.q)});
+  return out}
 function actRows(){let r=ACT.rows||[];const s=actSince(ACT.per);
   if(s)r=r.filter(x=>new Date(x.at)>=s);
   if(ACT.act!=="all")r=r.filter(x=>x.action===ACT.act);
@@ -6669,6 +6680,16 @@ html[data-mode="business"] #hubSw{grid-template-columns:repeat(var(--hn,4),minma
 .ska{display:flex;flex-wrap:wrap;gap:6px}.ska button{padding:6px 10px;font-size:.85rem}
 .ska .sksell{color:var(--in);font-weight:600}.ska .skbuy{color:var(--out);font-weight:600}
 .skcount{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.skcount input{width:110px}
+.skfix{display:grid;gap:8px;border:1px solid var(--accent);border-radius:12px;padding:10px 12px;background:var(--bg)}
+.skfix .note b{color:var(--ink)}.skfixr{display:flex;gap:6px;flex-wrap:wrap}.skfixr input{flex:1 1 140px;min-width:0}.skfix .goal-actions{margin:0}
+.skdelb{border-color:var(--out)}.skdanger{background:var(--out)!important;border-color:var(--out)!important}
+.skdmv{display:flex;gap:8px;align-items:flex-start;font-size:.88rem}.skdmv input{width:18px;height:18px;flex:0 0 auto;margin-top:2px}
+.skfxl{font-size:.8rem;margin:0}
+.skhist{display:grid;gap:8px;border-top:1px dashed var(--line);padding-top:8px}
+.skhl{list-style:none;margin:0;padding:0;display:grid;gap:6px}.skhl li{display:grid;gap:2px;padding:6px 0;border-bottom:1px solid var(--line)}.skhl li:last-child{border-bottom:0}
+.skhl small{color:var(--muted);font-size:.78rem}.skhl .skhf span{color:var(--accent);font-weight:600}.skhb{display:flex;gap:6px;flex-wrap:wrap}
+.skgone{border:1px dashed var(--line);border-radius:14px;padding:8px 12px;display:grid;gap:8px}.skgone>summary{cursor:pointer;font-weight:600}
+.skrow.gone{opacity:.85;border-style:dashed}
 .sktag{font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--out-soft);color:var(--out)}
 #stkRow .note{grid-column:1/-1;margin:0}
 .skdl{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0}
@@ -6684,7 +6705,11 @@ html[data-mode="business"] #hubSw{grid-template-columns:repeat(var(--hn,4),minma
 BK_KINDS.push("stk");
 HUBS.stk=["📦",["Bakhaarka","Inventory","المخزون","Hifadhi"],["Alaabta, tirada iyo qiimaha: iibku wuu dhimayaa, iibsashaduna way kordhinaysaa","Items, quantity and prices: a sale lowers it, a purchase raises it","الأصناف والكمية والأسعار: البيع ينقصها والشراء يزيدها","Bidhaa, idadi na bei: mauzo hupunguza, ununuzi huongeza"]];
 HUB_OF.skPanel="stk";
-const stkAll=()=>items.filter(i=>i.kind==="stk"&&(i.mode||"business")==="business").sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
+const stkAll=()=>items.filter(i=>i.kind==="stk"&&!i.del&&(i.mode||"business")==="business").sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
+/* v189 (AM 2026-11-26): corrections. Deleted items stay as a hidden record (del:1) so the owner sees what was deleted, when and why, and can bring it back.
+   Every correction is kept on the item (fx: when, who, from → to, reason) and shown in the list, the history and the reports. */
+const stkGone=()=>items.filter(i=>i.kind==="stk"&&i.del&&(i.mode||"business")==="business").sort((a,b)=>String(b.delAt||"").localeCompare(String(a.delAt||"")));
+const stkFxAdd=(s,e)=>[...(Array.isArray(s.fx)?s.fx:[]),{at:new Date().toISOString(),by:(typeof realMail==="function"&&realMail())||me?.email||"",...e}].slice(-30);
 const stkTx=()=>items.filter(t=>t.kind==="tx"&&t.stk&&(t.mode||"person")==="business"&&(t.type==="in"||t.type==="out"));
 const stkN=v=>{v=Math.round(Number(v||0)*1000)/1000;return Number.isInteger(v)?String(v):String(v)};
 function stkQty(s,txs){let q=Number(s.q||0);for(const t of txs||stkTx())if(t.stk===s.id){const n=Number(t.sq||0);q+=t.type==="out"?n:-n}return Math.round(q*1000)/1000}
@@ -6723,7 +6748,7 @@ function skFormHtml(s){const v=(k,d="")=>esc(s?String(s[k]??d):d);
     <div class="goal-actions"><button class="primary" type="submit">${SKT.save()}</button>${s?`<button type="button" id="skCancel">${SKT.cancel()}</button>`:""}</div></form>`}
 function renderStk(){const P=$("skPanel");if(!P)return;
   const on=MODE==="business"&&hubOn()&&stkOn();if(!on){if(P.innerHTML)P.innerHTML="",skKey="";return}
-  const S=stkStats(),ed=stkEdit(),key=JSON.stringify([LANG,currency(),ed,skEdit,skQ,skF,skMsg,skDlP,S.l.map(x=>[x.s.id,x.s.u,x.q])]);
+  const S=stkStats(),ed=stkEdit(),key=JSON.stringify([LANG,currency(),ed,skEdit,skQ,skF,skMsg,skDlP,S.l.map(x=>[x.s.id,x.s.u,x.q]),stkGone().map(g=>[g.id,g.u])]);
   if(P.dataset.k===key)return;
   const act=document.activeElement,keepForm=act&&P.contains(act)&&(act.closest("#skForm")||act.id==="skQ");
   if(keepForm&&skKey===JSON.stringify([LANG,skEdit])){P.dataset.k=key;skList(P,S,ed);return}   // never wipe a form the owner is typing in
@@ -6737,7 +6762,8 @@ function renderStk(){const P=$("skPanel");if(!P)return;
     <span class="note ok" id="skMsg" role="status">${esc(skMsg)}</span>
     <input id="skQ" type="search" maxlength="40" autocomplete="off" value="${esc(skQ)}" aria-label="${esc(L("Raadi alaab","Search items","ابحث عن صنف","Tafuta bidhaa"))}" placeholder="🔍 ${esc(L("Raadi alaab","Search items","ابحث عن صنف","Tafuta bidhaa"))}"${S.n?"":" hidden"}>
     <div class="sklist" id="skList"></div>
-    ${S.n?skFormBox(ed,cur):""}`;
+    ${S.n?skFormBox(ed,cur):""}
+    ${ed?skGoneHtml():""}`;
   skList(P,S,ed)}
 let skFormBox=(ed,cur)=>ed?skFormHtml(cur):`<p class="note">🔒 ${L("Alaab cusub ama beddel waxaa sameyn kara mulkiilaha shirkadda. Adiguna iib iyo iibsasho waad qori kartaa.","Only the company owner can add or edit items. You can still record sales and purchases.","يمكن لمالك الشركة فقط إضافة الأصناف أو تعديلها. ويمكنك تسجيل البيع والشراء.","Mmiliki tu ndiye anaweza kuongeza au kuhariri bidhaa. Unaweza kuandika mauzo na ununuzi.")}</p>`
 /* v187 (AM 12:44): the inventory paper: every item + every purchase and sale, Excel / Word / PDF */
@@ -6750,12 +6776,12 @@ function stkDlHtml(){return `<div class="skdl" id="skDl"><b>📄 ${L("Warqadda b
     <button type="button" data-skdl="x">📊 Excel</button><button type="button" data-skdl="w">📝 Word</button><button type="button" data-skdl="p">📄 PDF</button></div></div>`}
 function stkDl(k){const [f,t]=stkDlRange(),txs=stkTx().filter(x=>!f||(x.date>=f&&x.date<=t)),per=skDlP==="all"?L("Dhammaan","All time","كل الفترات","Muda wote"):`${fmtD(f)} – ${fmtD(t)}`;
   const base=`HantiGo-${brandName()}-bakhaar-${skDlP==="all"?today():f+"-"+t}`.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_");
-  const body=`${coHead()}<p><b>📦 ${esc(L("Warqadda bakhaarka","Inventory report","تقرير المخزون","Ripoti ya hifadhi"))}</b> · ${esc(per)}</p>${stkHtml(txs)}${stFoot()}`;
+  const body=`${coHead()}<p><b>📦 ${esc(L("Warqadda bakhaarka","Inventory report","تقرير المخزون","Ripoti ya hifadhi"))}</b> · ${esc(per)}</p>${stkHtml(txs,[f,t])}${stFoot()}`;
   if(k==="p"){$("printArea").innerHTML=body;document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
     window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50);return}
   if(k==="w"){saveFile(base+".doc","\ufeff"+`<html${RTL?' dir="rtl"':""} xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
 <style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b}h2{font-size:13pt;margin-top:14pt}table{border-collapse:collapse;width:100%;margin:6pt 0}th,td{border:1px solid #999;padding:4pt 6pt;text-align:${RTL?"right":"left"}}th{background:#e8f5ee}.n{text-align:right}</style></head><body>${body}</body></html>`,"application/msword");return}
-  exportSheet(L("Warqadda bakhaarka","Inventory report","تقرير المخزون","Ripoti ya hifadhi")+" · "+per,stkSheets(txs),base)}
+  exportSheet(L("Warqadda bakhaarka","Inventory report","تقرير المخزون","Ripoti ya hifadhi")+" · "+per,stkSheets(txs,[f,t]),base)}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-skdl]");if(b)stkDl(b.dataset.skdl)});
 document.addEventListener("change",e=>{if(e.target.id==="skDlP")skDlP=e.target.value});
 const skOpenG=new Set();let skGInit=false;
@@ -6775,13 +6801,13 @@ function skList(P,S,ed){const go={};S.l.forEach(x=>{const g=x.s.grp||"";if(!(g i
   const rowsH=arr=>arr.map(({s,q})=>{const low=stkLow(s,q),blank=stkBlank(s);
     if(blank&&ed)return `<div class="skrow blank" data-skid="${esc(s.id)}"><div class="skh"><b>${esc(s.name)}</b><span class="sktag sknew">${L("Weli lama buuxin","Not filled yet","لم يُملأ بعد","Bado haijajazwa")}</span></div>
       <div class="skfill"><input type="number" inputmode="decimal" step="any" data-skf="q" aria-label="${esc(SKT.qty())}" placeholder="${esc(L("Tirada","Qty","الكمية","Idadi"))}${s.unit?" ("+esc(s.unit)+")":""}"><input type="number" inputmode="decimal" min="0" step="0.01" data-skf="b" aria-label="${esc(SKT.buy())}" placeholder="${esc(L("Iibsi $","Buy $","شراء $","Kununua $"))}"><input type="number" inputmode="decimal" min="0" step="0.01" data-skf="s" aria-label="${esc(SKT.sell())}" placeholder="${esc(L("Iib $","Sell $","بيع $","Kuuza $"))}"><button type="button" class="primary" data-skfok="${esc(s.id)}">${SKT.save()}</button></div>
-      <div class="ska"><button type="button" class="del" data-skdel="${esc(s.id)}">${L("Tirtir","Delete","حذف","Futa")}</button></div></div>`;
+      <div class="ska"><button type="button" class="del" data-skdel0="${esc(s.id)}">${L("Tirtir","Delete","حذف","Futa")}</button></div></div>`;
     return `<div class="skrow${low?" low":""}" data-skid="${esc(s.id)}"><div class="skh"><b>${esc(s.name)}</b><span class="skq">${esc(stkN(q))}${u(s)}</span></div>
       <div class="skm">${s.grp?`<b>${esc(s.grp)}</b> · `:""}${L("Iibsi","Buy","شراء","Kununua")} ${money(s.buy||0)} · ${L("Iib","Sell","بيع","Kuuza")} ${money(s.sell||0)} · ${L("Qiimaha","Value","القيمة","Thamani")} ${money(Math.max(0,q)*Number(s.buy||0))}${Number(s.sell)>0&&Number(s.buy)>0?` · ${L("Faa'iido halkii","Profit each","الربح للوحدة","Faida kwa moja")} ${money(Number(s.sell)-Number(s.buy))}`:""}
         ${low?` <span class="sktag">${q<=0?L("Wuu dhammaaday","Out of stock","نفد","Imeisha"):L("Wuu yaraaday","Low stock","منخفض","Imepungua")}</span>`:""}</div>
       <div class="ska"><button type="button" class="sksell" data-sksell="${esc(s.id)}">− ${L("Iibiyay","Sold","بيع","Imeuzwa")}</button><button type="button" class="skbuy" data-skbuy="${esc(s.id)}">+ ${L("Soo iibsaday","Bought","شراء","Imenunuliwa")}</button>
-        ${ed?`<button type="button" class="del" data-skcnt="${esc(s.id)}">🔢 ${L("Tiri","Count","جرد","Hesabu")}</button><button type="button" class="del" data-skedit="${esc(s.id)}">✏️ ${L("Beddel","Edit","تعديل","Hariri")}</button><button type="button" class="del" data-skdel="${esc(s.id)}">${L("Tirtir","Delete","حذف","Futa")}</button>`:""}</div>
-      <div class="skcount" data-skcbox="${esc(s.id)}" hidden><span class="note">${L("Tirada dhabta ah ee hadda","Real count now","العدد الفعلي الآن","Idadi halisi sasa")}:</span><input type="number" inputmode="decimal" step="any" value="${esc(stkN(q))}" data-skcin="${esc(s.id)}"><button type="button" class="primary" data-skcok="${esc(s.id)}">${SKT.save()}</button></div></div>`}).join("");
+        ${ed?`<button type="button" class="skfixb" data-skcnt="${esc(s.id)}">🛠 ${L("Sax tirada","Fix quantity","تصحيح الكمية","Sahihisha idadi")}</button><button type="button" class="del" data-skedit="${esc(s.id)}">✏️ ${L("Beddel","Edit","تعديل","Hariri")}</button><button type="button" class="del" data-skhist="${esc(s.id)}">📜 ${L("Taariikhda","History","السجل","Historia")}</button><button type="button" class="del" data-skdel="${esc(s.id)}">🗑 ${L("Tirtir","Delete","حذف","Futa")}</button>`:""}</div>
+      ${skLastFx(s)}${ed?skFixBox(s,q)+skDelBox(s):""}<div class="skhist" data-skhbox="${esc(s.id)}" hidden></div></div>`}).join("");
   if(!many||bySec.length<2||q||skF){$("skList").innerHTML=rowsH(l);return}
   $("skList").innerHTML=bySec.map(b=>{const lo=b.l.filter(x=>stkLow(x.s,x.q)).length,bl=b.l.filter(x=>stkBlank(x.s)).length;
     return `<details class="skgrp" data-skg="${esc(b.g)}"${skOpenG.has(b.g)?" open":""}><summary><b>${esc(b.g||L("Kale","Other","أخرى","Nyingine"))}</b><span class="note">${b.l.length}${bl?" · "+L(`${bl} lama buuxin`,`${bl} not filled`,`${bl} لم تُملأ`,`${bl} hazijajazwa`):""}${lo?` · <span class="sktag">${lo} ${L("yaraaday","low","منخفضة","chache")}</span>`:""}</span></summary><div class="sklist">${rowsH(b.l)}</div></details>`}).join("")}
@@ -6795,6 +6821,80 @@ document.addEventListener("click",async e=>{const b=e.target.closest("[data-skfo
 {const _rh=renderHub;renderHub=function(){_rh();const av=$("appView");if(av.dataset.tab==="hub"&&av.dataset.hub==="stk"&&HUBS.stk&&hubOn())
   $("hubAct").innerHTML=stkEdit()?`<button type="button" class="primary" data-hubact="stknew">➕ ${L("Alaab cusub","New item","صنف جديد","Bidhaa mpya")}</button>`:""}}
 function skFlash(t){skMsg=t;renderStk();setTimeout(()=>{if(skMsg===t){skMsg="";renderStk()}},4000)}
+/* ---------- v189 (AM 2026-11-26): 🛠 fix a wrong quantity (any right number, 0 too), 🗑 delete with a reason, ↩ bring back, 📜 history ---------- */
+const skWhen=iso=>{const d=new Date(iso);if(isNaN(d))return"";const z=n=>String(n).padStart(2,"0");return `${z(d.getDate())}/${z(d.getMonth()+1)}/${d.getFullYear()} ${z(d.getHours())}:${z(d.getMinutes())}`};
+const skBy=e=>!e?"":me&&[String(me.email||""),realMail()].some(x=>x&&x.toLowerCase()===String(e).toLowerCase())?L("Adiga","You","أنت","Wewe"):String(e).split("@")[0];
+const skFxTxt=(f,s)=>{const u=s&&s.unit?" "+s.unit:"";
+  if(f.k==="del")return "🗑 "+L("La tirtiray","Deleted","حُذف","Imefutwa")+(f.f!=null?` (${L("tiradu waxay ahayd","quantity was","كانت الكمية","idadi ilikuwa")} ${stkN(f.f)}${u})`:"");
+  if(f.k==="back")return "↩ "+L("Dib loo soo celiyay","Brought back","أُعيد","Imerudishwa");
+  return "🛠 "+L("Tirada la saxay","Quantity fixed","تم تصحيح الكمية","Idadi imesahihishwa")+`: ${stkN(f.f)} → ${stkN(f.t)}${u}`};
+function skLastFx(s){const f=(Array.isArray(s.fx)?s.fx:[]).filter(x=>x.k==="q").slice(-1)[0];if(!f)return"";
+  return `<div class="note skfxl">${esc(skFxTxt(f,s))} · ${esc(skWhen(f.at))}${f.by?" · 👤 "+esc(skBy(f.by)):""}${f.r?" · “"+esc(f.r)+"”":""}</div>`}
+function skFixBox(s,q){const id=esc(s.id),u=s.unit?" "+esc(s.unit):"";
+  return `<div class="skfix" data-skcbox="${id}" hidden><b>🛠 ${L("Sax tirada","Fix the quantity","تصحيح الكمية","Sahihisha idadi")}: ${esc(s.name)}</b>
+    <span class="note">${L(`Nidaamka hadda wuxuu hayaa <b>${esc(stkN(q))}${u}</b>. Haddii ay qaldan tahay, ku qor tirada saxda ah (0 haddii aysan waxba jirin).`,`The system now shows <b>${esc(stkN(q))}${u}</b>. If that is wrong, type the right number (0 if there is none).`,`يعرض النظام الآن <b>${esc(stkN(q))}${u}</b>. إذا كان خطأ، اكتب الرقم الصحيح (0 إذا لم يوجد شيء).`,`Mfumo sasa unaonyesha <b>${esc(stkN(q))}${u}</b>. Kama si sahihi, andika namba sahihi (0 kama hakuna).`)}</span>
+    <div class="skfixr"><input type="number" inputmode="decimal" min="0" step="any" data-skcin="${id}" aria-label="${esc(L("Tirada saxda ah","Right quantity","الكمية الصحيحة","Idadi sahihi"))}" placeholder="${esc(L("Tirada saxda ah","Right quantity","الكمية الصحيحة","Idadi sahihi"))}"><button type="button" data-skzero="${id}">0 ${L("ka dhig","(zero)","(صفر)","(sifuri)")}</button></div>
+    <input type="text" maxlength="80" data-skcwhy="${id}" aria-label="${esc(L("Sababta","Reason","السبب","Sababu"))}" placeholder="${esc(L("Sababta (ikhtiyaari): tusaale, si qalad ah ayaa loo qoray","Reason (optional): e.g. typed wrongly","السبب (اختياري): مثلًا كُتب خطأ","Sababu (hiari): mf. iliandikwa vibaya"))}">
+    <div class="err" data-skcerr="${id}" role="alert"></div>
+    <div class="goal-actions"><button type="button" class="primary" data-skcok="${id}">✓ ${L("Kaydi tirada saxda ah","Save the right quantity","احفظ الكمية الصحيحة","Hifadhi idadi sahihi")}</button><button type="button" data-skx="${id}">${SKT.cancel()}</button></div></div>`}
+const skMovesOf=id=>stkTx().filter(t=>t.stk===id);
+function skDelBox(s){const id=esc(s.id),m=skMovesOf(s.id),sum=m.reduce((a,t)=>a+Number(t.amount||0),0);
+  return `<div class="skfix skdelb" data-skdbox="${id}" hidden><b>🗑 ${L("Tirtir","Delete","حذف","Futa")}: ${esc(s.name)}</b>
+    <span class="note">${L("Alaabta waa laga saarayaa liiska, tirada iyo warbixinnada. Waxay gelaysaa “Alaabta la tirtiray” hoose, halkaas ayaad dib uga soo celin kartaa.","The item leaves the list, the totals and the reports. It goes to “Deleted items” below, where you can bring it back.","سيُزال الصنف من القائمة والمجاميع والتقارير. ينتقل إلى “الأصناف المحذوفة” بالأسفل ويمكنك إعادته من هناك.","Bidhaa itaondoka kwenye orodha, jumla na ripoti. Itaenda “Bidhaa zilizofutwa” chini, unaweza kuirudisha.")}</span>
+    <input type="text" maxlength="80" data-skdwhy="${id}" aria-label="${esc(L("Sababta","Reason","السبب","Sababu"))}" placeholder="${esc(L("Sababta (ikhtiyaari): tusaale, alaab qalad ah ayaa la geliyay","Reason (optional): e.g. wrong item added","السبب (اختياري): مثلًا أُضيف صنف خطأ","Sababu (hiari): mf. bidhaa isiyo sahihi iliongezwa"))}">
+    ${m.length?`<label class="skdmv"><input type="checkbox" data-skdmv="${id}"> <span>${L(`Sidoo kale tirtir ${m.length} iib / iibsasho ee alaabtan ku xiran (${money(sum)}). Kuwan dib looma soo celin karo.`,`Also delete the ${m.length} sales / purchases linked to this item (${money(sum)}). These cannot be brought back.`,`احذف أيضًا ${m.length} من المبيعات / المشتريات المرتبطة (${money(sum)}). لا يمكن استعادتها.`,`Futa pia mauzo / manunuzi ${m.length} ya bidhaa hii (${money(sum)}). Hayawezi kurudishwa.`)}</span></label>`:""}
+    <div class="goal-actions"><button type="button" class="primary skdanger" data-skdok="${id}">🗑 ${L("Haa, tirtir","Yes, delete","نعم، احذف","Ndiyo, futa")}</button><button type="button" data-skx="${id}">${SKT.cancel()}</button></div></div>`}
+function skBox(kind,id){const sel=`[data-${kind}="${CSS.escape(id)}"]`,x=document.querySelector(sel);if(!x)return;const open=x.hidden;
+  document.querySelectorAll(`#skList [data-skcbox],#skList [data-skdbox],#skList [data-skhbox]`).forEach(e=>{if(e!==x)e.hidden=true});
+  x.hidden=!open;if(!open)return;if(kind==="skhbox")x.innerHTML=skHistHtml(id);
+  x.scrollIntoView({behavior:"smooth",block:"nearest"});setTimeout(()=>x.querySelector("input")?.focus({preventScroll:true}),150)}
+function skHistHtml(id){const s=items.find(i=>i.id===id);if(!s)return"";const u=s.unit?" "+s.unit:"";
+  const ev=[...(Array.isArray(s.fx)?s.fx:[]).map(f=>({w:f.at,f})),...skMovesOf(id).map(t=>({w:t.date+"T"+(String(t.created||"").slice(11,19)||"00:00:00"),t}))].sort((a,b)=>String(b.w).localeCompare(String(a.w)));
+  const ed=stkEdit(),start=s.created?`<li class="note">➕ ${L("La daray","Added","أُضيف","Imeongezwa")} · ${esc(skWhen(s.created))}</li>`:"";
+  if(!ev.length)return `<p class="note" style="margin:0">${L("Weli wax iib, iibsasho ama sixid ah lama qorin.","No sales, purchases or corrections yet.","لا توجد مبيعات أو مشتريات أو تصحيحات بعد.","Bado hakuna mauzo, manunuzi au marekebisho.")}</p><ul class="skhl">${start}</ul>`;
+  return `<b>📜 ${L("Taariikhda","History","السجل","Historia")}: ${esc(s.name)}</b><ul class="skhl">${ev.map(e=>{
+    if(e.f)return `<li class="skhf"><span>${esc(skFxTxt(e.f,s))}</span><small>${esc(skWhen(e.f.at))}${e.f.by?" · 👤 "+esc(skBy(e.f.by)):""}${e.f.r?" · “"+esc(e.f.r)+"”":""}</small></li>`;
+    const t=e.t,inn=t.type==="in";
+    return `<li><span>${inn?"− "+L("Iib","Sale","بيع","Mauzo"):"+ "+L("Iibsasho","Purchase","شراء","Ununuzi")} ${esc(stkN(t.sq))}${esc(u)} · <b class="amt ${inn?"in":"out"}">${money(t.amount||0)}</b>${(t.edits||[]).length?" · ✏️":""}</span><small>${esc(fmtD(t.date))}${t.by?" · 👤 "+esc(skBy(t.by)):""}</small>
+      ${ed?`<span class="skhb"><button type="button" class="del" data-skmed="${esc(t.id)}">✏️ ${L("Sax","Fix","صحّح","Sahihisha")}</button><button type="button" class="del" data-skmdel="${esc(t.id)}">🗑 ${L("Tirtir","Delete","حذف","Futa")}</button></span>`:""}</li>`}).join("")}${start}</ul>
+    ${ed?`<p class="note" style="margin:0">${L("Iib ama iibsasho tirada qaldan leh: riix ✏️ Sax si aad u beddesho tirada ama lacagta, ama 🗑 Tirtir haddii aysan dhicin. Bakhaarku isla markiiba wuu is saxayaa.","A sale or purchase with the wrong quantity: tap ✏️ Fix to change the quantity or money, or 🗑 Delete if it never happened. The stock corrects itself at once.","بيع أو شراء بكمية خطأ: اضغط ✏️ صحّح لتغيير الكمية أو المبلغ، أو 🗑 حذف إذا لم يحدث. يتصحح المخزون فورًا.","Mauzo au manunuzi yenye idadi isiyo sahihi: bonyeza ✏️ Sahihisha kubadili idadi au pesa, au 🗑 Futa kama hayakutokea. Hifadhi hujisahihisha mara moja.")}</p>`:""}`}
+function skGoneHtml(){const g=stkGone();if(!g.length)return"";
+  return `<details class="skgone" id="skGone"><summary>🗑 ${L("Alaabta la tirtiray","Deleted items","الأصناف المحذوفة","Bidhaa zilizofutwa")} (${g.length})</summary>
+    <p class="note" style="margin:0">${L("Alaabtan laguma xisaabiyo bakhaarka iyo warbixinnada. ↩ Soo celi haddii si qalad ah loo tirtiray.","These are not counted in the stock or reports. ↩ Bring back if deleted by mistake.","لا تُحسب في المخزون أو التقارير. ↩ أعِدها إذا حُذفت بالخطأ.","Hizi hazihesabiwi kwenye hifadhi wala ripoti. ↩ Rudisha kama ilifutwa kwa makosa.")}</p>
+    <div class="sklist">${g.map(s=>`<div class="skrow gone"><div class="skh"><b>${esc(s.name)}</b><span class="note">${esc(skWhen(s.delAt))}</span></div>
+      <div class="skm">${s.delQ!=null?`${L("Tiradu markaas","Quantity then","الكمية حينها","Idadi wakati huo")}: ${esc(stkN(s.delQ))}${s.unit?" "+esc(s.unit):""}`:""}${s.delBy?" · 👤 "+esc(skBy(s.delBy)):""}${s.delWhy?" · “"+esc(s.delWhy)+"”":""}</div>
+      <div class="ska"><button type="button" class="skbuy" data-skback="${esc(s.id)}">↩ ${L("Soo celi","Bring back","أعِد","Rudisha")}</button><button type="button" class="del" data-skwipe="${esc(s.id)}">${L("Tirtir gebi ahaanba","Delete for good","احذف نهائيًا","Futa kabisa")}</button></div></div>`).join("")}</div></details>`}
+document.addEventListener("click",async e=>{const t=e.target,b=t.closest("[data-skzero],[data-skcok],[data-skx],[data-skdel],[data-skdok],[data-skhist],[data-skmed],[data-skmdel],[data-skback],[data-skwipe]");if(!b||!stkEdit())return;const d=b.dataset;
+  const ok=m=>{skKey="";$("skPanel").dataset.k="";skFlash(m)};
+  if(d.skx){b.closest(".skfix").hidden=true;return}
+  if(d.skzero){const i=document.querySelector(`[data-skcin="${CSS.escape(d.skzero)}"]`);if(i){i.value="0";i.focus()}return}
+  if(d.skhist){skBox("skhbox",d.skhist);return}
+  if(d.skdel){skBox("skdbox",d.skdel);return}
+  if(d.skcok){const s=items.find(i=>i.id===d.skcok),inp=document.querySelector(`[data-skcin="${CSS.escape(d.skcok)}"]`),er=document.querySelector(`[data-skcerr="${CSS.escape(d.skcok)}"]`);if(!s||!inp)return;
+    const raw=inp.value.trim(),v=Number(raw);
+    if(raw===""||!isFinite(v)||v<0){if(er)er.textContent=L("Ku qor tirada saxda ah (0 ama ka badan).","Type the right quantity (0 or more).","اكتب الكمية الصحيحة (0 أو أكثر).","Andika idadi sahihi (0 au zaidi).");inp.focus();return}
+    const now=stkQty(s),why=(document.querySelector(`[data-skcwhy="${CSS.escape(d.skcok)}"]`)?.value||"").trim().slice(0,80);
+    if(v===now){b.closest(".skfix").hidden=true;return}
+    await put({...s,q:Math.round((Number(s.q||0)+(v-now))*1000)/1000,fx:stkFxAdd(s,{k:"q",f:now,t:v,...(why?{r:why}:{})})});
+    ok("✓ "+L(`${s.name}: tirada waa la saxay ${stkN(now)} → ${stkN(v)}`,`${s.name}: quantity fixed ${stkN(now)} → ${stkN(v)}`,`${s.name}: تم تصحيح الكمية ${stkN(now)} → ${stkN(v)}`,`${s.name}: idadi imesahihishwa ${stkN(now)} → ${stkN(v)}`));return}
+  if(d.skdok){const s=items.find(i=>i.id===d.skdok);if(!s)return;const why=(document.querySelector(`[data-skdwhy="${CSS.escape(d.skdok)}"]`)?.value||"").trim().slice(0,80),
+      mv=document.querySelector(`[data-skdmv="${CSS.escape(d.skdok)}"]`)?.checked,q=stkQty(s),by=realMail()||me?.email||"";
+    if(skEdit===s.id)skEdit=null;
+    const doc={...s,del:1,delAt:new Date().toISOString(),delQ:q,delBy:by,fx:stkFxAdd(s,{k:"del",f:q,...(why?{r:why}:{})})};if(why)doc.delWhy=why;else delete doc.delWhy;
+    await put(doc);let n=0;if(mv)for(const t of skMovesOf(s.id)){await remove(t.id);n++}
+    {const cb=$("coStkBox");if(cb){cb.dataset.k="";try{coStkBox()}catch{}}}
+    ok("🗑 "+L(`${s.name} waa la tirtiray${n?` (iyo ${n} iib / iibsasho)`:""}. Waxaad ka heli kartaa “Alaabta la tirtiray”.`,`${s.name} deleted${n?` (and ${n} sales / purchases)`:""}. You find it in “Deleted items”.`,`تم حذف ${s.name}${n?` (و${n} مبيعات / مشتريات)`:""}. تجده في “الأصناف المحذوفة”.`,`${s.name} imefutwa${n?` (na mauzo / manunuzi ${n})`:""}. Iko kwenye “Bidhaa zilizofutwa”.`));return}
+  if(d.skback){const s=items.find(i=>i.id===d.skback);if(!s)return;
+    if(stkAll().some(x=>ckey(x.name)===ckey(s.name))){ok("⚠️ "+L(`“${s.name}” mar kale ayaa bakhaarka lagu daray. Mid qura ayaa jiri kara.`,`“${s.name}” was added again already. Only one can exist.`,`“${s.name}” موجود بالفعل. يمكن وجود واحد فقط.`,`“${s.name}” tayari imeongezwa tena. Moja tu inaweza kuwepo.`));return}
+    const doc={...s,fx:stkFxAdd(s,{k:"back"})};delete doc.del;delete doc.delAt;delete doc.delQ;delete doc.delBy;delete doc.delWhy;await put(doc);
+    {const cb=$("coStkBox");if(cb){cb.dataset.k="";try{coStkBox()}catch{}}}
+    ok("↩ "+L(`${s.name} dib ayaa loo soo celiyay.`,`${s.name} is back.`,`أُعيد ${s.name}.`,`${s.name} imerudishwa.`));return}
+  if(d.skwipe){if(!b.classList.contains("arm")){b.classList.add("arm");b.textContent=L("Hubi: gebi ahaanba","Sure? For good","متأكد؟ نهائيًا","Una uhakika? Kabisa");setTimeout(()=>{b.classList.remove("arm");b.textContent=L("Tirtir gebi ahaanba","Delete for good","احذف نهائيًا","Futa kabisa")},3500);return}
+    const s=items.find(i=>i.id===d.skwipe);await remove(d.skwipe);if(s)ok("🗑 "+L(`${s.name} gebi ahaanba waa la tirtiray.`,`${s.name} deleted for good.`,`حُذف ${s.name} نهائيًا.`,`${s.name} imefutwa kabisa.`));return}
+  if(d.skmed){const x=items.find(i=>i.id===d.skmed);if(!x)return;goTab("add");startEdit(x);return}
+  if(d.skmdel){if(!b.classList.contains("arm")){b.classList.add("arm");b.textContent=L("Hubi: tirtir","Sure? Delete","متأكد؟ احذف","Una uhakika? Futa");setTimeout(()=>{b.classList.remove("arm");b.textContent="🗑 "+L("Tirtir","Delete","حذف","Futa")},3500);return}
+    const x=items.find(i=>i.id===d.skmdel),s=x&&items.find(i=>i.id===x.stk);await remove(d.skmdel);
+    if(x)ok("🗑 "+L(`${x.type==="in"?"Iibka":"Iibsashada"} ${stkN(x.sq)} ${s?s.name:""} waa la tirtiray. Bakhaarka waa la saxay.`,`The ${x.type==="in"?"sale":"purchase"} of ${stkN(x.sq)} ${s?s.name:""} was deleted. Stock corrected.`,`حُذف ${x.type==="in"?"بيع":"شراء"} ${stkN(x.sq)} ${s?s.name:""}. تم تصحيح المخزون.`,`${x.type==="in"?"Mauzo":"Ununuzi"} ya ${stkN(x.sq)} ${s?s.name:""} imefutwa. Hifadhi imesahihishwa.`));return}});
 document.addEventListener("submit",async e=>{if(e.target.id!=="skForm")return;e.preventDefault();if(!stkEdit())return;
   const name=$("skName").value.trim().replace(/\s+/g," "),num=id=>{const v=$(id).value.trim();return v===""?null:Number(v)};
   const qty=num("skQty"),buy=num("skBuy"),sell=num("skSell"),min=num("skMin"),unit=$("skUnit").value.trim(),grp=($("skGrp")?.value||"").trim().slice(0,30);
@@ -6804,7 +6904,7 @@ document.addEventListener("submit",async e=>{if(e.target.id!=="skForm")return;e.
   if(stkAll().some(s=>s.id!==old?.id&&ckey(s.name)===ckey(name))){$("skErr").textContent=L(`"${name}" horay ayuu bakhaarka ugu jiray. Riix ✏️ Beddel.`,`"${name}" is already in the inventory. Tap ✏️ Edit.`,`"${name}" موجود في المخزون. اضغط ✏️ تعديل.`,`"${name}" tayari iko kwenye hifadhi. Bonyeza ✏️ Hariri.`);return}
   const base=old?{...old}:{id:uid(),kind:"stk",mode:"business",created:new Date().toISOString(),q:0};
   const doc={...base,name,unit,grp,buy:buy||0,sell:sell||0,mode:"business"};delete doc.pre;if(min>0)doc.min=min;else delete doc.min;
-  if(qty!=null){const now=old?stkQty(old):0;doc.q=Math.round((Number(base.q||0)+(qty-now))*1000)/1000}
+  if(qty!=null){const now=old?stkQty(old):0;doc.q=Math.round((Number(base.q||0)+(qty-now))*1000)/1000;if(old&&qty!==now)doc.fx=stkFxAdd(old,{k:"q",f:now,t:qty})}
   try{skEdit=null;await put(doc);try{document.activeElement?.blur?.()}catch{}{const cb=$("coStkBox");if(cb){cb.dataset.k="";coStkBox()}}skKey="";$("skPanel").dataset.k="";skFlash("✓ "+L(`${name} waa la kaydiyay.`,`${name} saved.`,`تم حفظ ${name}.`,`${name} imehifadhiwa.`))}
   catch{$("skErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Can't save right now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Haiwezi kuhifadhi sasa. Jaribu tena.")}});
 document.addEventListener("click",e=>{const t=e.target.closest("#skSum [data-skf]");if(!t)return;const f=t.dataset.skf;skF=skF===f?"":f;const P=$("skPanel");P.dataset.k="";skList(P,stkStats(),stkEdit());$("skList").scrollIntoView({behavior:"smooth",block:"nearest"})});
@@ -6812,13 +6912,11 @@ document.addEventListener("input",e=>{if(e.target.id==="skQ"){skQ=e.target.value
 document.addEventListener("click",async e=>{const t=e.target;
   if(t.closest('[data-hubact="stknew"]')){skEdit=null;skKey="";$("skPanel").dataset.k="";renderStk();setTimeout(()=>{$("skForm")?.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("skName")?.focus({preventScroll:true}),300)},40);return}
   if(t.id==="skCancel"){skEdit=null;skKey="";$("skPanel").dataset.k="";renderStk();return}
-  const b=t.closest("[data-skedit],[data-skdel],[data-skcnt],[data-skcok],[data-sksell],[data-skbuy]");if(!b)return;const d=b.dataset;
+  const b=t.closest("[data-skedit],[data-skdel0],[data-skcnt],[data-sksell],[data-skbuy]");if(!b)return;const d=b.dataset;
   if(d.skedit){skEdit=d.skedit;skKey="";$("skPanel").dataset.k="";renderStk();setTimeout(()=>{$("skForm")?.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("skName")?.focus({preventScroll:true}),300)},40);return}
-  if(d.skcnt){const x=document.querySelector(`[data-skcbox="${CSS.escape(d.skcnt)}"]`);if(x){x.hidden=!x.hidden;if(!x.hidden)x.querySelector("input").focus()}return}
-  if(d.skcok){const s=items.find(i=>i.id===d.skcok),v=Number(document.querySelector(`[data-skcin="${CSS.escape(d.skcok)}"]`)?.value);if(!s||!isFinite(v)||!stkEdit())return;
-    const now=stkQty(s);if(v!==now){await put({...s,q:Math.round((Number(s.q||0)+(v-now))*1000)/1000});skFlash("✓ "+L(`${s.name}: ${stkN(now)} → ${stkN(v)}`,`${s.name}: ${stkN(now)} → ${stkN(v)}`,`${s.name}: ${stkN(now)} → ${stkN(v)}`,`${s.name}: ${stkN(now)} → ${stkN(v)}`))}else{$("skPanel").dataset.k="";renderStk()}return}
-  if(d.skdel){if(!stkEdit())return;if(!b.classList.contains("arm")){b.classList.add("arm");b.textContent=L("Hubi: tirtir","Sure? Delete","متأكد؟ احذف","Una uhakika? Futa");setTimeout(()=>{b.classList.remove("arm");b.textContent=L("Tirtir","Delete","حذف","Futa")},3500);return}
-    const s=items.find(i=>i.id===d.skdel);if(skEdit===d.skdel)skEdit=null;await remove(d.skdel);if(s)skFlash("🗑 "+L(`${s.name} waa la tirtiray. Lacagihii hore way jiraan.`,`${s.name} deleted. Earlier money entries stay.`,`تم حذف ${s.name}. تبقى المعاملات السابقة.`,`${s.name} imefutwa. Miamala ya awali inabaki.`));return}
+  if(d.skcnt){skBox("skcbox",d.skcnt);return}
+  if(d.skdel0){if(!stkEdit())return;if(!b.classList.contains("arm")){b.classList.add("arm");b.textContent=L("Hubi: tirtir","Sure? Delete","متأكد؟ احذف","Una uhakika? Futa");setTimeout(()=>{b.classList.remove("arm");b.textContent=L("Tirtir","Delete","حذف","Futa")},3500);return}
+    const s=items.find(i=>i.id===d.skdel0);if(skEdit===d.skdel0)skEdit=null;await remove(d.skdel0);if(s)skFlash("🗑 "+L(`${s.name} waa la tirtiray.`,`${s.name} deleted.`,`تم حذف ${s.name}.`,`${s.name} imefutwa.`));return}
   if(d.sksell||d.skbuy)stkGoAdd(d.sksell||d.skbuy,d.sksell?"in":"out")});
 /* ---------- Ku dar: pick an item, the quantity and money go together ---------- */
 let stkAuto=false;
@@ -6861,7 +6959,7 @@ function stkSet(doc){const row=$("stkRow"),id=row&&!row.hidden?$("txStk").value:
     /* owner: the item learns the price (cost = latest purchase; sale price only if it had none) */
     const s=items.find(i=>i.id===id);if(s&&p>0&&stkEdit()){const k=doc.type==="out"?"buy":"sell";
       if(k==="buy"?Number(s.buy)!==p:!Number(s.sell))setTimeout(()=>{const c=items.find(i=>i.id===id);if(c)put({...c,[k]:p}).catch(()=>{})},0)}}
-  else if(row&&!row.hidden){delete doc.stk;delete doc.sq;delete doc.sp;delete doc.sc}
+  else if(row&&!row.hidden&&!(doc.stk&&!id&&items.some(i=>i.id===doc.stk&&i.del))){delete doc.stk;delete doc.sq;delete doc.sp;delete doc.sc}
   return doc}
 function stkReset(){if(!$("txStk"))return;$("txStk").value="";$("txStkQ").value="";$("txStkP").value="";stkAuto=false;stkHint()}
 {const _se=startEdit;startEdit=function(t){_se(t);try{stkRowUI(true);$("txStk").value=t.stk&&items.some(i=>i.id===t.stk)?t.stk:"";$("txStkQ").value=t.stk?stkN(t.sq):"";$("txStkP").value=t.stk?(t.sp?String(t.sp):(t.sq?String(Math.round(t.amount/t.sq*100)/100):"")):"";stkAuto=false;stkHint()}catch{}}}
@@ -6890,11 +6988,22 @@ function stkMovesSheet(txs){const M=stkMoves(txs);if(!M.rows.length)return [];
 function stkMovesHtml(txs){const M=stkMoves(txs);if(!M.rows.length)return "";
   return `<h2>${esc(SKMT())}</h2><table><tr>${SKMH().map(x=>`<th>${esc(x)}</th>`).join("")}</tr>${M.rows.map(r=>`<tr><td>${esc(fmtD(r.t.date))}</td><td>${esc(r.s.name)}</td><td>${esc(skTy(r.t))}</td><td class="n">${esc(stkN(r.q))}</td><td class="n">${money(r.each)}</td><td class="n" style="color:${r.t.type==="in"?"#0b7a4b":"#c0392b"}">${r.t.type==="in"?"+":"−"}${money(r.a)}</td><td class="n">${r.t.type==="in"?money(r.cost):""}</td><td class="n">${r.t.type==="in"?money(r.pr):""}</td></tr>`).join("")}</table>
     <table style="width:auto">${skMSum(M).map(([k,v])=>`<tr style="font-weight:bold"><td>${esc(k)}</td><td class="n">${money(v)}</td></tr>`).join("")}</table>`}
-function stkSheets(txs){const R=stkRep(txs);if(!R)return [];
-  return [...stkSheets0(R),...stkMovesSheet(txs)]}
+function stkSheets(txs,rng){const R=stkRep(txs);if(!R)return [];
+  return [...stkSheets0(R),...stkMovesSheet(txs),...stkFixSheet(txs,rng)]}
+/* v189: every correction (quantity fixed, item deleted, brought back) in the period, with who and why */
+const SKFH=()=>[L("Goorta","When","الوقت","Lini"),L("Alaabta","Item","الصنف","Bidhaa"),L("Isbeddelka","Change","التغيير","Mabadiliko"),L("Qofka","Person","الشخص","Mtu"),L("Sababta","Reason","السبب","Sababu")];
+const SKFT=()=>"🛠 "+L("Sixitaannada bakhaarka","Inventory corrections","تصحيحات المخزون","Marekebisho ya hifadhi");
+function stkFixes(txs,rng){let [f,t]=rng||["",""];
+  if(!rng){const ds=(txs||[]).map(x=>x.date).filter(Boolean).sort();if(!ds.length)return [];f=ds[0];t=ds[ds.length-1]}
+  const out=[];for(const s of items)if(s.kind==="stk"&&(s.mode||"business")==="business")for(const x of (Array.isArray(s.fx)?s.fx:[])){const d=String(x.at||"").slice(0,10);if(f&&(d<f||d>t))continue;out.push({s,x})}
+  return out.sort((a,b)=>String(a.x.at).localeCompare(String(b.x.at)))}
+function stkFixSheet(txs,rng){const F=stkFixes(txs,rng);if(!F.length)return [];
+  return [{title:SKFT(),head:SKFH(),rows:F.map(({s,x})=>[skWhen(x.at),s.name+(s.unit?" ("+s.unit+")":""),skFxTxt(x,s).replace(/^\S+ /,""),skBy(x.by),x.r||""])}]}
+function stkFixHtml(txs,rng){const F=stkFixes(txs,rng);if(!F.length)return "";
+  return `<h2>${esc(SKFT())}</h2><table><tr>${SKFH().map(x=>`<th>${esc(x)}</th>`).join("")}</tr>${F.map(({s,x})=>`<tr><td>${esc(skWhen(x.at))}</td><td>${esc(s.name)}</td><td>${esc(skFxTxt(x,s).replace(/^\S+ /,""))}</td><td>${esc(skBy(x.by))}</td><td>${esc(x.r||"")}</td></tr>`).join("")}</table>`}
 function stkSheets0(R){
   return [{title:SKTITLE(),head:SKH(),rows:[...R.rows.map(r=>[r.s.name+(r.s.unit?" ("+r.s.unit+")":""),r.s.grp||"",r.q,Number(r.s.buy||0),Number(r.s.sell||0),r.val,r.sold,r.bought,skState(r)]),[L("Wadarta","Total","المجموع","Jumla"),"","","","",R.val,R.sold,R.bought,R.low?L(`${R.low} yaraaday`,`${R.low} low`,`${R.low} منخفضة`,`${R.low} chache`):""]],totalRow:1}]}
-function stkHtml(txs){const R=stkRep(txs);if(!R)return "";return stkHtml0(R)+stkMovesHtml(txs)}
+function stkHtml(txs,rng){const R=stkRep(txs);if(!R)return "";return stkHtml0(R)+stkMovesHtml(txs)+stkFixHtml(txs,rng)}
 function stkHtml0(R){const h=SKH();
   return `<h2>${esc(SKTITLE())}</h2><table><tr>${h.map(x=>`<th>${esc(x)}</th>`).join("")}</tr>${R.rows.map(r=>`<tr><td>${esc(r.s.name)}${r.s.unit?` <small style="color:#666">(${esc(r.s.unit)})</small>`:""}</td><td>${esc(r.s.grp||"")}</td><td class="n"${r.low?' style="color:#c0392b;font-weight:700"':""}>${esc(stkN(r.q))}</td><td class="n">${money(r.s.buy||0)}</td><td class="n">${money(r.s.sell||0)}</td><td class="n">${money(r.val)}</td><td class="n">${esc(stkN(r.sold))}</td><td class="n">${esc(stkN(r.bought))}</td><td>${esc(skState(r))}</td></tr>`).join("")}
     <tr style="font-weight:bold"><td>${L("Wadarta","Total","المجموع","Jumla")}</td><td></td><td></td><td></td><td></td><td class="n">${money(R.val)}</td><td class="n">${esc(stkN(R.sold))}</td><td class="n">${esc(stkN(R.bought))}</td><td>${R.low?esc(L(`${R.low} yaraaday`,`${R.low} low`,`${R.low} منخفضة`,`${R.low} chache`)):""}</td></tr></table>`}

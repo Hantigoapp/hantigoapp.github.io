@@ -18,7 +18,7 @@ create table if not exists public.activity_log (
   at          timestamptz not null default now(),                     -- when the change was made (phone time, if sane)
   synced_at   timestamptz not null default now(),                     -- when it reached the server
   action      text not null check (action in ('add', 'edit', 'delete', 'bulk')),
-  kind        text,                                                   -- tx, debt, bill, goal, inv
+  kind        text,                                                   -- tx, debt, bill, goal, inv, stk (Bakhaarka, v189)
   mode        text not null default 'person',                         -- person (Shakhsi) or business (Shirkad)
   item_id     text,
   before      jsonb,                                                  -- the entry before (edit, delete)
@@ -50,10 +50,10 @@ begin
          case when coalesce(n.e ->> 'u', '') ~ '^[0-9]{10,14}$' then (n.e ->> 'u')::bigint end as u
     from (select e ->> 'id' id, e from jsonb_array_elements(
             case when tg_op = 'UPDATE' then coalesce(old.items, '[]'::jsonb) else '[]'::jsonb end) e
-           where e ->> 'kind' in ('tx', 'debt', 'bill', 'goal', 'inv')) o
+           where e ->> 'kind' in ('tx', 'debt', 'bill', 'goal', 'inv', 'stk')) o
     full join
          (select e ->> 'id' id, e from jsonb_array_elements(coalesce(new.items, '[]'::jsonb)) e
-           where e ->> 'kind' in ('tx', 'debt', 'bill', 'goal', 'inv')) n
+           where e ->> 'kind' in ('tx', 'debt', 'bill', 'goal', 'inv', 'stk')) n
       on n.id = o.id
    where (o.e is null or n.e is null or (o.e - 'u') is distinct from (n.e - 'u'))
      -- empty expense templates the app creates by itself (amount 0) are not history
