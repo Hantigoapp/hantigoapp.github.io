@@ -2399,7 +2399,7 @@ async function enter(user){
   const chosen=pendingMode||user?.user_metadata?.mode;
   if(!st?.mode&&(chosen==="person"||chosen==="business")){st={...(st||{id:"settings",kind:"settings"}),mode:chosen};try{await put(st)}catch{}}
   const co=pendingCo||user?.user_metadata?.company||"";if(co&&!st?.coName){st={...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),coName:co};pendingCo="";try{await put(st)}catch{}}
-  {const md=pendingMods||user?.user_metadata?.mods;pendingMods=null;if(Array.isArray(md)&&md.length&&!Array.isArray(st?.mods)){st={...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),mods:md.filter(x=>x==="stk")};try{await put(st)}catch{}}}   // v187: modules chosen at sign-up (📦 Bakhaarka)
+  {const md=pendingMods||user?.user_metadata?.mods;pendingMods=null;if(Array.isArray(md)&&!Array.isArray(st?.mods)){st={...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),mods:md.filter(x=>x==="stk"),stkAsk:1,...(user?.user_metadata?.stk_type&&!st?.stkType?{stkType:String(user.user_metadata.stk_type).slice(0,10)}:{})};try{await put(st)}catch{}}}   // v187: modules chosen at sign-up (📦 Bakhaarka)
   if(OPEN_MODE&&st?.mode){const om=OPEN_MODE;OPEN_MODE="";try{history.replaceState(null,"",location.pathname+location.hash)}catch{}   // link from the receipt email: open that account
     if(om!==st.mode&&!LOCKED()){st={...st,mode:om};try{await put(st)}catch{}}}
   if(LOCKED()&&st?.mode!==myType()){st={...(st||{id:"settings",kind:"settings"}),mode:myType()};try{await put(st)}catch{}}
@@ -2813,7 +2813,7 @@ $("authForm").addEventListener("submit",async e=>{e.preventDefault();
       const startDate=$("aStart").value;
       if(!/^\d{4}-\d{2}-\d{2}$/.test(startDate)){goSub(1);$("aErr").textContent=L("Dooro taariikhda diiwaangelintu bilaabatay.","Choose the registration start date.","اختر تاريخ بدء التسجيل.","Chagua tarehe ya kuanza usajili.");$("aStart").focus();$("aBtn").disabled=false;return}
       try{localStorage.setItem("hantigo.pendingMe",JSON.stringify({email:email.toLowerCase(),full_name:fullName,phone:phoneNo}))}catch{}
-      const {data,error}=await sb.auth.signUp({email,password,options:{data:{mode:am,city:pendingCity,country:pendingCountry,company:pendingCo,mods:pendingMods,start_date:startDate,full_name:fullName,phone:phoneNo},emailRedirectTo:location.origin+location.pathname}});
+      const {data,error}=await sb.auth.signUp({email,password,options:{data:{mode:am,city:pendingCity,country:pendingCountry,company:pendingCo,mods:pendingMods,stk_type:(pendingMods&&pendingMods.length&&$("aStkType")&&!$("aStkType").hidden?$("aStkType").value:"")||undefined,start_date:startDate,full_name:fullName,phone:phoneNo},emailRedirectTo:location.origin+location.pathname}});
       /* with "Confirm email" ON, Supabase answers an already-used email with no error and a user without identities, and saves nothing */
       const dup=!error&&data?.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0;
       if(dup||error&&/already registered|already exists/i.test(String(error.message||""))){
@@ -6645,18 +6645,24 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!fv.hidden)close()}
 /* v187 📦 Bakhaarka (Shirkad inventory) */
 #appView[data-tab="hub"][data-hub="stk"] [data-hubs~="stk"]:not([hidden]){display:grid!important;grid-column:1/-1}
 #bhGrid .bhbtn:last-child:nth-child(odd){grid-column:1/-1}
-@media (min-width:900px){#bhGrid{grid-template-columns:repeat(5,minmax(0,1fr))}#bhGrid .bhbtn:last-child:nth-child(odd){grid-column:auto}}
+@media (min-width:900px){#bhGrid{grid-template-columns:repeat(var(--hn,4),minmax(0,1fr))}#bhGrid .bhbtn:last-child:nth-child(odd){grid-column:auto}}
 #skPanel{gap:12px}
-html[data-mode="business"] #hubSw{grid-template-columns:repeat(5,minmax(0,1fr))}
+html[data-mode="business"] #hubSw{grid-template-columns:repeat(var(--hn,4),minmax(0,1fr))}
 @media (max-width:520px){html[data-mode="business"] #hubSw{gap:4px}html[data-mode="business"] #hubSw button{font-size:.56rem;padding:8px 1px!important;overflow-wrap:normal;word-break:keep-all}}
 .sksum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
 .sksum div{border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--bg);display:grid;gap:2px}
-.sksum span{font-size:.78rem;color:var(--muted)}.sksum b{font-size:1.05rem}.sksum .bad b{color:var(--out)}
+.sksum span{font-size:.78rem;color:var(--muted)}.sksum b{font-size:1.05rem}.sksum .bad b{color:var(--out)}.sksum .good b{color:var(--in)}.sksum .blank b{color:var(--accent)}
+.sksum button{border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--bg);display:grid;gap:2px;text-align:start;cursor:pointer;font:inherit;color:inherit}
+.sksum button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
 .skform{display:grid;gap:10px;border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--bg)}
 .skform h3{margin:0;font-size:.95rem}
 .sklist{display:grid;gap:8px}
 .skrow{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface,var(--bg));display:grid;gap:6px}
-.skrow.low{border-color:var(--out)}
+.skrow.low{border-color:var(--out)}.skrow.blank{border-style:dashed}.sktag.sknew{background:var(--accent-soft,rgba(106,165,255,.15));color:var(--accent)}
+.skfill{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:6px}
+@media (max-width:520px){.skfill{grid-template-columns:repeat(3,minmax(0,1fr))}.skfill button{grid-column:1/-1}}
+.skgrp{border:1px solid var(--line);border-radius:14px;background:var(--bg)}.skgrp>summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;padding:12px 14px;list-style:none}
+.skgrp>summary::-webkit-details-marker{display:none}.skgrp>summary b::after{content:" ▾";opacity:.6}.skgrp[open]>summary b::after{content:" ▴"}.skgrp>.sklist{padding:0 10px 10px}
 .skh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
 .skh b{overflow-wrap:anywhere}.skq{font-weight:700;font-size:1.1rem;white-space:nowrap}.skrow.low .skq{color:var(--out)}
 .skm{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
@@ -6680,16 +6686,17 @@ const stkAll=()=>items.filter(i=>i.kind==="stk"&&(i.mode||"business")==="busines
 const stkTx=()=>items.filter(t=>t.kind==="tx"&&t.stk&&(t.mode||"person")==="business"&&(t.type==="in"||t.type==="out"));
 const stkN=v=>{v=Math.round(Number(v||0)*1000)/1000;return Number.isInteger(v)?String(v):String(v)};
 function stkQty(s,txs){let q=Number(s.q||0);for(const t of txs||stkTx())if(t.stk===s.id){const n=Number(t.sq||0);q+=t.type==="out"?n:-n}return Math.round(q*1000)/1000}
-const stkLow=(s,q)=>q<=0||(Number(s.min)>0&&q<=Number(s.min));
+const stkBlank=s=>!!s.pre&&!Number(s.q)&&!Number(s.buy)&&!Number(s.sell)&&!stkTx().some(t=>t.stk===s.id);
+const stkLow=(s,q)=>!stkBlank(s)&&(q<=0||(Number(s.min)>0&&q<=Number(s.min)));
 const stkEdit=()=>!TEAM;                         // owner only (managers' saves of new kinds are not allowed on the server)
 function stkMove(){return MODE==="business"&&MGR()&&!STAFF()}
 function stkStats(){const tx=stkTx(),l=stkAll().map(s=>({s,q:stkQty(s,tx)}));
   return {l,n:l.length,low:l.filter(x=>stkLow(x.s,x.q)).length,cost:l.reduce((a,x)=>a+Math.max(0,x.q)*Number(x.s.buy||0),0),sell:l.reduce((a,x)=>a+Math.max(0,x.q)*Number(x.s.sell||0),0)}}
 {const _hi=hubInfo;hubInfo=function(k){if(k!=="stk")return _hi(k);const S=stkStats();
   if(!S.n)return {n:L("Weli alaab lama gelin","No items yet","لا توجد أصناف بعد","Bado hakuna bidhaa"),badge:0};
-  return {n:L(`${S.n} alaab · ${money(S.cost)}`,`${S.n} items · ${money(S.cost)}`,`${S.n} أصناف · ${money(S.cost)}`,`Bidhaa ${S.n} · ${money(S.cost)}`)+(S.low?" · "+L(`${S.low} yaraaday`,`${S.low} low`,`${S.low} منخفضة`,`${S.low} chache`):""),bad:S.low>0,badge:S.low}}}
+  const bl=S.l.filter(x=>stkBlank(x.s)).length;return {n:L(`${S.n} alaab · ${money(S.cost)}`,`${S.n} items · ${money(S.cost)}`,`${S.n} أصناف · ${money(S.cost)}`,`Bidhaa ${S.n} · ${money(S.cost)}`)+(S.low?" · "+L(`${S.low} yaraaday`,`${S.low} low`,`${S.low} منخفضة`,`${S.low} chache`):"")+(bl?" · "+L(`${bl} buuxi`,`${bl} to fill`,`${bl} للملء`,`${bl} jaza`):""),bad:S.low>0,badge:S.low}}}
 /* ---------- the panel ---------- */
-let skEdit=null,skQ="",skMsg="",skKey="";
+let skEdit=null,skQ="",skMsg="",skKey="",skF="";
 const SKT={h:()=>"📦 "+L("Bakhaarka","Inventory","المخزون","Hifadhi"),
   lead:()=>L("Alaabta aad iibiso: tirada hadda, qiimaha iibsiga iyo iibka. Marka aad iib qorto tiradu way dhacaysaa; marka aad soo iibsato way kordhaysaa.","The goods you sell: quantity now, buying and selling price. When you record a sale the quantity goes down; when you buy stock it goes up.","البضائع التي تبيعها: الكمية الآن وسعر الشراء والبيع. عند تسجيل بيع تنقص الكمية، وعند الشراء تزيد.","Bidhaa unazouza: idadi sasa, bei ya kununua na kuuza. Ukiandika mauzo idadi hupungua; ukinunua huongezeka."),
   name:()=>L("Magaca alaabta","Item name","اسم الصنف","Jina la bidhaa"),qty:()=>L("Tirada hadda","Quantity now","الكمية الآن","Idadi sasa"),
@@ -6714,7 +6721,7 @@ function skFormHtml(s){const v=(k,d="")=>esc(s?String(s[k]??d):d);
     <div class="goal-actions"><button class="primary" type="submit">${SKT.save()}</button>${s?`<button type="button" id="skCancel">${SKT.cancel()}</button>`:""}</div></form>`}
 function renderStk(){const P=$("skPanel");if(!P)return;
   const on=MODE==="business"&&hubOn()&&stkOn();if(!on){if(P.innerHTML)P.innerHTML="",skKey="";return}
-  const S=stkStats(),ed=stkEdit(),key=JSON.stringify([LANG,currency(),ed,skEdit,skQ,skMsg,S.l.map(x=>[x.s.id,x.s.u,x.q])]);
+  const S=stkStats(),ed=stkEdit(),key=JSON.stringify([LANG,currency(),ed,skEdit,skQ,skF,skMsg,S.l.map(x=>[x.s.id,x.s.u,x.q])]);
   if(P.dataset.k===key)return;
   const act=document.activeElement,keepForm=act&&P.contains(act)&&(act.closest("#skForm")||act.id==="skQ");
   if(keepForm&&skKey===JSON.stringify([LANG,skEdit])){P.dataset.k=key;skList(P,S,ed);return}   // never wipe a form the owner is typing in
@@ -6730,20 +6737,39 @@ function renderStk(){const P=$("skPanel");if(!P)return;
     ${S.n?skFormBox(ed,cur):""}`;
   skList(P,S,ed)}
 let skFormBox=(ed,cur)=>ed?skFormHtml(cur):`<p class="note">🔒 ${L("Alaab cusub ama beddel waxaa sameyn kara mulkiilaha shirkadda. Adiguna iib iyo iibsasho waad qori kartaa.","Only the company owner can add or edit items. You can still record sales and purchases.","يمكن لمالك الشركة فقط إضافة الأصناف أو تعديلها. ويمكنك تسجيل البيع والشراء.","Mmiliki tu ndiye anaweza kuongeza au kuhariri bidhaa. Unaweza kuandika mauzo na ununuzi.")}</p>`
-function skList(P,S,ed){
+const skOpenG=new Set();let skGInit=false;
+function skList(P,S,ed){const go={};S.l.forEach(x=>{const g=x.s.grp||"";if(!(g in go))go[g]=Object.keys(go).length});const gOrd=s=>{const g=s.grp||"";return g?(go[g]??99):999};
+  stkGrpOrd(go);
   $("skCount").textContent=S.n?L(`${S.n} alaab`,`${S.n} items`,`${S.n} أصناف`,`Bidhaa ${S.n}`):"";
-  $("skSum").innerHTML=`<div><span>${SKT.items()}</span><b>${S.n}</b></div><div><span>${SKT.value()}</span><b>${money(S.cost)}</b></div><div><span>${SKT.valueS()}</span><b class="amt in">${money(S.sell)}</b></div><div class="${S.low?"bad":""}"><span>${SKT.low()}</span><b>${S.low}</b></div>`;
-  const q=skQ.trim().toLowerCase(),l=S.l.filter(x=>!q||(String(x.s.name||"")+" "+String(x.s.grp||"")).toLowerCase().includes(q)).sort((a,b)=>(stkLow(b.s,b.q)-stkLow(a.s,a.q))||String(a.s.grp||"").localeCompare(String(b.s.grp||""))||String(a.s.name).localeCompare(String(b.s.name)));
+  const nb=S.l.filter(x=>stkBlank(x.s)).length,nok=S.n-S.low-nb,tile=(f,cls,lab,val)=>`<button type="button" class="${cls}" data-skf="${f}" aria-pressed="${skF===f}">${lab?`<span>${lab}</span>`:""}<b>${val}</b></button>`;
+  if(skF==="low"&&!S.low||skF==="blank"&&!nb||skF==="ok"&&!nok)skF="";
+  $("skSum").innerHTML=tile("","",SKT.items(),S.n)+tile("ok","good","✓ "+L("Diyaar (tiro leh)","In stock","متوفر","Ipo"),nok)+tile("low",S.low?"bad":"",SKT.low(),S.low)+(nb?tile("blank","blank",L("Weli lama buuxin","Not filled yet","لم يُملأ بعد","Bado haijajazwa"),nb):"")
+    +`<div><span>${SKT.value()}</span><b>${money(S.cost)}</b></div><div><span>${SKT.valueS()}</span><b class="amt in">${money(S.sell)}</b></div>`;
+  const q=skQ.trim().toLowerCase(),l=S.l.filter(x=>!skF||(skF==="low"?stkLow(x.s,x.q):skF==="blank"?stkBlank(x.s):!stkLow(x.s,x.q)&&!stkBlank(x.s))).filter(x=>!q||(String(x.s.name||"")+" "+String(x.s.grp||"")).toLowerCase().includes(q)).sort((a,b)=>(gOrd(a.s)-gOrd(b.s))||(stkLow(b.s,b.q)-stkLow(a.s,a.q))||(stkBlank(a.s)-stkBlank(b.s))||String(a.s.name).localeCompare(String(b.s.name)));
   if(!S.n){$("skList").innerHTML=`<p class="empty" style="margin:0">${ed?L("Weli alaab lama gelin. Ku qor magaca, tirada iyo qiimaha kor, kadib riix Kaydi.","No items yet. Type the name, quantity and prices above, then tap Save.","لا توجد أصناف بعد. اكتب الاسم والكمية والأسعار أعلاه ثم اضغط حفظ.","Bado hakuna bidhaa. Andika jina, idadi na bei juu, kisha bonyeza Hifadhi."):L("Weli alaab lama gelin.","No items yet.","لا توجد أصناف بعد.","Bado hakuna bidhaa.")}</p>`;return}
   if(!l.length){$("skList").innerHTML=`<p class="empty" style="margin:0">${L("Wax lama helin.","Nothing found.","لم يُعثر على شيء.","Hakuna kilichopatikana.")}</p>`;return}
   const u=s=>s.unit?" "+esc(s.unit):"";
-  $("skList").innerHTML=l.map(({s,q})=>{const low=stkLow(s,q);
+  const many=S.n>12,bySec=[];l.forEach(x=>{const g=x.s.grp||"";let b=bySec.find(y=>y.g===g);if(!b)bySec.push(b={g,l:[]});b.l.push(x)});
+  if(!skGInit){skGInit=true;bySec.slice(0,1).forEach(b=>skOpenG.add(b.g))}
+  const rowsH=arr=>arr.map(({s,q})=>{const low=stkLow(s,q),blank=stkBlank(s);
+    if(blank&&ed)return `<div class="skrow blank" data-skid="${esc(s.id)}"><div class="skh"><b>${esc(s.name)}</b><span class="sktag sknew">${L("Weli lama buuxin","Not filled yet","لم يُملأ بعد","Bado haijajazwa")}</span></div>
+      <div class="skfill"><input type="number" inputmode="decimal" step="any" data-skf="q" aria-label="${esc(SKT.qty())}" placeholder="${esc(L("Tirada","Qty","الكمية","Idadi"))}${s.unit?" ("+esc(s.unit)+")":""}"><input type="number" inputmode="decimal" min="0" step="0.01" data-skf="b" aria-label="${esc(SKT.buy())}" placeholder="${esc(L("Iibsi $","Buy $","شراء $","Kununua $"))}"><input type="number" inputmode="decimal" min="0" step="0.01" data-skf="s" aria-label="${esc(SKT.sell())}" placeholder="${esc(L("Iib $","Sell $","بيع $","Kuuza $"))}"><button type="button" class="primary" data-skfok="${esc(s.id)}">${SKT.save()}</button></div>
+      <div class="ska"><button type="button" class="del" data-skdel="${esc(s.id)}">${L("Tirtir","Delete","حذف","Futa")}</button></div></div>`;
     return `<div class="skrow${low?" low":""}" data-skid="${esc(s.id)}"><div class="skh"><b>${esc(s.name)}</b><span class="skq">${esc(stkN(q))}${u(s)}</span></div>
       <div class="skm">${s.grp?`<b>${esc(s.grp)}</b> · `:""}${L("Iibsi","Buy","شراء","Kununua")} ${money(s.buy||0)} · ${L("Iib","Sell","بيع","Kuuza")} ${money(s.sell||0)} · ${L("Qiimaha","Value","القيمة","Thamani")} ${money(Math.max(0,q)*Number(s.buy||0))}${Number(s.sell)>0&&Number(s.buy)>0?` · ${L("Faa'iido halkii","Profit each","الربح للوحدة","Faida kwa moja")} ${money(Number(s.sell)-Number(s.buy))}`:""}
         ${low?` <span class="sktag">${q<=0?L("Wuu dhammaaday","Out of stock","نفد","Imeisha"):L("Wuu yaraaday","Low stock","منخفض","Imepungua")}</span>`:""}</div>
       <div class="ska"><button type="button" class="sksell" data-sksell="${esc(s.id)}">− ${L("Iibiyay","Sold","بيع","Imeuzwa")}</button><button type="button" class="skbuy" data-skbuy="${esc(s.id)}">+ ${L("Soo iibsaday","Bought","شراء","Imenunuliwa")}</button>
         ${ed?`<button type="button" class="del" data-skcnt="${esc(s.id)}">🔢 ${L("Tiri","Count","جرد","Hesabu")}</button><button type="button" class="del" data-skedit="${esc(s.id)}">✏️ ${L("Beddel","Edit","تعديل","Hariri")}</button><button type="button" class="del" data-skdel="${esc(s.id)}">${L("Tirtir","Delete","حذف","Futa")}</button>`:""}</div>
-      <div class="skcount" data-skcbox="${esc(s.id)}" hidden><span class="note">${L("Tirada dhabta ah ee hadda","Real count now","العدد الفعلي الآن","Idadi halisi sasa")}:</span><input type="number" inputmode="decimal" step="any" value="${esc(stkN(q))}" data-skcin="${esc(s.id)}"><button type="button" class="primary" data-skcok="${esc(s.id)}">${SKT.save()}</button></div></div>`}).join("")}
+      <div class="skcount" data-skcbox="${esc(s.id)}" hidden><span class="note">${L("Tirada dhabta ah ee hadda","Real count now","العدد الفعلي الآن","Idadi halisi sasa")}:</span><input type="number" inputmode="decimal" step="any" value="${esc(stkN(q))}" data-skcin="${esc(s.id)}"><button type="button" class="primary" data-skcok="${esc(s.id)}">${SKT.save()}</button></div></div>`}).join("");
+  if(!many||bySec.length<2||q||skF){$("skList").innerHTML=rowsH(l);return}
+  $("skList").innerHTML=bySec.map(b=>{const lo=b.l.filter(x=>stkLow(x.s,x.q)).length,bl=b.l.filter(x=>stkBlank(x.s)).length;
+    return `<details class="skgrp" data-skg="${esc(b.g)}"${skOpenG.has(b.g)?" open":""}><summary><b>${esc(b.g||L("Kale","Other","أخرى","Nyingine"))}</b><span class="note">${b.l.length}${bl?" · "+L(`${bl} lama buuxin`,`${bl} not filled`,`${bl} لم تُملأ`,`${bl} hazijajazwa`):""}${lo?` · <span class="sktag">${lo} ${L("yaraaday","low","منخفضة","chache")}</span>`:""}</span></summary><div class="sklist">${rowsH(b.l)}</div></details>`}).join("")}
+function stkGrpOrd(){}
+document.addEventListener("toggle",e=>{const d=e.target;if(!d.matches||!d.matches(".skgrp"))return;if(d.open)skOpenG.add(d.dataset.skg);else skOpenG.delete(d.dataset.skg)},true);
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-skfok]");if(!b||!stkEdit())return;const r=b.closest(".skrow"),s=items.find(i=>i.id===b.dataset.skfok);if(!s)return;
+  const v=k=>{const x=r.querySelector(`[data-skf="${k}"]`).value.trim();return x===""?null:Number(x)},q=v("q"),by=v("b"),se=v("s");
+  if([q,by,se].every(x=>x==null)){r.querySelector("[data-skf=q]").focus();return}if([q,by,se].some(x=>x!=null&&(!isFinite(x)||x<0)))return;
+  const d={...s,q:q??Number(s.q||0),buy:by??Number(s.buy||0),sell:se??Number(s.sell||0)};delete d.pre;await put(d);skFlash("✓ "+L(`${s.name} waa la kaydiyay.`,`${s.name} saved.`,`تم حفظ ${s.name}.`,`${s.name} imehifadhiwa.`))});
 {const _r=render;render=function(){_r();try{renderStk();stkRowUI()}catch(e){console.warn(e)}}}
 {const _rh=renderHub;renderHub=function(){_rh();const av=$("appView");if(av.dataset.tab==="hub"&&av.dataset.hub==="stk"&&HUBS.stk&&hubOn())
   $("hubAct").innerHTML=stkEdit()?`<button type="button" class="primary" data-hubact="stknew">➕ ${L("Alaab cusub","New item","صنف جديد","Bidhaa mpya")}</button>`:""}}
@@ -6756,10 +6782,11 @@ document.addEventListener("submit",async e=>{if(e.target.id!=="skForm")return;e.
   const old=skEdit&&items.find(i=>i.id===skEdit);
   if(stkAll().some(s=>s.id!==old?.id&&ckey(s.name)===ckey(name))){$("skErr").textContent=L(`"${name}" horay ayuu bakhaarka ugu jiray. Riix ✏️ Beddel.`,`"${name}" is already in the inventory. Tap ✏️ Edit.`,`"${name}" موجود في المخزون. اضغط ✏️ تعديل.`,`"${name}" tayari iko kwenye hifadhi. Bonyeza ✏️ Hariri.`);return}
   const base=old?{...old}:{id:uid(),kind:"stk",mode:"business",created:new Date().toISOString(),q:0};
-  const doc={...base,name,unit,grp,buy:buy||0,sell:sell||0,mode:"business"};if(min>0)doc.min=min;else delete doc.min;
+  const doc={...base,name,unit,grp,buy:buy||0,sell:sell||0,mode:"business"};delete doc.pre;if(min>0)doc.min=min;else delete doc.min;
   if(qty!=null){const now=old?stkQty(old):0;doc.q=Math.round((Number(base.q||0)+(qty-now))*1000)/1000}
   try{skEdit=null;await put(doc);skKey="";$("skPanel").dataset.k="";skFlash("✓ "+L(`${name} waa la kaydiyay.`,`${name} saved.`,`تم حفظ ${name}.`,`${name} imehifadhiwa.`))}
   catch{$("skErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Can't save right now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Haiwezi kuhifadhi sasa. Jaribu tena.")}});
+document.addEventListener("click",e=>{const t=e.target.closest("#skSum [data-skf]");if(!t)return;const f=t.dataset.skf;skF=skF===f?"":f;const P=$("skPanel");P.dataset.k="";skList(P,stkStats(),stkEdit());$("skList").scrollIntoView({behavior:"smooth",block:"nearest"})});
 document.addEventListener("input",e=>{if(e.target.id==="skQ"){skQ=e.target.value;const P=$("skPanel");P.dataset.k="";skList(P,stkStats(),stkEdit())}});
 document.addEventListener("click",async e=>{const t=e.target;
   if(t.closest('[data-hubact="stknew"]')){skEdit=null;skKey="";$("skPanel").dataset.k="";renderStk();setTimeout(()=>{$("skForm")?.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("skName")?.focus({preventScroll:true}),300)},40);return}
@@ -6824,6 +6851,7 @@ function stkHtml(txs){const R=stkRep(txs);if(!R)return "";const h=SKH();
 .stkpick input{width:20px;height:20px;flex:0 0 auto;margin-top:2px}
 .stkpick span{display:grid;gap:2px}.stkpick small{color:var(--muted);font-size:.8rem;font-weight:400}
 .comods{margin:8px 0 0;font-size:.95rem}
+.stkask{display:grid;gap:8px;border:1px solid var(--accent);border-radius:14px;padding:12px 14px;margin-bottom:10px;background:var(--bg)}.stkask span{font-size:.9rem}.stkask .goal-actions{margin:0}
 .skown{display:grid;gap:6px}.skownr{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:6px}
 @media (max-width:520px){.skownr{grid-template-columns:repeat(3,minmax(0,1fr));padding-bottom:6px;border-bottom:1px solid var(--line)}.skownr [data-ow="n"]{grid-column:1/-1}}
 .skpre{display:grid;gap:10px;border:1px dashed var(--line);border-radius:14px;padding:12px}
@@ -6845,7 +6873,7 @@ const stkOn=()=>MODE==="business"&&Array.isArray(settings().mods)&&settings().mo
 const STK_HUB=HUBS.stk;
 function stkSync(){if(stkOn()){if(!HUBS.stk)HUBS.stk=STK_HUB}else delete HUBS.stk}
 stkSync();
-{const _rh=renderHub;renderHub=function(){stkSync();return _rh()}}
+{const _rh=renderHub;renderHub=function(){stkSync();const n=String(Object.keys(HUBS).length);for(const id of ["bhGrid","hubSw"]){const e=$(id);if(e&&e.style.getPropertyValue("--hn")!==n)e.style.setProperty("--hn",n)}return _rh()}}
 {const _ho=hubOpen;hubOpen=function(h,k){stkSync();return _ho(h,k)}}
 {const _sm=stkMove;stkMove=function(){return stkOn()&&_sm()}}
 {const _rp=stkRep;stkRep=function(t){return stkOn()?_rp(t):null}}
@@ -6855,7 +6883,7 @@ function coModsUI(){const c=$("coStk");if(!c)return;if(document.activeElement!==
   $("coStkB").textContent="📦 "+L("Bakhaarka (Inventory)","Inventory","المخزون","Hifadhi");
   $("coStkS").textContent=L("Alaabta, tirada iyo qiimaha. Haddii aad damiso way qarsoomaysaa, xogtuna way kaydsan tahay.","Items, quantity and prices. If you turn it off it is hidden and the data stays saved.","الأصناف والكمية والأسعار. إذا أوقفته يختفي وتبقى البيانات محفوظة.","Bidhaa, idadi na bei. Ukizima inafichwa na data inabaki.")}
 document.addEventListener("change",async e=>{if(e.target.id!=="coStk"||TEAM)return;const on=e.target.checked,s=settings(),m=(Array.isArray(s.mods)?s.mods:[]).filter(x=>x!=="stk");
-  await put({...s,mods:on?[...m,"stk"]:m});$("coStkMsg").textContent=on?"✓ "+L("📦 Bakhaarka waa la shiday. Waxaad ka helaysaa Guriga.","📦 Inventory is on. You find it on Home.","📦 تم تشغيل المخزون. تجده في الرئيسية.","📦 Hifadhi imewashwa. Utaipata Nyumbani."):"✓ "+L("📦 Bakhaarka waa la demiyay. Xogtu way kaydsan tahay.","📦 Inventory is off. The data stays saved.","📦 تم إيقاف المخزون. البيانات محفوظة.","📦 Hifadhi imezimwa. Data imehifadhiwa.");
+  await put({...s,stkAsk:1,mods:on?[...m,"stk"]:m});$("coStkMsg").textContent=on?"✓ "+L("📦 Bakhaarka waa la shiday. Waxaad ka helaysaa Guriga.","📦 Inventory is on. You find it on Home.","📦 تم تشغيل المخزون. تجده في الرئيسية.","📦 Hifadhi imewashwa. Utaipata Nyumbani."):"✓ "+L("📦 Bakhaarka waa la demiyay. Xogtu way kaydsan tahay.","📦 Inventory is off. The data stays saved.","📦 تم إيقاف المخزون. البيانات محفوظة.","📦 Hifadhi imezimwa. Data imehifadhiwa.");
   setTimeout(()=>{$("coStkMsg").textContent=""},5000)});
 /* sign-up: the business-type picker shows under the checkbox */
 {const box=$("aStk");if(box){const sel=document.createElement("select");sel.id="aStkType";sel.hidden=true;box.closest(".stkpick").after(sel);
@@ -6865,28 +6893,49 @@ document.addEventListener("change",async e=>{if(e.target.id!=="coStk"||TEAM)retu
 /* ---------- ready lists ---------- */
 const SI=(so,en,u)=>({so,en,u:u||""});
 const STK_PRE=[
- {id:"hot",ic:"🏨",n:["Hotel & Maqaayad","Hotel & Restaurant","فندق ومطعم","Hoteli na Mgahawa"],g:[
-  [["🛏️ Qolalka","🛏️ Rooms"],[SI("Qol hal sariir","Single room","qol"),SI("Qol laba sariir","Double room","qol"),SI("Qol qoys","Family room","qol"),SI("Qol VIP","VIP room","qol")]],
-  [["🍽️ Cuntada","🍽️ Food"],[SI("Bariis","Rice","kiish"),SI("Baasto","Pasta","kartoon"),SI("Bur","Flour","kiish"),SI("Hilib ari","Goat meat","kg"),SI("Hilib geel","Camel meat","kg"),SI("Digaag","Chicken","kg"),SI("Kalluun","Fish","kg"),SI("Khudaar","Vegetables","kg"),SI("Saliid cunto","Cooking oil","gaalan"),SI("Sonkor","Sugar","kiish"),SI("Ukun","Eggs","kartoon")]],
-  [["🥤 Cabitaanka","🥤 Drinks"],[SI("Biyo (dhalo)","Water (bottle)","kartoon"),SI("Cabitaan qabow","Soft drinks","kartoon"),SI("Casiir","Juice","kartoon"),SI("Shaah","Tea","baako"),SI("Qaxwo","Coffee","baako"),SI("Caano","Milk","litir")]],
-  [["🧺 Qolka & nadaafadda","🧺 Rooms & cleaning"],[SI("Shukumaan","Towels","xabbo"),SI("Go'yaasha sariirta","Bed sheets","xabbo"),SI("Saabuun","Soap","kartoon"),SI("Waraaqda musqusha","Toilet paper","baako")]]]},
  {id:"isk",ic:"🎓",n:["Jaamacad & Iskuul","University & School","جامعة ومدرسة","Chuo kikuu na Shule"],g:[
-  [["📚 Buugaagta","📚 Books"],[SI("Buugga xisaabta","Maths book","xabbo"),SI("Buugga Ingiriisiga","English book","xabbo"),SI("Buugga Carabiga","Arabic book","xabbo"),SI("Buugga Soomaaliga","Somali book","xabbo"),SI("Buugga sayniska","Science book","xabbo"),SI("Buugga Tarbiyada","Islamic studies book","xabbo"),SI("Buug qoraal (kaaraas)","Exercise book","xabbo")]],
-  [["👕 Dirayska","👕 Uniforms"],[SI("Dirayska wiilasha","Boys' uniform","xabbo"),SI("Dirayska gabdhaha","Girls' uniform","xabbo"),SI("Funaanad iskuul","School sweater","xabbo"),SI("Kabo iskuul","School shoes","lammaane"),SI("Boorso iskuul","School bag","xabbo")]],
-  [["✏️ Qalabka waxbarashada","✏️ Stationery"],[SI("Qalin qori","Pencil","baako"),SI("Qalin biiro","Pen","baako"),SI("Masixa","Eraser","baako"),SI("Mastarad","Ruler","xabbo"),SI("Tabaashiir","Chalk","baako"),SI("Qalinka sabuuradda","Whiteboard marker","baako"),SI("Waraaq A4","A4 paper","rim"),SI("Kaarka ardayga","Student ID card","xabbo")]]]},
+  [["📚 Buugaagta manhajka","📚 Textbooks"],[SI("Buugga xisaabta","Maths book","xabbo"),SI("Buugga Soomaaliga","Somali book","xabbo"),SI("Buugga Ingiriisiga","English book","xabbo"),SI("Buugga Carabiga","Arabic book","xabbo"),SI("Buugga Tarbiyada Islaamka","Islamic studies book","xabbo"),SI("Buugga sayniska","Science book","xabbo"),SI("Buugga fiisigiska","Physics book","xabbo"),SI("Buugga kimistariga","Chemistry book","xabbo"),SI("Buugga bayoolajiga","Biology book","xabbo"),SI("Buugga taariikhda","History book","xabbo"),SI("Buugga juqraafiga","Geography book","xabbo"),SI("Buugga teknoolajiyada (ICT)","ICT book","xabbo"),SI("Buugga ganacsiga","Business studies book","xabbo"),SI("Qur'aan","Qur'an","xabbo"),SI("Qaamuus","Dictionary","xabbo")]],
+  [["🎓 Buugaagta jaamacadda","🎓 University books"],[SI("Buugga caafimaadka","Medicine book","xabbo"),SI("Buugga injineeriyada","Engineering book","xabbo"),SI("Buugga xisaabaadka (accounting)","Accounting book","xabbo"),SI("Buugga maamulka","Management book","xabbo"),SI("Buugga sharciga","Law book","xabbo"),SI("Buugga kombiyuutarka","Computer science book","xabbo"),SI("Buugga waxbarashada","Education book","xabbo"),SI("Buugga dhaqaalaha","Economics book","xabbo"),SI("Daabacaadda casharrada (handout)","Lecture handouts","xabbo")]],
+  [["📓 Kaarraasyada & waraaqaha","📓 Exercise books & paper"],[SI("Kaaraas 48 bog","Exercise book 48 pages","xabbo"),SI("Kaaraas 96 bog","Exercise book 96 pages","xabbo"),SI("Kaaraas 200 bog","Exercise book 200 pages","xabbo"),SI("Kaaraas xisaab (afargees)","Maths squared book","xabbo"),SI("Kaaraas sawir","Drawing book","xabbo"),SI("Waraaq A4","A4 paper","rim"),SI("Waraaq imtixaan","Exam paper","rim"),SI("Galka (file)","File folder","xabbo"),SI("Buug qoraal (notebook)","Notebook","xabbo")]],
+  [["✏️ Qalabka waxbarashada","✏️ Stationery"],[SI("Qalin qori","Pencil","baako"),SI("Qalin biiro buluug","Blue pen","baako"),SI("Qalin biiro cas","Red pen","baako"),SI("Masixa","Eraser","baako"),SI("Qoraal-afeeye (sharpener)","Sharpener","baako"),SI("Mastarad","Ruler","xabbo"),SI("Qalabka joomitiriga","Geometry set","xabbo"),SI("Kalkuleetar","Calculator","xabbo"),SI("Qalin midab","Coloured pencils","baako"),SI("Koolo (gaam)","Glue","xabbo"),SI("Maqas","Scissors","xabbo"),SI("Qalin calaamadeeye (highlighter)","Highlighter","baako"),SI("Santuuq qalin","Pencil case","xabbo")]],
+  [["👕 Dirayska","👕 Uniforms"],[SI("Shaarka wiilasha","Boys' shirt","xabbo"),SI("Surwaalka wiilasha","Boys' trousers","xabbo"),SI("Diraca/goonnada gabdhaha","Girls' dress/skirt","xabbo"),SI("Masarka (xijaabka) gabdhaha","Girls' headscarf","xabbo"),SI("Funaanad iskuul","School sweater","xabbo"),SI("Dirayska ciyaaraha","Sports kit","xabbo"),SI("Kabo iskuul","School shoes","lammaane"),SI("Sharabaado","Socks","lammaane"),SI("Suun","Belt","xabbo"),SI("Taay","Tie","xabbo"),SI("Boorso iskuul","School bag","xabbo"),SI("Koofiyad","Cap","xabbo")]],
+  [["🏫 Fasalka & xafiiska","🏫 Classroom & office"],[SI("Tabaashiir","Chalk","baako"),SI("Qalinka sabuuradda","Whiteboard marker","baako"),SI("Masixa sabuuradda","Board duster","xabbo"),SI("Sabuurad","Whiteboard","xabbo"),SI("Kursi ardayga","Student chair","xabbo"),SI("Miis ardayga","Student desk","xabbo"),SI("Miiska macallinka","Teacher's desk","xabbo"),SI("Khariidad","Map","xabbo"),SI("Kaarka ardayga","Student ID card","xabbo"),SI("Shahaadada (warqad)","Certificate paper","xabbo"),SI("Istablar","Stapler","xabbo"),SI("Kaar daabacaad (toner)","Printer toner","xabbo")]],
+  [["🔬 Shaybaarka & kombiyuutarka","🔬 Lab & computers"],[SI("Kombiyuutar","Computer","xabbo"),SI("Laabtoob","Laptop","xabbo"),SI("Mashiinka daabacaadda","Printer","xabbo"),SI("Borojektar","Projector","xabbo"),SI("Mikroskoob","Microscope","xabbo"),SI("Tuubooyinka shaybaarka","Test tubes","baako"),SI("Kiimikooyinka shaybaarka","Lab chemicals","dhalo"),SI("Gacmo-gashi shaybaar","Lab gloves","baako"),SI("Koodhka shaybaarka","Lab coat","xabbo")]],
+  [["⚽ Ciyaaraha & nadaafadda","⚽ Sports & cleaning"],[SI("Kubbadda cagta","Football","xabbo"),SI("Kubbadda koleyga","Volleyball","xabbo"),SI("Kubbadda kolayga","Basketball","xabbo"),SI("Xadhig boodka","Skipping rope","xabbo"),SI("Xaaqin","Broom","xabbo"),SI("Saabuun","Soap","kartoon"),SI("Waraaqda musqusha","Toilet paper","baako"),SI("Biyo nadiifiye (Dettol)","Disinfectant","dhalo"),SI("Qashin-qub","Bin","xabbo"),SI("Sanduuqa gargaarka degdegga","First aid box","xabbo")]]]},
+ {id:"hot",ic:"🏨",n:["Hotel & Maqaayad","Hotel & Restaurant","فندق ومطعم","Hoteli na Mgahawa"],g:[
+  [["🛏️ Qolalka","🛏️ Rooms"],[SI("Qol hal sariir","Single room","qol"),SI("Qol laba sariir","Double room","qol"),SI("Qol saddex sariir","Triple room","qol"),SI("Qol qoys","Family room","qol"),SI("Qol VIP","VIP room","qol"),SI("Suite","Suite","qol"),SI("Hool shir","Meeting hall","hool"),SI("Hool aroos","Wedding hall","hool")]],
+  [["🥩 Hilibka & kalluunka","🥩 Meat & fish"],[SI("Hilib ari","Goat meat","kg"),SI("Hilib geel","Camel meat","kg"),SI("Hilib lo'","Beef","kg"),SI("Hilib ido","Lamb","kg"),SI("Digaag","Chicken","kg"),SI("Kalluun","Fish","kg"),SI("Beer (kibid)","Liver","kg"),SI("Ukun","Eggs","kartoon")]],
+  [["🍚 Raashinka qalalan","🍚 Dry food"],[SI("Bariis","Rice","kiish"),SI("Baasto","Pasta","kartoon"),SI("Bur","Flour","kiish"),SI("Sonkor","Sugar","kiish"),SI("Saliid cunto","Cooking oil","gaalan"),SI("Digir","Beans","kiish"),SI("Cadas","Lentils","kiish"),SI("Galley/masago","Maize/sorghum","kiish"),SI("Milix","Salt","kiish"),SI("Xawaash","Spices","kg"),SI("Subag","Ghee","gaalan"),SI("Malab","Honey","dhalo"),SI("Timir","Dates","kartoon")]],
+  [["🥬 Khudaarta & miraha","🥬 Vegetables & fruit"],[SI("Basal","Onions","kiish"),SI("Yaanyo","Tomatoes","kartoon"),SI("Baradho","Potatoes","kiish"),SI("Kaabash","Cabbage","xabbo"),SI("Karooto","Carrots","kg"),SI("Toon","Garlic","kg"),SI("Basbaas","Chilli","kg"),SI("Liin","Lemons","kartoon"),SI("Muus","Bananas","kartoon"),SI("Cambe","Mango","kartoon"),SI("Qare","Watermelon","xabbo"),SI("Babaay","Papaya","xabbo")]],
+  [["🥤 Cabitaanka","🥤 Drinks"],[SI("Biyo (dhalo)","Water (bottle)","kartoon"),SI("Cabitaan qabow","Soft drinks","kartoon"),SI("Casiir","Juice","kartoon"),SI("Shaah","Tea","baako"),SI("Qaxwo","Coffee","baako"),SI("Caano","Milk","litir"),SI("Caano boore","Milk powder","xabbo"),SI("Caano geel","Camel milk","litir"),SI("Sharaab tamar (energy)","Energy drink","kartoon")]],
+  [["🍳 Jikada & adeegga","🍳 Kitchen & service"],[SI("Gaas (shidaal karis)","Cooking gas","dhalo"),SI("Dhuxul","Charcoal","kiish"),SI("Saxan","Plates","xabbo"),SI("Koob","Cups","xabbo"),SI("Galaas","Glasses","xabbo"),SI("Qaado","Spoons","xabbo"),SI("Fargeeto","Forks","xabbo"),SI("Mindi","Knives","xabbo"),SI("Digsi","Pots","xabbo"),SI("Weel qaadasho (take-away)","Take-away boxes","kartoon"),SI("Shukulaato (tissue)","Napkins","baako"),SI("Mashiinka shaaha","Tea urn","xabbo")]],
+  [["🧺 Qolka & dharka","🧺 Room & linen"],[SI("Go'yaasha sariirta","Bed sheets","xabbo"),SI("Barkin","Pillows","xabbo"),SI("Buste","Blankets","xabbo"),SI("Shukumaan","Towels","xabbo"),SI("Kabo qolka","Room slippers","lammaane"),SI("Saabuun yar","Small soaps","kartoon"),SI("Shaambo","Shampoo","kartoon"),SI("Cadayga ilkaha","Toothpaste","kartoon"),SI("Furaha qolka (kaar)","Room key card","xabbo"),SI("Nalal","Light bulbs","xabbo")]],
+  [["🧽 Nadaafadda","🧽 Cleaning"],[SI("Saabuun","Soap","kartoon"),SI("Saabuun dhar","Washing powder","kiish"),SI("Saabuun weel","Dish soap","gaalan"),SI("Biyo nadiifiye (Dettol)","Disinfectant","dhalo"),SI("Waraaqda musqusha","Toilet paper","baako"),SI("Xaaqin","Broom","xabbo"),SI("Mob","Mop","xabbo"),SI("Bacaha qashinka","Bin bags","baako"),SI("Udgoon (air freshener)","Air freshener","xabbo")]]]},
  {id:"duk",ic:"🛒",n:["Dukaan","Shop","متجر","Duka"],g:[
-  [["🛒 Raashinka","🛒 Groceries"],[SI("Bariis","Rice","kiish"),SI("Baasto","Pasta","kartoon"),SI("Bur","Flour","kiish"),SI("Sonkor","Sugar","kiish"),SI("Saliid","Oil","gaalan"),SI("Caano boore","Milk powder","xabbo"),SI("Shaah","Tea","baako"),SI("Biyo","Water","kartoon")]],
-  [["🧼 Guriga","🧼 Household"],[SI("Saabuun","Soap","kartoon"),SI("Saabuun dhar","Washing powder","xabbo"),SI("Waraaqda musqusha","Toilet paper","baako")]]]},
+  [["🍚 Raashinka","🍚 Groceries"],[SI("Bariis","Rice","kiish"),SI("Baasto","Pasta","kartoon"),SI("Bur","Flour","kiish"),SI("Sonkor","Sugar","kiish"),SI("Saliid","Cooking oil","gaalan"),SI("Digir","Beans","kiish"),SI("Cadas","Lentils","kiish"),SI("Galley","Maize","kiish"),SI("Milix","Salt","kiish"),SI("Xawaash","Spices","xabbo"),SI("Timir","Dates","kartoon"),SI("Malab","Honey","dhalo"),SI("Subag","Ghee","gaalan"),SI("Tamaandho (qasacad)","Tomato paste","kartoon"),SI("Kalluun qasacad (tuna)","Tinned tuna","kartoon")]],
+  [["🥛 Caanaha & quraacda","🥛 Dairy & breakfast"],[SI("Caano boore","Milk powder","xabbo"),SI("Caano dhalo","Bottled milk","kartoon"),SI("Shaah","Tea","baako"),SI("Qaxwo","Coffee","baako"),SI("Rooti","Bread","xabbo"),SI("Buskud","Biscuits","kartoon"),SI("Macmacaan","Sweets","baako"),SI("Jaam","Jam","xabbo"),SI("Ukun","Eggs","kartoon")]],
+  [["🥤 Cabitaanka","🥤 Drinks"],[SI("Biyo","Water","kartoon"),SI("Cabitaan qabow","Soft drinks","kartoon"),SI("Casiir","Juice","kartoon"),SI("Sharaab tamar (energy)","Energy drink","kartoon")]],
+  [["🧼 Nadaafadda & guriga","🧼 Cleaning & household"],[SI("Saabuun","Soap","kartoon"),SI("Saabuun dhar","Washing powder","kiish"),SI("Saabuun weel","Dish soap","xabbo"),SI("Waraaqda musqusha","Toilet paper","baako"),SI("Biyo nadiifiye (Dettol)","Disinfectant","dhalo"),SI("Bacaha qashinka","Bin bags","baako"),SI("Kabriid","Matches","baako"),SI("Shumac","Candles","baako"),SI("Baytari","Batteries","baako"),SI("Nalal","Light bulbs","xabbo")]],
+  [["🧴 Daryeelka jirka","🧴 Personal care"],[SI("Shaambo","Shampoo","xabbo"),SI("Cadayga ilkaha","Toothpaste","xabbo"),SI("Burushka ilkaha","Toothbrush","xabbo"),SI("Kareem jirka","Body lotion","xabbo"),SI("Uunsi / cadar","Perfume / incense","xabbo"),SI("Xinne","Henna","baako"),SI("Xafaayad carruur","Baby nappies","baako"),SI("Suuf dumarka","Sanitary pads","baako"),SI("Mus (ganaan)","Razor","baako")]],
+  [["📱 Kaarka & qalabka","📱 Airtime & small items"],[SI("Kaarka hadalka","Airtime card","xabbo"),SI("Shaashad telefoon (charger)","Phone charger","xabbo"),SI("Sigaar","Cigarettes","baako"),SI("Qalin","Pens","baako"),SI("Kaaraas","Exercise books","xabbo"),SI("Bac (plastic bag)","Plastic bags","baako")]]]},
  {id:"far",ic:"💊",n:["Farmashi","Pharmacy","صيدلية","Duka la dawa"],g:[
-  [["💊 Daawooyinka","💊 Medicines"],[SI("Paracetamol","Paracetamol","baako"),SI("Amoxicillin","Amoxicillin","baako"),SI("ORS","ORS","baako"),SI("Fitamiin","Vitamins","baako"),SI("Daawada qufaca","Cough syrup","dhalo")]],
-  [["🩹 Qalabka","🩹 Supplies"],[SI("Faashad","Bandage","xabbo"),SI("Cirbado","Syringes","baako"),SI("Gacmo-gashi","Gloves","baako"),SI("Maaskaro","Face masks","baako")]]]},
+  [["💊 Xanuun-baabi'iyeyaasha","💊 Pain & fever"],[SI("Paracetamol","Paracetamol","baako"),SI("Ibuprofen","Ibuprofen","baako"),SI("Diclofenac","Diclofenac","baako"),SI("Aspirin","Aspirin","baako"),SI("Paracetamol carruur (sharoobo)","Children's paracetamol syrup","dhalo")]],
+  [["🦠 Antibiyootiga","🦠 Antibiotics"],[SI("Amoxicillin","Amoxicillin","baako"),SI("Augmentin","Amoxicillin-clavulanate","baako"),SI("Azithromycin","Azithromycin","baako"),SI("Ciprofloxacin","Ciprofloxacin","baako"),SI("Metronidazole (Flagyl)","Metronidazole","baako"),SI("Doxycycline","Doxycycline","baako"),SI("Cotrimoxazole","Cotrimoxazole","baako"),SI("Cefixime","Cefixime","baako")]],
+  [["🤧 Qufaca & xasaasiyadda","🤧 Cough, cold & allergy"],[SI("Daawada qufaca","Cough syrup","dhalo"),SI("Cetirizine","Cetirizine","baako"),SI("Loratadine","Loratadine","baako"),SI("Salbutamol (inhaler)","Salbutamol inhaler","xabbo"),SI("Dhibcaha sanka","Nasal drops","dhalo")]],
+  [["🍽️ Caloosha","🍽️ Stomach"],[SI("ORS","ORS","baako"),SI("Zinc","Zinc","baako"),SI("Omeprazole","Omeprazole","baako"),SI("Antacid","Antacid","dhalo"),SI("Daawada gooryaanka (Albendazole)","Deworming (Albendazole)","baako"),SI("Loperamide","Loperamide","baako")]],
+  [["❤️ Cudurrada joogtada ah","❤️ Chronic illness"],[SI("Metformin (sonkorowga)","Metformin (diabetes)","baako"),SI("Insulin","Insulin","dhalo"),SI("Amlodipine (dhiig-karka)","Amlodipine (blood pressure)","baako"),SI("Losartan","Losartan","baako"),SI("Atenolol","Atenolol","baako"),SI("Cirbadda sonkorta (strips)","Glucose test strips","baako")]],
+  [["🦟 Duumada & fitamiinnada","🦟 Malaria & vitamins"],[SI("Coartem (duumada)","Coartem (malaria)","baako"),SI("Baaritaanka duumada (RDT)","Malaria test (RDT)","baako"),SI("Fitamiin","Multivitamin","baako"),SI("Folic acid","Folic acid","baako"),SI("Bir (iron)","Iron tablets","baako"),SI("Vitamin C","Vitamin C","baako")]],
+  [["🩹 Qalabka caafimaadka","🩹 Medical supplies"],[SI("Faashad","Bandage","xabbo"),SI("Cirbado","Syringes","baako"),SI("Gacmo-gashi","Gloves","baako"),SI("Maaskaro","Face masks","baako"),SI("Suuf","Cotton wool","xabbo"),SI("Bilaastar","Plasters","baako"),SI("Alkohol nadiifiye","Spirit / alcohol","dhalo"),SI("Kulbeeg (thermometer)","Thermometer","xabbo"),SI("Qalabka cadaadiska dhiigga","BP machine","xabbo"),SI("Drip (IV)","IV drip","kartoon")]],
+  [["🧴 Daryeelka & carruurta","🧴 Care & baby"],[SI("Kareem maqaarka","Skin cream","xabbo"),SI("Dhibcaha indhaha","Eye drops","dhalo"),SI("Caano carruur","Baby formula","xabbo"),SI("Xafaayad carruur","Baby nappies","baako"),SI("Suuf dumarka","Sanitary pads","baako"),SI("Kondom","Condoms","baako")]]]},
  {id:"xb",ic:"🐪",n:["Xoolaha & Beeraha","Livestock & Farming","المواشي والزراعة","Mifugo na Kilimo"],g:[
-  [["🐪 Xoolaha","🐪 Livestock"],[SI("Geel","Camels","neef"),SI("Lo'","Cattle","neef"),SI("Ri'","Goats","neef"),SI("Ido","Sheep","neef"),SI("Digaag","Chickens","xabbo")]],
-  [["🌾 Cuntada xoolaha","🌾 Animal feed"],[SI("Calaf / caws","Fodder / hay","xidhmo"),SI("Bur xoolo","Animal feed (bran)","kiish"),SI("Milix xoolo","Livestock salt","kiish"),SI("Biyo xoolo","Water for animals","boos")]],
-  [["💉 Daawada xoolaha","💉 Animal medicine"],[SI("Tallaal xoolo","Animal vaccine","dhalo"),SI("Daawada dixirta","Tick medicine","dhalo"),SI("Daawada gooryaanka","Deworming medicine","dhalo")]],
-  [["🌱 Abuurka & bacriminta","🌱 Seeds & fertiliser"],[SI("Abuur galley","Maize seed","kg"),SI("Abuur masago","Sorghum seed","kg"),SI("Abuur digir","Bean seed","kg"),SI("Abuur khudaar","Vegetable seed","baako"),SI("Bacrimin","Fertiliser","kiish"),SI("Sun cayayaan","Pesticide","litir")]],
-  [["🧺 Wax-soo-saarka","🧺 Produce"],[SI("Galley","Maize","kiish"),SI("Masago","Sorghum","kiish"),SI("Digir","Beans","kiish"),SI("Muus","Bananas","kartoon"),SI("Liin","Lemons","kartoon"),SI("Basal","Onions","kiish"),SI("Yaanyo","Tomatoes","kartoon"),SI("Caano geel","Camel milk","litir"),SI("Caano lo'","Cow milk","litir"),SI("Ukun","Eggs","kartoon")]],
-  [["🛠️ Qalabka beerta","🛠️ Farm tools"],[SI("Yaanbo","Hoe","xabbo"),SI("Majarafad","Shovel","xabbo"),SI("Tuubbo biyo","Water hose","xabbo"),SI("Shidaal mashiinka","Pump fuel","litir")]]]}];
+  [["🐪 Xoolaha","🐪 Livestock"],[SI("Geel","Camels","neef"),SI("Nirig (geel yar)","Young camels","neef"),SI("Lo'","Cattle","neef"),SI("Weylo","Calves","neef"),SI("Ri'","Goats","neef"),SI("Ido","Sheep","neef"),SI("Digaag","Chickens","xabbo"),SI("Dameer","Donkeys","neef")]],
+  [["🌾 Cuntada xoolaha","🌾 Animal feed"],[SI("Calaf / caws","Fodder / hay","xidhmo"),SI("Bur xoolo (bran)","Bran feed","kiish"),SI("Cuntada digaagga","Chicken feed","kiish"),SI("Milix xoolo","Livestock salt","kiish"),SI("Biyo xoolo","Water for animals","boos"),SI("Fitamiin xoolo","Animal vitamins","baako")]],
+  [["💉 Daawada xoolaha","💉 Animal medicine"],[SI("Tallaal xoolo","Animal vaccine","dhalo"),SI("Daawada dixirta","Tick medicine","dhalo"),SI("Daawada gooryaanka","Deworming medicine","dhalo"),SI("Antibiyootig xoolo","Animal antibiotics","dhalo"),SI("Cirbado xoolo","Animal syringes","baako"),SI("Kareem nabarrada","Wound spray","dhalo")]],
+  [["🥛 Wax-soo-saarka xoolaha","🥛 Animal produce"],[SI("Caano geel","Camel milk","litir"),SI("Caano lo'","Cow milk","litir"),SI("Caano ari","Goat milk","litir"),SI("Ukun","Eggs","kartoon"),SI("Hilib","Meat","kg"),SI("Saan (harag)","Hides & skins","xabbo"),SI("Subag","Ghee","gaalan"),SI("Digo (bacrimin)","Manure","kiish")]],
+  [["🌱 Abuurka & geedaha","🌱 Seeds & seedlings"],[SI("Abuur galley","Maize seed","kg"),SI("Abuur masago","Sorghum seed","kg"),SI("Abuur digir","Bean seed","kg"),SI("Abuur sisin","Sesame seed","kg"),SI("Abuur khudaar","Vegetable seed","baako"),SI("Abuur qare","Watermelon seed","baako"),SI("Geed muus","Banana seedlings","xabbo"),SI("Geed liin","Lemon seedlings","xabbo"),SI("Geed cambe","Mango seedlings","xabbo")]],
+  [["🧪 Bacriminta & sunta","🧪 Fertiliser & sprays"],[SI("Bacrimin (DAP)","Fertiliser (DAP)","kiish"),SI("Bacrimin (Urea)","Fertiliser (Urea)","kiish"),SI("Sun cayayaan","Pesticide","litir"),SI("Sun haramaha","Herbicide","litir"),SI("Sun ayaxa","Locust spray","litir")]],
+  [["🧺 Wax-soo-saarka beerta","🧺 Farm produce"],[SI("Galley","Maize","kiish"),SI("Masago","Sorghum","kiish"),SI("Digir","Beans","kiish"),SI("Sisin","Sesame","kiish"),SI("Muus","Bananas","kartoon"),SI("Liin","Lemons","kartoon"),SI("Cambe","Mangoes","kartoon"),SI("Babaay","Papaya","xabbo"),SI("Qare","Watermelon","xabbo"),SI("Basal","Onions","kiish"),SI("Yaanyo","Tomatoes","kartoon"),SI("Basbaas","Chilli","kg"),SI("Timir","Dates","kartoon"),SI("Caws iib ah","Hay for sale","xidhmo")]],
+  [["🛠️ Qalabka beerta & xoolaha","🛠️ Farm & livestock tools"],[SI("Yaanbo","Hoe","xabbo"),SI("Majarafad","Shovel","xabbo"),SI("Mindi beereed","Machete","xabbo"),SI("Tuubbo biyo","Water hose","xabbo"),SI("Mashiinka biyaha (bamb)","Water pump","xabbo"),SI("Shidaal mashiinka","Pump fuel","litir"),SI("Haan biyo","Water tank","xabbo"),SI("Xadhig","Rope","xabbo"),SI("Qafiska digaagga","Chicken cage","xabbo"),SI("Kiishash bakhaar","Storage sacks","xabbo")]]]}];
 const stkType=()=>settings().stkType||(()=>{try{return localStorage.getItem("hantigo.stkType")||""}catch{return ""}})();
 let skPreOpen=null;
 const skOwnRow=()=>`<div class="skownr"><input data-ow="n" type="text" maxlength="50" aria-label="${esc(L("Magaca alaabta","Item name","اسم الصنف","Jina la bidhaa"))}" placeholder="${esc(L("Magaca alaabta","Item name","اسم الصنف","Jina la bidhaa"))}"><input data-ow="q" type="number" inputmode="decimal" step="any" aria-label="${esc(L("Tirada","Quantity","الكمية","Idadi"))}" placeholder="${esc(L("Tirada","Qty","الكمية","Idadi"))}"><input data-ow="b" type="number" inputmode="decimal" min="0" step="0.01" aria-label="${esc(L("Qiimaha iibsiga","Buying price","سعر الشراء","Bei ya kununua"))}" placeholder="${esc(L("Iibsi $","Buy $","شراء $","Kununua $"))}"><input data-ow="s" type="number" inputmode="decimal" min="0" step="0.01" aria-label="${esc(L("Qiimaha iibka","Selling price","سعر البيع","Bei ya kuuza"))}" placeholder="${esc(L("Iib $","Sell $","بيع $","Kuuza $"))}"></div>`;
@@ -6903,7 +6952,7 @@ function skPreHtml(){const have=new Set(stkAll().map(s=>ckey(s.name))),own=(skPr
     ${own?skOwnHtml():""}
     ${t?`<p class="note" style="margin:0">${L("Calaamadee waxa aad haysato, kadib riix “Ku dar”. Tirada iyo qiimaha hadhow ayaad ku qori kartaa (✏️ Beddel).","Tick what you have, then tap “Add”. You can type the quantity and prices later (✏️ Edit).","حدّد ما لديك ثم اضغط “إضافة”. يمكنك كتابة الكمية والأسعار لاحقًا (✏️ تعديل).","Weka alama kwa ulivyo navyo, kisha bonyeza “Ongeza”. Idadi na bei unaweza kuandika baadaye (✏️ Hariri).")}</p>
     <div class="skprel">${t.g.map(([gn,l])=>`<fieldset><legend>${esc(L(gn[0],gn[1]))}</legend>${l.map((it,i)=>{const nm=L(it.so,it.en),h=have.has(ckey(nm));return `<label${h?' class="have"':""}><input type="checkbox" data-skpre="${esc(nm)}" data-skpu="${esc(it.u)}" data-skpg="${esc(L(gn[0],gn[1]).replace(/^\S+\s/,""))}"${h?" disabled checked":""}>${esc(nm)}</label>`}).join("")}</fieldset>`).join("")}</div>
-    <div class="goal-actions"><button type="button" class="primary" id="skPreAdd">➕ ${L("Ku dar kuwa la doortay","Add the ticked items","أضف المحدد","Ongeza vilivyochaguliwa")}</button></div>`:""}</div>`}
+    <div class="goal-actions"><button type="button" id="skPreAll">☑ ${L("Dooro dhammaan","Tick all","تحديد الكل","Chagua zote")}</button><button type="button" class="primary" id="skPreAdd">➕ ${L("Ku dar kuwa la doortay","Add the ticked items","أضف المحدد","Ongeza vilivyochaguliwa")}</button></div>`:""}</div>`}
 {const _fb=skFormBox;skFormBox=function(ed,cur){return _fb(ed,cur)+(ed&&!cur?skPreHtml():"")}}
 document.addEventListener("change",async e=>{if(e.target.id!=="skPreType")return;skPreOpen=e.target.value||"";
   if(skPreOpen&&!TEAM&&settings().stkType!==skPreOpen){await put({...settings(),stkType:skPreOpen})}
@@ -6912,7 +6961,7 @@ document.addEventListener("click",async e=>{if(e.target.id!=="skPreAdd"||TEAM)re
   const pick=[...document.querySelectorAll("[data-skpre]:checked:not(:disabled)")];if(!pick.length)return;
   const have=new Set(stkAll().map(s=>ckey(s.name))),base=Date.now();let n=0;
   for(const c of pick){const name=c.dataset.skpre;if(have.has(ckey(name)))continue;have.add(ckey(name));
-    await put({id:uid(),kind:"stk",mode:"business",name,unit:c.dataset.skpu||"",grp:c.dataset.skpg||"",q:0,buy:0,sell:0,created:new Date(base+n).toISOString()});n++}
+    await put({id:uid(),kind:"stk",mode:"business",name,unit:c.dataset.skpu||"",grp:c.dataset.skpg||"",q:0,buy:0,sell:0,pre:1,created:new Date(base+n).toISOString()});n++}
   skKey="";$("skPanel").dataset.k="";skFlash("✓ "+L(`${n} alaab ayaa lagu daray. Riix ✏️ Beddel si aad u qorto tirada iyo qiimaha.`,`${n} items added. Tap ✏️ Edit to type the quantity and prices.`,`أُضيف ${n} صنفًا. اضغط ✏️ تعديل لكتابة الكمية والأسعار.`,`Bidhaa ${n} zimeongezwa. Bonyeza ✏️ Hariri kuandika idadi na bei.`))});
 document.addEventListener("click",e=>{if(e.target.id!=="skOwnMore")return;const b=$("skOwnRows");b.insertAdjacentHTML("beforeend",skOwnRow());b.lastElementChild.querySelector("input").focus()});
 document.addEventListener("click",async e=>{if(e.target.id!=="skOwnAdd"||TEAM)return;
@@ -6921,6 +6970,28 @@ document.addEventListener("click",async e=>{if(e.target.id!=="skOwnAdd"||TEAM)re
   const have=new Set(stkAll().map(s=>ckey(s.name))),base=Date.now();let n=0;
   for(const r of rows){if(have.has(ckey(r.name)))continue;have.add(ckey(r.name));await put({id:uid(),kind:"stk",mode:"business",name:r.name,unit:"",grp,q:r.q,buy:r.buy,sell:r.sell,created:new Date(base+n).toISOString()});n++}
   skKey="";$("skPanel").dataset.k="";skFlash(n?"✓ "+L(`${n} alaab ayaa lagu daray. Riix ✏️ Beddel si aad u qorto tirada iyo qiimaha.`,`${n} items added. Tap ✏️ Edit to type the quantity and prices.`,`أُضيف ${n} صنفًا. اضغط ✏️ تعديل لكتابة الكمية والأسعار.`,`Bidhaa ${n} zimeongezwa. Bonyeza ✏️ Hariri kuandika idadi na bei.`):"✓ "+L("Waa la kaydiyay.","Saved.","تم الحفظ.","Imehifadhiwa."))});
+document.addEventListener("click",e=>{if(e.target.id!=="skPreAll")return;const bs=[...document.querySelectorAll("[data-skpre]:not(:disabled)")],on=bs.some(b=>!b.checked);bs.forEach(b=>b.checked=on)});
+/* v187 (AM): the type chosen at sign-up shows its FULL list at once. First open after sign-up: every item of that list is added
+   (marked "Weli lama buuxin" until quantity or price is typed; never counted as low). Runs once (settings.stkSeeded). Owner only. */
+function stkSeed(){if(TEAM||!stkOn()||settings().stkSeeded)return;const t=STK_PRE.find(x=>x.id===settings().stkType);if(!t||stkAll().length)return;
+  const now=Date.now(),have=new Set();let n=0;
+  for(const [gn,l] of t.g){const grp=L(gn[0],gn[1]).replace(/^\S+\s/,"");for(const it of l){const name=L(it.so,it.en);if(have.has(ckey(name)))continue;have.add(ckey(name));
+    const d={id:uid(),kind:"stk",mode:"business",name,unit:it.u||"",grp,q:0,buy:0,sell:0,pre:1,created:new Date(now+n).toISOString(),u:now+n};items.push(d);dirty.add(d.id);n++}}
+  const s={...settings(),stkSeeded:1};s.u=Date.now();const i=items.findIndex(x=>x.kind==="settings");if(i>=0)items[i]=s;else items.push(s);dirty.add(s.id);
+  saveLocal();scheduleSync();render()}
+{const _r=render;let busy=false;render=function(){_r();if(busy)return;busy=true;try{stkSeed()}catch(e){console.warn(e)}finally{busy=false}}}
+/* v187 (AM): companies that signed up BEFORE Bakhaarka existed have no choice saved (settings.mods missing).
+   The owner sees one card on Guriga: turn it on (then pick a ready list or write your own) or "Maya". Asked once (settings.stkAsk). */
+function stkAskUI(){const host=$("bizHub");if(!host)return;let c=$("stkAsk");
+  const show=MODE==="business"&&!TEAM&&hubOn()&&!stkOn()&&!settings().stkAsk&&!Array.isArray(settings().mods);
+  if(!show){if(c)c.remove();return}
+  const key=LANG;if(c&&c.dataset.k===key)return;if(!c){c=document.createElement("div");c.id="stkAsk";c.className="stkask";host.querySelector(".panel-head").after(c)}c.dataset.k=key;
+  c.innerHTML=`<b>🆕 📦 ${L("Bakhaarka (Inventory) waa cusub","Inventory is new","المخزون جديد","Hifadhi ni mpya")}</b><span>${L("La soco alaabtaada, tirada iyo qiimaha. Liis diyaar ah ayaa jira (Hotel & Maqaayad, Jaamacad & Iskuul, Dukaan, Farmashi, Xoolaha & Beeraha) ama adigu qor. Ma rabtaa?","Track your goods, quantity and prices. Ready lists exist (Hotel & Restaurant, University & School, Shop, Pharmacy, Livestock & Farming) or write your own. Do you want it?","تابع بضائعك وكمياتها وأسعارها. توجد قوائم جاهزة أو اكتب قائمتك. هل تريده؟","Fuatilia bidhaa zako, idadi na bei. Kuna orodha tayari au andika yako. Unataka?")}</span>
+    <div class="goal-actions"><button type="button" class="primary" data-stkask="1">✓ ${L("Haa, shid","Yes, turn on","نعم، شغّل","Ndiyo, washa")}</button><button type="button" data-stkask="0">${L("Maya, hadda maya","Not now","ليس الآن","Si sasa")}</button></div>
+    <small class="note">${L("Mar kasta Akoon → 🏢 Shirkaddaada ayaad ka shidi kartaa ama ka dami kartaa. Xogtaada hore waxba iskama beddelayaan.","You can turn it on or off any time in Account → 🏢 Your business. Nothing you already have changes.","يمكنك تشغيله أو إيقافه في أي وقت من الحساب. لا يتغير شيء مما لديك.","Unaweza kuwasha au kuzima wakati wowote kwenye Akaunti. Hakuna kinachobadilika.")}</small>`}
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-stkask]");if(!b||TEAM)return;const on=b.dataset.stkask==="1",s=settings();
+  await put({...s,stkAsk:1,...(on?{mods:[...(Array.isArray(s.mods)?s.mods:[]).filter(x=>x!=="stk"),"stk"]}:{})});if(on){stkSync();hubOpen("stk");setTimeout(()=>$("skPre")?.scrollIntoView({behavior:"smooth",block:"start"}),200)}});
+{const _rh=renderHub;renderHub=function(){const r=_rh();try{stkAskUI()}catch(e){console.warn(e)}return r}}
 /* first run: the type chosen at sign-up is saved on the account */
 {const _r=render;render=function(){_r();try{if(!TEAM&&MODE==="business"&&!settings().stkType){const t=(()=>{try{return localStorage.getItem("hantigo.stkType")}catch{return null}})();if(t&&items.some(i=>i.kind==="settings")){try{localStorage.removeItem("hantigo.stkType")}catch{}put({...settings(),stkType:t})}}}catch{}}}
 </script>
