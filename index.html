@@ -1283,9 +1283,10 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
       <div class="pldet" id="glPLd" aria-live="polite" hidden></div>
       <div class="paynote mgr-only" id="payNote" hidden></div>
       <div class="glinv mgr-only" id="glInv" hidden></div>
-      <span class="lbl" id="sBalL">Lacagta akoonkaaga</span><span class="val" id="sBal">0</span>
+      <span class="lbl" id="sBalL">Lacagta akoonkaaga</span><span class="val" id="sBal" role="button" tabindex="0" data-tdb="balTD" data-tdd="bal">0</span>
       <div class="glbar" aria-hidden="true"><i id="glBar"></i></div><p class="glsum" id="glSum"></p><p class="glsafe" id="glSafe" hidden></p>
       <div class="methods" id="sMethods"></div>
+      <div class="pldet tdet" id="balTD" aria-live="polite" hidden></div>
       <div class="glact" id="glAct"></div></div>
     <div class="stat in" role="button" tabindex="0" data-tdb="sumTD" data-tdd="in"><span class="lbl">Soo galay</span><span class="val" id="sIn">0</span><span class="tdmore">Eeg xisaabta ▾</span></div>
     <div class="stat out" role="button" tabindex="0" data-tdb="sumTD" data-tdd="out"><span class="lbl">Ka baxay</span><span class="val" id="sOut">0</span><span class="tdmore">Eeg xisaabta ▾</span></div>
@@ -2606,7 +2607,7 @@ function renderPLDetail(arr,head,month,o){o=o||{};const box=$(o.box||"glPLd");if
   const ins=o.only==="out"?[]:arr.filter(x=>x.type==="in"),outs=o.only==="in"?[]:arr.filter(x=>x.type==="out"),sm=a=>a.reduce((s,x)=>s+Number(x.amount||0),0),i=sm(ins),o2=sm(outs),n=i-o2;
   const sd=iso=>{const d=new Date(iso+"T00:00");return isNaN(d)?esc(iso||""):d.getDate()+" "+MONTHS[d.getMonth()]+(o.from&&o.from.slice(0,4)!==(o.to||"").slice(0,4)?" "+d.getFullYear():"")};
   /* a month: one row per category (tap to see its entries); a day: every entry. Each entry has ✏️ Beddel (same rule as Maalin-maalin) */
-  const ent=(x,showDate)=>`<li class="plent" data-plid="${esc(x.id)}"><span class="pln"><b>${esc(T(x.cat||"Kale"))}</b>${(()=>{const sub=[showDate?sd(x.date):"",x.place,x.note&&x.note!=="Tusaale"?x.note:"",x.by&&(TEAM||hasStaff)?"👤 "+x.by.split("@")[0]:""].filter(Boolean).join(" · ");return sub?`<small>${esc(sub)}</small>`:""})()}</span><span class="pla ${x.type}">${x.type==="in"?"+":"−"}${money(Number(x.amount||0))}</span>${!o.noEdit&&dyEditable(x)?`<button type="button" class="del dyed plbtn" data-qedit="${esc(x.id)}" data-qsrc="${esc(src)}">✏️ ${L("Beddel","Edit","تعديل","Hariri")}</button>`:""}${!o.noEdit&&QE===x.id&&QESRC===src?dyQeForm(x):""}${QOK===x.id?`<span class="dyok" role="status">✓ ${L("Waa la saxay","Corrected","تم التصحيح","Imesahihishwa")}</span>`:""}</li>`;
+  const ent=(x,showDate)=>`<li class="plent" data-plid="${esc(x.id)}"><span class="pln"><b>${esc(T(x.cat||"Kale"))}</b>${(()=>{const sub=[showDate?sd(x.date):"",x.place,x.note&&x.note!=="Tusaale"?x.note:"",x.by&&(TEAM||hasStaff)?"👤 "+x.by.split("@")[0]:""].filter(Boolean).join(" · ");return sub?`<small>${esc(sub)}</small>`:""})()}</span><span class="pla ${x.type}">${x.type==="in"?"+":"−"}${money(Number(x.amount||0))}</span>${!o.noEdit&&dyEditable(x)?`<button type="button" class="del dyed plbtn" data-qedit="${esc(x.id)}" data-qsrc="${esc(src)}">✏️ ${L("Beddel","Edit","تعديل","Hariri")}</button>`:""}${!o.noEdit&&QE===x.id&&QESRC===src?dyQeForm(x):""}${o.fix==="debt"&&MGR()&&!STAFF()?`<button type="button" class="del dyed plbtn" data-dfix="${esc(x.id)}">✏️ ${L("Sax","Fix","صحّح","Sahihisha")}</button>${DFX===x.id?dFixForm(x.id):""}`:""}${QOK===x.id?`<span class="dyok" role="status">✓ ${L("Waa la saxay","Corrected","تم التصحيح","Imesahihishwa")}</span>`:""}</li>`;
   const rows=(a,type)=>{const tot=sm(a),bar=v=>`<i class="plbar ${type}" style="width:${tot?Math.max(3,Math.round(v/tot*100)):0}%"></i>`;
     if(o.flat)return [...a].sort((x,y)=>(y.date||"").localeCompare(x.date||"")||Number(y.amount||0)-Number(x.amount||0)).map(x=>ent(x,true).replace(/<\/li>$/,bar(Number(x.amount||0))+"</li>")).join("");
     if(!month)return [...a].sort((x,y)=>Number(y.amount||0)-Number(x.amount||0)).map(x=>ent(x,false).replace(/<\/li>$/,bar(Number(x.amount||0))+"</li>")).join("");
@@ -2642,7 +2643,7 @@ function tdShow(det){const box=$(det);if(!box)return;const k=TDsel[det],f=k&&TDd
 function tdTap(b){const det=b.dataset.tdb;if(!det)return;TDsel[det]=TDsel[det]===b.dataset.tdd?null:b.dataset.tdd;if(QESRC==="td:"+det)QE=null;tdShow(det);
   if(TDsel[det])setTimeout(()=>{const d=$(det);d&&!d.hidden&&d.scrollIntoView({behavior:"smooth",block:"nearest"})},50)}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-tdd]");if(b)tdTap(b)});
-document.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const b=e.target.closest?.("div[data-tdd]");if(!b||e.target!==b)return;e.preventDefault();tdTap(b)});
+document.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const b=e.target.closest?.("div[data-tdd],[role=button][data-tdd]");if(!b||e.target!==b)return;e.preventDefault();tdTap(b)});
 const tdIso=d=>{const z=x=>String(x).padStart(2,"0");return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`};
 const tdMonth=()=>{const y=view.getFullYear(),m=view.getMonth();return {from:tdIso(new Date(y,m,1)),to:tdIso(new Date(y,m+1,0))}};
 const tdKaydT=()=>({in:"↩️ "+L("Laga qaatay kaydka","Taken out of savings","سُحب من المدخرات","Imetolewa kwenye akiba"),out:"🏦 "+L("La dhigay kaydka","Put into savings","أُضيف إلى المدخرات","Imewekwa kwenye akiba")});
@@ -3119,7 +3120,17 @@ function render(){
    $("sBalL").textContent=past?L("Lacagta akoonkaaga · dhammaadka ","Account balance · end of ","رصيد الحساب · نهاية ","Salio la akaunti · mwisho wa ")+MONTHS[view.getMonth()]+" "+view.getFullYear():L("Lacagta akoonkaaga","Account balance","رصيد الحساب","Salio la akaunti")}
   renderGlance(mi,mo);renderPL(txs);renderStaffDash(txs);
   {const mb=methBal(txs.filter(upToView),mineTr().filter(upToView));$("sMethods").innerHTML=`<div class="mphead"><small>${L("Meesha lacagtu ku jirto","Where your money is","أين يوجد مالك","Pesa zako ziko wapi")}</small><button type="button" class="mptr" data-tr="1">⇄ ${L("Wareeji","Move","تحويل","Hamisha")}</button></div>`
-    +METHODS.map(m=>`<span class="mp${(mb[m]||0)<0?" neg":""}"><i aria-hidden="true">${TR_IC[m]||"💵"}</i><small>${T(m)}</small><b>${(mb[m]||0)<0?"−":""}${money(Math.abs(mb[m]||0))}</b></span>`).join("")}
+    +METHODS.map(m=>`<span class="mp${(mb[m]||0)<0?" neg":""}" role="button" tabindex="0" data-tdb="balTD" data-tdd="m:${esc(m)}" title="${esc(L("Riix si aad u aragto oo u saxdo","Tap to see and fix","اضغط للعرض والتصحيح","Gusa kuona na kusahihisha"))}"><i aria-hidden="true">${TR_IC[m]||"💵"}</i><small>${T(m)}</small><b>${(mb[m]||0)<0?"−":""}${money(Math.abs(mb[m]||0))}</b></span>`).join("")}
+  /* v189 (AM): the balance and each place (EVC / Bank / Cash) open the entries behind them, each with ✏️ Beddel */
+  {const bt=txs.filter(upToView),trs=mineTr().filter(upToView),first=bt.reduce((a,t)=>t.date&&t.date<a?t.date:a,today()),end=vEnd()<today()?vEnd():today(),mb=methBal(bt,trs);
+   const fixW=L(" Qoraal qaldan? Fur qaybta, riix ✏️ Beddel."," Wrong entry? Open the category, tap ✏️ Edit."," قيد خطأ؟ افتح الفئة واضغط ✏️ تعديل."," Ingizo lenye kosa? Fungua aina, bonyeza ✏️ Hariri.");
+   const defs={bal:()=>({arr:bt,head:L("Lacagta akoonkaaga","Account balance","رصيد الحساب","Salio la akaunti"),headVal:money(sum(bt,"in")-sum(bt,"out")),from:first,to:end,
+     why:L(`Lacagta akoonka = wax kasta oo soo galay (${money(sum(bt,"in"))}) − wax kasta oo baxay (${money(sum(bt,"out"))}).`,`Balance = everything in (${money(sum(bt,"in"))}) − everything out (${money(sum(bt,"out"))}).`,`الرصيد = كل ما دخل (${money(sum(bt,"in"))}) − كل ما خرج (${money(sum(bt,"out"))}).`,`Salio = vyote vilivyoingia (${money(sum(bt,"in"))}) − vyote vilivyotoka (${money(sum(bt,"out"))}).`)+fixW})};
+   for(const m of METHODS){const a=bt.filter(t=>(t.method||"Kaash")===m),nt=trs.filter(t=>(t.to||"Kaash")===m||(t.method||"Kaash")===m).length;
+     defs["m:"+m]=()=>({arr:a,head:T(m),headVal:money(mb[m]||0),from:first,to:end,
+       why:L(`${T(m)}: soo galay ${money(sum(a,"in"))} − baxay ${money(sum(a,"out"))}`,`${T(m)}: in ${money(sum(a,"in"))} − out ${money(sum(a,"out"))}`,`${T(m)}: دخل ${money(sum(a,"in"))} − خرج ${money(sum(a,"out"))}`,`${T(m)}: ndani ${money(sum(a,"in"))} − nje ${money(sum(a,"out"))}`)
+         +(nt?L(` (+ ${nt} wareejin, ka saxo ⇄ Wareeji).`,` (+ ${nt} transfers, fix them in ⇄ Move).`,` (+ ${nt} تحويلات، صححها من ⇄ تحويل).`,` (+ uhamisho ${nt}, sahihisha kwenye ⇄ Hamisha).`):".")+fixW})}
+   tdReg("balTD",defs)}
   const monthL=[...month,...mineTr().filter(inMonth)].sort((a,b)=>(b.date+b.created).localeCompare(a.date+a.created));
   if(!$("trPanel").hidden)trRender();
   const kayd=month.filter(t=>t.cat==="Kayd");
@@ -4303,8 +4314,10 @@ function renderMgr(){const panel=$("mgPanel");if(!panel||MODE!=="business"||!MGR
     {dd:"owout",ic:"💳",lb:L("Lacag aan dad u hayno","We owe","مستحق علينا","Tunadaiwa"),v:money(r.owedOut),c:ST_SAL}],"mgTD");
   box.innerHTML=`<div class="mghead">${lg?`<img src="${lg}" alt="">`:""}<div style="min-width:0"><b>${esc(coName()||L("Shirkaddaada","Your company","شركتك","Kampuni yako"))}</b><small>${esc(realMail())} · ${L("Shaqaale","Staff","الموظفون","Wafanyakazi")}: ${staff.length}</small></div></div>
   <div class="mglock">🔒 ${L("Halkan waxaa ku jira xogta shirkaddaada oo kaliya. Shirkad kale ma arki karto, shaqaalahaaguna ma arkaan bogan.","Only your company's data is here. No other company can see it, and your staff cannot see this page.","هنا بيانات شركتك فقط. لا يمكن لأي شركة أخرى رؤيتها، ولا يرى موظفوك هذه الصفحة.","Hapa kuna data ya kampuni yako tu. Hakuna kampuni nyingine inayoweza kuiona, na wafanyakazi wako hawaoni ukurasa huu.")}</div>
-  <div class="mgtiles">${tiles}</div>
+  <p class="note mgfixh">✏️ ${L("Tiro qaldan ma aragtay? Riix tirada, kadib riix ✏️ Beddel / 🛠 Sax qoraalka khaldan. Sixid kasta waxay gelaysaa 🕓 Taariikhda isbeddelka.","See a wrong number? Tap it, then tap ✏️ Edit / 🛠 Fix on the wrong entry. Every fix goes into 🕓 Activity history.","رقم خطأ؟ اضغط عليه ثم اضغط ✏️ تعديل / 🛠 تصحيح على القيد الخطأ. كل تصحيح يُسجَّل في 🕓 سجل التغييرات.","Umeona namba isiyo sahihi? Iguse, kisha bonyeza ✏️ Hariri / 🛠 Sahihisha kwenye ingizo lenye kosa. Kila marekebisho huingia 🕓 Historia ya mabadiliko.")}</p>
+  <div class="mgtiles">${tiles}${mgStkTiles()}</div>
   <div class="pldet tdet" id="mgTD" aria-live="polite" hidden></div>
+  <div class="pldet tdet" id="mgSK" aria-live="polite" hidden></div>
   <div class="stin">${tips.map(t=>`<p>${t}</p>`).join("")||`<p>${L("Weli xog kuma filna bishan. Ku dar iibka iyo kharashka.","Not enough data this month yet. Add sales and spending.","لا توجد بيانات كافية هذا الشهر بعد. أضف المبيعات والمصاريف.","Bado hakuna data ya kutosha mwezi huu. Ongeza mauzo na matumizi.")}</p>`}</div>
   <div class="goal-actions"><button type="button" id="mgCsv">⬇ Excel</button><button type="button" id="mgDoc">⬇ Word</button><button type="button" id="mgPpt">📽 PowerPoint</button>${NATIVE?"":`<button type="button" id="mgPdf">🖨 PDF</button>`}</div>
   <div class="mggrid">
@@ -4342,12 +4355,12 @@ function renderMgr(){const panel=$("mgPanel");if(!panel||MODE!=="business"||!MGR
         +r.meth.map(([m,v])=>T(m)+": "+money(v)).join(" · ")}),
     sales:()=>({arr:r.sales,head:L("Iibka bishan","Sales this month","المبيعات هذا الشهر","Mauzo mwezi huu")+mh,only:"in",...mo}),
     buy:()=>({arr:r.buys,head:L("Waxa la soo iibsaday","Purchases","المشتريات","Manunuzi")+mh,only:"out",...mo}),
-    owin:()=>({arr:tdDebts("in"),head:L("Lacag naloo hayo","Owed to us","مستحق لنا","Tunadai"),only:"in",flat:true,noEdit:true,from:first,to:today(),
+    owin:()=>({arr:tdDebts("in"),head:L("Lacag naloo hayo","Owed to us","مستحق لنا","Tunadai"),only:"in",flat:true,noEdit:true,fix:"debt",from:first,to:today(),
       titles:{in:"🤝 "+L("Cidda lacagta naloo hayso","Who owes us","من يدين لنا","Wanaotudai")},
-      why:L(`Deymaha weli furan (inta ka hartay). Ku beddel Qorshe → Deymaha.`,`Debts still open (amount left). Change them in Plan → Debts.`,`الديون المفتوحة (المبلغ المتبقي). عدّلها من الخطة ← الديون.`,`Madeni ambayo bado yako wazi (kiasi kilichobaki). Yabadilishe kwenye Mpango → Madeni.`)}),
-    owout:()=>({arr:tdDebts("out"),head:L("Lacag aan dad u hayno","We owe","مستحق علينا","Tunadaiwa"),only:"out",flat:true,noEdit:true,from:first,to:today(),
+      why:L(`Deymaha weli furan (inta ka hartay). Tiro qaldan? Riix ✏️ Sax.`,`Debts still open (amount left). Wrong number? Tap ✏️ Fix.`,`الديون المفتوحة (المبلغ المتبقي). رقم خطأ؟ اضغط ✏️ صحّح.`,`Madeni ambayo bado yako wazi (kiasi kilichobaki). Namba si sahihi? Bonyeza ✏️ Sahihisha.`)}),
+    owout:()=>({arr:tdDebts("out"),head:L("Lacag aan dad u hayno","We owe","مستحق علينا","Tunadaiwa"),only:"out",flat:true,noEdit:true,fix:"debt",from:first,to:today(),
       titles:{out:"💳 "+L("Cidda aan lacagta u hayno","Who we owe","لمن ندين","Tunaodaiwa na")},
-      why:L(`Deymaha weli furan (inta ka hartay). Ku beddel Qorshe → Deymaha.`,`Debts still open (amount left). Change them in Plan → Debts.`,`الديون المفتوحة (المبلغ المتبقي). عدّلها من الخطة ← الديون.`,`Madeni ambayo bado yako wazi (kiasi kilichobaki). Yabadilishe kwenye Mpango → Madeni.`)})})}
+      why:L(`Deymaha weli furan (inta ka hartay). Tiro qaldan? Riix ✏️ Sax.`,`Debts still open (amount left). Wrong number? Tap ✏️ Fix.`,`الديون المفتوحة (المبلغ المتبقي). رقم خطأ؟ اضغط ✏️ صحّح.`,`Madeni ambayo bado yako wazi (kiasi kilichobaki). Namba si sahihi? Bonyeza ✏️ Sahihisha.`)})})}
 function mgTables(){const r=MG,row=(c)=>`<tr>${c.map((x,i)=>`<td${i?' class="n"':""}>${x}</td>`).join("")}</tr>`,th=c=>`<tr>${c.map(x=>`<th>${x}</th>`).join("")}</tr>`,dash=n=>`<tr><td colspan="${n}">—</td></tr>`,rowN=c=>`<tr>${c.map(x=>`<td class="n">${x}</td>`).join("")}</tr>`;
   const sold=Object.entries(r.sales.reduce((m,t)=>(m[t.cat]=(m[t.cat]||0)+Number(t.amount||0),m),{})).sort((a,b)=>b[1]-a[1]);
   return `<h2>${L("Kooban","Summary")}</h2><table>${th([L("Soo galay bishan","Money in this month","دخل هذا الشهر","Pesa iliyoingia mwezi huu"),L("Ka baxay bishan","Money out this month","خرج هذا الشهر","Pesa iliyotoka mwezi huu"),L("Faa'iido","Profit"),L("Iibka bishan","Sales this month","المبيعات هذا الشهر","Mauzo mwezi huu"),L("Waxa la soo iibsaday","Purchases","المشتريات","Manunuzi"),L("Lacagta gacanta ku jirta","Cash on hand","النقد المتوفر","Pesa mkononi")])}
@@ -6690,6 +6703,7 @@ html[data-mode="business"] #hubSw{grid-template-columns:repeat(var(--hn,4),minma
 .skhl small{color:var(--muted);font-size:.78rem}.skhl .skhf span{color:var(--accent);font-weight:600}.skhb{display:flex;gap:6px;flex-wrap:wrap}
 .skgone{border:1px dashed var(--line);border-radius:14px;padding:8px 12px;display:grid;gap:8px}.skgone>summary{cursor:pointer;font-weight:600}
 .skrow.gone{opacity:.85;border-style:dashed}
+.mgfixh{margin:0 0 8px;font-size:.85rem}#sBal[data-tdd],.mp[data-tdd]{cursor:pointer}#sBal[data-tdd]:hover,.mp[data-tdd]:hover,.mp[data-tdd].on{outline:2px solid var(--accent);outline-offset:2px;border-radius:10px}#sBal.on{text-decoration:underline dotted}.dfix{margin-top:6px;width:100%}.plent .dfix{grid-column:1/-1}
 .sktag{font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--out-soft);color:var(--out)}
 #stkRow .note{grid-column:1/-1;margin:0}
 .skdl{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0}
@@ -6818,6 +6832,56 @@ document.addEventListener("click",async e=>{const b=e.target.closest("[data-skfo
   if([q,by,se].every(x=>x==null)){r.querySelector("[data-skf=q]").focus();return}if([q,by,se].some(x=>x!=null&&(!isFinite(x)||x<0)))return;
   const d={...s,q:q??Number(s.q||0),buy:by??Number(s.buy||0),sell:se??Number(s.sell||0)};delete d.pre;await put(d);skFlash("✓ "+L(`${s.name} waa la kaydiyay.`,`${s.name} saved.`,`تم حفظ ${s.name}.`,`${s.name} imehifadhiwa.`))});
 {const _r=render;render=function(){_r();try{renderStk();stkRowUI()}catch(e){console.warn(e)}}}
+/* ---------- v189 (AM 2026-11-26): every wrong number on the Shirkad dashboard can be fixed from the dashboard ----------
+   Debts (Owed to us / We owe): ✏️ Sax = the right total. Inventory tiles: stock value, low items, profit on item sales,
+   each opens its items / sales with 🛠 Sax tirada (same flow as Bakhaarka) or ✏️ Sax on the sale. All saves are logged. */
+var DFX=null,MGSK=null;
+function dFixForm(id){const d=items.find(i=>i.id===id);if(!d)return"";const pd=Number(d.paid||0);
+  return `<div class="skfix dfix"><span class="note">${L(`Wadarta hadda: <b>${money(Number(d.amount||0))}</b>${pd?` · la bixiyay ${money(pd)}`:""}. Ku qor wadarta saxda ah.`,`Total now: <b>${money(Number(d.amount||0))}</b>${pd?` · paid ${money(pd)}`:""}. Type the right total.`,`المجموع الآن: <b>${money(Number(d.amount||0))}</b>${pd?` · المدفوع ${money(pd)}`:""}. اكتب المجموع الصحيح.`,`Jumla sasa: <b>${money(Number(d.amount||0))}</b>${pd?` · imelipwa ${money(pd)}`:""}. Andika jumla sahihi.`)}</span>
+    <div class="skfixr"><input type="number" inputmode="decimal" min="0" step="0.01" id="dfxIn" value="${esc(String(d.amount??""))}" aria-label="${esc(L("Wadarta saxda ah","Right total","المجموع الصحيح","Jumla sahihi"))}"></div>
+    <div class="err" id="dfxErr" role="alert"></div>
+    <div class="goal-actions"><button type="button" class="primary" data-dfxok="${esc(id)}">✓ ${L("Kaydi","Save","حفظ","Hifadhi")}</button><button type="button" data-dfxx="1">${L("Jooji","Cancel","إلغاء","Ghairi")}</button></div></div>`}
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-dfix],[data-dfxok],[data-dfxx]");if(!b)return;e.stopPropagation();
+  const redraw=()=>{for(const k of Object.keys(TDsel))if(TDsel[k])tdShow(k)};
+  if(b.dataset.dfix){DFX=DFX===b.dataset.dfix?null:b.dataset.dfix;redraw();setTimeout(()=>$("dfxIn")?.focus(),60);return}
+  if(b.dataset.dfxx){DFX=null;redraw();return}
+  const d=items.find(i=>i.id===b.dataset.dfxok);if(!d||!MGR()||STAFF())return;const v=Number($("dfxIn").value),pd=Number(d.paid||0);
+  if($("dfxIn").value.trim()===""||!isFinite(v)||v<0){$("dfxErr").textContent=L("Ku qor tiro sax ah.","Type a valid number.","اكتب رقمًا صحيحًا.","Andika namba sahihi.");return}
+  if(v<pd){$("dfxErr").textContent=L(`Wadartu kama yaraan karto lacagta la bixiyay (${money(pd)}).`,`The total can't be less than what was paid (${money(pd)}).`,`لا يمكن أن يقل المجموع عن المدفوع (${money(pd)}).`,`Jumla haiwezi kuwa chini ya kilicholipwa (${money(pd)}).`);return}
+  const old=Number(d.amount||0);DFX=null;if(v!==old)await put({...d,amount:v,fx:stkFxAdd(d,{k:"amt",f:old,t:v})});QOK=d.id;redraw();setTimeout(()=>{if(QOK===d.id){QOK=null;redraw()}},3000)},true);
+/* inventory figures on the company dashboard */
+function mgStkM(){const mo=tdMonth();return stkMoves(stkTx().filter(t=>t.date>=mo.from&&t.date<=mo.to))}
+function mgStkTiles(){if(!(typeof stkOn==="function"&&stkOn())||!stkAll().length)return"";const S=stkStats(),M=mgStkM();
+  const t=(k,ic,lb,v,c)=>`<button type="button" data-mgsk="${k}" aria-expanded="${MGSK===k}" class="tile2 tdd${MGSK===k?" on":""}" style="--tc:${c}"><div class="hd"><span class="ic" aria-hidden="true">${ic}</span><span class="lb">${lb}</span></div><span class="vl">${v}</span><span class="tdmore">${MGSK===k?L("Qari ▴","Hide ▴","إخفاء ▴","Ficha ▴"):L("Eeg oo sax ▾","See and fix ▾","عرض وتصحيح ▾","Angalia na sahihisha ▾")}</span></button>`;
+  return t("val","📦",L("Qiimaha bakhaarka","Stock value","قيمة المخزون","Thamani ya hifadhi"),money(S.cost),"#8a6d1e")
+    +t("low","⚠️",L("Alaab yaraatay / dhammaatay","Low / out of stock","منخفضة / نفدت","Chache / imeisha"),String(S.low),S.low?ST_SAL:"var(--line)")
+    +t("pr",M.pr>=0?"📈":"📉",L("Faa'iidada iibka alaabta bishan","Profit on item sales this month","ربح بيع الأصناف هذا الشهر","Faida ya mauzo ya bidhaa mwezi huu"),money(M.pr),M.pr>=0?"#2f6fc4":ST_SAL)}
+function mgSkShow(){const box=$("mgSK");if(!box)return;document.querySelectorAll("[data-mgsk]").forEach(b=>{const on=b.dataset.mgsk===MGSK;b.classList.toggle("on",on);b.setAttribute("aria-expanded",String(on))});
+  if(!MGSK||!stkOn()){box.hidden=true;box.innerHTML="";return}
+  const ed=stkEdit(),S=stkStats(),u=s=>s.unit?" "+esc(s.unit):"",x=`<button type="button" class="plx" data-mgskx="1" aria-label="${L("Xir","Close","إغلاق","Funga")}">✕</button>`;
+  const fix=s=>ed?`<button type="button" class="del dyed plbtn" data-skgofix="${esc(s.id)}">🛠 ${L("Sax tirada","Fix quantity","تصحيح الكمية","Sahihisha idadi")}</button><button type="button" class="del dyed plbtn" data-skgofix="${esc(s.id)}" data-skgok="e">✏️ ${L("Qiimaha","Prices","الأسعار","Bei")}</button>`:"";
+  let head,why,list;
+  if(MGSK==="pr"){const M=mgStkM();head=L("Faa'iidada iibka alaabta bishan","Profit on item sales this month","ربح بيع الأصناف هذا الشهر","Faida ya mauzo ya bidhaa mwezi huu")+": "+money(M.pr);
+    why=L(`Faa'iido = lacagta iibka (${money(M.sale)}) − kharashka alaabta la iibiyay (${money(M.cost)}). Iib qaldan: riix ✏️ Sax (tirada ama lacagta) ama 🗑.`,`Profit = sales money (${money(M.sale)}) − cost of goods sold (${money(M.cost)}). Wrong sale: tap ✏️ Fix (quantity or money) or 🗑.`,`الربح = مبلغ المبيعات (${money(M.sale)}) − تكلفة البضاعة المباعة (${money(M.cost)}). بيع خطأ: اضغط ✏️ صحّح أو 🗑.`,`Faida = pesa ya mauzo (${money(M.sale)}) − gharama ya bidhaa (${money(M.cost)}). Mauzo yenye kosa: bonyeza ✏️ Sahihisha au 🗑.`);
+    const rows=M.rows.filter(r=>r.t.type==="in").sort((a,b)=>String(b.t.date).localeCompare(String(a.t.date)));
+    list=rows.length?rows.map(r=>`<li class="plent"><span class="pln"><b>${esc(r.s.name)}</b><small>${esc(fmtD(r.t.date))} · ${esc(stkN(r.q))}${u(r.s)} × ${money(r.each)} · ${L("kharash","cost","تكلفة","gharama")} ${money(r.cost)}</small></span><span class="pla ${r.pr>=0?"in":"out"}">${r.pr>=0?"+":"−"}${money(Math.abs(r.pr))}</span>${dyEditable(r.t)?`<button type="button" class="del dyed plbtn" data-skmed="${esc(r.t.id)}">✏️ ${L("Sax","Fix","صحّح","Sahihisha")}</button>`:""}${ed?`<button type="button" class="del dyed plbtn" data-skmdel="${esc(r.t.id)}">🗑 ${L("Tirtir","Delete","حذف","Futa")}</button>`:""}</li>`).join(""):"";
+  }else{const l=MGSK==="low"?S.l.filter(y=>stkLow(y.s,y.q)):S.l.slice().sort((a,b)=>Math.max(0,b.q)*Number(b.s.buy||0)-Math.max(0,a.q)*Number(a.s.buy||0));
+    head=MGSK==="low"?L("Alaab yaraatay / dhammaatay","Low / out of stock","منخفضة / نفدت","Chache / imeisha")+": "+S.low:L("Qiimaha bakhaarka","Stock value","قيمة المخزون","Thamani ya hifadhi")+": "+money(S.cost);
+    why=MGSK==="low"?L("Tirada qaldan? Riix 🛠 Sax tirada oo ku qor tirada dhabta ah (0 haddii ay dhammaatay).","Wrong quantity? Tap 🛠 Fix quantity and type the real count (0 if none).","كمية خطأ؟ اضغط 🛠 تصحيح الكمية واكتب العدد الفعلي (0 إذا نفدت).","Idadi si sahihi? Bonyeza 🛠 Sahihisha idadi na uandike idadi halisi (0 kama imeisha).")
+      :L("Qiimaha bakhaarka = tirada hadda × qiimaha iibsiga, alaab kasta. Tiro ama qiime qaldan: riix 🛠 Sax tirada ama ✏️ Qiimaha.","Stock value = quantity now × buying price, for each item. Wrong quantity or price: tap 🛠 Fix quantity or ✏️ Prices.","قيمة المخزون = الكمية الآن × سعر الشراء لكل صنف. كمية أو سعر خطأ: اضغط 🛠 أو ✏️.","Thamani ya hifadhi = idadi sasa × bei ya kununua, kwa kila bidhaa. Idadi au bei si sahihi: bonyeza 🛠 au ✏️.");
+    list=l.map(({s,q})=>`<li class="plent"><span class="pln"><b>${esc(s.name)}</b><small>${esc(stkN(q))}${u(s)} × ${money(s.buy||0)}${(s.fx||[]).some(f=>f.k==="q")?" · 🛠":""}</small></span><span class="pla ${stkLow(s,q)?"out":"in"}">${money(Math.max(0,q)*Number(s.buy||0))}</span>${fix(s)}</li>`).join("")}
+  box.innerHTML=`<div class="plhd"><b>${esc(head)}</b>${x}</div><p class="plwhy">${why}</p>${list?`<div class="plcols one"><div class="plcol"><ul>${list}</ul></div></div>`:`<p class="note">${L("Bishan wax lama qorin.","Nothing recorded this month.","لم يُسجَّل شيء هذا الشهر.","Hakuna kilichorekodiwa mwezi huu.")}</p>`}
+    ${ed?"":`<p class="note">🔒 ${L("Tirada iyo qiimaha alaabta waxaa sixi kara mulkiilaha shirkadda.","Only the company owner can fix item quantities and prices.","يمكن لمالك الشركة فقط تصحيح الكميات والأسعار.","Mmiliki tu ndiye anaweza kusahihisha idadi na bei.")}</p>`}`;box.hidden=false}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-mgsk],[data-mgskx],[data-skgofix]");if(!b)return;
+  if(b.dataset.mgskx){MGSK=null;mgSkShow();return}
+  if(b.dataset.mgsk){MGSK=MGSK===b.dataset.mgsk?null:b.dataset.mgsk;mgSkShow();if(MGSK)setTimeout(()=>$("mgSK")?.scrollIntoView({behavior:"smooth",block:"nearest"}),50);return}
+  skGoFix(b.dataset.skgofix,b.dataset.skgok==="e")});
+/* open 📦 Bakhaarka at one item with its 🛠 fix box (or ✏️ edit form) open */
+function skGoFix(id,edit){const s=items.find(i=>i.id===id);if(!s||!stkEdit())return;skQ="";skF="";skOpenG.add(s.grp||"");
+  if(edit)skEdit=id;skKey="";const P=$("skPanel");if(P)P.dataset.k="";hubOpen("stk");
+  setTimeout(()=>{renderStk();if(edit){$("skForm")?.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("skName")?.focus({preventScroll:true}),300);return}
+    const g=document.querySelector(`#skList [data-skid="${CSS.escape(id)}"]`)?.closest("details");if(g)g.open=true;skBox("skcbox",id)},120)}
+{const _rm=renderMgr;renderMgr=function(){_rm();try{mgSkShow()}catch(e){console.warn(e)}}}
 {const _rh=renderHub;renderHub=function(){_rh();const av=$("appView");if(av.dataset.tab==="hub"&&av.dataset.hub==="stk"&&HUBS.stk&&hubOn())
   $("hubAct").innerHTML=stkEdit()?`<button type="button" class="primary" data-hubact="stknew">➕ ${L("Alaab cusub","New item","صنف جديد","Bidhaa mpya")}</button>`:""}}
 function skFlash(t){skMsg=t;renderStk();setTimeout(()=>{if(skMsg===t){skMsg="";renderStk()}},4000)}
@@ -6864,7 +6928,9 @@ function skGoneHtml(){const g=stkGone();if(!g.length)return"";
     <div class="sklist">${g.map(s=>`<div class="skrow gone"><div class="skh"><b>${esc(s.name)}</b><span class="note">${esc(skWhen(s.delAt))}</span></div>
       <div class="skm">${s.delQ!=null?`${L("Tiradu markaas","Quantity then","الكمية حينها","Idadi wakati huo")}: ${esc(stkN(s.delQ))}${s.unit?" "+esc(s.unit):""}`:""}${s.delBy?" · 👤 "+esc(skBy(s.delBy)):""}${s.delWhy?" · “"+esc(s.delWhy)+"”":""}</div>
       <div class="ska"><button type="button" class="skbuy" data-skback="${esc(s.id)}">↩ ${L("Soo celi","Bring back","أعِد","Rudisha")}</button><button type="button" class="del" data-skwipe="${esc(s.id)}">${L("Tirtir gebi ahaanba","Delete for good","احذف نهائيًا","Futa kabisa")}</button></div></div>`).join("")}</div></details>`}
-document.addEventListener("click",async e=>{const t=e.target,b=t.closest("[data-skzero],[data-skcok],[data-skx],[data-skdel],[data-skdok],[data-skhist],[data-skmed],[data-skmdel],[data-skback],[data-skwipe]");if(!b||!stkEdit())return;const d=b.dataset;
+document.addEventListener("click",async e=>{const t=e.target,b=t.closest("[data-skzero],[data-skcok],[data-skx],[data-skdel],[data-skdok],[data-skhist],[data-skmed],[data-skmdel],[data-skback],[data-skwipe]");if(!b)return;const d=b.dataset;
+  if(d.skmed){const x=items.find(i=>i.id===d.skmed);if(!x||!(stkEdit()||dyEditable(x)))return;goTab("add");startEdit(x);return}
+  if(!stkEdit())return;
   const ok=m=>{skKey="";$("skPanel").dataset.k="";skFlash(m)};
   if(d.skx){b.closest(".skfix").hidden=true;return}
   if(d.skzero){const i=document.querySelector(`[data-skcin="${CSS.escape(d.skzero)}"]`);if(i){i.value="0";i.focus()}return}
