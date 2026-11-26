@@ -2602,7 +2602,7 @@ function plExport(k){if(!PLD)return;
 function renderPLDetail(arr,head,month,o){o=o||{};const box=$(o.box||"glPLd");if(!box)return;const src=o.src||"pl";
   const closeX=`<button type="button" class="plx" aria-label="${L("Xir","Close","إغلاق","Funga")}">✕</button>`,close=()=>{if(o.onClose)o.onClose();else{PLsel=null;render()}};
   if(!arr||!arr.length){if(!o.box){box.hidden=true;box.innerHTML="";return}
-    box.dataset.pl="zero";box._pld=null;box.innerHTML=`<div class="plhd"><b>${esc(head)}</b>${closeX}</div><p class="plwhy">${L("Muddadan weli wax lama qorin, sidaas darteed tirada waa eber.","Nothing has been recorded in this period yet, so the number is zero.","لم يُسجَّل شيء في هذه الفترة بعد، لذلك الرقم صفر.","Bado hakuna kilichorekodiwa katika kipindi hiki, kwa hiyo namba ni sifuri.")}</p>`;
+    box.dataset.pl="zero";box._pld=null;box.innerHTML=`<div class="plhd"><b>${esc(o.headVal!=null?head+": "+o.headVal:head)}</b>${closeX}</div>${o.act||""}<p class="plwhy">${L("Muddadan weli wax lama qorin, sidaas darteed tirada waa eber.","Nothing has been recorded in this period yet, so the number is zero.","لم يُسجَّل شيء في هذه الفترة بعد، لذلك الرقم صفر.","Bado hakuna kilichorekodiwa katika kipindi hiki, kwa hiyo namba ni sifuri.")}</p>`;
     box.querySelector(".plx").onclick=close;box.hidden=false;return}
   const ins=o.only==="out"?[]:arr.filter(x=>x.type==="in"),outs=o.only==="in"?[]:arr.filter(x=>x.type==="out"),sm=a=>a.reduce((s,x)=>s+Number(x.amount||0),0),i=sm(ins),o2=sm(outs),n=i-o2;
   const sd=iso=>{const d=new Date(iso+"T00:00");return isNaN(d)?esc(iso||""):d.getDate()+" "+MONTHS[d.getMonth()]+(o.from&&o.from.slice(0,4)!==(o.to||"").slice(0,4)?" "+d.getFullYear():"")};
@@ -2627,7 +2627,7 @@ function renderPLDetail(arr,head,month,o){o=o||{};const box=$(o.box||"glPLd");if
   const per=o.from?{from:o.from,to:o.to||o.from}:month?(()=>{const y=view.getFullYear(),m=view.getMonth(),z=x=>String(x).padStart(2,"0");return {from:`${y}-${z(m+1)}-01`,to:`${y}-${z(m+1)}-${z(new Date(y,m+1,0).getDate())}`}})():{from:today(),to:today()};
   const hd=o.headVal!=null?`${esc(head)}: ${esc(o.headVal)}`:o.only?`${esc(head)}: ${money(tot)}`:`${esc(head)}: ${n<0?"📉 "+L("Khasaare","Loss","خسارة","Hasara"):n>0?"📈 "+L("Faa'iido","Profit","ربح","Faida"):"➖ "+L("Siman","Break-even","تعادل","Sawa")} ${n>0?"+":n<0?"−":""}${money(Math.abs(n))}`;
   box._pld={head,month,ins,outs,i,o:o2,n,why,only:o.only||"",xs:o.headVal!=null,tIn,tOut,...per};if(!o.box)PLD=box._pld;
-  box.innerHTML=`<div class="plhd"><b>${hd}</b>${closeX}</div><p class="plwhy">${why}</p><div class="plcols${o.only?" one":""}">${o.only==="in"?cIn:o.only==="out"?cOut:n<0?cOut+cIn:cIn+cOut}</div><div class="pldl"><span>${L("Soo deji:","Download:","تنزيل:","Pakua:")}</span><button type="button" data-pldl="x">⬇ Excel</button><button type="button" data-pldl="w">⬇ Word</button><button type="button" data-pldl="pp">📽 PowerPoint</button>${NATIVE?"":`<button type="button" data-pldl="p">🖨 PDF</button>`}</div>`;
+  box.innerHTML=`<div class="plhd"><b>${hd}</b>${closeX}</div>${o.act||""}<p class="plwhy">${why}</p><div class="plcols${o.only?" one":""}">${o.only==="in"?cIn:o.only==="out"?cOut:n<0?cOut+cIn:cIn+cOut}</div><div class="pldl"><span>${L("Soo deji:","Download:","تنزيل:","Pakua:")}</span><button type="button" data-pldl="x">⬇ Excel</button><button type="button" data-pldl="w">⬇ Word</button><button type="button" data-pldl="pp">📽 PowerPoint</button>${NATIVE?"":`<button type="button" data-pldl="p">🖨 PDF</button>`}</div>`;
   box.querySelectorAll("[data-pldl]").forEach(b=>b.onclick=()=>{PLD=box._pld;plExport(b.dataset.pldl)});
   box.querySelectorAll("details[data-plcat]").forEach(d=>d.addEventListener("toggle",()=>{if(d.open)PLopen.add(d.dataset.plcat);else PLopen.delete(d.dataset.plcat)}));
   box.querySelector(".plx").onclick=close;box.hidden=false}
@@ -3121,13 +3121,15 @@ function render(){
   renderGlance(mi,mo);renderPL(txs);renderStaffDash(txs);
   {const mb=methBal(txs.filter(upToView),mineTr().filter(upToView));$("sMethods").innerHTML=`<div class="mphead"><small>${L("Meesha lacagtu ku jirto","Where your money is","أين يوجد مالك","Pesa zako ziko wapi")}</small><button type="button" class="mptr" data-tr="1">⇄ ${L("Wareeji","Move","تحويل","Hamisha")}</button></div>`
     +METHODS.map(m=>`<span class="mp${(mb[m]||0)<0?" neg":""}" role="button" tabindex="0" data-tdb="balTD" data-tdd="m:${esc(m)}" title="${esc(L("Riix si aad u aragto oo u saxdo","Tap to see and fix","اضغط للعرض والتصحيح","Gusa kuona na kusahihisha"))}"><i aria-hidden="true">${TR_IC[m]||"💵"}</i><small>${T(m)}</small><b>${(mb[m]||0)<0?"−":""}${money(Math.abs(mb[m]||0))}</b></span>`).join("")}
+  /* v189 (AM 13:36): EVC, Bank and Cash are always active: tap one → add money to it / take money out of it / move, and see what is inside */
+  function mpAct(m){return `<div class="mpact"><button type="button" class="mpin" data-mqk="in" data-mqm="${esc(m)}">＋ ${L(`Lacag ku dar ${T(m)}`,`Add money to ${T(m)}`,`أضف مالًا إلى ${T(m)}`,`Ongeza pesa ${T(m)}`)}</button><button type="button" class="mpout" data-mqk="out" data-mqm="${esc(m)}">− ${L(`Ka bixi ${T(m)}`,`Pay from ${T(m)}`,`ادفع من ${T(m)}`,`Lipa kutoka ${T(m)}`)}</button><button type="button" class="mptr2" data-tr="1">⇄ ${L("Wareeji","Move","تحويل","Hamisha")}</button></div>`}
   /* v189 (AM): the balance and each place (EVC / Bank / Cash) open the entries behind them, each with ✏️ Beddel */
   {const bt=txs.filter(upToView),trs=mineTr().filter(upToView),first=bt.reduce((a,t)=>t.date&&t.date<a?t.date:a,today()),end=vEnd()<today()?vEnd():today(),mb=methBal(bt,trs);
    const fixW=L(" Qoraal qaldan? Fur qaybta, riix ✏️ Beddel."," Wrong entry? Open the category, tap ✏️ Edit."," قيد خطأ؟ افتح الفئة واضغط ✏️ تعديل."," Ingizo lenye kosa? Fungua aina, bonyeza ✏️ Hariri.");
    const defs={bal:()=>({arr:bt,head:L("Lacagta akoonkaaga","Account balance","رصيد الحساب","Salio la akaunti"),headVal:money(sum(bt,"in")-sum(bt,"out")),from:first,to:end,
      why:L(`Lacagta akoonka = wax kasta oo soo galay (${money(sum(bt,"in"))}) − wax kasta oo baxay (${money(sum(bt,"out"))}).`,`Balance = everything in (${money(sum(bt,"in"))}) − everything out (${money(sum(bt,"out"))}).`,`الرصيد = كل ما دخل (${money(sum(bt,"in"))}) − كل ما خرج (${money(sum(bt,"out"))}).`,`Salio = vyote vilivyoingia (${money(sum(bt,"in"))}) − vyote vilivyotoka (${money(sum(bt,"out"))}).`)+fixW})};
    for(const m of METHODS){const a=bt.filter(t=>(t.method||"Kaash")===m),nt=trs.filter(t=>(t.to||"Kaash")===m||(t.method||"Kaash")===m).length;
-     defs["m:"+m]=()=>({arr:a,head:T(m),headVal:money(mb[m]||0),from:first,to:end,
+     defs["m:"+m]=()=>({arr:a,head:(TR_IC[m]||"💵")+" "+T(m),headVal:money(mb[m]||0),from:first,to:end,act:mpAct(m),
        why:L(`${T(m)}: soo galay ${money(sum(a,"in"))} − baxay ${money(sum(a,"out"))}`,`${T(m)}: in ${money(sum(a,"in"))} − out ${money(sum(a,"out"))}`,`${T(m)}: دخل ${money(sum(a,"in"))} − خرج ${money(sum(a,"out"))}`,`${T(m)}: ndani ${money(sum(a,"in"))} − nje ${money(sum(a,"out"))}`)
          +(nt?L(` (+ ${nt} wareejin, ka saxo ⇄ Wareeji).`,` (+ ${nt} transfers, fix them in ⇄ Move).`,` (+ ${nt} تحويلات، صححها من ⇄ تحويل).`,` (+ uhamisho ${nt}, sahihisha kwenye ⇄ Hamisha).`):".")+fixW})}
    tdReg("balTD",defs)}
@@ -6703,7 +6705,7 @@ html[data-mode="business"] #hubSw{grid-template-columns:repeat(var(--hn,4),minma
 .skhl small{color:var(--muted);font-size:.78rem}.skhl .skhf span{color:var(--accent);font-weight:600}.skhb{display:flex;gap:6px;flex-wrap:wrap}
 .skgone{border:1px dashed var(--line);border-radius:14px;padding:8px 12px;display:grid;gap:8px}.skgone>summary{cursor:pointer;font-weight:600}
 .skrow.gone{opacity:.85;border-style:dashed}
-.mgfixh{margin:0 0 8px;font-size:.85rem}#sBal[data-tdd],.mp[data-tdd]{cursor:pointer}#sBal[data-tdd]:hover,.mp[data-tdd]:hover,.mp[data-tdd].on{outline:2px solid var(--accent);outline-offset:2px;border-radius:10px}#sBal.on{text-decoration:underline dotted}.dfix{margin-top:6px;width:100%}.plent .dfix{grid-column:1/-1}
+.mgfixh{margin:0 0 8px;font-size:.85rem}#sBal[data-tdd],.mp[data-tdd]{cursor:pointer}#sBal[data-tdd]:hover,.mp[data-tdd]:hover,.mp[data-tdd].on{outline:2px solid var(--accent);outline-offset:2px;border-radius:10px}#sBal.on{text-decoration:underline dotted}.glance>#balTD{order:5}.mpact{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.mpact button{flex:1 1 140px;min-height:44px;border-radius:12px;font-weight:700}.mpact .mpin{background:var(--in);color:#06281a;border-color:var(--in)}.mpact .mpout{background:var(--out);color:#fff;border-color:var(--out)}.mpact .mptr2{flex:0 1 auto}.dfix{margin-top:6px;width:100%}.plent .dfix{grid-column:1/-1}
 .sktag{font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--out-soft);color:var(--out)}
 #stkRow .note{grid-column:1/-1;margin:0}
 .skdl{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0}
@@ -6882,6 +6884,12 @@ function skGoFix(id,edit){const s=items.find(i=>i.id===id);if(!s||!stkEdit())ret
   setTimeout(()=>{renderStk();if(edit){$("skForm")?.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("skName")?.focus({preventScroll:true}),300);return}
     const g=document.querySelector(`#skList [data-skid="${CSS.escape(id)}"]`)?.closest("details");if(g)g.open=true;skBox("skcbox",id)},120)}
 {const _rm=renderMgr;renderMgr=function(){_rm();try{mgSkShow()}catch(e){console.warn(e)}}}
+/* v189: EVC / Bank / Cash actions inside each account's box */
+document.addEventListener("click",e=>{const b=e.target.closest("#balTD [data-mqk],#balTD [data-tr]");if(!b)return;
+  if(b.dataset.tr){trOpen();return}
+  const m=b.dataset.mqm;if(editing)stopEdit();goTab("add");const r=$(b.dataset.mqk==="in"?"tIn":"tOut");if(r&&!r.checked)r.click();
+  setTimeout(()=>{const x=document.querySelector(`input[name=method][value="${CSS.escape(m)}"]`);if(x&&!x.checked){x.checked=true;x.dispatchEvent(new Event("change",{bubbles:true}))}
+    const a=$("amount");(a&&a.offsetParent?a:document.querySelector("#multiList input:not([type=checkbox])"))?.focus()},60)});
 {const _rh=renderHub;renderHub=function(){_rh();const av=$("appView");if(av.dataset.tab==="hub"&&av.dataset.hub==="stk"&&HUBS.stk&&hubOn())
   $("hubAct").innerHTML=stkEdit()?`<button type="button" class="primary" data-hubact="stknew">➕ ${L("Alaab cusub","New item","صنف جديد","Bidhaa mpya")}</button>`:""}}
 function skFlash(t){skMsg=t;renderStk();setTimeout(()=>{if(skMsg===t){skMsg="";renderStk()}},4000)}
