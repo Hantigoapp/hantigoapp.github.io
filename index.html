@@ -6851,6 +6851,10 @@ function stkHtml(txs){const R=stkRep(txs);if(!R)return "";const h=SKH();
 .stkpick input{width:20px;height:20px;flex:0 0 auto;margin-top:2px}
 .stkpick span{display:grid;gap:2px}.stkpick small{color:var(--muted);font-size:.8rem;font-weight:400}
 .comods{margin:8px 0 0;font-size:.95rem}
+.costk{display:grid;gap:10px}.skchips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 12px}.costk .skpre{border-style:solid}
+.skhave{border:1px solid var(--in);border-radius:999px;padding:5px 10px;font-size:.85rem;background:var(--in-soft,transparent);color:var(--ink);cursor:pointer}
+.skhave.blank{border-color:var(--accent);background:transparent}.skhave.low{border-color:var(--out);color:var(--out)}
+.skownd>summary{cursor:pointer;font-weight:600;padding:6px 0}.skownd[open]{display:grid;gap:10px}
 .stkask{display:grid;gap:8px;border:1px solid var(--accent);border-radius:14px;padding:12px 14px;margin-bottom:10px;background:var(--bg)}.stkask span{font-size:.9rem}.stkask .goal-actions{margin:0}
 .skown{display:grid;gap:6px}.skownr{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:6px}
 @media (max-width:520px){.skownr{grid-template-columns:repeat(3,minmax(0,1fr));padding-bottom:6px;border-bottom:1px solid var(--line)}.skownr [data-ow="n"]{grid-column:1/-1}}
@@ -6877,7 +6881,7 @@ stkSync();
 {const _ho=hubOpen;hubOpen=function(h,k){stkSync();return _ho(h,k)}}
 {const _sm=stkMove;stkMove=function(){return stkOn()&&_sm()}}
 {const _rp=stkRep;stkRep=function(t){return stkOn()?_rp(t):null}}
-{const _r=render;render=function(){_r();try{coModsUI()}catch(e){console.warn(e)}}}
+{const _r=render;render=function(){_r();try{coModsUI();coStkBox()}catch(e){console.warn(e)}}}
 function coModsUI(){const c=$("coStk");if(!c)return;if(document.activeElement!==c)c.checked=stkOn();
   $("coModH").textContent=L("Qaybaha shirkaddaada","Your business sections","أقسام شركتك","Sehemu za biashara yako");
   $("coStkB").textContent="📦 "+L("Bakhaarka (Inventory)","Inventory","المخزون","Hifadhi");
@@ -6946,31 +6950,45 @@ function skOwnHtml(){const s=settings();
     <div class="skown" id="skOwnRows">${[0,1,2].map(skOwnRow).join("")}</div>
     <button type="button" class="del" id="skOwnMore" style="justify-self:start">➕ ${L("Saf kale","Another row","سطر آخر","Mstari mwingine")}</button>
     <div class="goal-actions"><button type="button" class="primary" id="skOwnAdd">➕ ${L("Ku dar","Add","إضافة","Ongeza")}</button></div>`}
-function skPreHtml(){const have=new Set(stkAll().map(s=>ckey(s.name))),own=(skPreOpen??stkType())==="own",t=own?null:STK_PRE.find(x=>x.id===(skPreOpen||stkType()))||null;
-  return `<div class="skpre owner-only" id="skPre"><h3>📋 ${L("Liis diyaar ah: dooro nooca shirkaddaada","Ready list: choose your type of business","قائمة جاهزة: اختر نوع نشاطك","Orodha tayari: chagua aina ya biashara yako")}</h3>
+function skPreHtml(ctx){const hm=new Map(stkAll().map(s=>[ckey(s.name),s])),have=new Set(hm.keys()),own=(skPreOpen??stkType())==="own",t=own?null:STK_PRE.find(x=>x.id===(skPreOpen||stkType()))||null;
+  return `<div class="skpre owner-only"${ctx?"":' id="skPre"'}><h3>📋 ${L("Liis diyaar ah: dooro nooca shirkaddaada","Ready list: choose your type of business","قائمة جاهزة: اختر نوع نشاطك","Orodha tayari: chagua aina ya biashara yako")}</h3>
     <select id="skPreType"><option value="">— ${esc(L("Dooro","Choose","اختر","Chagua"))} —</option>${STK_PRE.map(x=>`<option value="${x.id}"${t&&t.id===x.id?" selected":""}>${x.ic} ${esc(L(...x.n))}</option>`).join("")}<option value="own"${own?" selected":""}>✍️ ${esc(L("Nooc kale: qor adiga","Other type: write your own","نوع آخر: اكتبه بنفسك","Aina nyingine: andika mwenyewe"))}</option></select>
     ${own?skOwnHtml():""}
     ${t?`<p class="note" style="margin:0">${L("Calaamadee waxa aad haysato, kadib riix “Ku dar”. Tirada iyo qiimaha hadhow ayaad ku qori kartaa (✏️ Beddel).","Tick what you have, then tap “Add”. You can type the quantity and prices later (✏️ Edit).","حدّد ما لديك ثم اضغط “إضافة”. يمكنك كتابة الكمية والأسعار لاحقًا (✏️ تعديل).","Weka alama kwa ulivyo navyo, kisha bonyeza “Ongeza”. Idadi na bei unaweza kuandika baadaye (✏️ Hariri).")}</p>
-    <div class="skprel">${t.g.map(([gn,l])=>`<fieldset><legend>${esc(L(gn[0],gn[1]))}</legend>${l.map((it,i)=>{const nm=L(it.so,it.en),h=have.has(ckey(nm));return `<label${h?' class="have"':""}><input type="checkbox" data-skpre="${esc(nm)}" data-skpu="${esc(it.u)}" data-skpg="${esc(L(gn[0],gn[1]).replace(/^\S+\s/,""))}"${h?" disabled checked":""}>${esc(nm)}</label>`}).join("")}</fieldset>`).join("")}</div>
-    <div class="goal-actions"><button type="button" id="skPreAll">☑ ${L("Dooro dhammaan","Tick all","تحديد الكل","Chagua zote")}</button><button type="button" class="primary" id="skPreAdd">➕ ${L("Ku dar kuwa la doortay","Add the ticked items","أضف المحدد","Ongeza vilivyochaguliwa")}</button></div>`:""}</div>`}
+    <div class="skprel">${t.g.map(([gn,l])=>ctx?`<details class="skgrp"><summary><b>${esc(L(gn[0],gn[1]))}</b><span class="note">${l.filter(it=>hm.has(ckey(L(it.so,it.en)))).length} / ${l.length}</span></summary><div class="skchips">${l.map((it,i)=>{const nm=L(it.so,it.en),hv=hm.get(ckey(nm));if(hv)return `<button type="button" class="skhave${stkBlank(hv)?" blank":stkLow(hv,stkQty(hv))?" low":""}" data-skgo="${esc(hv.id)}">✓ ${esc(nm)} · ${stkBlank(hv)?esc(L("buuxi","fill in","املأ","jaza")):esc(stkN(stkQty(hv))+(hv.unit?" "+hv.unit:""))}</button>`;return `<label><input type="checkbox" data-skpre="${esc(nm)}" data-skpu="${esc(it.u)}" data-skpg="${esc(L(gn[0],gn[1]).replace(/^\S+\s/,""))}">${esc(nm)}</label>`}).join("")}</div></details>`:`<fieldset><legend>${esc(L(gn[0],gn[1]))}</legend>${l.map((it,i)=>{const nm=L(it.so,it.en),hv=hm.get(ckey(nm));if(hv)return `<button type="button" class="skhave${stkBlank(hv)?" blank":stkLow(hv,stkQty(hv))?" low":""}" data-skgo="${esc(hv.id)}">✓ ${esc(nm)} · ${stkBlank(hv)?esc(L("buuxi","fill in","املأ","jaza")):esc(stkN(stkQty(hv))+(hv.unit?" "+hv.unit:""))}</button>`;return `<label><input type="checkbox" data-skpre="${esc(nm)}" data-skpu="${esc(it.u)}" data-skpg="${esc(L(gn[0],gn[1]).replace(/^\S+\s/,""))}">${esc(nm)}</label>`}).join("")}</fieldset>`).join("")}</div>
+    <div class="goal-actions"><button type="button" id="skPreAll">☑ ${L("Dooro dhammaan","Tick all","تحديد الكل","Chagua zote")}</button><button type="button" class="primary" id="skPreAdd">➕ ${L("Ku dar kuwa la doortay","Add the ticked items","أضف المحدد","Ongeza vilivyochaguliwa")}</button></div>`:""}
+    ${ctx&&!own?`<details class="skownd"><summary>✍️ ${L("Ku dar alaab aan liiska ku jirin (adiga qor)","Add items not in the list (write them)","أضف أصنافًا غير موجودة في القائمة","Ongeza bidhaa zisizo kwenye orodha")}</summary>${skOwnHtml()}</details>`:""}</div>`}
 {const _fb=skFormBox;skFormBox=function(ed,cur){return _fb(ed,cur)+(ed&&!cur?skPreHtml():"")}}
 document.addEventListener("change",async e=>{if(e.target.id!=="skPreType")return;skPreOpen=e.target.value||"";
   if(skPreOpen&&!TEAM&&settings().stkType!==skPreOpen){await put({...settings(),stkType:skPreOpen})}
-  skKey="";$("skPanel").dataset.k="";renderStk();$("skPre")?.scrollIntoView({block:"nearest"})});
-document.addEventListener("click",async e=>{if(e.target.id!=="skPreAdd"||TEAM)return;
-  const pick=[...document.querySelectorAll("[data-skpre]:checked:not(:disabled)")];if(!pick.length)return;
+  skKey="";$("skPanel").dataset.k="";const cb=$("coStkBox");if(cb)cb.dataset.k="";renderStk();coStkBox();if(!e.target.closest("#coStkBox"))$("skPre")?.scrollIntoView({block:"nearest"})});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-skgo]");if(!b)return;const id=b.dataset.skgo;if(stkEdit())skEdit=id;skKey="";hubOpen("stk");
+  setTimeout(()=>{const f=$("skForm");if(f&&stkEdit()){f.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("skQty")?.focus({preventScroll:true}),300)}},120)});
+/* Akoon → 🏢 Shirkaddaada: under the 📦 checkbox, the chosen type and what is inside the inventory */
+function coStkBox(){const host=$("coStkMsg");if(!host)return;let b=$("coStkBox");
+  if(!stkOn()||TEAM){if(b)b.remove();return}
+  if(!b){b=document.createElement("div");b.id="coStkBox";b.className="costk";host.after(b)}
+  const S=stkStats(),key=JSON.stringify([LANG,currency(),skPreOpen,settings().stkType,S.l.map(x=>[x.s.id,x.s.u,x.q])]);
+  if(b.dataset.k===key||b.contains(document.activeElement))return;b.dataset.k=key;
+  const nb=S.l.filter(x=>stkBlank(x.s)).length;
+  b.innerHTML=`<p class="note" style="margin:0">📦 ${L(`Bakhaarkaaga: <b>${S.n}</b> alaab`,`Your inventory: <b>${S.n}</b> items`,`مخزونك: <b>${S.n}</b> صنفًا`,`Hifadhi yako: bidhaa <b>${S.n}</b>`)}${S.low?" · ⚠️ "+L(`${S.low} yaraaday`,`${S.low} low`,`${S.low} منخفضة`,`${S.low} chache`):""}${nb?" · "+L(`${nb} weli lama buuxin`,`${nb} not filled yet`,`${nb} لم تُملأ`,`${nb} bado hazijajazwa`):""} · ${SKT.value()}: <b>${money(S.cost)}</b></p>
+    ${skPreHtml("ak")}
+    <button type="button" class="primary" data-skgoall="1">📦 ${L("Fur Bakhaarka: qor tirada iyo qiimaha","Open Inventory: type quantity and prices","افتح المخزون: اكتب الكمية والأسعار","Fungua Hifadhi: andika idadi na bei")} →</button>`}
+document.addEventListener("click",e=>{if(e.target.closest("[data-skgoall]"))hubOpen("stk")});
+document.addEventListener("click",async e=>{if(e.target.id!=="skPreAdd"||TEAM)return;const root=e.target.closest(".skpre");
+  const pick=[...root.querySelectorAll("[data-skpre]:checked:not(:disabled)")];if(!pick.length)return;
   const have=new Set(stkAll().map(s=>ckey(s.name))),base=Date.now();let n=0;
   for(const c of pick){const name=c.dataset.skpre;if(have.has(ckey(name)))continue;have.add(ckey(name));
     await put({id:uid(),kind:"stk",mode:"business",name,unit:c.dataset.skpu||"",grp:c.dataset.skpg||"",q:0,buy:0,sell:0,pre:1,created:new Date(base+n).toISOString()});n++}
   skKey="";$("skPanel").dataset.k="";skFlash("✓ "+L(`${n} alaab ayaa lagu daray. Riix ✏️ Beddel si aad u qorto tirada iyo qiimaha.`,`${n} items added. Tap ✏️ Edit to type the quantity and prices.`,`أُضيف ${n} صنفًا. اضغط ✏️ تعديل لكتابة الكمية والأسعار.`,`Bidhaa ${n} zimeongezwa. Bonyeza ✏️ Hariri kuandika idadi na bei.`))});
-document.addEventListener("click",e=>{if(e.target.id!=="skOwnMore")return;const b=$("skOwnRows");b.insertAdjacentHTML("beforeend",skOwnRow());b.lastElementChild.querySelector("input").focus()});
-document.addEventListener("click",async e=>{if(e.target.id!=="skOwnAdd"||TEAM)return;
-  const tn=$("skOwnType").value.trim().slice(0,40),grp=$("skOwnGrp").value.trim().slice(0,30),rows=[...document.querySelectorAll("#skOwnRows .skownr")].map(r=>{const g=k=>r.querySelector(`[data-ow="${k}"]`).value.trim();return {name:g("n").replace(/\s+/g," ").slice(0,50),q:Number(g("q"))||0,buy:Math.max(0,Number(g("b"))||0),sell:Math.max(0,Number(g("s"))||0)}}).filter(r=>r.name);
+document.addEventListener("click",e=>{if(e.target.id!=="skOwnMore")return;const b=e.target.closest(".skpre").querySelector("#skOwnRows");b.insertAdjacentHTML("beforeend",skOwnRow());b.lastElementChild.querySelector("input").focus()});
+document.addEventListener("click",async e=>{if(e.target.id!=="skOwnAdd"||TEAM)return;const root=e.target.closest(".skpre");
+  const tn=root.querySelector("#skOwnType").value.trim().slice(0,40),grp=root.querySelector("#skOwnGrp").value.trim().slice(0,30),rows=[...root.querySelectorAll("#skOwnRows .skownr")].map(r=>{const g=k=>r.querySelector(`[data-ow="${k}"]`).value.trim();return {name:g("n").replace(/\s+/g," ").slice(0,50),q:Number(g("q"))||0,buy:Math.max(0,Number(g("b"))||0),sell:Math.max(0,Number(g("s"))||0)}}).filter(r=>r.name);
   if(tn&&settings().stkTypeName!==tn)await put({...settings(),stkTypeName:tn,stkType:"own"});
   const have=new Set(stkAll().map(s=>ckey(s.name))),base=Date.now();let n=0;
   for(const r of rows){if(have.has(ckey(r.name)))continue;have.add(ckey(r.name));await put({id:uid(),kind:"stk",mode:"business",name:r.name,unit:"",grp,q:r.q,buy:r.buy,sell:r.sell,created:new Date(base+n).toISOString()});n++}
   skKey="";$("skPanel").dataset.k="";skFlash(n?"✓ "+L(`${n} alaab ayaa lagu daray. Riix ✏️ Beddel si aad u qorto tirada iyo qiimaha.`,`${n} items added. Tap ✏️ Edit to type the quantity and prices.`,`أُضيف ${n} صنفًا. اضغط ✏️ تعديل لكتابة الكمية والأسعار.`,`Bidhaa ${n} zimeongezwa. Bonyeza ✏️ Hariri kuandika idadi na bei.`):"✓ "+L("Waa la kaydiyay.","Saved.","تم الحفظ.","Imehifadhiwa."))});
-document.addEventListener("click",e=>{if(e.target.id!=="skPreAll")return;const bs=[...document.querySelectorAll("[data-skpre]:not(:disabled)")],on=bs.some(b=>!b.checked);bs.forEach(b=>b.checked=on)});
+document.addEventListener("click",e=>{if(e.target.id!=="skPreAll")return;const bs=[...e.target.closest(".skpre").querySelectorAll("[data-skpre]:not(:disabled)")],on=bs.some(b=>!b.checked);bs.forEach(b=>b.checked=on)});
 /* v187 (AM): the type chosen at sign-up shows its FULL list at once. First open after sign-up: every item of that list is added
    (marked "Weli lama buuxin" until quantity or price is typed; never counted as low). Runs once (settings.stkSeeded). Owner only. */
 function stkSeed(){if(TEAM||!stkOn()||settings().stkSeeded)return;const t=STK_PRE.find(x=>x.id===settings().stkType);if(!t||stkAll().length)return;
