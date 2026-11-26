@@ -543,7 +543,7 @@ header{position:sticky;top:0;z-index:20;background:var(--bg);padding:10px 0 8px;
 /* inside the app WhatsApp sits in the header (always visible, never covers buttons) */
 body:has(#appView:not([hidden])) .wafab{display:none}
 .bill.bempty{opacity:.78;padding-top:8px;padding-bottom:8px}
-.hbtns{display:flex;align-items:center;gap:8px}.hwa{width:36px;height:36px;border-radius:50%;background:#25d366;display:grid;place-items:center;flex:none;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.hbtns{display:flex;align-items:center;gap:8px}.hacc{min-height:36px;padding:4px 12px;border-radius:999px;font-size:.85rem;font-weight:700;max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hbtns .hlogout{white-space:nowrap;flex:none}.hwa{width:36px;height:36px;border-radius:50%;background:#25d366;display:grid;place-items:center;flex:none;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 @media print{.wafab{display:none!important}}
 .acc-panel{font-size:.95rem}
 .wa{justify-self:center;color:var(--in);font-weight:600;font-size:.9rem;text-decoration:none}
@@ -1094,7 +1094,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
     <div class="step" id="step1">
       <h2 class="step-h"><b>1</b><span>Dooro Shakhsi ama Shirkad</span></h2>
       <button type="button" class="typecard" data-pick="person"><b>👤 Shakhsi</b><span>Soo galay, ka baxay, miisaaniyad, kayd iyo deymaha.</span><em class="tprice">$3 / bishii</em><ul class="tc-list" aria-hidden="true"><li>Kharashka iyo dakhliga</li><li>Miisaaniyad iyo biilal</li><li>Warbixin Excel, Word, PowerPoint, PDF</li></ul><strong class="tc-go">Samee akoon Shakhsi →</strong></button>
-      <button type="button" class="typecard" data-pick="business"><b>🏢 Shirkad</b><span>Iib, kharash, shaqaale iyo warbixinno.</span><em class="tprice">$12 / bishii</em><ul class="tc-list" aria-hidden="true"><li>Iibka iyo faa'iidada</li><li>Shaqaale iyo mushahar</li><li>Rasiid, qaansheeg iyo deymaha</li></ul><strong class="tc-go">Samee akoon Shirkad →</strong></button>
+      <button type="button" class="typecard" data-pick="business"><b>🏢 Shirkad</b><span>Iib, kharash, bakhaar, shaqaale iyo warbixinno.</span><em class="tprice">$12 / bishii</em><ul class="tc-list" aria-hidden="true"><li>Iibka iyo faa'iidada</li><li>Bakhaarka iyo alaabta</li><li>Shaqaale iyo mushahar</li><li>Rasiid, qaansheeg iyo deymaha</li></ul><strong class="tc-go">Samee akoon Shirkad →</strong></button>
       <p class="note t1note">🎁 7 maalmood bilaash · labaduba</p>
       <p class="note t1note">👥 Hal email: ilaa 5 akoon oo gooni ah · 🔒 Quful PIN ah</p>
       <p class="note paynote pay-only">💳 <span>Lacag-bixinta: EVC Plus ama WaafiPay</span> · <b dir="ltr">+252 61 373 5086</b></p>
@@ -1110,7 +1110,8 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
           <input type="radio" name="atype" id="atP" value="person" checked><label for="atP">👤 Shakhsi<small class="tprice">$3 / bishii</small></label>
           <input type="radio" name="atype" id="atB" value="business"><label for="atB">🏢 Shirkad<small class="tprice">$12 / bishii</small></label>
         </div></div>
-      <label class="field" id="aCoRow" data-sub="1" hidden><span>Magaca shirkadda</span><input id="aCoName" type="text" maxlength="60" placeholder="Tusaale: Iskuulka Horseed"></label>
+      <div class="field" id="aCoRow" data-sub="1" hidden><label class="field"><span>Magaca shirkadda</span><input id="aCoName" type="text" maxlength="60" placeholder="Tusaale: Iskuulka Horseed"></label>
+        <label class="stkpick"><input type="checkbox" id="aStk"><span><b>📦 Bakhaarka (Inventory)</b><small>Dooro haddii shirkaddaadu alaab iibiso oo ay rabto inay la socoto tirada. Hadhow Akoon ayaad ka shidi kartaa ama ka dami kartaa.</small></span></label></div>
       <label class="field" id="aCountryRow" data-sub="1" hidden><span>Wadanka aad joogto</span><select id="aCountry" data-loc="a"><option value="">— Dooro —</option></select></label>
       <label class="field" id="aCityRow" data-sub="1" hidden><span>Magaalada aad joogto</span><select id="aCity"><option value="">— Dooro —</option></select><input id="aCityTxt" type="text" maxlength="40" placeholder="Ku qor magaalada" hidden></label>
       <label class="field" id="aStartRow" data-sub="1" hidden><span>Taariikhda diiwaangelintu bilaabatay</span><input id="aStart" type="date" min="2000-01-01" max="2100-12-31"></label>
@@ -1156,7 +1157,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
       <i class="fv-ic" aria-hidden="true">🏢</i>
       <h2>Maamul iibka iyo shaqaalaha ganacsiga.</h2>
       <p class="fv-lead">Qor iibka iyo kharashka shirkadda, ku dar shaqaalaha, mushaharka iyo fasaxa. Waxaad arkaysaa faa'iidada ama khasaaraha.</p>
-      <ul><li>Iibka maalin kasta iyo faa'iidada ama khasaaraha bisha.</li><li>Akoon gaar ah shaqaale kasta, mushahar iyo door (Maamule ama Shaqaale).</li><li>Deymaha, rasiidka iyo fasaxa shaqaalaha.</li><li>Macaamiisha iyo qaansheegyada (invoice): u dir email, oo la soco kuwa la bixiyay iyo kuwa dib u dhacay.</li></ul>
+      <ul><li>Iibka maalin kasta iyo faa'iidada ama khasaaraha bisha.</li><li>Akoon gaar ah shaqaale kasta, mushahar iyo door (Maamule ama Shaqaale).</li><li>Deymaha, rasiidka iyo fasaxa shaqaalaha.</li><li>Macaamiisha iyo qaansheegyada (invoice): u dir email, oo la soco kuwa la bixiyay iyo kuwa dib u dhacay.</li><li>📦 Bakhaarka (haddii aad doorato): shirkad kasta. Liis diyaar ah oo Hotel & Maqaayad, Jaamacad & Iskuul, Dukaan, Farmashi iyo Xoolaha & Beeraha, ama mid aad adigu qorto. Iibku wuu dhimayaa, iibsashaduna way kordhinaysaa.</li></ul>
     </article>
     <article class="fv-card" data-fv="3" hidden>
       <i class="fv-ic" aria-hidden="true">📊</i>
@@ -1184,7 +1185,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
 <section id="modeView" class="gate" hidden>
   <div class="brand"><h1>Hanti<span>Go</span></h1><p class="sub">Dooro sida aad HantiGo u isticmaalayso</p></div>
   <button type="button" class="modecard" data-mode="person"><b>👤 Shakhsi (qof caadi ah)</b><span>Lacagta soo gasha, kharashka, jaantus, miisaaniyad, biilal, kayd, deymaha iyo soo dejin.</span><em class="tprice">$3 / bishii</em></button>
-  <button type="button" class="modecard" data-mode="business"><b>🏢 Shirkad / Ganacsi</b><span>Iib, kharash, shaqaale, qaansheeg iyo warbixinno.</span><em class="tprice">$12 / bishii</em></button>
+  <button type="button" class="modecard" data-mode="business"><b>🏢 Shirkad / Ganacsi</b><span>Iib, kharash, bakhaar, shaqaale, qaansheeg iyo warbixinno.</span><em class="tprice">$12 / bishii</em></button>
   <p class="note" style="text-align:center;margin:0">Akoon kasta hal nooc ayuu leeyahay: Shakhsi ama Shirkad.</p>
 </section>
 
@@ -1242,7 +1243,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
 <div class="wrap" id="appView" hidden>
   <header>
     <div>
-      <div class="htop"><h1>Hanti<span>Go</span></h1><span class="hbtns"><a class="hwa" data-wa href="#" target="_blank" rel="noopener" aria-label="WhatsApp: caawimaad" title="WhatsApp"><svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true"><path fill="#fff" d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm0 23.6c-2 0-4-.6-5.7-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1 1 16 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7 0a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.7 3.7 0 0 0-1.1 2.7 6.4 6.4 0 0 0 1.3 3.4 14.7 14.7 0 0 0 5.6 5c2.1.9 2.9 1 4 .8a3.4 3.4 0 0 0 2.2-1.6 2.8 2.8 0 0 0 .2-1.6c-.1-.1-.3-.2-.6-.4z"/></svg></a><button type="button" class="logout hlogout" aria-label="Ka bax">🚪 Ka bax</button></span></div>
+      <div class="htop"><h1>Hanti<span>Go</span></h1><span class="hbtns"><button type="button" class="acvOpen hacc" id="hAccBtn" hidden></button><a class="hwa" data-wa href="#" target="_blank" rel="noopener" aria-label="WhatsApp: caawimaad" title="WhatsApp"><svg viewBox="0 0 32 32" width="20" height="20" aria-hidden="true"><path fill="#fff" d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm0 23.6c-2 0-4-.6-5.7-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1 1 16 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7 0a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.7 3.7 0 0 0-1.1 2.7 6.4 6.4 0 0 0 1.3 3.4 14.7 14.7 0 0 0 5.6 5c2.1.9 2.9 1 4 .8a3.4 3.4 0 0 0 2.2-1.6 2.8 2.8 0 0 0 .2-1.6c-.1-.1-.3-.2-.6-.4z"/></svg></a><button type="button" class="logout hlogout" aria-label="Ka bax">🚪 Ka bax</button></span></div>
       <p class="sub" id="subline" hidden>Qor lacagta kuu soo gasha iyo tan kaa baxda, una kaydso yoolalkaaga.</p>
 
     </div>
@@ -1266,7 +1267,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
     <div class="goal-actions" style="margin-top:8px"><button type="button" class="primary" id="coAskGo">Ku dar hadda</button><button type="button" class="del" id="coAskNo">Mar dambe</button></div></div>
   <div id="alerts" class="alerts no-staff" role="status" data-tab="home" hidden></div>
   <div id="zcBox" class="zcbox no-staff" role="status" data-tab="home" hidden></div>
-  <div class="hubbar no-staff" id="hubBar" data-tab="hub" data-hubs="cust inv staff rep pwr pdy pch pst"><div class="hubtop"><button type="button" class="hubback" id="hubBack">← Guriga</button><h2 id="hubTitle"></h2></div><div class="hubsw" id="hubSw" role="group"></div><div class="hubact" id="hubAct"></div></div>
+  <div class="hubbar no-staff" id="hubBar" data-tab="hub" data-hubs="cust inv staff rep stk pwr pdy pch pst"><div class="hubtop"><button type="button" class="hubback" id="hubBack">← Guriga</button><h2 id="hubTitle"></h2></div><div class="hubsw" id="hubSw" role="group"></div><div class="hubact" id="hubAct"></div></div>
 
   <section class="panel staff-only sfcard" aria-labelledby="sfH" data-tab="home" id="sfPanel">
     <div class="sfhead"><h2 id="sfH">👷 Dashboard-ka shaqaalaha</h2><span class="rolepill" id="sfCo"></span></div>
@@ -1449,6 +1450,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
           </div>
           <div id="multiRow" hidden><button type="button" class="chip" id="multiBtn" aria-expanded="false">☑ Dooro dhowr isla mar (qiimo kasta gooni)</button>
             <div id="multiList" hidden></div></div>
+          <div class="row" id="stkRow" hidden><label class="field"><span id="stkLbl">📦 Alaabta bakhaarka (ikhtiyaari)</span><select id="txStk"></select></label><label class="field" id="stkQWrap" hidden><span id="stkQLbl">Tirada</span><input id="txStkQ" type="number" inputmode="decimal" min="0" step="any" placeholder="1"></label><label class="field" id="stkPWrap" hidden><span id="stkPLbl">Qiimaha halkii</span><input id="txStkP" type="number" inputmode="decimal" min="0" step="any" placeholder="0.50"></label><p class="note" id="stkNote" role="status"></p></div>
           <div class="row">
             <label class="field"><span id="placeLbl">Shirkadda ama meesha (ikhtiyaari)</span><input id="place" type="text" maxlength="40" list="placeList" placeholder="Tusaale: Hormuud, suuqa Bakaaraha"></label>
             <label class="field"><span>Faahfaahin (ikhtiyaari)</span><input id="note" type="text" maxlength="80" placeholder="Tusaale: bisha Nofembar"></label>
@@ -1510,6 +1512,8 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
         <div class="chips cuf" id="cuF" role="group"></div>
         <div id="cuList" class="culist"></div>
       </section>
+
+      <section class="panel biz-only mgr-only" aria-labelledby="skH" data-tab="hub" data-hubs="stk" id="skPanel"></section>
     </div>
 
     <div style="display:grid;gap:20px;min-width:0">
@@ -1659,6 +1663,9 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
         <label class="field"><span>Magaca shirkadda</span><input id="coName" type="text" maxlength="60" placeholder="Tusaale: Iskuulka Horseed"></label>
         <button type="button" id="coSave">Kaydi</button>
         <p class="note" id="coMsg" style="margin:0">Magaca iyo astaanta ayaa ka soo baxaya warbixinnada PDF, Word iyo Excel.</p>
+        <h3 class="comods" id="coModH">Qaybaha shirkaddaada</h3>
+        <label class="stkpick"><input type="checkbox" id="coStk"><span><b id="coStkB">📦 Bakhaarka (Inventory)</b><small id="coStkS">Alaabta, tirada iyo qiimaha. Haddii aad damiso way qarsoomaysaa, xogtuna way kaydsan tahay.</small></span></label>
+        <span class="note ok" id="coStkMsg" role="status"></span>
       </section>
 
       <section class="panel" aria-labelledby="helpH" data-tab="more" data-acc="help">
@@ -1996,6 +2003,12 @@ Object.assign(SW,{"Income, spending, savings and business: one place.":"Mapato, 
 /* home A (Iftiin) */Object.assign(EN,{"👤 Shakhsi $3":"👤 Personal $3","🏢 Shirkad $12":"🏢 Business $12","bishii":"per month","🛒 Cunto":"🛒 Food","🏠 Kiro":"🏠 Rent","⚡ Koronto":"⚡ Electricity","Wax kasta oo lacagtaada ku saabsan, hal app.":"Everything about your money, in one app.","Kharashka iyo dakhliga":"Spending and income","Miisaaniyad iyo biilal":"Budget and bills","Warbixin Excel, Word, PowerPoint, PDF":"Excel, Word, PowerPoint, PDF reports","Iibka iyo faa'iidada":"Sales and profit","Shaqaale iyo mushahar":"Staff and salaries","Rasiid iyo deymaha":"Receipts and debts","Samee akoon Shakhsi →":"Create a Personal account →","Samee akoon Shirkad →":"Create a Business account →"});
 /* v186 homepage = app (Mobile Money, transfer, offline, invoices) */Object.assign(EN,{"Ku dheji fariinta Mobile Money (EVC Plus, ZAAD, Sahal, eDahab, JEEB): HantiGo ayaa qoraya lacagta soo gashay iyo tan baxday.": "Paste a Mobile Money message (EVC Plus, ZAAD, Sahal, eDahab, JEEB): HantiGo records the money in and money out.", "Wareeji lacag EVC Plus → Bangi, oo arag inta meel kasta kuu taal.": "Move money from EVC Plus to the bank, and see how much you have in each place.", "Internet la'aan ayuu shaqeeyaa; marka internetku soo laabto wuu isku xirayaa.": "Works without internet; it syncs when the internet is back.", "Macaamiisha iyo qaansheegyada (invoice): u dir email, oo la soco kuwa la bixiyay iyo kuwa dib u dhacay.": "Customers and invoices: send them by email, and see which are paid and which are late.", "Rasiid, qaansheeg iyo deymaha": "Receipts, invoices and debts", "Iib, kharash, shaqaale, qaansheeg iyo warbixinno.": "Sales, spending, staff, invoices and reports."});Object.assign(AR,{"Paste a Mobile Money message (EVC Plus, ZAAD, Sahal, eDahab, JEEB): HantiGo records the money in and money out.": "الصق رسالة Mobile Money (EVC Plus وZAAD وSahal وeDahab وJEEB): يسجّل HantiGo المال الداخل والخارج.", "Move money from EVC Plus to the bank, and see how much you have in each place.": "حوّل المال من EVC Plus إلى البنك، واعرف كم لديك في كل مكان.", "Works without internet; it syncs when the internet is back.": "يعمل بدون إنترنت، ويتزامن عند عودة الإنترنت.", "Customers and invoices: send them by email, and see which are paid and which are late.": "العملاء والفواتير: أرسلها بالبريد، واعرف المدفوع منها والمتأخر.", "Receipts, invoices and debts": "الإيصالات والفواتير والديون", "Sales, spending, staff, invoices and reports.": "المبيعات والمصاريف والموظفون والفواتير والتقارير."});Object.assign(SW,{"Paste a Mobile Money message (EVC Plus, ZAAD, Sahal, eDahab, JEEB): HantiGo records the money in and money out.": "Bandika ujumbe wa Mobile Money (EVC Plus, ZAAD, Sahal, eDahab, JEEB): HantiGo inarekodi pesa iliyoingia na iliyotoka.", "Move money from EVC Plus to the bank, and see how much you have in each place.": "Hamisha pesa kutoka EVC Plus kwenda benki, na uone kiasi ulicho nacho kila mahali.", "Works without internet; it syncs when the internet is back.": "Inafanya kazi bila intaneti; inasawazisha intaneti ikirudi.", "Customers and invoices: send them by email, and see which are paid and which are late.": "Wateja na ankara: zitume kwa barua pepe, na uone zipi zimelipwa na zipi zimechelewa.", "Receipts, invoices and debts": "Risiti, ankara na madeni", "Sales, spending, staff, invoices and reports.": "Mauzo, matumizi, wafanyakazi, ankara na ripoti."});
 /* v186 home: accounts, PIN, history */Object.assign(EN,{"🕓 Taariikhda isbeddelka: cidda wax beddeshay, goorta iyo qadarka hore iyo kan cusub.": "🕓 Change history: who changed what, when, and the old and new amount.", "👥 Hal email: ilaa 5 akoon oo gooni ah · 🔒 Quful PIN ah": "👥 One email: up to 5 separate accounts · 🔒 PIN lock"});Object.assign(AR,{"🕓 Change history: who changed what, when, and the old and new amount.": "🕓 سجل التغييرات: من غيّر ماذا ومتى، والمبلغ القديم والجديد.", "👥 One email: up to 5 separate accounts · 🔒 PIN lock": "👥 بريد واحد: حتى 5 حسابات منفصلة · 🔒 قفل PIN"});Object.assign(SW,{"🕓 Change history: who changed what, when, and the old and new amount.": "🕓 Historia ya mabadiliko: nani alibadilisha nini, lini, na kiasi cha zamani na kipya.", "👥 One email: up to 5 separate accounts · 🔒 PIN lock": "👥 Barua pepe moja: hadi akaunti 5 tofauti · 🔒 Kufuli ya PIN"});
+/* v187 homepage = app: 📦 Bakhaarka */
+Object.assign(EN,{"Iib, kharash, bakhaar, shaqaale, qaansheeg iyo warbixinno.":"Sales, spending, inventory, staff, invoices and reports.","Bakhaarka iyo alaabta":"Inventory and goods",
+  "📦 Bakhaarka (haddii aad doorato): shirkad kasta. Liis diyaar ah oo Hotel & Maqaayad, Jaamacad & Iskuul, Dukaan, Farmashi iyo Xoolaha & Beeraha, ama mid aad adigu qorto. Iibku wuu dhimayaa, iibsashaduna way kordhinaysaa.":"📦 Inventory (if you choose it): for any business. Ready lists for Hotel & Restaurant, University & School, Shop, Pharmacy and Livestock & Farming, or your own. A sale lowers the stock and a purchase raises it.","📦 Bakhaarka (Inventory)":"📦 Inventory","Dooro haddii shirkaddaadu alaab iibiso oo ay rabto inay la socoto tirada. Hadhow Akoon ayaad ka shidi kartaa ama ka dami kartaa.":"Choose it if your business sells goods and wants to track the quantity. You can turn it on or off later in Account.",
+  "Iib, kharash, bakhaar, shaqaale iyo warbixinno.":"Sales, spending, inventory, staff and reports."});
+Object.assign(AR,{"Sales, spending, inventory, staff, invoices and reports.":"المبيعات والمصاريف والمخزون والموظفون والفواتير والتقارير.","Inventory and goods":"المخزون والبضائع","📦 Inventory (if you choose it): for any business. Ready lists for Hotel & Restaurant, University & School, Shop, Pharmacy and Livestock & Farming, or your own. A sale lowers the stock and a purchase raises it.":"📦 المخزون (إن اخترته): لأي نشاط. قوائم جاهزة للفندق والمطعم والجامعة والمدرسة والمتجر والصيدلية والمواشي والزراعة، أو قائمتك الخاصة. البيع ينقص المخزون والشراء يزيده.","Sales, spending, inventory, staff and reports.":"المبيعات والمصاريف والمخزون والموظفون والتقارير."});
+Object.assign(SW,{"Sales, spending, inventory, staff, invoices and reports.":"Mauzo, matumizi, hifadhi, wafanyakazi, ankara na ripoti.","Inventory and goods":"Hifadhi na bidhaa","📦 Inventory (if you choose it): for any business. Ready lists for Hotel & Restaurant, University & School, Shop, Pharmacy and Livestock & Farming, or your own. A sale lowers the stock and a purchase raises it.":"📦 Hifadhi (ukichagua): kwa biashara yoyote. Orodha tayari za Hoteli na Mgahawa, Chuo na Shule, Duka, Duka la dawa na Mifugo na Kilimo, au yako mwenyewe. Mauzo hupunguza hifadhi na ununuzi huongeza.","Sales, spending, inventory, staff and reports.":"Mauzo, matumizi, hifadhi, wafanyakazi na ripoti."});
 const T=s=>LANG==="so"||!Object.prototype.hasOwnProperty.call(EN,s)?s:LANG==="en"?EN[s]:XL(EN[s]);
 function trText(n){const p=n.parentNode;if(!p||p.nodeName==="SCRIPT"||p.nodeName==="STYLE")return;
   const v=n.nodeValue,t=v.trim();if(!t)return;const x=T(t);if(x!==t)n.nodeValue=v.replace(t,x)}
@@ -2388,6 +2401,7 @@ async function enter(user){
   const chosen=pendingMode||user?.user_metadata?.mode;
   if(!st?.mode&&(chosen==="person"||chosen==="business")){st={...(st||{id:"settings",kind:"settings"}),mode:chosen};try{await put(st)}catch{}}
   const co=pendingCo||user?.user_metadata?.company||"";if(co&&!st?.coName){st={...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),coName:co};pendingCo="";try{await put(st)}catch{}}
+  {const md=pendingMods||user?.user_metadata?.mods;pendingMods=null;if(Array.isArray(md)&&!Array.isArray(st?.mods)){st={...(items.find(i=>i.kind==="settings")||{id:"settings",kind:"settings"}),mods:md.filter(x=>x==="stk"),stkAsk:1,...(user?.user_metadata?.stk_type&&!st?.stkType?{stkType:String(user.user_metadata.stk_type).slice(0,10)}:{})};try{await put(st)}catch{}}}   // v187: modules chosen at sign-up (📦 Bakhaarka)
   if(OPEN_MODE&&st?.mode){const om=OPEN_MODE;OPEN_MODE="";try{history.replaceState(null,"",location.pathname+location.hash)}catch{}   // link from the receipt email: open that account
     if(om!==st.mode&&!LOCKED()){st={...st,mode:om};try{await put(st)}catch{}}}
   if(LOCKED()&&st?.mode!==myType()){st={...(st||{id:"settings",kind:"settings"}),mode:myType()};try{await put(st)}catch{}}
@@ -2690,6 +2704,9 @@ function accTexts(){
   const sw=L("👥 Akoonnadayda","👥 My accounts","👥 حساباتي","👥 Akaunti zangu");
   $("accSwBtn").textContent=accLinked()?sw:L("➕ Akoon kale","➕ Another account","➕ حساب آخر","➕ Akaunti nyingine");
   $("paySwBtn").textContent=sw;$("paySwBtn").hidden=!accLinked();
+  /* header: which account is open now, one tap opens the list to switch (only when the email has several) */
+  {const h=$("hAccBtn"),t=myTypeSafe(),st=items.find?.(i=>i.kind==="settings"),n=t==="business"?(st?.coName||me?.user_metadata?.company||""):(me?.user_metadata?.hg_label||"");
+   h.hidden=!accLinked();h.textContent="👥 "+(n||accType(t).replace(/^\S+\s/,""))+" ▾";h.title=L("Akoonnadayda: u gudub akoon kale","My accounts: switch to another account","حساباتي: انتقل إلى حساب آخر","Akaunti zangu: hamia akaunti nyingine");h.setAttribute("aria-label",h.title)}
   $("accSwTxt").textContent=accLinked()?accType(myTypeSafe())+" · "+L("akoonka hadda furan","open now","الحساب المفتوح الآن","imefunguliwa sasa"):L("Hal email, akoono badan","One email, several accounts","بريد واحد، حسابات عدة","Barua pepe moja, akaunti nyingi")}
 function accRender(){const box=$("acvList");box.textContent="";
   if(!ACCS){box.innerHTML=`<p class="note" style="margin:0">${L("Waa la soo raraya…","Loading…","جارٍ التحميل…","Inapakia…")}</p>`;return}
@@ -2738,7 +2755,7 @@ const WA_NUM="46767157915";
 document.querySelectorAll("[data-wa]").forEach(a=>{a.href="https://wa.me/"+WA_NUM+"?text="+encodeURIComponent(L("Salaan, HantiGo caawimaad ayaan rabaa","Hi, I need help with HantiGo"))});
 document.querySelectorAll("[data-wanum]").forEach(e=>e.textContent="+46 76 715 79 15");
 /* auth form */
-let addSpace=false,signUp=false,pendingMode=null,pendingCity="",pendingCountry="",pendingCo="";
+let addSpace=false,signUp=false,pendingMode=null,pendingCity="",pendingCountry="",pendingCo="",pendingMods=null;
 function coRowSync(){$("aCoRow").hidden=$("aTypeRow").hidden||!$("atB").checked}
 /* Shirkad sign-up asks clearly for: full name of the person signing up, phone (company or owner), email (company or owner = the login email) */
 function signLabels(){const biz=signUp&&$("atB").checked;
@@ -2791,7 +2808,7 @@ $("authForm").addEventListener("submit",async e=>{e.preventDefault();
   if(password.length<6){$("aErr").textContent="Erayga sirta ah waa inuu ka koobnaadaa ugu yaraan 6 xaraf.";return}
   $("aErr").textContent="";$("aBtn").disabled=true;
   try{
-    if(signUp){const am=document.querySelector('input[name=atype]:checked').value;pendingMode=am;pendingCo=am==="business"?$("aCoName").value.trim().slice(0,60):"";pendingCountry=$("aCountry").value;pendingCity=locCity("a");
+    if(signUp){const am=document.querySelector('input[name=atype]:checked').value;pendingMode=am;pendingCo=am==="business"?$("aCoName").value.trim().slice(0,60):"";pendingMods=am==="business"&&$("aStk").checked?["stk"]:[];pendingCountry=$("aCountry").value;pendingCity=locCity("a");
       if(am==="business"&&pendingCo.length<2){goSub(1);$("aErr").textContent=L("Ku qor magaca shirkadda.","Enter the company name.","اكتب اسم الشركة.","Andika jina la kampuni.");$("aCoName").focus();$("aBtn").disabled=false;return}
       if(!pendingCountry){goSub(1);$("aErr").textContent=L("Dooro wadanka aad joogto.","Choose the country you live in.");$("aBtn").disabled=false;return}
       if(!pendingCity){goSub(1);$("aErr").textContent=L("Dooro magaalada aad joogto.","Choose the city you live in.");$("aBtn").disabled=false;return}
@@ -2801,7 +2818,7 @@ $("authForm").addEventListener("submit",async e=>{e.preventDefault();
       const startDate=$("aStart").value;
       if(!/^\d{4}-\d{2}-\d{2}$/.test(startDate)){goSub(1);$("aErr").textContent=L("Dooro taariikhda diiwaangelintu bilaabatay.","Choose the registration start date.","اختر تاريخ بدء التسجيل.","Chagua tarehe ya kuanza usajili.");$("aStart").focus();$("aBtn").disabled=false;return}
       try{localStorage.setItem("hantigo.pendingMe",JSON.stringify({email:email.toLowerCase(),full_name:fullName,phone:phoneNo}))}catch{}
-      const {data,error}=await sb.auth.signUp({email,password,options:{data:{mode:am,city:pendingCity,country:pendingCountry,company:pendingCo,start_date:startDate,full_name:fullName,phone:phoneNo},emailRedirectTo:location.origin+location.pathname}});
+      const {data,error}=await sb.auth.signUp({email,password,options:{data:{mode:am,city:pendingCity,country:pendingCountry,company:pendingCo,mods:pendingMods,stk_type:(pendingMods&&pendingMods.length&&$("aStkType")&&!$("aStkType").hidden?$("aStkType").value:"")||undefined,start_date:startDate,full_name:fullName,phone:phoneNo},emailRedirectTo:location.origin+location.pathname}});
       /* with "Confirm email" ON, Supabase answers an already-used email with no error and a user without identities, and saves nothing */
       const dup=!error&&data?.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0;
       if(dup||error&&/already registered|already exists/i.test(String(error.message||""))){
@@ -3266,6 +3283,7 @@ function wrHtml(print){const {d,S}=WR,pct=v=>d.out?Math.round(v/d.out*100)+"%":"
   ${d.groups.length?`<h2>${esc(S.topH)}</h2><table><tr><th>${L("Mowduuca","Topic","الموضوع","Mada")}</th><th>${L("Qadarka","Amount","المبلغ","Kiasi")}</th><th>%</th>${print?"<th></th>":""}</tr>${d.groups.map(([g,v])=>`<tr><td>${esc(grpLabel(g))}</td><td class="n">${money(v)}</td><td class="n">${pct(v)}</td>${print?`<td style="width:35%"><div class="pb" style="width:${(v/d.groups[0][1]*100).toFixed(1)}%;background:#e5534b"></div></td>`:""}</tr>`).join("")}</table>`:""}
   ${S.facts.length?`<h2>${L("Waxa la ogaaday","What we found","ما وجدناه","Tulichogundua")}</h2><ul>${S.facts.map(([ic,t])=>`<li>${ic} ${strip(t)}</li>`).join("")}</ul>`:""}
   ${S.tip?`<p><b>💡 ${L("Talo","Tip","نصيحة","Ushauri")}:</b> ${strip(S.tip)}</p>`:""}
+  ${stkHtml(d.list)}
   ${wrListHtml(d)}`}
 /* report files: every entry of the month with date, weekday, time, account (EVC Plus / Bangi / Kaash) and where the money came from / went */
 const stampOf=iso=>{const c=iso?new Date(iso):null;if(!c||isNaN(c))return "";const z=n=>String(n).padStart(2,"0");return `${z(c.getDate())}/${z(c.getMonth()+1)}/${c.getFullYear()} ${z(c.getHours())}:${z(c.getMinutes())}`};
@@ -3350,6 +3368,7 @@ function wrExport(k){if(!WR)return;
     {title:S.score[0]+" "+S.score[1],colorFirst:1,head:[L("Soo galay","Money in","دخل","Pesa iliyoingia"),L("Ka baxay","Money out","خرج","Pesa iliyotoka"),MODE==="business"?L("Faa'iido","Profit"):L("Lacagta haray","Left over")],rows:[[d.inc,d.out,d.left]]},
     {title:strip(S.topH),head:[L("Mowduuca","Topic","الموضوع","Mada"),L("Qadarka","Amount","المبلغ","Kiasi"),"%"],rows:d.groups.map(([g,v])=>[grpLabel(g),v,d.out?v/d.out:0])},
     {title:L("Waxa la ogaaday","What we found","ما وجدناه","Tulichogundua"),head:[L("Faahfaahin","Details")],rows:[[S.score[2]],...(S.per100?[[S.per100]]:[]),...S.facts.map(([ic,t])=>[ic+" "+strip(t)]),...(S.tip?[["💡 "+strip(S.tip)]]:[])]},
+    ...stkSheets(d.list),
     ...wrListSheets(d)
   ],wrFile("x").slice(0,-2))}
 /* phone: chips that jump to each home section (only the ones this account can see) */
@@ -3713,6 +3732,7 @@ $("txForm").addEventListener("submit",async e=>{e.preventDefault();
   const old=editing&&items.find(i=>i.id===editing);
   if(!old){const ty=document.querySelector('input[name=type]:checked').value,dt=$("date").value,pl=$("place").value.trim(),h=txDup(ty,amount,$("cat").value,dt,pl),bh=billPaidHits(ty,$("cat").value,dt,pl);if(dupAsk(bh.length?bh:h?[h]:[],JSON.stringify([ty,amount,$("cat").value,dt,pl])))return}
   const doc={...(old||{}),id:old?old.id:uid(),kind:"tx",method:payMethod(),type:document.querySelector('input[name=type]:checked').value,amount,cat:$("cat").value,date:$("date").value,note:$("note").value.trim(),place:$("place").value.trim(),created:new Date().toISOString(),...(MM_REF&&!old?{ref:MM_REF,src:"sms"}:{})};
+  stkSet(doc);
   try{await put(doc);MM_REF="";$("amount").value="";$("note").value="";$("place").value="";stopEdit();
     const d=new Date(doc.date+"T00:00");view=new Date(d.getFullYear(),d.getMonth(),1);render()}
   catch(err){$("txErr").textContent="Lama kaydin karo hadda. Isku day mar kale."}
@@ -4642,7 +4662,7 @@ function xlColor(h){h=String(h).toLowerCase();
   if(/kayd|saving/.test(h))return"FF5A8FE0";
   if(/haray|hadhay|left over/.test(h))return"FF2F6FC4";
   return"FF34495E"}
-const xlDays=h=>/maalm|days|dad\)|people/i.test(String(h));
+const xlDays=h=>/maalm|days|dad\)|people|tirada|qty|الكمية|idadi/i.test(String(h));
 async function exportSheet(title,sections,base){base=base.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_");
   const brand=brandName(),logo=MODE==="business"?coLogo():"";
   try{const X=await loadExcel(),wb=new X.Workbook(),ws=wb.addWorksheet("HantiGo",{views:[{showGridLines:false,rightToLeft:RTL}]});wb.creator="HantiGo";
@@ -4799,6 +4819,7 @@ $("repCsv").addEventListener("click",()=>{const {txs,title,yr,y}=reportData();
     {title:L("Kooban","Summary"),colorFirst:1,head:[L("Soo galay","Money in","دخل","Pesa iliyoingia"),L("Ka baxay","Money out","خرج","Pesa iliyotoka"),L("Deyn la bixiyay","Debt paid"),L("Kayd","Savings"),L("Lacagta haray","Left over")],rows:[[S.si,-S.so,-S.debt,S.sav,S.left]]},
     ...(yr?yearSheets(yearData(y)):[]),
     ...repExtra(txs,yr),
+    ...stkSheets(txs),
     ...(true?[{title:L("Ka baxay: mowduuc kasta","Money out by topic","خرج حسب الموضوع","Pesa iliyotoka kwa mada"),head:[L("Mowduuca","Topic"),L("Qaybta","Category"),L("Qadarka","Amount")],rows:(()=>{const gt={};txs.filter(t=>t.type==="out"&&t.cat!=="Kayd").forEach(t=>{const g=grpOf(t.cat);(gt[g]=gt[g]||{v:0,c:{}}).v+=Number(t.amount);gt[g].c[t.cat]=(gt[g].c[t.cat]||0)+Number(t.amount)});
       return Object.entries(gt).sort((a,b)=>b[1].v-a[1].v).flatMap(([g,o])=>[[grpLabel(g),L("Wadarta","Total"),o.v],...Object.entries(o.c).sort((a,b)=>b[1]-a[1]).map(([c,v])=>["",T(c),v])])})()}]:[]),
     {title:L("📅 Maalin-maalin","📅 Day by day","📅 يومًا بيوم","📅 Siku kwa siku"),head:dayHeadX(),rows:dayRows(txs)},
@@ -4821,6 +4842,7 @@ function buildReport(){const {txs,title,yr,y}=reportData();const S=repSums(txs);
   <tr><td class="n">${money(S.si)}</td><td class="n">${money(S.so)}</td><td class="n">${money(S.debt)}</td><td class="n">${money(S.sav)}</td><td class="n">${money(S.left)}</td></tr></table>
   ${yr?yearHtml(yearData(y)):""}
   ${repExtraHtml(txs,yr)}
+  ${stkHtml(txs)}
   <h2>${L("Ka baxay: qayb kasta","Money out by category","خرج حسب الفئة","Pesa iliyotoka kwa aina")}</h2>
   ${catTable||`<table><tr><th>${L("Qaybta","Category")}</th><th>${L("Qadarka","Amount")}</th></tr>${cats.map(([c,v])=>`<tr><td>${esc(T(c))}</td><td class="n">${money(v)}</td></tr>`).join("")||`<tr><td colspan="2">—</td></tr>`}</table>`}
   <h2>${L("📅 Maalin-maalin","📅 Day by day","📅 يومًا بيوم","📅 Siku kwa siku")}</h2>
@@ -4971,13 +4993,24 @@ function actWhat(x){if(!x)return"";const k=x.kind;
   if(k==="debt")return `💳 ${L("Deyn","Debt","دين","Deni")} · ${x.name||""}`;
   if(k==="bill")return `🧾 ${L("Kharash joogto ah","Regular expense","مصروف ثابت","Gharama ya kawaida")} · ${T(x.name||"")}`;
   if(k==="goal")return `🎯 ${L("Yool / kayd","Goal / savings","هدف / ادخار","Lengo / akiba")} · ${x.name||""}`;
+  if(k==="stk")return `📦 ${L("Bakhaarka","Inventory","المخزون","Hifadhi")} · ${x.name||""}${x.del?" (🗑 "+L("la tirtiray","deleted","محذوف","imefutwa")+")":""}`;
   if(k==="inv")return `🧾 ${x.k==="q"?L("Qaansheeg","Invoice","فاتورة","Ankara"):L("Rasiid","Receipt","إيصال","Risiti")} ${x.no?"#"+x.no:""} · ${x.cust||""}`;
   return k||""}
 const ACT_F=[["amount",()=>L("Qadarka","Amount","المبلغ","Kiasi")],["total",()=>L("Wadarta","Total","المجموع","Jumla")],["target",()=>L("Hadafka","Target","الهدف","Lengo")],["saved",()=>L("La kaydiyay","Saved","المدخر","Imehifadhiwa")],["paid",()=>L("La bixiyay","Paid","المدفوع","Imelipwa")],
   ["type",()=>L("Nooca","Type","النوع","Aina")],["cat",()=>L("Qaybta","Category","الفئة","Aina")],["date",()=>L("Taariikhda","Date","التاريخ","Tarehe")],["method",()=>L("Habka","Method","الطريقة","Njia")],["place",()=>L("Meesha","Place","المكان","Mahali")],["note",()=>L("Faahfaahin","Details","التفاصيل","Maelezo")],["name",()=>L("Magaca","Name","الاسم","Jina")],["due",()=>L("Taariikhda la bixinayo","Due date","تاريخ الاستحقاق","Tarehe ya kulipa")],["cust",()=>L("Macmiilka","Customer","العميل","Mteja")]];
 const ACT_MONEY=new Set(["amount","total","target","saved","paid"]);
 function actFv(f,v){if(v==null||v==="")return"—";if(ACT_MONEY.has(f))return money(Number(v));if(f==="type")return v==="tr"?L("Wareejin","Transfer","تحويل","Uhamisho"):v==="in"?L("Soo galay","Money in","دخل","Pesa iliyoingia"):L("Ka baxay","Money out","خرج","Pesa iliyotoka");if(f==="date"||f==="due")return fmtD(v)||String(v);if(f==="cat"||f==="method")return T(String(v));return String(v)}
-function actDiff(b,a){if(!b||!a)return[];return ACT_F.filter(([f])=>String(b[f]??"")!==String(a[f]??"")).map(([f,lab])=>({f,lab:lab(),from:actFv(f,b[f]),to:actFv(f,a[f])}))}
+function actDiff(b,a){if(!b||!a)return[];if(a.kind==="stk")return actStkDiff(b,a);return ACT_F.filter(([f])=>String(b[f]??"")!==String(a[f]??"")).map(([f,lab])=>({f,lab:lab(),from:actFv(f,b[f]),to:actFv(f,a[f])}))}
+/* v189: inventory items: quantity fixed (from → to, reason), deleted, brought back, prices / name changed */
+function actStkDiff(b,a){const seen=new Set((Array.isArray(b.fx)?b.fx:[]).map(x=>x.at)),out=[],u=a.unit?" "+a.unit:"";
+  for(const x of (Array.isArray(a.fx)?a.fx:[]))if(!seen.has(x.at)){const r=x.r?` (“${x.r}”)`:"";
+    if(x.k==="q")out.push({f:"q",lab:L("Tirada","Quantity","الكمية","Idadi")+r,from:stkN(x.f)+u,to:stkN(x.t)+u});
+    else if(x.k==="del")out.push({f:"del",lab:"🗑 "+L("La tirtiray","Deleted","حُذف","Imefutwa")+r,from:stkN(x.f)+u,to:"—"});
+    else if(x.k==="back")out.push({f:"back",lab:"↩ "+L("Dib loo soo celiyay","Brought back","أُعيد","Imerudishwa"),from:"🗑",to:"✓"})}
+  for(const [f,lab,m] of [["name",L("Magaca","Name","الاسم","Jina")],["buy",L("Qiimaha iibsiga","Buying price","سعر الشراء","Bei ya kununua"),1],["sell",L("Qiimaha iibka","Selling price","سعر البيع","Bei ya kuuza"),1],["unit",L("Halbeegga","Unit","الوحدة","Kipimo")],["grp",L("Qaybta","Section","القسم","Sehemu")]])
+    if(String(b[f]??"")!==String(a[f]??""))out.push({f,lab,from:b[f]==null||b[f]===""?"—":m?money(Number(b[f])):String(b[f]),to:a[f]==null||a[f]===""?"—":m?money(Number(a[f])):String(a[f])});
+  if(!out.length&&String(b.q??"")!==String(a.q??""))out.push({f:"q",lab:L("Tirada","Quantity","الكمية","Idadi"),from:stkN(b.q),to:stkN(a.q)});
+  return out}
 function actRows(){let r=ACT.rows||[];const s=actSince(ACT.per);
   if(s)r=r.filter(x=>new Date(x.at)>=s);
   if(ACT.act!=="all")r=r.filter(x=>x.action===ACT.act);
@@ -6624,6 +6657,525 @@ fv.querySelectorAll('[data-fvclose]').forEach(b=>b.addEventListener('click',clos
 fv.querySelector('[data-fvstart]').addEventListener('click',()=>{opener=null;close();setTimeout(()=>{const g=document.querySelector('#authView [data-go="1"]');if(g)g.click();const sp=document.getElementById('stepsPanel');if(sp)sp.scrollIntoView({behavior:'smooth',block:'start'})},60)});
 addEventListener('popstate',()=>{if(!fv.hidden){pushed=false;hide()}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!fv.hidden)close()});})();</script>
+<style>
+/* v187 📦 Bakhaarka (Shirkad inventory) */
+#appView[data-tab="hub"][data-hub="stk"] [data-hubs~="stk"]:not([hidden]){display:grid!important;grid-column:1/-1}
+#bhGrid .bhbtn:last-child:nth-child(odd){grid-column:1/-1}
+@media (min-width:900px){#bhGrid{grid-template-columns:repeat(var(--hn,4),minmax(0,1fr))}#bhGrid .bhbtn:last-child:nth-child(odd){grid-column:auto}}
+#skPanel{gap:12px}
+html[data-mode="business"] #hubSw{grid-template-columns:repeat(var(--hn,4),minmax(0,1fr))}
+@media (max-width:520px){html[data-mode="business"] #hubSw{gap:4px}html[data-mode="business"] #hubSw button{font-size:.56rem;padding:8px 1px!important;overflow-wrap:normal;word-break:keep-all}}
+.sksum{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.sksum div{border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--bg);display:grid;gap:2px}
+.sksum span{font-size:.78rem;color:var(--muted)}.sksum b{font-size:1.05rem}.sksum .bad b{color:var(--out)}.sksum .good b{color:var(--in)}.sksum .blank b{color:var(--accent)}
+.sksum button{border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--bg);display:grid;gap:2px;text-align:start;cursor:pointer;font:inherit;color:inherit}
+.sksum button[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.skform{display:grid;gap:10px;border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--bg)}
+.skform h3{margin:0;font-size:.95rem}
+.sklist{display:grid;gap:8px}
+.skrow{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface,var(--bg));display:grid;gap:6px}
+.skrow.low{border-color:var(--out)}.skrow.blank{border-style:dashed}.sktag.sknew{background:var(--accent-soft,rgba(106,165,255,.15));color:var(--accent)}
+.skfill{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:6px}
+@media (max-width:520px){.skfill{grid-template-columns:repeat(3,minmax(0,1fr))}.skfill button{grid-column:1/-1}}
+.skgrp{border:1px solid var(--line);border-radius:14px;background:var(--bg)}.skgrp>summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center;padding:12px 14px;list-style:none}
+.skgrp>summary::-webkit-details-marker{display:none}.skgrp>summary b::after{content:" ▾";opacity:.6}.skgrp[open]>summary b::after{content:" ▴"}.skgrp>.sklist{padding:0 10px 10px}
+.skh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.skh b{overflow-wrap:anywhere}.skq{font-weight:700;font-size:1.1rem;white-space:nowrap}.skrow.low .skq{color:var(--out)}
+.skm{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
+.ska{display:flex;flex-wrap:wrap;gap:6px}.ska button{padding:6px 10px;font-size:.85rem}
+.ska .sksell{color:var(--in);font-weight:600}.ska .skbuy{color:var(--out);font-weight:600}
+.skcount{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.skcount input{width:110px}
+.skfix{display:grid;gap:8px;border:1px solid var(--accent);border-radius:12px;padding:10px 12px;background:var(--bg)}
+.skfix .note b{color:var(--ink)}.skfixr{display:flex;gap:6px;flex-wrap:wrap}.skfixr input{flex:1 1 140px;min-width:0}.skfix .goal-actions{margin:0}
+.skdelb{border-color:var(--out)}.skdanger{background:var(--out)!important;border-color:var(--out)!important}
+.skdmv{display:flex;gap:8px;align-items:flex-start;font-size:.88rem}.skdmv input{width:18px;height:18px;flex:0 0 auto;margin-top:2px}
+.skfxl{font-size:.8rem;margin:0}
+.skhist{display:grid;gap:8px;border-top:1px dashed var(--line);padding-top:8px}
+.skhl{list-style:none;margin:0;padding:0;display:grid;gap:6px}.skhl li{display:grid;gap:2px;padding:6px 0;border-bottom:1px solid var(--line)}.skhl li:last-child{border-bottom:0}
+.skhl small{color:var(--muted);font-size:.78rem}.skhl .skhf span{color:var(--accent);font-weight:600}.skhb{display:flex;gap:6px;flex-wrap:wrap}
+.skgone{border:1px dashed var(--line);border-radius:14px;padding:8px 12px;display:grid;gap:8px}.skgone>summary{cursor:pointer;font-weight:600}
+.skrow.gone{opacity:.85;border-style:dashed}
+.sktag{font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--out-soft);color:var(--out)}
+#stkRow .note{grid-column:1/-1;margin:0}
+.skdl{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0}
+.skdlr{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.skdlr select{width:auto;min-width:130px}.skdlr button{padding:6px 12px}
+</style>
+<script>
+/* ================= v187 📦 Bakhaarka (Shirkad inventory, AM 2026-11-26) =================
+   Item: {kind:"stk", mode:"business", name, q, buy, sell, min, unit}. q is the base count.
+   Stock now = q − (sold: money-in entries with stk=id, sq=qty) + (bought: money-out entries with stk=id, sq=qty).
+   So a sale lowers the stock, a purchase raises it, and editing or deleting the entry puts the stock right by itself.
+   Works offline like every entry (same queue, newest wins). Owner adds/edits items; managers see the list
+   and record sales/purchases (the link lives on the money entry, which managers may save). No SQL needed. */
+BK_KINDS.push("stk");
+HUBS.stk=["📦",["Bakhaarka","Inventory","المخزون","Hifadhi"],["Alaabta, tirada iyo qiimaha: iibku wuu dhimayaa, iibsashaduna way kordhinaysaa","Items, quantity and prices: a sale lowers it, a purchase raises it","الأصناف والكمية والأسعار: البيع ينقصها والشراء يزيدها","Bidhaa, idadi na bei: mauzo hupunguza, ununuzi huongeza"]];
+HUB_OF.skPanel="stk";
+const stkAll=()=>items.filter(i=>i.kind==="stk"&&!i.del&&(i.mode||"business")==="business").sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
+/* v189 (AM 2026-11-26): corrections. Deleted items stay as a hidden record (del:1) so the owner sees what was deleted, when and why, and can bring it back.
+   Every correction is kept on the item (fx: when, who, from → to, reason) and shown in the list, the history and the reports. */
+const stkGone=()=>items.filter(i=>i.kind==="stk"&&i.del&&(i.mode||"business")==="business").sort((a,b)=>String(b.delAt||"").localeCompare(String(a.delAt||"")));
+const stkFxAdd=(s,e)=>[...(Array.isArray(s.fx)?s.fx:[]),{at:new Date().toISOString(),by:(typeof realMail==="function"&&realMail())||me?.email||"",...e}].slice(-30);
+const stkTx=()=>items.filter(t=>t.kind==="tx"&&t.stk&&(t.mode||"person")==="business"&&(t.type==="in"||t.type==="out"));
+const stkN=v=>{v=Math.round(Number(v||0)*1000)/1000;return Number.isInteger(v)?String(v):String(v)};
+function stkQty(s,txs){let q=Number(s.q||0);for(const t of txs||stkTx())if(t.stk===s.id){const n=Number(t.sq||0);q+=t.type==="out"?n:-n}return Math.round(q*1000)/1000}
+const stkBlank=s=>!!s.pre&&!Number(s.q)&&!Number(s.buy)&&!Number(s.sell)&&!stkTx().some(t=>t.stk===s.id);
+const stkLow=(s,q)=>!stkBlank(s)&&(q<=0||(Number(s.min)>0&&q<=Number(s.min)));
+const stkEdit=()=>!TEAM;                         // owner only (managers' saves of new kinds are not allowed on the server)
+function stkMove(){return MODE==="business"&&MGR()&&!STAFF()}
+function stkStats(){const tx=stkTx(),l=stkAll().map(s=>({s,q:stkQty(s,tx)}));
+  return {l,n:l.length,low:l.filter(x=>stkLow(x.s,x.q)).length,cost:l.reduce((a,x)=>a+Math.max(0,x.q)*Number(x.s.buy||0),0),sell:l.reduce((a,x)=>a+Math.max(0,x.q)*Number(x.s.sell||0),0)}}
+{const _hi=hubInfo;hubInfo=function(k){if(k!=="stk")return _hi(k);const S=stkStats();
+  if(!S.n)return {n:L("Weli alaab lama gelin","No items yet","لا توجد أصناف بعد","Bado hakuna bidhaa"),badge:0};
+  const bl=S.l.filter(x=>stkBlank(x.s)).length;return {n:L(`${S.n} alaab · ${money(S.cost)}`,`${S.n} items · ${money(S.cost)}`,`${S.n} أصناف · ${money(S.cost)}`,`Bidhaa ${S.n} · ${money(S.cost)}`)+(S.low?" · "+L(`${S.low} yaraaday`,`${S.low} low`,`${S.low} منخفضة`,`${S.low} chache`):"")+(bl?" · "+L(`${bl} buuxi`,`${bl} to fill`,`${bl} للملء`,`${bl} jaza`):""),bad:S.low>0,badge:S.low}}}
+/* ---------- the panel ---------- */
+let skEdit=null,skQ="",skMsg="",skKey="",skF="",skDlP="all";
+const SKT={h:()=>"📦 "+L("Bakhaarka","Inventory","المخزون","Hifadhi"),
+  lead:()=>L("Alaabta aad iibiso: tirada hadda, qiimaha iibsiga iyo iibka. Marka aad iib qorto tiradu way dhacaysaa; marka aad soo iibsato way kordhaysaa.","The goods you sell: quantity now, buying and selling price. When you record a sale the quantity goes down; when you buy stock it goes up.","البضائع التي تبيعها: الكمية الآن وسعر الشراء والبيع. عند تسجيل بيع تنقص الكمية، وعند الشراء تزيد.","Bidhaa unazouza: idadi sasa, bei ya kununua na kuuza. Ukiandika mauzo idadi hupungua; ukinunua huongezeka."),
+  name:()=>L("Magaca alaabta","Item name","اسم الصنف","Jina la bidhaa"),qty:()=>L("Tirada hadda","Quantity now","الكمية الآن","Idadi sasa"),
+  unit:()=>L("Halbeegga (ikhtiyaari)","Unit (optional)","الوحدة (اختياري)","Kipimo (hiari)"),
+  buy:()=>L("Qiimaha iibsiga (hal)","Buying price (each)","سعر الشراء (للوحدة)","Bei ya kununua (moja)"),sell:()=>L("Qiimaha iibka (hal)","Selling price (each)","سعر البيع (للوحدة)","Bei ya kuuza (moja)"),
+  min:()=>L("Ii sheeg marka ay ka yaraato (ikhtiyaari)","Warn me when below (optional)","نبّهني عندما تقل عن (اختياري)","Nijulishe ikipungua chini ya (hiari)"),
+  save:()=>L("Kaydi","Save","حفظ","Hifadhi"),cancel:()=>L("Jooji","Cancel","إلغاء","Ghairi"),
+  value:()=>L("Qiimaha bakhaarka (iibsi)","Stock value (cost)","قيمة المخزون (التكلفة)","Thamani ya hifadhi (gharama)"),
+  valueS:()=>L("Haddii la iibiyo","If all sold","إذا بيع الكل","Ikiuzwa yote"),
+  items:()=>L("Alaab","Items","أصناف","Bidhaa"),low:()=>L("Yaraaday / dhammaaday","Low / out","منخفضة / نفدت","Chache / imeisha")};
+function skFormHtml(s){const v=(k,d="")=>esc(s?String(s[k]??d):d);
+  return `<form class="skform owner-only" id="skForm" novalidate><h3 id="skFormH">${s?"✏️ "+L("Beddel","Edit","تعديل","Hariri")+": "+esc(s.name):"➕ "+L("Alaab cusub","New item","صنف جديد","Bidhaa mpya")}</h3>
+    <div class="row"><label class="field"><span>${SKT.name()}</span><input id="skName" type="text" maxlength="50" required value="${v("name")}" placeholder="${esc(L("Tusaale: Bariis 25kg","Example: Rice 25kg","مثال: أرز 25 كغ","Mfano: Mchele 25kg"))}"></label>
+      <label class="field"><span>${SKT.qty()}</span><input id="skQty" type="number" inputmode="decimal" step="any" value="${s?esc(stkN(stkQty(s))):""}" placeholder="0"></label>
+      <label class="field"><span>${SKT.unit()}</span><input id="skUnit" type="text" maxlength="12" value="${v("unit")}" placeholder="${esc(L("xabbo, kiish, kg","pcs, bag, kg","قطعة، كيس، كغ","kipande, mfuko, kg"))}"></label>
+      <label class="field"><span>${L("Qaybta (ikhtiyaari)","Section (optional)","القسم (اختياري)","Sehemu (hiari)")}</span><input id="skGrp" type="text" maxlength="30" list="skGrpList" value="${v("grp")}" placeholder="${esc(L("Tusaale: Cuntada","Example: Food","مثال: الطعام","Mfano: Chakula"))}"></label></div>
+    <datalist id="skGrpList">${[...new Set(stkAll().map(x=>x.grp).filter(Boolean))].map(g=>`<option value="${esc(g)}">`).join("")}</datalist>
+    <div class="row"><label class="field"><span>${SKT.buy()}</span><input id="skBuy" type="number" inputmode="decimal" min="0" step="0.01" value="${v("buy")}" placeholder="0.00"></label>
+      <label class="field"><span>${SKT.sell()}</span><input id="skSell" type="number" inputmode="decimal" min="0" step="0.01" value="${v("sell")}" placeholder="0.00"></label>
+      <label class="field"><span>${SKT.min()}</span><input id="skMin" type="number" inputmode="decimal" min="0" step="any" value="${v("min")}" placeholder="5"></label></div>
+    <div class="err" id="skErr" role="alert"></div>
+    <div class="goal-actions"><button class="primary" type="submit">${SKT.save()}</button>${s?`<button type="button" id="skCancel">${SKT.cancel()}</button>`:""}</div></form>`}
+function renderStk(){const P=$("skPanel");if(!P)return;
+  const on=MODE==="business"&&hubOn()&&stkOn();if(!on){if(P.innerHTML)P.innerHTML="",skKey="";return}
+  const S=stkStats(),ed=stkEdit(),key=JSON.stringify([LANG,currency(),ed,skEdit,skQ,skF,skMsg,skDlP,S.l.map(x=>[x.s.id,x.s.u,x.q]),stkGone().map(g=>[g.id,g.u])]);
+  if(P.dataset.k===key)return;
+  const act=document.activeElement,keepForm=act&&P.contains(act)&&(act.closest("#skForm")||act.id==="skQ");
+  if(keepForm&&skKey===JSON.stringify([LANG,skEdit])){P.dataset.k=key;skList(P,S,ed);return}   // never wipe a form the owner is typing in
+  P.dataset.k=key;skKey=JSON.stringify([LANG,skEdit]);
+  const cur=skEdit&&S.l.find(x=>x.s.id===skEdit)?.s;
+  P.innerHTML=`<div class="panel-head"><h2 id="skH">${SKT.h()}</h2><span class="note" id="skCount"></span></div>
+    <p class="note" style="margin:0">${SKT.lead()}</p>
+    <div class="sksum" id="skSum"></div>
+    ${S.n?stkDlHtml():""}
+    ${S.n?"":skFormBox(ed,cur)}
+    <span class="note ok" id="skMsg" role="status">${esc(skMsg)}</span>
+    <input id="skQ" type="search" maxlength="40" autocomplete="off" value="${esc(skQ)}" aria-label="${esc(L("Raadi alaab","Search items","ابحث عن صنف","Tafuta bidhaa"))}" placeholder="🔍 ${esc(L("Raadi alaab","Search items","ابحث عن صنف","Tafuta bidhaa"))}"${S.n?"":" hidden"}>
+    <div class="sklist" id="skList"></div>
+    ${S.n?skFormBox(ed,cur):""}
+    ${ed?skGoneHtml():""}`;
+  skList(P,S,ed)}
+let skFormBox=(ed,cur)=>ed?skFormHtml(cur):`<p class="note">🔒 ${L("Alaab cusub ama beddel waxaa sameyn kara mulkiilaha shirkadda. Adiguna iib iyo iibsasho waad qori kartaa.","Only the company owner can add or edit items. You can still record sales and purchases.","يمكن لمالك الشركة فقط إضافة الأصناف أو تعديلها. ويمكنك تسجيل البيع والشراء.","Mmiliki tu ndiye anaweza kuongeza au kuhariri bidhaa. Unaweza kuandika mauzo na ununuzi.")}</p>`
+/* v187 (AM 12:44): the inventory paper: every item + every purchase and sale, Excel / Word / PDF */
+const SKDLP=()=>[["all",L("Dhammaan","All time","كل الفترات","Muda wote")],["m",L("Bishan","This month","هذا الشهر","Mwezi huu")],["pm",L("Bishii hore","Last month","الشهر الماضي","Mwezi uliopita")],["y",L("Sannadkan","This year","هذه السنة","Mwaka huu")]];
+function stkDlRange(){const d=new Date(),y=d.getFullYear(),m=d.getMonth(),iso=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}-${String(x.getDate()).padStart(2,"0")}`;
+  if(skDlP==="m")return [iso(new Date(y,m,1)),iso(new Date(y,m+1,0))];if(skDlP==="pm")return [iso(new Date(y,m-1,1)),iso(new Date(y,m,0))];if(skDlP==="y")return [y+"-01-01",y+"-12-31"];return ["",""]}
+function stkDlHtml(){return `<div class="skdl" id="skDl"><b>📄 ${L("Warqadda bakhaarka","Inventory report","تقرير المخزون","Ripoti ya hifadhi")}</b>
+    <span class="note">${L("Alaab kasta + wixii la soo iibsaday iyo wixii la iibiyay (qiimaha, wadarta, faa'iidada).","Every item + everything bought and sold (price, total, profit).","كل صنف + كل ما اشتري وبيع (السعر، المجموع، الربح).","Kila bidhaa + vyote vilivyonunuliwa na kuuzwa (bei, jumla, faida).")}</span>
+    <div class="skdlr"><select id="skDlP" aria-label="${esc(L("Muddada","Period","الفترة","Kipindi"))}">${SKDLP().map(([k,t])=>`<option value="${k}"${k===skDlP?" selected":""}>${esc(t)}</option>`).join("")}</select>
+    <button type="button" data-skdl="x">📊 Excel</button><button type="button" data-skdl="w">📝 Word</button><button type="button" data-skdl="p">📄 PDF</button></div></div>`}
+function stkDl(k){const [f,t]=stkDlRange(),txs=stkTx().filter(x=>!f||(x.date>=f&&x.date<=t)),per=skDlP==="all"?L("Dhammaan","All time","كل الفترات","Muda wote"):`${fmtD(f)} – ${fmtD(t)}`;
+  const base=`HantiGo-${brandName()}-bakhaar-${skDlP==="all"?today():f+"-"+t}`.replace(/[^\p{L}\p{N}_.@ -]+/gu,"_");
+  const body=`${coHead()}<p><b>📦 ${esc(L("Warqadda bakhaarka","Inventory report","تقرير المخزون","Ripoti ya hifadhi"))}</b> · ${esc(per)}</p>${stkHtml(txs,[f,t])}${stFoot()}`;
+  if(k==="p"){$("printArea").innerHTML=body;document.body.classList.add("printing");const done=()=>{document.body.classList.remove("printing");window.removeEventListener("afterprint",done)};
+    window.addEventListener("afterprint",done);setTimeout(()=>{window.print();setTimeout(done,1000)},50);return}
+  if(k==="w"){saveFile(base+".doc","\ufeff"+`<html${RTL?' dir="rtl"':""} xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>HantiGo</title>
+<style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt}h1{color:#0b7a4b}h2{font-size:13pt;margin-top:14pt}table{border-collapse:collapse;width:100%;margin:6pt 0}th,td{border:1px solid #999;padding:4pt 6pt;text-align:${RTL?"right":"left"}}th{background:#e8f5ee}.n{text-align:right}</style></head><body>${body}</body></html>`,"application/msword");return}
+  exportSheet(L("Warqadda bakhaarka","Inventory report","تقرير المخزون","Ripoti ya hifadhi")+" · "+per,stkSheets(txs,[f,t]),base)}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-skdl]");if(b)stkDl(b.dataset.skdl)});
+document.addEventListener("change",e=>{if(e.target.id==="skDlP")skDlP=e.target.value});
+const skOpenG=new Set();let skGInit=false;
+function skList(P,S,ed){const go={};S.l.forEach(x=>{const g=x.s.grp||"";if(!(g in go))go[g]=Object.keys(go).length});const gOrd=s=>{const g=s.grp||"";return g?(go[g]??99):999};
+  stkGrpOrd(go);
+  $("skCount").textContent=S.n?L(`${S.n} alaab`,`${S.n} items`,`${S.n} أصناف`,`Bidhaa ${S.n}`):"";
+  const nb=S.l.filter(x=>stkBlank(x.s)).length,nok=S.n-S.low-nb,tile=(f,cls,lab,val)=>`<button type="button" class="${cls}" data-skf="${f}" aria-pressed="${skF===f}">${lab?`<span>${lab}</span>`:""}<b>${val}</b></button>`;
+  if(skF==="low"&&!S.low||skF==="blank"&&!nb||skF==="ok"&&!nok)skF="";
+  $("skSum").innerHTML=tile("","",SKT.items(),S.n)+tile("ok","good","✓ "+L("Diyaar (tiro leh)","In stock","متوفر","Ipo"),nok)+tile("low",S.low?"bad":"",SKT.low(),S.low)+(nb?tile("blank","blank",L("Weli lama buuxin","Not filled yet","لم يُملأ بعد","Bado haijajazwa"),nb):"")
+    +`<div><span>${SKT.value()}</span><b>${money(S.cost)}</b></div><div><span>${SKT.valueS()}</span><b class="amt in">${money(S.sell)}</b></div>`;
+  const q=skQ.trim().toLowerCase(),l=S.l.filter(x=>!skF||(skF==="low"?stkLow(x.s,x.q):skF==="blank"?stkBlank(x.s):!stkLow(x.s,x.q)&&!stkBlank(x.s))).filter(x=>!q||(String(x.s.name||"")+" "+String(x.s.grp||"")).toLowerCase().includes(q)).sort((a,b)=>(gOrd(a.s)-gOrd(b.s))||(stkLow(b.s,b.q)-stkLow(a.s,a.q))||(stkBlank(a.s)-stkBlank(b.s))||String(a.s.name).localeCompare(String(b.s.name)));
+  if(!S.n){$("skList").innerHTML=`<p class="empty" style="margin:0">${ed?L("Weli alaab lama gelin. Ku qor magaca, tirada iyo qiimaha kor, kadib riix Kaydi.","No items yet. Type the name, quantity and prices above, then tap Save.","لا توجد أصناف بعد. اكتب الاسم والكمية والأسعار أعلاه ثم اضغط حفظ.","Bado hakuna bidhaa. Andika jina, idadi na bei juu, kisha bonyeza Hifadhi."):L("Weli alaab lama gelin.","No items yet.","لا توجد أصناف بعد.","Bado hakuna bidhaa.")}</p>`;return}
+  if(!l.length){$("skList").innerHTML=`<p class="empty" style="margin:0">${L("Wax lama helin.","Nothing found.","لم يُعثر على شيء.","Hakuna kilichopatikana.")}</p>`;return}
+  const u=s=>s.unit?" "+esc(s.unit):"";
+  const many=S.n>12,bySec=[];l.forEach(x=>{const g=x.s.grp||"";let b=bySec.find(y=>y.g===g);if(!b)bySec.push(b={g,l:[]});b.l.push(x)});
+  if(!skGInit){skGInit=true;bySec.slice(0,1).forEach(b=>skOpenG.add(b.g))}
+  const rowsH=arr=>arr.map(({s,q})=>{const low=stkLow(s,q),blank=stkBlank(s);
+    if(blank&&ed)return `<div class="skrow blank" data-skid="${esc(s.id)}"><div class="skh"><b>${esc(s.name)}</b><span class="sktag sknew">${L("Weli lama buuxin","Not filled yet","لم يُملأ بعد","Bado haijajazwa")}</span></div>
+      <div class="skfill"><input type="number" inputmode="decimal" step="any" data-skf="q" aria-label="${esc(SKT.qty())}" placeholder="${esc(L("Tirada","Qty","الكمية","Idadi"))}${s.unit?" ("+esc(s.unit)+")":""}"><input type="number" inputmode="decimal" min="0" step="0.01" data-skf="b" aria-label="${esc(SKT.buy())}" placeholder="${esc(L("Iibsi $","Buy $","شراء $","Kununua $"))}"><input type="number" inputmode="decimal" min="0" step="0.01" data-skf="s" aria-label="${esc(SKT.sell())}" placeholder="${esc(L("Iib $","Sell $","بيع $","Kuuza $"))}"><button type="button" class="primary" data-skfok="${esc(s.id)}">${SKT.save()}</button></div>
+      <div class="ska"><button type="button" class="del" data-skdel0="${esc(s.id)}">${L("Tirtir","Delete","حذف","Futa")}</button></div></div>`;
+    return `<div class="skrow${low?" low":""}" data-skid="${esc(s.id)}"><div class="skh"><b>${esc(s.name)}</b><span class="skq">${esc(stkN(q))}${u(s)}</span></div>
+      <div class="skm">${s.grp?`<b>${esc(s.grp)}</b> · `:""}${L("Iibsi","Buy","شراء","Kununua")} ${money(s.buy||0)} · ${L("Iib","Sell","بيع","Kuuza")} ${money(s.sell||0)} · ${L("Qiimaha","Value","القيمة","Thamani")} ${money(Math.max(0,q)*Number(s.buy||0))}${Number(s.sell)>0&&Number(s.buy)>0?` · ${L("Faa'iido halkii","Profit each","الربح للوحدة","Faida kwa moja")} ${money(Number(s.sell)-Number(s.buy))}`:""}
+        ${low?` <span class="sktag">${q<=0?L("Wuu dhammaaday","Out of stock","نفد","Imeisha"):L("Wuu yaraaday","Low stock","منخفض","Imepungua")}</span>`:""}</div>
+      <div class="ska"><button type="button" class="sksell" data-sksell="${esc(s.id)}">− ${L("Iibiyay","Sold","بيع","Imeuzwa")}</button><button type="button" class="skbuy" data-skbuy="${esc(s.id)}">+ ${L("Soo iibsaday","Bought","شراء","Imenunuliwa")}</button>
+        ${ed?`<button type="button" class="skfixb" data-skcnt="${esc(s.id)}">🛠 ${L("Sax tirada","Fix quantity","تصحيح الكمية","Sahihisha idadi")}</button><button type="button" class="del" data-skedit="${esc(s.id)}">✏️ ${L("Beddel","Edit","تعديل","Hariri")}</button><button type="button" class="del" data-skhist="${esc(s.id)}">📜 ${L("Taariikhda","History","السجل","Historia")}</button><button type="button" class="del" data-skdel="${esc(s.id)}">🗑 ${L("Tirtir","Delete","حذف","Futa")}</button>`:""}</div>
+      ${skLastFx(s)}${ed?skFixBox(s,q)+skDelBox(s):""}<div class="skhist" data-skhbox="${esc(s.id)}" hidden></div></div>`}).join("");
+  if(!many||bySec.length<2||q||skF){$("skList").innerHTML=rowsH(l);return}
+  $("skList").innerHTML=bySec.map(b=>{const lo=b.l.filter(x=>stkLow(x.s,x.q)).length,bl=b.l.filter(x=>stkBlank(x.s)).length;
+    return `<details class="skgrp" data-skg="${esc(b.g)}"${skOpenG.has(b.g)?" open":""}><summary><b>${esc(b.g||L("Kale","Other","أخرى","Nyingine"))}</b><span class="note">${b.l.length}${bl?" · "+L(`${bl} lama buuxin`,`${bl} not filled`,`${bl} لم تُملأ`,`${bl} hazijajazwa`):""}${lo?` · <span class="sktag">${lo} ${L("yaraaday","low","منخفضة","chache")}</span>`:""}</span></summary><div class="sklist">${rowsH(b.l)}</div></details>`}).join("")}
+function stkGrpOrd(){}
+document.addEventListener("toggle",e=>{const d=e.target;if(!d.matches||!d.matches(".skgrp"))return;if(d.open)skOpenG.add(d.dataset.skg);else skOpenG.delete(d.dataset.skg)},true);
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-skfok]");if(!b||!stkEdit())return;const r=b.closest(".skrow"),s=items.find(i=>i.id===b.dataset.skfok);if(!s)return;
+  const v=k=>{const x=r.querySelector(`[data-skf="${k}"]`).value.trim();return x===""?null:Number(x)},q=v("q"),by=v("b"),se=v("s");
+  if([q,by,se].every(x=>x==null)){r.querySelector("[data-skf=q]").focus();return}if([q,by,se].some(x=>x!=null&&(!isFinite(x)||x<0)))return;
+  const d={...s,q:q??Number(s.q||0),buy:by??Number(s.buy||0),sell:se??Number(s.sell||0)};delete d.pre;await put(d);skFlash("✓ "+L(`${s.name} waa la kaydiyay.`,`${s.name} saved.`,`تم حفظ ${s.name}.`,`${s.name} imehifadhiwa.`))});
+{const _r=render;render=function(){_r();try{renderStk();stkRowUI()}catch(e){console.warn(e)}}}
+{const _rh=renderHub;renderHub=function(){_rh();const av=$("appView");if(av.dataset.tab==="hub"&&av.dataset.hub==="stk"&&HUBS.stk&&hubOn())
+  $("hubAct").innerHTML=stkEdit()?`<button type="button" class="primary" data-hubact="stknew">➕ ${L("Alaab cusub","New item","صنف جديد","Bidhaa mpya")}</button>`:""}}
+function skFlash(t){skMsg=t;renderStk();setTimeout(()=>{if(skMsg===t){skMsg="";renderStk()}},4000)}
+/* ---------- v189 (AM 2026-11-26): 🛠 fix a wrong quantity (any right number, 0 too), 🗑 delete with a reason, ↩ bring back, 📜 history ---------- */
+const skWhen=iso=>{const d=new Date(iso);if(isNaN(d))return"";const z=n=>String(n).padStart(2,"0");return `${z(d.getDate())}/${z(d.getMonth()+1)}/${d.getFullYear()} ${z(d.getHours())}:${z(d.getMinutes())}`};
+const skBy=e=>!e?"":me&&[String(me.email||""),realMail()].some(x=>x&&x.toLowerCase()===String(e).toLowerCase())?L("Adiga","You","أنت","Wewe"):String(e).split("@")[0];
+const skFxTxt=(f,s)=>{const u=s&&s.unit?" "+s.unit:"";
+  if(f.k==="del")return "🗑 "+L("La tirtiray","Deleted","حُذف","Imefutwa")+(f.f!=null?` (${L("tiradu waxay ahayd","quantity was","كانت الكمية","idadi ilikuwa")} ${stkN(f.f)}${u})`:"");
+  if(f.k==="back")return "↩ "+L("Dib loo soo celiyay","Brought back","أُعيد","Imerudishwa");
+  return "🛠 "+L("Tirada la saxay","Quantity fixed","تم تصحيح الكمية","Idadi imesahihishwa")+`: ${stkN(f.f)} → ${stkN(f.t)}${u}`};
+function skLastFx(s){const f=(Array.isArray(s.fx)?s.fx:[]).filter(x=>x.k==="q").slice(-1)[0];if(!f)return"";
+  return `<div class="note skfxl">${esc(skFxTxt(f,s))} · ${esc(skWhen(f.at))}${f.by?" · 👤 "+esc(skBy(f.by)):""}${f.r?" · “"+esc(f.r)+"”":""}</div>`}
+function skFixBox(s,q){const id=esc(s.id),u=s.unit?" "+esc(s.unit):"";
+  return `<div class="skfix" data-skcbox="${id}" hidden><b>🛠 ${L("Sax tirada","Fix the quantity","تصحيح الكمية","Sahihisha idadi")}: ${esc(s.name)}</b>
+    <span class="note">${L(`Nidaamka hadda wuxuu hayaa <b>${esc(stkN(q))}${u}</b>. Haddii ay qaldan tahay, ku qor tirada saxda ah (0 haddii aysan waxba jirin).`,`The system now shows <b>${esc(stkN(q))}${u}</b>. If that is wrong, type the right number (0 if there is none).`,`يعرض النظام الآن <b>${esc(stkN(q))}${u}</b>. إذا كان خطأ، اكتب الرقم الصحيح (0 إذا لم يوجد شيء).`,`Mfumo sasa unaonyesha <b>${esc(stkN(q))}${u}</b>. Kama si sahihi, andika namba sahihi (0 kama hakuna).`)}</span>
+    <div class="skfixr"><input type="number" inputmode="decimal" min="0" step="any" data-skcin="${id}" aria-label="${esc(L("Tirada saxda ah","Right quantity","الكمية الصحيحة","Idadi sahihi"))}" placeholder="${esc(L("Tirada saxda ah","Right quantity","الكمية الصحيحة","Idadi sahihi"))}"><button type="button" data-skzero="${id}">0 ${L("ka dhig","(zero)","(صفر)","(sifuri)")}</button></div>
+    <input type="text" maxlength="80" data-skcwhy="${id}" aria-label="${esc(L("Sababta","Reason","السبب","Sababu"))}" placeholder="${esc(L("Sababta (ikhtiyaari): tusaale, si qalad ah ayaa loo qoray","Reason (optional): e.g. typed wrongly","السبب (اختياري): مثلًا كُتب خطأ","Sababu (hiari): mf. iliandikwa vibaya"))}">
+    <div class="err" data-skcerr="${id}" role="alert"></div>
+    <div class="goal-actions"><button type="button" class="primary" data-skcok="${id}">✓ ${L("Kaydi tirada saxda ah","Save the right quantity","احفظ الكمية الصحيحة","Hifadhi idadi sahihi")}</button><button type="button" data-skx="${id}">${SKT.cancel()}</button></div></div>`}
+const skMovesOf=id=>stkTx().filter(t=>t.stk===id);
+function skDelBox(s){const id=esc(s.id),m=skMovesOf(s.id),sum=m.reduce((a,t)=>a+Number(t.amount||0),0);
+  return `<div class="skfix skdelb" data-skdbox="${id}" hidden><b>🗑 ${L("Tirtir","Delete","حذف","Futa")}: ${esc(s.name)}</b>
+    <span class="note">${L("Alaabta waa laga saarayaa liiska, tirada iyo warbixinnada. Waxay gelaysaa “Alaabta la tirtiray” hoose, halkaas ayaad dib uga soo celin kartaa.","The item leaves the list, the totals and the reports. It goes to “Deleted items” below, where you can bring it back.","سيُزال الصنف من القائمة والمجاميع والتقارير. ينتقل إلى “الأصناف المحذوفة” بالأسفل ويمكنك إعادته من هناك.","Bidhaa itaondoka kwenye orodha, jumla na ripoti. Itaenda “Bidhaa zilizofutwa” chini, unaweza kuirudisha.")}</span>
+    <input type="text" maxlength="80" data-skdwhy="${id}" aria-label="${esc(L("Sababta","Reason","السبب","Sababu"))}" placeholder="${esc(L("Sababta (ikhtiyaari): tusaale, alaab qalad ah ayaa la geliyay","Reason (optional): e.g. wrong item added","السبب (اختياري): مثلًا أُضيف صنف خطأ","Sababu (hiari): mf. bidhaa isiyo sahihi iliongezwa"))}">
+    ${m.length?`<label class="skdmv"><input type="checkbox" data-skdmv="${id}"> <span>${L(`Sidoo kale tirtir ${m.length} iib / iibsasho ee alaabtan ku xiran (${money(sum)}). Kuwan dib looma soo celin karo.`,`Also delete the ${m.length} sales / purchases linked to this item (${money(sum)}). These cannot be brought back.`,`احذف أيضًا ${m.length} من المبيعات / المشتريات المرتبطة (${money(sum)}). لا يمكن استعادتها.`,`Futa pia mauzo / manunuzi ${m.length} ya bidhaa hii (${money(sum)}). Hayawezi kurudishwa.`)}</span></label>`:""}
+    <div class="goal-actions"><button type="button" class="primary skdanger" data-skdok="${id}">🗑 ${L("Haa, tirtir","Yes, delete","نعم، احذف","Ndiyo, futa")}</button><button type="button" data-skx="${id}">${SKT.cancel()}</button></div></div>`}
+function skBox(kind,id){const sel=`[data-${kind}="${CSS.escape(id)}"]`,x=document.querySelector(sel);if(!x)return;const open=x.hidden;
+  document.querySelectorAll(`#skList [data-skcbox],#skList [data-skdbox],#skList [data-skhbox]`).forEach(e=>{if(e!==x)e.hidden=true});
+  x.hidden=!open;if(!open)return;if(kind==="skhbox")x.innerHTML=skHistHtml(id);
+  x.scrollIntoView({behavior:"smooth",block:"nearest"});setTimeout(()=>x.querySelector("input")?.focus({preventScroll:true}),150)}
+function skHistHtml(id){const s=items.find(i=>i.id===id);if(!s)return"";const u=s.unit?" "+s.unit:"";
+  const ev=[...(Array.isArray(s.fx)?s.fx:[]).map(f=>({w:f.at,f})),...skMovesOf(id).map(t=>({w:t.date+"T"+(String(t.created||"").slice(11,19)||"00:00:00"),t}))].sort((a,b)=>String(b.w).localeCompare(String(a.w)));
+  const ed=stkEdit(),start=s.created?`<li class="note">➕ ${L("La daray","Added","أُضيف","Imeongezwa")} · ${esc(skWhen(s.created))}</li>`:"";
+  if(!ev.length)return `<p class="note" style="margin:0">${L("Weli wax iib, iibsasho ama sixid ah lama qorin.","No sales, purchases or corrections yet.","لا توجد مبيعات أو مشتريات أو تصحيحات بعد.","Bado hakuna mauzo, manunuzi au marekebisho.")}</p><ul class="skhl">${start}</ul>`;
+  return `<b>📜 ${L("Taariikhda","History","السجل","Historia")}: ${esc(s.name)}</b><ul class="skhl">${ev.map(e=>{
+    if(e.f)return `<li class="skhf"><span>${esc(skFxTxt(e.f,s))}</span><small>${esc(skWhen(e.f.at))}${e.f.by?" · 👤 "+esc(skBy(e.f.by)):""}${e.f.r?" · “"+esc(e.f.r)+"”":""}</small></li>`;
+    const t=e.t,inn=t.type==="in";
+    return `<li><span>${inn?"− "+L("Iib","Sale","بيع","Mauzo"):"+ "+L("Iibsasho","Purchase","شراء","Ununuzi")} ${esc(stkN(t.sq))}${esc(u)} · <b class="amt ${inn?"in":"out"}">${money(t.amount||0)}</b>${(t.edits||[]).length?" · ✏️":""}</span><small>${esc(fmtD(t.date))}${t.by?" · 👤 "+esc(skBy(t.by)):""}</small>
+      ${ed?`<span class="skhb"><button type="button" class="del" data-skmed="${esc(t.id)}">✏️ ${L("Sax","Fix","صحّح","Sahihisha")}</button><button type="button" class="del" data-skmdel="${esc(t.id)}">🗑 ${L("Tirtir","Delete","حذف","Futa")}</button></span>`:""}</li>`}).join("")}${start}</ul>
+    ${ed?`<p class="note" style="margin:0">${L("Iib ama iibsasho tirada qaldan leh: riix ✏️ Sax si aad u beddesho tirada ama lacagta, ama 🗑 Tirtir haddii aysan dhicin. Bakhaarku isla markiiba wuu is saxayaa.","A sale or purchase with the wrong quantity: tap ✏️ Fix to change the quantity or money, or 🗑 Delete if it never happened. The stock corrects itself at once.","بيع أو شراء بكمية خطأ: اضغط ✏️ صحّح لتغيير الكمية أو المبلغ، أو 🗑 حذف إذا لم يحدث. يتصحح المخزون فورًا.","Mauzo au manunuzi yenye idadi isiyo sahihi: bonyeza ✏️ Sahihisha kubadili idadi au pesa, au 🗑 Futa kama hayakutokea. Hifadhi hujisahihisha mara moja.")}</p>`:""}`}
+function skGoneHtml(){const g=stkGone();if(!g.length)return"";
+  return `<details class="skgone" id="skGone"><summary>🗑 ${L("Alaabta la tirtiray","Deleted items","الأصناف المحذوفة","Bidhaa zilizofutwa")} (${g.length})</summary>
+    <p class="note" style="margin:0">${L("Alaabtan laguma xisaabiyo bakhaarka iyo warbixinnada. ↩ Soo celi haddii si qalad ah loo tirtiray.","These are not counted in the stock or reports. ↩ Bring back if deleted by mistake.","لا تُحسب في المخزون أو التقارير. ↩ أعِدها إذا حُذفت بالخطأ.","Hizi hazihesabiwi kwenye hifadhi wala ripoti. ↩ Rudisha kama ilifutwa kwa makosa.")}</p>
+    <div class="sklist">${g.map(s=>`<div class="skrow gone"><div class="skh"><b>${esc(s.name)}</b><span class="note">${esc(skWhen(s.delAt))}</span></div>
+      <div class="skm">${s.delQ!=null?`${L("Tiradu markaas","Quantity then","الكمية حينها","Idadi wakati huo")}: ${esc(stkN(s.delQ))}${s.unit?" "+esc(s.unit):""}`:""}${s.delBy?" · 👤 "+esc(skBy(s.delBy)):""}${s.delWhy?" · “"+esc(s.delWhy)+"”":""}</div>
+      <div class="ska"><button type="button" class="skbuy" data-skback="${esc(s.id)}">↩ ${L("Soo celi","Bring back","أعِد","Rudisha")}</button><button type="button" class="del" data-skwipe="${esc(s.id)}">${L("Tirtir gebi ahaanba","Delete for good","احذف نهائيًا","Futa kabisa")}</button></div></div>`).join("")}</div></details>`}
+document.addEventListener("click",async e=>{const t=e.target,b=t.closest("[data-skzero],[data-skcok],[data-skx],[data-skdel],[data-skdok],[data-skhist],[data-skmed],[data-skmdel],[data-skback],[data-skwipe]");if(!b||!stkEdit())return;const d=b.dataset;
+  const ok=m=>{skKey="";$("skPanel").dataset.k="";skFlash(m)};
+  if(d.skx){b.closest(".skfix").hidden=true;return}
+  if(d.skzero){const i=document.querySelector(`[data-skcin="${CSS.escape(d.skzero)}"]`);if(i){i.value="0";i.focus()}return}
+  if(d.skhist){skBox("skhbox",d.skhist);return}
+  if(d.skdel){skBox("skdbox",d.skdel);return}
+  if(d.skcok){const s=items.find(i=>i.id===d.skcok),inp=document.querySelector(`[data-skcin="${CSS.escape(d.skcok)}"]`),er=document.querySelector(`[data-skcerr="${CSS.escape(d.skcok)}"]`);if(!s||!inp)return;
+    const raw=inp.value.trim(),v=Number(raw);
+    if(raw===""||!isFinite(v)||v<0){if(er)er.textContent=L("Ku qor tirada saxda ah (0 ama ka badan).","Type the right quantity (0 or more).","اكتب الكمية الصحيحة (0 أو أكثر).","Andika idadi sahihi (0 au zaidi).");inp.focus();return}
+    const now=stkQty(s),why=(document.querySelector(`[data-skcwhy="${CSS.escape(d.skcok)}"]`)?.value||"").trim().slice(0,80);
+    if(v===now){b.closest(".skfix").hidden=true;return}
+    await put({...s,q:Math.round((Number(s.q||0)+(v-now))*1000)/1000,fx:stkFxAdd(s,{k:"q",f:now,t:v,...(why?{r:why}:{})})});
+    ok("✓ "+L(`${s.name}: tirada waa la saxay ${stkN(now)} → ${stkN(v)}`,`${s.name}: quantity fixed ${stkN(now)} → ${stkN(v)}`,`${s.name}: تم تصحيح الكمية ${stkN(now)} → ${stkN(v)}`,`${s.name}: idadi imesahihishwa ${stkN(now)} → ${stkN(v)}`));return}
+  if(d.skdok){const s=items.find(i=>i.id===d.skdok);if(!s)return;const why=(document.querySelector(`[data-skdwhy="${CSS.escape(d.skdok)}"]`)?.value||"").trim().slice(0,80),
+      mv=document.querySelector(`[data-skdmv="${CSS.escape(d.skdok)}"]`)?.checked,q=stkQty(s),by=realMail()||me?.email||"";
+    if(skEdit===s.id)skEdit=null;
+    const doc={...s,del:1,delAt:new Date().toISOString(),delQ:q,delBy:by,fx:stkFxAdd(s,{k:"del",f:q,...(why?{r:why}:{})})};if(why)doc.delWhy=why;else delete doc.delWhy;
+    await put(doc);let n=0;if(mv)for(const t of skMovesOf(s.id)){await remove(t.id);n++}
+    {const cb=$("coStkBox");if(cb){cb.dataset.k="";try{coStkBox()}catch{}}}
+    ok("🗑 "+L(`${s.name} waa la tirtiray${n?` (iyo ${n} iib / iibsasho)`:""}. Waxaad ka heli kartaa “Alaabta la tirtiray”.`,`${s.name} deleted${n?` (and ${n} sales / purchases)`:""}. You find it in “Deleted items”.`,`تم حذف ${s.name}${n?` (و${n} مبيعات / مشتريات)`:""}. تجده في “الأصناف المحذوفة”.`,`${s.name} imefutwa${n?` (na mauzo / manunuzi ${n})`:""}. Iko kwenye “Bidhaa zilizofutwa”.`));return}
+  if(d.skback){const s=items.find(i=>i.id===d.skback);if(!s)return;
+    if(stkAll().some(x=>ckey(x.name)===ckey(s.name))){ok("⚠️ "+L(`“${s.name}” mar kale ayaa bakhaarka lagu daray. Mid qura ayaa jiri kara.`,`“${s.name}” was added again already. Only one can exist.`,`“${s.name}” موجود بالفعل. يمكن وجود واحد فقط.`,`“${s.name}” tayari imeongezwa tena. Moja tu inaweza kuwepo.`));return}
+    const doc={...s,fx:stkFxAdd(s,{k:"back"})};delete doc.del;delete doc.delAt;delete doc.delQ;delete doc.delBy;delete doc.delWhy;await put(doc);
+    {const cb=$("coStkBox");if(cb){cb.dataset.k="";try{coStkBox()}catch{}}}
+    ok("↩ "+L(`${s.name} dib ayaa loo soo celiyay.`,`${s.name} is back.`,`أُعيد ${s.name}.`,`${s.name} imerudishwa.`));return}
+  if(d.skwipe){if(!b.classList.contains("arm")){b.classList.add("arm");b.textContent=L("Hubi: gebi ahaanba","Sure? For good","متأكد؟ نهائيًا","Una uhakika? Kabisa");setTimeout(()=>{b.classList.remove("arm");b.textContent=L("Tirtir gebi ahaanba","Delete for good","احذف نهائيًا","Futa kabisa")},3500);return}
+    const s=items.find(i=>i.id===d.skwipe);await remove(d.skwipe);if(s)ok("🗑 "+L(`${s.name} gebi ahaanba waa la tirtiray.`,`${s.name} deleted for good.`,`حُذف ${s.name} نهائيًا.`,`${s.name} imefutwa kabisa.`));return}
+  if(d.skmed){const x=items.find(i=>i.id===d.skmed);if(!x)return;goTab("add");startEdit(x);return}
+  if(d.skmdel){if(!b.classList.contains("arm")){b.classList.add("arm");b.textContent=L("Hubi: tirtir","Sure? Delete","متأكد؟ احذف","Una uhakika? Futa");setTimeout(()=>{b.classList.remove("arm");b.textContent="🗑 "+L("Tirtir","Delete","حذف","Futa")},3500);return}
+    const x=items.find(i=>i.id===d.skmdel),s=x&&items.find(i=>i.id===x.stk);await remove(d.skmdel);
+    if(x)ok("🗑 "+L(`${x.type==="in"?"Iibka":"Iibsashada"} ${stkN(x.sq)} ${s?s.name:""} waa la tirtiray. Bakhaarka waa la saxay.`,`The ${x.type==="in"?"sale":"purchase"} of ${stkN(x.sq)} ${s?s.name:""} was deleted. Stock corrected.`,`حُذف ${x.type==="in"?"بيع":"شراء"} ${stkN(x.sq)} ${s?s.name:""}. تم تصحيح المخزون.`,`${x.type==="in"?"Mauzo":"Ununuzi"} ya ${stkN(x.sq)} ${s?s.name:""} imefutwa. Hifadhi imesahihishwa.`));return}});
+document.addEventListener("submit",async e=>{if(e.target.id!=="skForm")return;e.preventDefault();if(!stkEdit())return;
+  const name=$("skName").value.trim().replace(/\s+/g," "),num=id=>{const v=$(id).value.trim();return v===""?null:Number(v)};
+  const qty=num("skQty"),buy=num("skBuy"),sell=num("skSell"),min=num("skMin"),unit=$("skUnit").value.trim(),grp=($("skGrp")?.value||"").trim().slice(0,30);
+  if(!name){$("skErr").textContent=L("Ku qor magaca alaabta.","Type the item name.","اكتب اسم الصنف.","Andika jina la bidhaa.");$("skName").focus();return}
+  if([qty,buy,sell,min].some(v=>v!=null&&!isFinite(v))||[buy,sell,min].some(v=>v!=null&&v<0)){$("skErr").textContent=L("Hubi tirooyinka.","Check the numbers.","تحقق من الأرقام.","Angalia namba.");return}
+  const old=skEdit&&items.find(i=>i.id===skEdit);
+  if(stkAll().some(s=>s.id!==old?.id&&ckey(s.name)===ckey(name))){$("skErr").textContent=L(`"${name}" horay ayuu bakhaarka ugu jiray. Riix ✏️ Beddel.`,`"${name}" is already in the inventory. Tap ✏️ Edit.`,`"${name}" موجود في المخزون. اضغط ✏️ تعديل.`,`"${name}" tayari iko kwenye hifadhi. Bonyeza ✏️ Hariri.`);return}
+  const base=old?{...old}:{id:uid(),kind:"stk",mode:"business",created:new Date().toISOString(),q:0};
+  const doc={...base,name,unit,grp,buy:buy||0,sell:sell||0,mode:"business"};delete doc.pre;if(min>0)doc.min=min;else delete doc.min;
+  if(qty!=null){const now=old?stkQty(old):0;doc.q=Math.round((Number(base.q||0)+(qty-now))*1000)/1000;if(old&&qty!==now)doc.fx=stkFxAdd(old,{k:"q",f:now,t:qty})}
+  try{skEdit=null;await put(doc);try{document.activeElement?.blur?.()}catch{}{const cb=$("coStkBox");if(cb){cb.dataset.k="";coStkBox()}}skKey="";$("skPanel").dataset.k="";skFlash("✓ "+L(`${name} waa la kaydiyay.`,`${name} saved.`,`تم حفظ ${name}.`,`${name} imehifadhiwa.`))}
+  catch{$("skErr").textContent=L("Lama kaydin karo hadda. Isku day mar kale.","Can't save right now. Try again.","تعذّر الحفظ الآن. حاول مرة أخرى.","Haiwezi kuhifadhi sasa. Jaribu tena.")}});
+document.addEventListener("click",e=>{const t=e.target.closest("#skSum [data-skf]");if(!t)return;const f=t.dataset.skf;skF=skF===f?"":f;const P=$("skPanel");P.dataset.k="";skList(P,stkStats(),stkEdit());$("skList").scrollIntoView({behavior:"smooth",block:"nearest"})});
+document.addEventListener("input",e=>{if(e.target.id==="skQ"){skQ=e.target.value;const P=$("skPanel");P.dataset.k="";skList(P,stkStats(),stkEdit())}});
+document.addEventListener("click",async e=>{const t=e.target;
+  if(t.closest('[data-hubact="stknew"]')){skEdit=null;skKey="";$("skPanel").dataset.k="";renderStk();setTimeout(()=>{$("skForm")?.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("skName")?.focus({preventScroll:true}),300)},40);return}
+  if(t.id==="skCancel"){skEdit=null;skKey="";$("skPanel").dataset.k="";renderStk();return}
+  const b=t.closest("[data-skedit],[data-skdel0],[data-skcnt],[data-sksell],[data-skbuy]");if(!b)return;const d=b.dataset;
+  if(d.skedit){skEdit=d.skedit;skKey="";$("skPanel").dataset.k="";renderStk();setTimeout(()=>{$("skForm")?.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("skName")?.focus({preventScroll:true}),300)},40);return}
+  if(d.skcnt){skBox("skcbox",d.skcnt);return}
+  if(d.skdel0){if(!stkEdit())return;if(!b.classList.contains("arm")){b.classList.add("arm");b.textContent=L("Hubi: tirtir","Sure? Delete","متأكد؟ احذف","Una uhakika? Futa");setTimeout(()=>{b.classList.remove("arm");b.textContent=L("Tirtir","Delete","حذف","Futa")},3500);return}
+    const s=items.find(i=>i.id===d.skdel0);if(skEdit===d.skdel0)skEdit=null;await remove(d.skdel0);if(s)skFlash("🗑 "+L(`${s.name} waa la tirtiray.`,`${s.name} deleted.`,`تم حذف ${s.name}.`,`${s.name} imefutwa.`));return}
+  if(d.sksell||d.skbuy)stkGoAdd(d.sksell||d.skbuy,d.sksell?"in":"out")});
+/* ---------- Ku dar: pick an item, the quantity and money go together ---------- */
+let stkAuto=false;
+function stkCat(){if(editing)return;const c=curType()==="in"?"Iib":"Alaab";try{if([...$("cat").options].some(o=>o.value===c)||useGroups())setCat(c)}catch{}}
+function stkGoAdd(id,type){const s=items.find(i=>i.id===id);if(!s)return;if(editing)stopEdit();goTab("add");
+  const r=$(type==="in"?"tIn":"tOut");if(r&&!r.checked)r.click();if(MULTI_ON){MULTI_ON=false;fillCats()}
+  setTimeout(()=>{stkRowUI(true);stkCat();$("txStk").value=id;$("txStkQ").value="1";stkAuto=true;stkFill(true);$("date").value=$("date").value||today();
+    if(!$("note").value)$("note").value=s.name;
+    $("stkRow").scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{$("txStkQ").focus();$("txStkQ").select()},300)},80)}
+function stkRowUI(force){const row=$("stkRow");if(!row)return;const l=stkAll(),show=stkMove()&&l.length>0&&!(MULTI_ON&&useGroups()&&!editing);row.hidden=!show;if(!show)return;
+  const type=curType(),sel=$("txStk"),cur=sel.value,key=JSON.stringify([LANG,type,l.map(s=>[s.id,s.name,s.u])]);
+  if(force||sel.dataset.k!==key){sel.dataset.k=key;
+    sel.innerHTML=`<option value="">— ${esc(L("Ma jirto (lacag kaliya)","None (money only)","لا شيء (مبلغ فقط)","Hakuna (pesa tu)"))} —</option>`+l.map(s=>`<option value="${esc(s.id)}">${esc(s.name)} (${esc(stkN(stkQty(s)))}${s.unit?" "+esc(s.unit):""})</option>`).join("");
+    sel.value=l.some(s=>s.id===cur)?cur:"";
+    $("stkLbl").textContent="📦 "+L("Alaabta bakhaarka (ikhtiyaari)","Inventory item (optional)","صنف من المخزون (اختياري)","Bidhaa ya hifadhi (hiari)")}
+  $("stkQLbl").textContent=type==="in"?L("Tirada la iibiyay","Quantity sold","الكمية المباعة","Idadi iliyouzwa"):L("Tirada la soo iibsaday","Quantity bought","الكمية المشتراة","Idadi iliyonunuliwa");
+  $("stkPLbl").textContent=type==="in"?L("Qiimaha iibka halkii","Sale price each","سعر البيع للوحدة","Bei ya kuuza kwa kimoja"):L("Qiimaha iibsiga halkii","Cost each","سعر الشراء للوحدة","Gharama kwa kimoja");
+  stkHint()}
+function stkHint(){const id=$("txStk").value,s=id&&items.find(i=>i.id===id),n=$("stkNote");$("stkQWrap").hidden=$("stkPWrap").hidden=!s;if(!s){n.textContent="";return}
+  const q=Number($("txStkQ").value)||0,type=curType(),old=editing&&items.find(i=>i.id===editing);
+  let now=stkQty(s);if(old&&old.stk===s.id){const o=Number(old.sq||0);now+=old.type==="in"?o:old.type==="out"?-o:0}   // editing: count it as if this entry weren't there yet
+  const after=Math.round((now+(type==="in"?-q:q))*1000)/1000;
+  const p=Number($("txStkP").value)||0,calc=q>0&&p>0?`🧮 ${stkN(q)} × ${money(p)} = ${money(Math.round(q*p*100)/100)} · `:"";
+  const amt=Number($("amount").value)||0,cost=Number(s.buy)||0,pr=type==="in"&&q>0&&cost>0&&amt>0?" · "+(amt-q*cost>=0?"📈 "+L("Faa'iido","Profit","ربح","Faida"):"📉 "+L("Khasaare","Loss","خسارة","Hasara"))+" "+money(Math.round((amt-q*cost)*100)/100)+" ("+L("kharashka","cost","التكلفة","gharama")+" "+money(Math.round(q*cost*100)/100)+")":"";
+  n.textContent=calc+`📦 ${s.name}: ${stkN(now)} → ${stkN(after)}${s.unit?" "+s.unit:""}`+pr+(type==="in"&&after<0?" ⚠️ "+L("Bakhaarka kuma filna","Not enough in stock","المخزون غير كافٍ","Hifadhi haitoshi"):"")}
+/* v187 (AM 12:43): quantity × price each = amount, at once ("20 buug × $0.50 = $10") */
+function stkPrice(s){return Number(curType()==="in"?s.sell:s.buy)||0}
+function stkFill(newItem){const id=$("txStk").value,s=id&&items.find(i=>i.id===id);if(!s){stkHint();return}
+  if(newItem||!$("txStkP").value){const ip=stkPrice(s);$("txStkP").value=ip>0?String(ip):""}
+  const q=Number($("txStkQ").value)||0,p=Number($("txStkP").value)||0;
+  if(stkAuto&&q>0&&p>0)$("amount").value=String(Math.round(q*p*100)/100);stkHint()}
+document.addEventListener("change",e=>{if(e.target.id==="txStk"){if(!$("txStkQ").value)$("txStkQ").value="1";stkAuto=true;if(e.target.value)stkCat();stkFill(true)}
+  if(e.target.name==="type"&&$("stkRow")&&!$("stkRow").hidden){stkRowUI();stkFill(true)}});
+document.addEventListener("input",e=>{if(e.target.id==="txStkQ"||e.target.id==="txStkP"){stkAuto=true;stkFill()}if(e.target.id==="amount"&&e.isTrusted)stkAuto=false});
+/* called by the Ku dar save: link (or unlink) the item on the money entry */
+function stkSet(doc){const row=$("stkRow"),id=row&&!row.hidden?$("txStk").value:"",q=Number($("txStkQ").value)||0;
+  const p=Number($("txStkP").value)||0;
+  if(id&&q>0&&(doc.type==="in"||doc.type==="out")){doc.stk=id;doc.sq=q;if(p>0)doc.sp=p;else delete doc.sp;
+    {const it=items.find(i=>i.id===id),c=Number(it&&it.buy)||0;if(doc.type==="in"&&c>0&&!(doc.sc>0&&editing))doc.sc=c;else if(doc.type!=="in")delete doc.sc}   // sale: keep the cost each at the time of sale
+    /* owner: the item learns the price (cost = latest purchase; sale price only if it had none) */
+    const s=items.find(i=>i.id===id);if(s&&p>0&&stkEdit()){const k=doc.type==="out"?"buy":"sell";
+      if(k==="buy"?Number(s.buy)!==p:!Number(s.sell))setTimeout(()=>{const c=items.find(i=>i.id===id);if(c)put({...c,[k]:p}).catch(()=>{})},0)}}
+  else if(row&&!row.hidden&&!(doc.stk&&!id&&items.some(i=>i.id===doc.stk&&i.del))){delete doc.stk;delete doc.sq;delete doc.sp;delete doc.sc}
+  return doc}
+function stkReset(){if(!$("txStk"))return;$("txStk").value="";$("txStkQ").value="";$("txStkP").value="";stkAuto=false;stkHint()}
+{const _se=startEdit;startEdit=function(t){_se(t);try{stkRowUI(true);$("txStk").value=t.stk&&items.some(i=>i.id===t.stk)?t.stk:"";$("txStkQ").value=t.stk?stkN(t.sq):"";$("txStkP").value=t.stk?(t.sp?String(t.sp):(t.sq?String(Math.round(t.amount/t.sq*100)/100):"")):"";stkAuto=false;stkHint()}catch{}}}
+{const _st=stopEdit;stopEdit=function(){_st();try{stkReset()}catch{}}}
+/* ---------- reports: Excel / Word / PDF / PowerPoint (Shirkad) ---------- */
+function stkRep(txs){if(MODE!=="business")return null;const l=stkAll();if(!l.length)return null;const all=stkTx(),per=(txs||[]).filter(t=>t.stk&&t.kind==="tx");
+  const rows=l.map(s=>{const q=stkQty(s,all),sold=per.filter(t=>t.stk===s.id&&t.type==="in").reduce((a,t)=>a+Number(t.sq||0),0),bought=per.filter(t=>t.stk===s.id&&t.type==="out").reduce((a,t)=>a+Number(t.sq||0),0);
+    return {s,q,sold,bought,val:Math.max(0,q)*Number(s.buy||0),low:stkLow(s,q)}});
+  return {rows,val:rows.reduce((a,r)=>a+r.val,0),sold:rows.reduce((a,r)=>a+r.sold,0),bought:rows.reduce((a,r)=>a+r.bought,0),low:rows.filter(r=>r.low).length}}
+const SKH=()=>[L("Alaabta","Item","الصنف","Bidhaa"),L("Qaybta","Section","القسم","Sehemu"),L("Tirada hadda","Qty now","الكمية الآن","Idadi sasa"),L("Qiimaha iibsiga","Buying price","سعر الشراء","Bei ya kununua"),L("Qiimaha iibka","Selling price","سعر البيع","Bei ya kuuza"),L("Qiimaha bakhaarka","Stock value","قيمة المخزون","Thamani ya hifadhi"),L("Tirada la iibiyay muddadan","Qty sold this period","الكمية المباعة في الفترة","Idadi iliyouzwa kipindi hiki"),L("Tirada la soo iibsaday muddadan","Qty bought this period","الكمية المشتراة في الفترة","Idadi iliyonunuliwa kipindi hiki"),L("Xaaladda","Status","الحالة","Hali")];
+const skState=r=>r.q<=0?L("Wuu dhammaaday","Out of stock","نفد","Imeisha"):r.low?L("Wuu yaraaday","Low stock","منخفض","Imepungua"):"✓";
+const SKTITLE=()=>"📦 "+L("Bakhaarka (alaabta iyo tirada)","Inventory (items and quantity)","المخزون (الأصناف والكمية)","Hifadhi (bidhaa na idadi)");
+/* v187 (AM 12:44): every purchase and sale linked to an item, with price each, total, cost and profit */
+function stkMoves(txs){const by=new Map(stkAll().map(s=>[s.id,s]));
+  const rows=(txs||[]).filter(t=>t.kind==="tx"&&t.stk&&by.has(t.stk)&&(t.type==="in"||t.type==="out")).sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(t=>{const s=by.get(t.stk),q=Number(t.sq||0),a=Number(t.amount||0),each=Number(t.sp)||(q?Math.round(a/q*100)/100:0);
+    const cost=t.type==="in"?Math.round(q*(Number(t.sc)||Number(s.buy)||0)*100)/100:0;return {t,s,q,a,each,cost,pr:t.type==="in"?Math.round((a-cost)*100)/100:0}});
+  const sum=(f,ty)=>Math.round(rows.filter(r=>r.t.type===ty).reduce((x,r)=>x+r[f],0)*100)/100;
+  return {rows,buy:sum("a","out"),sale:sum("a","in"),cost:sum("cost","in"),pr:sum("pr","in")}}
+const SKMH=()=>[L("Taariikhda","Date","التاريخ","Tarehe"),L("Alaabta","Item","الصنف","Bidhaa"),L("Nooca","Type","النوع","Aina"),L("Tirada","Qty","الكمية","Idadi"),L("Qiimaha halkii","Price each","سعر الوحدة","Bei kwa kimoja"),L("Wadarta lacagta","Total money","إجمالي المبلغ","Jumla ya pesa"),L("Kharashka alaabta la iibiyay","Cost of goods sold","تكلفة البضاعة المباعة","Gharama ya bidhaa zilizouzwa"),L("Faa'iido","Profit","الربح","Faida")];
+const SKMT=()=>"🧾 "+L("Iibsashada iyo iibka alaabta","Purchases and sales of items","مشتريات ومبيعات الأصناف","Ununuzi na mauzo ya bidhaa");
+const skTy=t=>t.type==="out"?L("Iibsasho","Purchase","شراء","Ununuzi"):L("Iib","Sale","بيع","Mauzo");
+const skMSum=M=>[[L("Wadarta la soo iibsaday","Total bought","إجمالي المشتريات","Jumla ya ununuzi"),M.buy],[L("Wadarta la iibiyay","Total sold","إجمالي المبيعات","Jumla ya mauzo"),M.sale],[L("Kharashka alaabta la iibiyay","Cost of goods sold","تكلفة البضاعة المباعة","Gharama ya bidhaa zilizouzwa"),M.cost],[L("Faa'iidada iibka","Profit on sales","ربح المبيعات","Faida ya mauzo"),M.pr]];
+function stkMovesSheet(txs){const M=stkMoves(txs);if(!M.rows.length)return [];
+  return [{title:SKMT(),head:SKMH(),rows:[...M.rows.map(r=>[r.t.date||"",r.s.name+(r.s.unit?" ("+r.s.unit+")":""),skTy(r.t),r.q,r.each,r.t.type==="in"?r.a:-r.a,r.t.type==="in"?r.cost:"",r.t.type==="in"?r.pr:""]),
+    ...skMSum(M).map(([k,v])=>[k,"","","","",v,"",""])],totalRow:4}]}
+function stkMovesHtml(txs){const M=stkMoves(txs);if(!M.rows.length)return "";
+  return `<h2>${esc(SKMT())}</h2><table><tr>${SKMH().map(x=>`<th>${esc(x)}</th>`).join("")}</tr>${M.rows.map(r=>`<tr><td>${esc(fmtD(r.t.date))}</td><td>${esc(r.s.name)}</td><td>${esc(skTy(r.t))}</td><td class="n">${esc(stkN(r.q))}</td><td class="n">${money(r.each)}</td><td class="n" style="color:${r.t.type==="in"?"#0b7a4b":"#c0392b"}">${r.t.type==="in"?"+":"−"}${money(r.a)}</td><td class="n">${r.t.type==="in"?money(r.cost):""}</td><td class="n">${r.t.type==="in"?money(r.pr):""}</td></tr>`).join("")}</table>
+    <table style="width:auto">${skMSum(M).map(([k,v])=>`<tr style="font-weight:bold"><td>${esc(k)}</td><td class="n">${money(v)}</td></tr>`).join("")}</table>`}
+function stkSheets(txs,rng){const R=stkRep(txs);if(!R)return [];
+  return [...stkSheets0(R),...stkMovesSheet(txs),...stkFixSheet(txs,rng)]}
+/* v189: every correction (quantity fixed, item deleted, brought back) in the period, with who and why */
+const SKFH=()=>[L("Goorta","When","الوقت","Lini"),L("Alaabta","Item","الصنف","Bidhaa"),L("Isbeddelka","Change","التغيير","Mabadiliko"),L("Qofka","Person","الشخص","Mtu"),L("Sababta","Reason","السبب","Sababu")];
+const SKFT=()=>"🛠 "+L("Sixitaannada bakhaarka","Inventory corrections","تصحيحات المخزون","Marekebisho ya hifadhi");
+function stkFixes(txs,rng){let [f,t]=rng||["",""];
+  if(!rng){const ds=(txs||[]).map(x=>x.date).filter(Boolean).sort();if(!ds.length)return [];f=ds[0];t=ds[ds.length-1]}
+  const out=[];for(const s of items)if(s.kind==="stk"&&(s.mode||"business")==="business")for(const x of (Array.isArray(s.fx)?s.fx:[])){const d=String(x.at||"").slice(0,10);if(f&&(d<f||d>t))continue;out.push({s,x})}
+  return out.sort((a,b)=>String(a.x.at).localeCompare(String(b.x.at)))}
+function stkFixSheet(txs,rng){const F=stkFixes(txs,rng);if(!F.length)return [];
+  return [{title:SKFT(),head:SKFH(),rows:F.map(({s,x})=>[skWhen(x.at),s.name+(s.unit?" ("+s.unit+")":""),skFxTxt(x,s).replace(/^\S+ /,""),skBy(x.by),x.r||""])}]}
+function stkFixHtml(txs,rng){const F=stkFixes(txs,rng);if(!F.length)return "";
+  return `<h2>${esc(SKFT())}</h2><table><tr>${SKFH().map(x=>`<th>${esc(x)}</th>`).join("")}</tr>${F.map(({s,x})=>`<tr><td>${esc(skWhen(x.at))}</td><td>${esc(s.name)}</td><td>${esc(skFxTxt(x,s).replace(/^\S+ /,""))}</td><td>${esc(skBy(x.by))}</td><td>${esc(x.r||"")}</td></tr>`).join("")}</table>`}
+function stkSheets0(R){
+  return [{title:SKTITLE(),head:SKH(),rows:[...R.rows.map(r=>[r.s.name+(r.s.unit?" ("+r.s.unit+")":""),r.s.grp||"",r.q,Number(r.s.buy||0),Number(r.s.sell||0),r.val,r.sold,r.bought,skState(r)]),[L("Wadarta","Total","المجموع","Jumla"),"","","","",R.val,R.sold,R.bought,R.low?L(`${R.low} yaraaday`,`${R.low} low`,`${R.low} منخفضة`,`${R.low} chache`):""]],totalRow:1}]}
+function stkHtml(txs,rng){const R=stkRep(txs);if(!R)return "";return stkHtml0(R)+stkMovesHtml(txs)+stkFixHtml(txs,rng)}
+function stkHtml0(R){const h=SKH();
+  return `<h2>${esc(SKTITLE())}</h2><table><tr>${h.map(x=>`<th>${esc(x)}</th>`).join("")}</tr>${R.rows.map(r=>`<tr><td>${esc(r.s.name)}${r.s.unit?` <small style="color:#666">(${esc(r.s.unit)})</small>`:""}</td><td>${esc(r.s.grp||"")}</td><td class="n"${r.low?' style="color:#c0392b;font-weight:700"':""}>${esc(stkN(r.q))}</td><td class="n">${money(r.s.buy||0)}</td><td class="n">${money(r.s.sell||0)}</td><td class="n">${money(r.val)}</td><td class="n">${esc(stkN(r.sold))}</td><td class="n">${esc(stkN(r.bought))}</td><td>${esc(skState(r))}</td></tr>`).join("")}
+    <tr style="font-weight:bold"><td>${L("Wadarta","Total","المجموع","Jumla")}</td><td></td><td></td><td></td><td></td><td class="n">${money(R.val)}</td><td class="n">${esc(stkN(R.sold))}</td><td class="n">${esc(stkN(R.bought))}</td><td>${R.low?esc(L(`${R.low} yaraaday`,`${R.low} low`,`${R.low} منخفضة`,`${R.low} chache`)):""}</td></tr></table>`}
+</script>
+<style>
+.stkpick{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg);cursor:pointer}
+.stkpick input{width:20px;height:20px;flex:0 0 auto;margin-top:2px}
+.stkpick span{display:grid;gap:2px}.stkpick small{color:var(--muted);font-size:.8rem;font-weight:400}
+.comods{margin:8px 0 0;font-size:.95rem}
+.costk{display:grid;gap:10px}.skchips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 12px}.costk .skpre{border-style:solid}
+.skhave{border:1px solid var(--in);border-radius:999px;padding:5px 10px;font-size:.85rem;background:var(--in-soft,transparent);color:var(--ink);cursor:pointer}
+.skhave.blank{border-color:var(--accent);background:transparent}.skhave.low{border-color:var(--out);color:var(--out)}
+.skownd>summary{cursor:pointer;font-weight:600;padding:6px 0}.skownd[open]{display:grid;gap:10px}
+.stkask{display:grid;gap:8px;border:1px solid var(--accent);border-radius:14px;padding:12px 14px;margin-bottom:10px;background:var(--bg)}.stkask span{font-size:.9rem}.stkask .goal-actions{margin:0}
+.skown{display:grid;gap:6px}.skownr{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:6px}
+@media (max-width:520px){.skownr{grid-template-columns:repeat(3,minmax(0,1fr));padding-bottom:6px;border-bottom:1px solid var(--line)}.skownr [data-ow="n"]{grid-column:1/-1}}
+.skpre{display:grid;gap:10px;border:1px dashed var(--line);border-radius:14px;padding:12px}
+.skpre h3{margin:0;font-size:.95rem}
+.skprel{display:grid;gap:10px}
+.skprel fieldset{border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:0;display:flex;flex-wrap:wrap;gap:6px}
+.skprel legend{font-weight:700;font-size:.85rem;padding:0 4px}
+.skprel label{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:.85rem;cursor:pointer}
+.skprel label input{width:16px;height:16px;margin:0}
+.skprel label.have{opacity:.5}
+</style>
+<script>
+/* ================= v187 modules: 📦 Bakhaarka is a choice (AM 2026-11-26) =================
+   settings.mods = ["stk"] turns it on. Chosen at sign-up, switched on/off by the OWNER in Akoon → 🏢 Shirkaddaada.
+   Off = hidden everywhere (Guriga button, Ku dar picker, reports); the items stay saved.
+   Ready lists by type of business (Hotel & Maqaayad, Jaamacad & Iskuul, Dukaan, Farmashi): the company ticks what it has,
+   then fills the quantity and prices, and can edit or delete every line. settings.stkType remembers the type. */
+const stkOn=()=>MODE==="business"&&Array.isArray(settings().mods)&&settings().mods.includes("stk");
+const STK_HUB=HUBS.stk;
+function stkSync(){if(stkOn()){if(!HUBS.stk)HUBS.stk=STK_HUB}else delete HUBS.stk}
+stkSync();
+{const _rh=renderHub;renderHub=function(){stkSync();const n=String(Object.keys(HUBS).length);for(const id of ["bhGrid","hubSw"]){const e=$(id);if(e&&e.style.getPropertyValue("--hn")!==n)e.style.setProperty("--hn",n)}return _rh()}}
+{const _ho=hubOpen;hubOpen=function(h,k){stkSync();return _ho(h,k)}}
+{const _sm=stkMove;stkMove=function(){return stkOn()&&_sm()}}
+{const _rp=stkRep;stkRep=function(t){return stkOn()?_rp(t):null}}
+{const _r=render;render=function(){_r();try{coModsUI();coStkBox()}catch(e){console.warn(e)}}}
+function coModsUI(){const c=$("coStk");if(!c)return;if(document.activeElement!==c)c.checked=stkOn();
+  $("coModH").textContent=L("Qaybaha shirkaddaada","Your business sections","أقسام شركتك","Sehemu za biashara yako");
+  $("coStkB").textContent="📦 "+L("Bakhaarka (Inventory)","Inventory","المخزون","Hifadhi");
+  $("coStkS").textContent=L("Alaabta, tirada iyo qiimaha. Haddii aad damiso way qarsoomaysaa, xogtuna way kaydsan tahay.","Items, quantity and prices. If you turn it off it is hidden and the data stays saved.","الأصناف والكمية والأسعار. إذا أوقفته يختفي وتبقى البيانات محفوظة.","Bidhaa, idadi na bei. Ukizima inafichwa na data inabaki.")}
+document.addEventListener("change",async e=>{if(e.target.id!=="coStk"||TEAM)return;const on=e.target.checked,s=settings(),m=(Array.isArray(s.mods)?s.mods:[]).filter(x=>x!=="stk");
+  await put({...s,stkAsk:1,mods:on?[...m,"stk"]:m});$("coStkMsg").textContent=on?"✓ "+L("📦 Bakhaarka waa la shiday. Waxaad ka helaysaa Guriga.","📦 Inventory is on. You find it on Home.","📦 تم تشغيل المخزون. تجده في الرئيسية.","📦 Hifadhi imewashwa. Utaipata Nyumbani."):"✓ "+L("📦 Bakhaarka waa la demiyay. Xogtu way kaydsan tahay.","📦 Inventory is off. The data stays saved.","📦 تم إيقاف المخزون. البيانات محفوظة.","📦 Hifadhi imezimwa. Data imehifadhiwa.");
+  setTimeout(()=>{$("coStkMsg").textContent=""},5000)});
+/* sign-up: the business-type picker shows under the checkbox */
+{const box=$("aStk");if(box){const sel=document.createElement("select");sel.id="aStkType";sel.hidden=true;box.closest(".stkpick").after(sel);
+  const fill=()=>{sel.innerHTML=`<option value="">${esc(L("Nooca shirkadda (liis diyaar ah)","Type of business (ready list)","نوع النشاط (قائمة جاهزة)","Aina ya biashara (orodha tayari)"))}</option>`+STK_PRE.map(t=>`<option value="${t.id}">${t.ic} ${esc(L(...t.n))}</option>`).join("")+`<option value="own">✍️ ${esc(L("Nooc kale (hadhow ayaad qori doontaa)","Other type (write it later)","نوع آخر (اكتبه لاحقًا)","Aina nyingine (andika baadaye)"))}</option>`};
+  box.addEventListener("change",()=>{if(!sel.options.length)fill();sel.hidden=!box.checked})}}
+{const _f=$("authForm");if(_f)_f.addEventListener("submit",()=>{const s=$("aStkType");try{if(s&&!s.hidden&&s.value)localStorage.setItem("hantigo.stkType",s.value)}catch{}},true)}
+/* ---------- ready lists ---------- */
+const SI=(so,en,u)=>({so,en,u:u||""});
+const STK_PRE=[
+ {id:"isk",ic:"🎓",n:["Jaamacad & Iskuul","University & School","جامعة ومدرسة","Chuo kikuu na Shule"],g:[
+  [["📚 Buugaagta manhajka","📚 Textbooks"],[SI("Buugga xisaabta","Maths book","xabbo"),SI("Buugga Soomaaliga","Somali book","xabbo"),SI("Buugga Ingiriisiga","English book","xabbo"),SI("Buugga Carabiga","Arabic book","xabbo"),SI("Buugga Tarbiyada Islaamka","Islamic studies book","xabbo"),SI("Buugga sayniska","Science book","xabbo"),SI("Buugga fiisigiska","Physics book","xabbo"),SI("Buugga kimistariga","Chemistry book","xabbo"),SI("Buugga bayoolajiga","Biology book","xabbo"),SI("Buugga taariikhda","History book","xabbo"),SI("Buugga juqraafiga","Geography book","xabbo"),SI("Buugga teknoolajiyada (ICT)","ICT book","xabbo"),SI("Buugga ganacsiga","Business studies book","xabbo"),SI("Qur'aan","Qur'an","xabbo"),SI("Qaamuus","Dictionary","xabbo")]],
+  [["🎓 Buugaagta jaamacadda","🎓 University books"],[SI("Buugga caafimaadka","Medicine book","xabbo"),SI("Buugga injineeriyada","Engineering book","xabbo"),SI("Buugga xisaabaadka (accounting)","Accounting book","xabbo"),SI("Buugga maamulka","Management book","xabbo"),SI("Buugga sharciga","Law book","xabbo"),SI("Buugga kombiyuutarka","Computer science book","xabbo"),SI("Buugga waxbarashada","Education book","xabbo"),SI("Buugga dhaqaalaha","Economics book","xabbo"),SI("Daabacaadda casharrada (handout)","Lecture handouts","xabbo")]],
+  [["📓 Kaarraasyada & waraaqaha","📓 Exercise books & paper"],[SI("Kaaraas 48 bog","Exercise book 48 pages","xabbo"),SI("Kaaraas 96 bog","Exercise book 96 pages","xabbo"),SI("Kaaraas 200 bog","Exercise book 200 pages","xabbo"),SI("Kaaraas xisaab (afargees)","Maths squared book","xabbo"),SI("Kaaraas sawir","Drawing book","xabbo"),SI("Waraaq A4","A4 paper","rim"),SI("Waraaq imtixaan","Exam paper","rim"),SI("Galka (file)","File folder","xabbo"),SI("Buug qoraal (notebook)","Notebook","xabbo")]],
+  [["✏️ Qalabka waxbarashada","✏️ Stationery"],[SI("Qalin qori","Pencil","baako"),SI("Qalin biiro buluug","Blue pen","baako"),SI("Qalin biiro cas","Red pen","baako"),SI("Masixa","Eraser","baako"),SI("Qoraal-afeeye (sharpener)","Sharpener","baako"),SI("Mastarad","Ruler","xabbo"),SI("Qalabka joomitiriga","Geometry set","xabbo"),SI("Kalkuleetar","Calculator","xabbo"),SI("Qalin midab","Coloured pencils","baako"),SI("Koolo (gaam)","Glue","xabbo"),SI("Maqas","Scissors","xabbo"),SI("Qalin calaamadeeye (highlighter)","Highlighter","baako"),SI("Santuuq qalin","Pencil case","xabbo")]],
+  [["👕 Dirayska","👕 Uniforms"],[SI("Shaarka wiilasha","Boys' shirt","xabbo"),SI("Surwaalka wiilasha","Boys' trousers","xabbo"),SI("Diraca/goonnada gabdhaha","Girls' dress/skirt","xabbo"),SI("Masarka (xijaabka) gabdhaha","Girls' headscarf","xabbo"),SI("Funaanad iskuul","School sweater","xabbo"),SI("Dirayska ciyaaraha","Sports kit","xabbo"),SI("Kabo iskuul","School shoes","lammaane"),SI("Sharabaado","Socks","lammaane"),SI("Suun","Belt","xabbo"),SI("Taay","Tie","xabbo"),SI("Boorso iskuul","School bag","xabbo"),SI("Koofiyad","Cap","xabbo")]],
+  [["🏫 Fasalka & xafiiska","🏫 Classroom & office"],[SI("Tabaashiir","Chalk","baako"),SI("Qalinka sabuuradda","Whiteboard marker","baako"),SI("Masixa sabuuradda","Board duster","xabbo"),SI("Sabuurad","Whiteboard","xabbo"),SI("Kursi ardayga","Student chair","xabbo"),SI("Miis ardayga","Student desk","xabbo"),SI("Miiska macallinka","Teacher's desk","xabbo"),SI("Khariidad","Map","xabbo"),SI("Kaarka ardayga","Student ID card","xabbo"),SI("Shahaadada (warqad)","Certificate paper","xabbo"),SI("Istablar","Stapler","xabbo"),SI("Kaar daabacaad (toner)","Printer toner","xabbo")]],
+  [["🔬 Shaybaarka & kombiyuutarka","🔬 Lab & computers"],[SI("Kombiyuutar","Computer","xabbo"),SI("Laabtoob","Laptop","xabbo"),SI("Mashiinka daabacaadda","Printer","xabbo"),SI("Borojektar","Projector","xabbo"),SI("Mikroskoob","Microscope","xabbo"),SI("Tuubooyinka shaybaarka","Test tubes","baako"),SI("Kiimikooyinka shaybaarka","Lab chemicals","dhalo"),SI("Gacmo-gashi shaybaar","Lab gloves","baako"),SI("Koodhka shaybaarka","Lab coat","xabbo")]],
+  [["⚽ Ciyaaraha & nadaafadda","⚽ Sports & cleaning"],[SI("Kubbadda cagta","Football","xabbo"),SI("Kubbadda koleyga","Volleyball","xabbo"),SI("Kubbadda kolayga","Basketball","xabbo"),SI("Xadhig boodka","Skipping rope","xabbo"),SI("Xaaqin","Broom","xabbo"),SI("Saabuun","Soap","kartoon"),SI("Waraaqda musqusha","Toilet paper","baako"),SI("Biyo nadiifiye (Dettol)","Disinfectant","dhalo"),SI("Qashin-qub","Bin","xabbo"),SI("Sanduuqa gargaarka degdegga","First aid box","xabbo")]]]},
+ {id:"hot",ic:"🏨",n:["Hotel & Maqaayad","Hotel & Restaurant","فندق ومطعم","Hoteli na Mgahawa"],g:[
+  [["🛏️ Qolalka & hoolasha","🛏️ Rooms & halls"],[SI("Qol hal sariir","Single room","qol"),SI("Qol laba sariir","Double room","qol"),SI("Qol saddex sariir","Triple room","qol"),SI("Qol qoys","Family room","qol"),SI("Qol VIP","VIP room","qol"),SI("Suite","Suite","qol"),SI("Hool shir","Meeting hall","hool"),SI("Hool aroos","Wedding hall","hool"),SI("Goob baarkin (gaari)","Parking space","meel")]],
+  [["🥩 Hilibka & kalluunka","🥩 Meat & fish"],[SI("Hilib ari","Goat meat","kg"),SI("Hilib geel","Camel meat","kg"),SI("Hilib lo'","Beef","kg"),SI("Hilib ido","Lamb","kg"),SI("Digaag","Chicken","kg"),SI("Kalluun","Fish","kg"),SI("Beer (kibid)","Liver","kg"),SI("Ukun","Eggs","kartoon"),SI("Suqaar qalalan (muqmad)","Dried meat (muqmad)","kg")]],
+  [["🍚 Raashinka qalalan","🍚 Dry food"],[SI("Bariis","Rice","kiish"),SI("Bariis basmati","Basmati rice","kiish"),SI("Baasto","Pasta","kartoon"),SI("Bur","Flour","kiish"),SI("Sonkor","Sugar","kiish"),SI("Saliid cunto","Cooking oil","gaalan"),SI("Digir","Beans","kiish"),SI("Cadas","Lentils","kiish"),SI("Galley/masago","Maize/sorghum","kiish"),SI("Milix","Salt","kiish"),SI("Xawaash","Spices","kg"),SI("Subag","Ghee","gaalan"),SI("Malab","Honey","dhalo"),SI("Timir","Dates","kartoon"),SI("Tamaandho (qasacad)","Tomato paste","kartoon")]],
+  [["🥬 Khudaarta & miraha","🥬 Vegetables & fruit"],[SI("Basal","Onions","kiish"),SI("Yaanyo","Tomatoes","kartoon"),SI("Baradho","Potatoes","kiish"),SI("Kaabash","Cabbage","xabbo"),SI("Karooto","Carrots","kg"),SI("Toon","Garlic","kg"),SI("Basbaas","Chilli","kg"),SI("Kabsar (koriander)","Coriander","xidhmo"),SI("Liin","Lemons","kartoon"),SI("Muus","Bananas","kartoon"),SI("Cambe","Mango","kartoon"),SI("Qare","Watermelon","xabbo"),SI("Babaay","Papaya","xabbo"),SI("Tufaax","Apples","kartoon")]],
+  [["🥤 Cabitaanka","🥤 Drinks"],[SI("Biyo (dhalo)","Water (bottle)","kartoon"),SI("Cabitaan qabow","Soft drinks","kartoon"),SI("Casiir","Juice","kartoon"),SI("Shaah","Tea","baako"),SI("Qaxwo","Coffee","baako"),SI("Caano","Milk","litir"),SI("Caano boore","Milk powder","xabbo"),SI("Caano geel","Camel milk","litir"),SI("Sharaab tamar (energy)","Energy drink","kartoon"),SI("Baraf","Ice","kiish")]],
+  [["🍳 Jikada & adeegga","🍳 Kitchen & service"],[SI("Gaas (shidaal karis)","Cooking gas","dhalo"),SI("Dhuxul","Charcoal","kiish"),SI("Saxan","Plates","xabbo"),SI("Koob","Cups","xabbo"),SI("Galaas","Glasses","xabbo"),SI("Qaado","Spoons","xabbo"),SI("Fargeeto","Forks","xabbo"),SI("Mindi","Knives","xabbo"),SI("Digsi","Pots","xabbo"),SI("Weel qaadasho (take-away)","Take-away boxes","kartoon"),SI("Shukulaato (tissue)","Napkins","baako"),SI("Mashiinka shaaha","Tea urn","xabbo"),SI("Talaajad","Fridge","xabbo"),SI("Miis & kursi maqaayad","Restaurant table & chairs","xabbo")]],
+  [["🧺 Qolka & dharka","🧺 Room & linen"],[SI("Go'yaasha sariirta","Bed sheets","xabbo"),SI("Barkin","Pillows","xabbo"),SI("Buste","Blankets","xabbo"),SI("Shukumaan","Towels","xabbo"),SI("Kabo qolka","Room slippers","lammaane"),SI("Saabuun yar","Small soaps","kartoon"),SI("Shaambo","Shampoo","kartoon"),SI("Cadayga ilkaha","Toothpaste","kartoon"),SI("Furaha qolka (kaar)","Room key card","xabbo"),SI("Nalal","Light bulbs","xabbo"),SI("Kaneeco (mosquito net)","Mosquito net","xabbo")]],
+  [["🧽 Nadaafadda","🧽 Cleaning"],[SI("Saabuun","Soap","kartoon"),SI("Saabuun dhar","Washing powder","kiish"),SI("Saabuun weel","Dish soap","gaalan"),SI("Biyo nadiifiye (Dettol)","Disinfectant","dhalo"),SI("Waraaqda musqusha","Toilet paper","baako"),SI("Xaaqin","Broom","xabbo"),SI("Mob","Mop","xabbo"),SI("Bacaha qashinka","Bin bags","baako"),SI("Udgoon (air freshener)","Air freshener","xabbo"),SI("Gacmo-gashi nadaafad","Cleaning gloves","baako")]]]},
+ {id:"duk",ic:"🛒",n:["Dukaan","Shop","متجر","Duka"],g:[
+  [["🍚 Raashinka","🍚 Groceries"],[SI("Bariis","Rice","kiish"),SI("Bariis basmati","Basmati rice","kiish"),SI("Baasto","Pasta","kartoon"),SI("Bur","Flour","kiish"),SI("Laxoox bur","Pancake flour","kiish"),SI("Sonkor","Sugar","kiish"),SI("Saliid","Cooking oil","gaalan"),SI("Digir","Beans","kiish"),SI("Cadas","Lentils","kiish"),SI("Galley","Maize","kiish"),SI("Masago","Sorghum","kiish"),SI("Milix","Salt","kiish"),SI("Xawaash","Spices","xabbo"),SI("Timir","Dates","kartoon"),SI("Malab","Honey","dhalo"),SI("Subag","Ghee","gaalan"),SI("Tamaandho (qasacad)","Tomato paste","kartoon"),SI("Kalluun qasacad (tuna)","Tinned tuna","kartoon"),SI("Digir qasacad","Tinned beans","kartoon")]],
+  [["🥛 Caanaha & quraacda","🥛 Dairy & breakfast"],[SI("Caano boore","Milk powder","xabbo"),SI("Caano dhalo","Bottled milk","kartoon"),SI("Shaah","Tea","baako"),SI("Qaxwo","Coffee","baako"),SI("Rooti","Bread","xabbo"),SI("Buskud","Biscuits","kartoon"),SI("Macmacaan","Sweets","baako"),SI("Jaam","Jam","xabbo"),SI("Ukun","Eggs","kartoon"),SI("Mukulaal (oats)","Oats","xabbo"),SI("Kaarboon (cornflakes)","Cornflakes","xabbo"),SI("Farmaajo","Cheese","xabbo")]],
+  [["🥬 Khudaarta & miraha","🥬 Vegetables & fruit"],[SI("Basal","Onions","kiish"),SI("Yaanyo","Tomatoes","kartoon"),SI("Baradho","Potatoes","kiish"),SI("Toon","Garlic","kg"),SI("Liin","Lemons","kartoon"),SI("Muus","Bananas","kartoon"),SI("Cambe","Mangoes","kartoon")]],
+  [["🥤 Cabitaanka","🥤 Drinks"],[SI("Biyo","Water","kartoon"),SI("Biyo waaweyn (20L)","Water 20L","xabbo"),SI("Cabitaan qabow","Soft drinks","kartoon"),SI("Casiir","Juice","kartoon"),SI("Sharaab tamar (energy)","Energy drink","kartoon")]],
+  [["🧼 Nadaafadda & guriga","🧼 Cleaning & household"],[SI("Saabuun","Soap","kartoon"),SI("Saabuun dhar","Washing powder","kiish"),SI("Saabuun weel","Dish soap","xabbo"),SI("Waraaqda musqusha","Toilet paper","baako"),SI("Biyo nadiifiye (Dettol)","Disinfectant","dhalo"),SI("Bacaha qashinka","Bin bags","baako"),SI("Kabriid","Matches","baako"),SI("Shumac","Candles","baako"),SI("Baytari","Batteries","baako"),SI("Nalal","Light bulbs","xabbo"),SI("Dhuxul","Charcoal","kiish"),SI("Gaas (dhalo)","Gas cylinder","xabbo"),SI("Kaneeco (sun)","Insect spray","xabbo")]],
+  [["🧴 Daryeelka jirka","🧴 Personal care"],[SI("Shaambo","Shampoo","xabbo"),SI("Cadayga ilkaha","Toothpaste","xabbo"),SI("Burushka ilkaha","Toothbrush","xabbo"),SI("Kareem jirka","Body lotion","xabbo"),SI("Uunsi / cadar","Perfume / incense","xabbo"),SI("Xinne","Henna","baako"),SI("Xafaayad carruur","Baby nappies","baako"),SI("Suuf dumarka","Sanitary pads","baako"),SI("Mus (ganaan)","Razor","baako"),SI("Saliid timo","Hair oil","xabbo")]],
+  [["🍼 Carruurta","🍼 Children"],[SI("Caano carruur","Baby formula","xabbo"),SI("Cunto carruur (cerelac)","Baby cereal","xabbo"),SI("Masaxa carruur (wipes)","Baby wipes","baako"),SI("Dhalada carruurta","Baby bottle","xabbo"),SI("Saabuun carruur","Baby soap","xabbo")]],
+  [["📱 Kaarka & qalabka yaryar","📱 Airtime & small items"],[SI("Kaarka hadalka","Airtime card","xabbo"),SI("Shaashad telefoon (charger)","Phone charger","xabbo"),SI("Sigaar","Cigarettes","baako"),SI("Qalin","Pens","baako"),SI("Kaaraas","Exercise books","xabbo"),SI("Bac (plastic bag)","Plastic bags","baako"),SI("Toosh (nal gacan)","Torch","xabbo"),SI("Qufulka","Padlock","xabbo")]]]},
+ {id:"far",ic:"💊",n:["Farmashi","Pharmacy","صيدلية","Duka la dawa"],g:[
+  [["💊 Xanuun-baabi'iyeyaasha","💊 Pain & fever"],[SI("Paracetamol","Paracetamol","baako"),SI("Ibuprofen","Ibuprofen","baako"),SI("Diclofenac","Diclofenac","baako"),SI("Aspirin","Aspirin","baako"),SI("Paracetamol carruur (sharoobo)","Children's paracetamol syrup","dhalo"),SI("Kareem murqaha (gel)","Pain gel","xabbo")]],
+  [["🦠 Antibiyootiga","🦠 Antibiotics"],[SI("Amoxicillin","Amoxicillin","baako"),SI("Augmentin","Amoxicillin-clavulanate","baako"),SI("Azithromycin","Azithromycin","baako"),SI("Ciprofloxacin","Ciprofloxacin","baako"),SI("Metronidazole (Flagyl)","Metronidazole","baako"),SI("Doxycycline","Doxycycline","baako"),SI("Cotrimoxazole","Cotrimoxazole","baako"),SI("Cefixime","Cefixime","baako"),SI("Ceftriaxone (cirbad)","Ceftriaxone (injection)","dhalo"),SI("Amoxicillin carruur (sharoobo)","Children's amoxicillin syrup","dhalo")]],
+  [["🤧 Qufaca & xasaasiyadda","🤧 Cough, cold & allergy"],[SI("Daawada qufaca","Cough syrup","dhalo"),SI("Cetirizine","Cetirizine","baako"),SI("Loratadine","Loratadine","baako"),SI("Chlorphenamine","Chlorphenamine","baako"),SI("Salbutamol (inhaler)","Salbutamol inhaler","xabbo"),SI("Dhibcaha sanka","Nasal drops","dhalo"),SI("Lozenges cunaha","Throat lozenges","baako")]],
+  [["🍽️ Caloosha","🍽️ Stomach"],[SI("ORS","ORS","baako"),SI("Zinc","Zinc","baako"),SI("Omeprazole","Omeprazole","baako"),SI("Antacid","Antacid","dhalo"),SI("Daawada gooryaanka (Albendazole)","Deworming (Albendazole)","baako"),SI("Loperamide","Loperamide","baako"),SI("Hyoscine (buscopan)","Hyoscine (Buscopan)","baako"),SI("Daawada calool-fadhiga","Laxative","baako")]],
+  [["❤️ Cudurrada joogtada ah","❤️ Chronic illness"],[SI("Metformin (sonkorowga)","Metformin (diabetes)","baako"),SI("Glibenclamide","Glibenclamide","baako"),SI("Insulin","Insulin","dhalo"),SI("Amlodipine (dhiig-karka)","Amlodipine (blood pressure)","baako"),SI("Losartan","Losartan","baako"),SI("Atenolol","Atenolol","baako"),SI("Hydrochlorothiazide","Hydrochlorothiazide","baako"),SI("Atorvastatin","Atorvastatin","baako"),SI("Strips sonkorta","Glucose test strips","baako"),SI("Mashiinka sonkorta","Glucometer","xabbo")]],
+  [["🦟 Duumada & fitamiinnada","🦟 Malaria & vitamins"],[SI("Coartem (duumada)","Coartem (malaria)","baako"),SI("Baaritaanka duumada (RDT)","Malaria test (RDT)","baako"),SI("Fitamiin","Multivitamin","baako"),SI("Folic acid","Folic acid","baako"),SI("Bir (iron)","Iron tablets","baako"),SI("Vitamin C","Vitamin C","baako"),SI("Calcium","Calcium","baako"),SI("Fitamiin carruur","Children's vitamins","dhalo")]],
+  [["🤰 Hooyada & carruurta","🤰 Mother & baby"],[SI("Baaritaanka uurka","Pregnancy test","baako"),SI("Fitamiinta uurka","Pregnancy vitamins","baako"),SI("Caano carruur","Baby formula","xabbo"),SI("Xafaayad carruur","Baby nappies","baako"),SI("Suuf dumarka","Sanitary pads","baako"),SI("Kareem carruur","Baby cream","xabbo"),SI("Kondom","Condoms","baako")]],
+  [["🩹 Qalabka caafimaadka","🩹 Medical supplies"],[SI("Faashad","Bandage","xabbo"),SI("Cirbado","Syringes","baako"),SI("Gacmo-gashi","Gloves","baako"),SI("Maaskaro","Face masks","baako"),SI("Suuf","Cotton wool","xabbo"),SI("Bilaastar","Plasters","baako"),SI("Alkohol nadiifiye","Spirit / alcohol","dhalo"),SI("Kulbeeg (thermometer)","Thermometer","xabbo"),SI("Qalabka cadaadiska dhiigga","BP machine","xabbo"),SI("Drip (IV)","IV drip","kartoon"),SI("Kanuula (cannula)","Cannula","baako"),SI("Kareem maqaarka","Skin cream","xabbo"),SI("Dhibcaha indhaha","Eye drops","dhalo"),SI("Dhibcaha dhegaha","Ear drops","dhalo")]]]},
+ {id:"xb",ic:"🐪",n:["Xoolaha & Beeraha","Livestock & Farming","المواشي والزراعة","Mifugo na Kilimo"],g:[
+  [["🐪 Xoolaha","🐪 Livestock"],[SI("Geel","Camels","neef"),SI("Nirig (geel yar)","Young camels","neef"),SI("Lo'","Cattle","neef"),SI("Weylo","Calves","neef"),SI("Ri'","Goats","neef"),SI("Waxar (ri' yar)","Kids (young goats)","neef"),SI("Ido","Sheep","neef"),SI("Baraar (ido yar)","Lambs","neef"),SI("Digaag","Chickens","xabbo"),SI("Dameer","Donkeys","neef"),SI("Faras","Horses","neef")]],
+  [["🌾 Cuntada xoolaha","🌾 Animal feed"],[SI("Calaf / caws","Fodder / hay","xidhmo"),SI("Bur xoolo (bran)","Bran feed","kiish"),SI("Cuntada digaagga","Chicken feed","kiish"),SI("Cuntada lo'da caanaha","Dairy cow feed","kiish"),SI("Milix xoolo","Livestock salt","kiish"),SI("Biyo xoolo","Water for animals","boos"),SI("Fitamiin xoolo","Animal vitamins","baako")]],
+  [["💉 Daawada xoolaha","💉 Animal medicine"],[SI("Tallaal xoolo","Animal vaccine","dhalo"),SI("Tallaal digaag","Poultry vaccine","dhalo"),SI("Daawada dixirta","Tick medicine","dhalo"),SI("Daawada gooryaanka","Deworming medicine","dhalo"),SI("Antibiyootig xoolo","Animal antibiotics","dhalo"),SI("Cirbado xoolo","Animal syringes","baako"),SI("Kareem nabarrada","Wound spray","dhalo"),SI("Daawada indhaha xoolaha","Animal eye ointment","xabbo")]],
+  [["🥛 Wax-soo-saarka xoolaha","🥛 Animal produce"],[SI("Caano geel","Camel milk","litir"),SI("Caano lo'","Cow milk","litir"),SI("Caano ari","Goat milk","litir"),SI("Ukun","Eggs","kartoon"),SI("Hilib","Meat","kg"),SI("Saan (harag)","Hides & skins","xabbo"),SI("Subag","Ghee","gaalan"),SI("Digo (bacrimin)","Manure","kiish"),SI("Dhogor / timo xoolo","Wool / hair","kg")]],
+  [["🌱 Abuurka & geedaha","🌱 Seeds & seedlings"],[SI("Abuur galley","Maize seed","kg"),SI("Abuur masago","Sorghum seed","kg"),SI("Abuur digir","Bean seed","kg"),SI("Abuur sisin","Sesame seed","kg"),SI("Abuur khudaar","Vegetable seed","baako"),SI("Abuur qare","Watermelon seed","baako"),SI("Abuur yaanyo","Tomato seed","baako"),SI("Abuur basal","Onion seed","baako"),SI("Geed muus","Banana seedlings","xabbo"),SI("Geed liin","Lemon seedlings","xabbo"),SI("Geed cambe","Mango seedlings","xabbo"),SI("Geed timir","Date palm seedlings","xabbo")]],
+  [["🧪 Bacriminta & sunta","🧪 Fertiliser & sprays"],[SI("Bacrimin (DAP)","Fertiliser (DAP)","kiish"),SI("Bacrimin (Urea)","Fertiliser (Urea)","kiish"),SI("Bacrimin (NPK)","Fertiliser (NPK)","kiish"),SI("Sun cayayaan","Pesticide","litir"),SI("Sun haramaha","Herbicide","litir"),SI("Sun ayaxa","Locust spray","litir"),SI("Sun jiirka","Rat poison","baako")]],
+  [["🧺 Wax-soo-saarka beerta","🧺 Farm produce"],[SI("Galley","Maize","kiish"),SI("Masago","Sorghum","kiish"),SI("Digir","Beans","kiish"),SI("Sisin","Sesame","kiish"),SI("Muus","Bananas","kartoon"),SI("Liin","Lemons","kartoon"),SI("Cambe","Mangoes","kartoon"),SI("Babaay","Papaya","xabbo"),SI("Qare","Watermelon","xabbo"),SI("Basal","Onions","kiish"),SI("Yaanyo","Tomatoes","kartoon"),SI("Basbaas","Chilli","kg"),SI("Timir","Dates","kartoon"),SI("Kaabash","Cabbage","xabbo"),SI("Caws iib ah","Hay for sale","xidhmo")]],
+  [["🛠️ Qalabka beerta & xoolaha","🛠️ Farm & livestock tools"],[SI("Yaanbo","Hoe","xabbo"),SI("Majarafad","Shovel","xabbo"),SI("Mindi beereed","Machete","xabbo"),SI("Faash","Axe","xabbo"),SI("Tuubbo biyo","Water hose","xabbo"),SI("Mashiinka biyaha (bamb)","Water pump","xabbo"),SI("Shidaal mashiinka","Pump fuel","litir"),SI("Haan biyo","Water tank","xabbo"),SI("Xadhig","Rope","xabbo"),SI("Qafiska digaagga","Chicken cage","xabbo"),SI("Kiishash bakhaar","Storage sacks","xabbo"),SI("Taraktar (kiro)","Tractor (hire)","saacad"),SI("Gaari-gacan (wheelbarrow)","Wheelbarrow","xabbo")]]]}];
+
+const stkType=()=>settings().stkType||(()=>{try{return localStorage.getItem("hantigo.stkType")||""}catch{return ""}})();
+let skPreOpen=null;
+const skOwnRow=()=>`<div class="skownr"><input data-ow="n" type="text" maxlength="50" aria-label="${esc(L("Magaca alaabta","Item name","اسم الصنف","Jina la bidhaa"))}" placeholder="${esc(L("Magaca alaabta","Item name","اسم الصنف","Jina la bidhaa"))}"><input data-ow="q" type="number" inputmode="decimal" step="any" aria-label="${esc(L("Tirada","Quantity","الكمية","Idadi"))}" placeholder="${esc(L("Tirada","Qty","الكمية","Idadi"))}"><input data-ow="b" type="number" inputmode="decimal" min="0" step="0.01" aria-label="${esc(L("Qiimaha iibsiga","Buying price","سعر الشراء","Bei ya kununua"))}" placeholder="${esc(L("Iibsi $","Buy $","شراء $","Kununua $"))}"><input data-ow="s" type="number" inputmode="decimal" min="0" step="0.01" aria-label="${esc(L("Qiimaha iibka","Selling price","سعر البيع","Bei ya kuuza"))}" placeholder="${esc(L("Iib $","Sell $","بيع $","Kuuza $"))}"></div>`;
+function skOwnHtml(){const s=settings();
+  return `<p class="note" style="margin:0">${L("Shirkad kasta way isticmaali kartaa. Qor nooca shirkaddaada, qaybta, kadib alaab kasta magaceeda, tirada iyo qiimaha.","Any business can use it. Write your type of business, a section, then each item with its quantity and prices.","يمكن لأي نشاط استخدامه. اكتب نوع نشاطك والقسم، ثم كل صنف مع الكمية والأسعار.","Biashara yoyote inaweza kuitumia. Andika aina ya biashara, sehemu, kisha kila bidhaa na idadi na bei.")}</p>
+    <div class="row"><label class="field"><span>${L("Nooca shirkaddaada","Your type of business","نوع نشاطك","Aina ya biashara yako")}</span><input id="skOwnType" type="text" maxlength="40" value="${esc(s.stkTypeName||"")}" placeholder="${esc(L("Tusaale: Dukaan dhar","Example: Clothes shop","مثال: متجر ملابس","Mfano: Duka la nguo"))}"></label>
+      <label class="field"><span>${L("Qaybta (ikhtiyaari)","Section (optional)","القسم (اختياري)","Sehemu (hiari)")}</span><input id="skOwnGrp" type="text" maxlength="30" list="skGrpList" placeholder="${esc(L("Tusaale: Dharka ragga","Example: Men's clothes","مثال: ملابس رجالية","Mfano: Nguo za wanaume"))}"></label></div>
+    <div class="skown" id="skOwnRows">${[0,1,2].map(skOwnRow).join("")}</div>
+    <button type="button" class="del" id="skOwnMore" style="justify-self:start">➕ ${L("Saf kale","Another row","سطر آخر","Mstari mwingine")}</button>
+    <div class="goal-actions"><button type="button" class="primary" id="skOwnAdd">➕ ${L("Ku dar","Add","إضافة","Ongeza")}</button></div>`}
+function skPreHtml(ctx){const hm=new Map(stkAll().map(s=>[ckey(s.name),s])),have=new Set(hm.keys()),own=(skPreOpen??stkType())==="own",t=own?null:STK_PRE.find(x=>x.id===(skPreOpen||stkType()))||null;
+  return `<div class="skpre owner-only"${ctx?"":' id="skPre"'}><h3>📋 ${L("Liis diyaar ah: dooro nooca shirkaddaada","Ready list: choose your type of business","قائمة جاهزة: اختر نوع نشاطك","Orodha tayari: chagua aina ya biashara yako")}</h3>
+    <select id="skPreType"><option value="">— ${esc(L("Dooro","Choose","اختر","Chagua"))} —</option>${STK_PRE.map(x=>`<option value="${x.id}"${t&&t.id===x.id?" selected":""}>${x.ic} ${esc(L(...x.n))}</option>`).join("")}<option value="own"${own?" selected":""}>✍️ ${esc(L("Nooc kale: qor adiga","Other type: write your own","نوع آخر: اكتبه بنفسك","Aina nyingine: andika mwenyewe"))}</option></select>
+    ${own?skOwnHtml():""}
+    ${t?`<p class="note" style="margin:0">${L("Calaamadee waxa aad haysato, kadib riix “Ku dar”. Tirada iyo qiimaha hadhow ayaad ku qori kartaa (✏️ Beddel).","Tick what you have, then tap “Add”. You can type the quantity and prices later (✏️ Edit).","حدّد ما لديك ثم اضغط “إضافة”. يمكنك كتابة الكمية والأسعار لاحقًا (✏️ تعديل).","Weka alama kwa ulivyo navyo, kisha bonyeza “Ongeza”. Idadi na bei unaweza kuandika baadaye (✏️ Hariri).")}</p>
+    <div class="skprel">${t.g.map(([gn,l])=>ctx?`<details class="skgrp"${l.some(it=>hm.has(ckey(L(it.so,it.en))))?"":" open"}><summary><b>${esc(L(gn[0],gn[1]))}</b><span class="note">${l.filter(it=>hm.has(ckey(L(it.so,it.en)))).length} / ${l.length}</span></summary><div class="skchips">${l.map((it,i)=>{const nm=L(it.so,it.en),hv=hm.get(ckey(nm));if(hv)return `<button type="button" class="skhave${stkBlank(hv)?" blank":stkLow(hv,stkQty(hv))?" low":""}" data-skgo="${esc(hv.id)}">✓ ${esc(nm)} · ${stkBlank(hv)?esc(L("buuxi","fill in","املأ","jaza")):esc(stkN(stkQty(hv))+(hv.unit?" "+hv.unit:""))}</button>`;return `<label><input type="checkbox" data-skpre="${esc(nm)}" data-skpu="${esc(it.u)}" data-skpg="${esc(L(gn[0],gn[1]).replace(/^\S+\s/,""))}">${esc(nm)}</label>`}).join("")}</div></details>`:`<fieldset><legend>${esc(L(gn[0],gn[1]))}</legend>${l.map((it,i)=>{const nm=L(it.so,it.en),hv=hm.get(ckey(nm));if(hv)return `<button type="button" class="skhave${stkBlank(hv)?" blank":stkLow(hv,stkQty(hv))?" low":""}" data-skgo="${esc(hv.id)}">✓ ${esc(nm)} · ${stkBlank(hv)?esc(L("buuxi","fill in","املأ","jaza")):esc(stkN(stkQty(hv))+(hv.unit?" "+hv.unit:""))}</button>`;return `<label><input type="checkbox" data-skpre="${esc(nm)}" data-skpu="${esc(it.u)}" data-skpg="${esc(L(gn[0],gn[1]).replace(/^\S+\s/,""))}">${esc(nm)}</label>`}).join("")}</fieldset>`).join("")}</div>
+    <div class="goal-actions"><button type="button" id="skPreAll">☑ ${L("Dooro dhammaan","Tick all","تحديد الكل","Chagua zote")}</button><button type="button" class="primary" id="skPreAdd">➕ ${L("Ku dar kuwa la doortay","Add the ticked items","أضف المحدد","Ongeza vilivyochaguliwa")}</button></div>`:""}
+    ${ctx&&!own?`<details class="skownd"><summary>✍️ ${L("Ku dar alaab aan liiska ku jirin (adiga qor)","Add items not in the list (write them)","أضف أصنافًا غير موجودة في القائمة","Ongeza bidhaa zisizo kwenye orodha")}</summary>${skOwnHtml()}</details>`:""}</div>`}
+{const _fb=skFormBox;skFormBox=function(ed,cur){return _fb(ed,cur)+(ed&&!cur?skPreHtml():"")}}
+document.addEventListener("change",async e=>{if(e.target.id!=="skPreType")return;skPreOpen=e.target.value||"";
+  if(skPreOpen&&!TEAM&&settings().stkType!==skPreOpen){await put({...settings(),stkType:skPreOpen})}
+  skKey="";$("skPanel").dataset.k="";const cb=$("coStkBox");if(cb)cb.dataset.k="";renderStk();coStkBox();if(!e.target.closest("#coStkBox"))$("skPre")?.scrollIntoView({block:"nearest"})});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-skgo]");if(!b)return;const id=b.dataset.skgo;if(stkEdit())skEdit=id;skKey="";hubOpen("stk");
+  setTimeout(()=>{const f=$("skForm");if(f&&stkEdit()){f.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("skQty")?.focus({preventScroll:true}),300)}},120)});
+/* Akoon → 🏢 Shirkaddaada: under the 📦 checkbox, the chosen type and what is inside the inventory */
+function coStkBox(){const host=$("coStkMsg");if(!host)return;let b=$("coStkBox");
+  if(!stkOn()||TEAM){if(b)b.remove();return}
+  if(!b){b=document.createElement("div");b.id="coStkBox";b.className="costk";host.after(b)}
+  const S=stkStats(),key=JSON.stringify([LANG,currency(),skPreOpen,settings().stkType,S.l.map(x=>[x.s.id,x.s.u,x.q])]);
+  if(b.dataset.k===key||b.contains(document.activeElement))return;b.dataset.k=key;
+  const nb=S.l.filter(x=>stkBlank(x.s)).length;
+  b.innerHTML=`<p class="note" style="margin:0">📦 ${L(`Bakhaarkaaga: <b>${S.n}</b> alaab`,`Your inventory: <b>${S.n}</b> items`,`مخزونك: <b>${S.n}</b> صنفًا`,`Hifadhi yako: bidhaa <b>${S.n}</b>`)}${S.low?" · ⚠️ "+L(`${S.low} yaraaday`,`${S.low} low`,`${S.low} منخفضة`,`${S.low} chache`):""}${nb?" · "+L(`${nb} weli lama buuxin`,`${nb} not filled yet`,`${nb} لم تُملأ`,`${nb} bado hazijajazwa`):""} · ${SKT.value()}: <b>${money(S.cost)}</b></p>
+    ${skPreHtml("ak")}
+    <button type="button" class="primary" data-skgoall="1">📦 ${L("Fur Bakhaarka: qor tirada iyo qiimaha","Open Inventory: type quantity and prices","افتح المخزون: اكتب الكمية والأسعار","Fungua Hifadhi: andika idadi na bei")} →</button>`}
+document.addEventListener("click",e=>{if(e.target.closest("[data-skgoall]"))hubOpen("stk")});
+document.addEventListener("click",async e=>{if(e.target.id!=="skPreAdd"||TEAM)return;const root=e.target.closest(".skpre");
+  const pick=[...root.querySelectorAll("[data-skpre]:checked:not(:disabled)")];if(!pick.length)return;
+  const have=new Set(stkAll().map(s=>ckey(s.name))),base=Date.now();let n=0;
+  for(const c of pick){const name=c.dataset.skpre;if(have.has(ckey(name)))continue;have.add(ckey(name));
+    await put({id:uid(),kind:"stk",mode:"business",name,unit:c.dataset.skpu||"",grp:c.dataset.skpg||"",q:0,buy:0,sell:0,pre:1,created:new Date(base+n).toISOString()});n++}
+  try{document.activeElement?.blur?.()}catch{}{const cb=$("coStkBox");if(cb){cb.dataset.k="";coStkBox()}}skKey="";$("skPanel").dataset.k="";skFlash("✓ "+L(`${n} alaab ayaa lagu daray. Riix ✏️ Beddel si aad u qorto tirada iyo qiimaha.`,`${n} items added. Tap ✏️ Edit to type the quantity and prices.`,`أُضيف ${n} صنفًا. اضغط ✏️ تعديل لكتابة الكمية والأسعار.`,`Bidhaa ${n} zimeongezwa. Bonyeza ✏️ Hariri kuandika idadi na bei.`))});
+document.addEventListener("click",e=>{if(e.target.id!=="skOwnMore")return;const b=e.target.closest(".skpre").querySelector("#skOwnRows");b.insertAdjacentHTML("beforeend",skOwnRow());b.lastElementChild.querySelector("input").focus()});
+document.addEventListener("click",async e=>{if(e.target.id!=="skOwnAdd"||TEAM)return;const root=e.target.closest(".skpre");
+  const tn=root.querySelector("#skOwnType").value.trim().slice(0,40),grp=root.querySelector("#skOwnGrp").value.trim().slice(0,30),rows=[...root.querySelectorAll("#skOwnRows .skownr")].map(r=>{const g=k=>r.querySelector(`[data-ow="${k}"]`).value.trim();return {name:g("n").replace(/\s+/g," ").slice(0,50),q:Number(g("q"))||0,buy:Math.max(0,Number(g("b"))||0),sell:Math.max(0,Number(g("s"))||0)}}).filter(r=>r.name);
+  if(tn&&settings().stkTypeName!==tn)await put({...settings(),stkTypeName:tn,stkType:"own"});
+  const have=new Set(stkAll().map(s=>ckey(s.name))),base=Date.now();let n=0;
+  for(const r of rows){if(have.has(ckey(r.name)))continue;have.add(ckey(r.name));await put({id:uid(),kind:"stk",mode:"business",name:r.name,unit:"",grp,q:r.q,buy:r.buy,sell:r.sell,created:new Date(base+n).toISOString()});n++}
+  try{document.activeElement?.blur?.()}catch{}{const cb=$("coStkBox");if(cb){cb.dataset.k="";coStkBox()}}skKey="";$("skPanel").dataset.k="";skFlash(n?"✓ "+L(`${n} alaab ayaa lagu daray. Riix ✏️ Beddel si aad u qorto tirada iyo qiimaha.`,`${n} items added. Tap ✏️ Edit to type the quantity and prices.`,`أُضيف ${n} صنفًا. اضغط ✏️ تعديل لكتابة الكمية والأسعار.`,`Bidhaa ${n} zimeongezwa. Bonyeza ✏️ Hariri kuandika idadi na bei.`):"✓ "+L("Waa la kaydiyay.","Saved.","تم الحفظ.","Imehifadhiwa."))});
+document.addEventListener("click",e=>{if(e.target.id!=="skPreAll")return;const bs=[...e.target.closest(".skpre").querySelectorAll("[data-skpre]:not(:disabled)")],on=bs.some(b=>!b.checked);bs.forEach(b=>b.checked=on)});
+/* v187 (AM 11:10): the type chosen at sign-up opens its FULL ready list, but nothing is added by itself:
+   the company ticks only what it has ("Ku dar kuwa la doortay"), or "Dooro dhammaan". */
+/* v187 (AM): companies that signed up BEFORE Bakhaarka existed have no choice saved (settings.mods missing).
+   The owner sees one card on Guriga: turn it on (then pick a ready list or write your own) or "Maya". Asked once (settings.stkAsk). */
+function stkAskUI(){const host=$("bizHub");if(!host)return;let c=$("stkAsk");
+  const show=MODE==="business"&&!TEAM&&hubOn()&&!stkOn()&&!settings().stkAsk&&!Array.isArray(settings().mods);
+  if(!show){if(c)c.remove();return}
+  const key=LANG;if(c&&c.dataset.k===key)return;if(!c){c=document.createElement("div");c.id="stkAsk";c.className="stkask";host.querySelector(".panel-head").after(c)}c.dataset.k=key;
+  c.innerHTML=`<b>🆕 📦 ${L("Bakhaarka (Inventory) waa cusub","Inventory is new","المخزون جديد","Hifadhi ni mpya")}</b><span>${L("La soco alaabtaada, tirada iyo qiimaha. Liis diyaar ah ayaa jira (Hotel & Maqaayad, Jaamacad & Iskuul, Dukaan, Farmashi, Xoolaha & Beeraha) ama adigu qor. Ma rabtaa?","Track your goods, quantity and prices. Ready lists exist (Hotel & Restaurant, University & School, Shop, Pharmacy, Livestock & Farming) or write your own. Do you want it?","تابع بضائعك وكمياتها وأسعارها. توجد قوائم جاهزة أو اكتب قائمتك. هل تريده؟","Fuatilia bidhaa zako, idadi na bei. Kuna orodha tayari au andika yako. Unataka?")}</span>
+    <div class="goal-actions"><button type="button" class="primary" data-stkask="1">✓ ${L("Haa, shid","Yes, turn on","نعم، شغّل","Ndiyo, washa")}</button><button type="button" data-stkask="0">${L("Maya, hadda maya","Not now","ليس الآن","Si sasa")}</button></div>
+    <small class="note">${L("Mar kasta Akoon → 🏢 Shirkaddaada ayaad ka shidi kartaa ama ka dami kartaa. Xogtaada hore waxba iskama beddelayaan.","You can turn it on or off any time in Account → 🏢 Your business. Nothing you already have changes.","يمكنك تشغيله أو إيقافه في أي وقت من الحساب. لا يتغير شيء مما لديك.","Unaweza kuwasha au kuzima wakati wowote kwenye Akaunti. Hakuna kinachobadilika.")}</small>`}
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-stkask]");if(!b||TEAM)return;const on=b.dataset.stkask==="1",s=settings();
+  await put({...s,stkAsk:1,...(on?{mods:[...(Array.isArray(s.mods)?s.mods:[]).filter(x=>x!=="stk"),"stk"]}:{})});if(on){stkSync();hubOpen("stk");setTimeout(()=>$("skPre")?.scrollIntoView({behavior:"smooth",block:"start"}),200)}});
+{const _rh=renderHub;renderHub=function(){const r=_rh();try{stkAskUI()}catch(e){console.warn(e)}return r}}
+/* first run: the type chosen at sign-up is saved on the account */
+{const _r=render;render=function(){_r();try{if(!TEAM&&MODE==="business"&&!settings().stkType){const t=(()=>{try{return localStorage.getItem("hantigo.stkType")}catch{return null}})();if(t&&items.some(i=>i.kind==="settings")){try{localStorage.removeItem("hantigo.stkType")}catch{}put({...settings(),stkType:t})}}}catch{}}}
+</script>
 <script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").then(r=>{r.update();document.addEventListener("visibilitychange",()=>{if(!document.hidden)r.update()})}).catch(()=>{}));</script>
 <style>
 /* v175 Guriga gaabi: the money shows once (top card); the small cards under it are gone */

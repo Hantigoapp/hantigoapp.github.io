@@ -226,10 +226,10 @@ begin
          case when coalesce(n.e ->> 'u', '') ~ '^[0-9]{10,14}$' then (n.e ->> 'u')::bigint end as u
     from (select e ->> 'id' id, e from jsonb_array_elements(
             case when tg_op = 'UPDATE' then coalesce(old.items, '[]'::jsonb) else '[]'::jsonb end) e
-           where e ->> 'kind' in ('tx', 'debt', 'bill', 'goal', 'inv')) o
+           where e ->> 'kind' in ('tx', 'debt', 'bill', 'goal', 'inv', 'stk')) o
     full join
          (select e ->> 'id' id, e from jsonb_array_elements(coalesce(new.items, '[]'::jsonb)) e
-           where e ->> 'kind' in ('tx', 'debt', 'bill', 'goal', 'inv')) n
+           where e ->> 'kind' in ('tx', 'debt', 'bill', 'goal', 'inv', 'stk')) n
       on n.id = o.id
    where (o.e is null or n.e is null or (o.e - 'u') is distinct from (n.e - 'u'))
      and not ((o.e is null or n.e is null) and coalesce(n.e, o.e) ->> 'kind' = 'bill'
