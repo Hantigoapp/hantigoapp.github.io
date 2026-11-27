@@ -1450,7 +1450,7 @@ html:not([data-mode="business"]) #appView[data-tab="home"] #perHub{grid-column:1
           </div>
           <div id="multiRow" hidden><button type="button" class="chip" id="multiBtn" aria-expanded="false">☑ Dooro dhowr isla mar (qiimo kasta gooni)</button>
             <div id="multiList" hidden></div></div>
-          <div class="row" id="stkRow" hidden><label class="field"><span id="stkLbl">📦 Alaabta bakhaarka (ikhtiyaari)</span><select id="txStk"></select></label><label class="field" id="stkQWrap" hidden><span id="stkQLbl">Tirada</span><input id="txStkQ" type="number" inputmode="decimal" min="0" step="any" placeholder="1"></label><label class="field" id="stkPWrap" hidden><span id="stkPLbl">Qiimaha halkii</span><input id="txStkP" type="number" inputmode="decimal" min="0" step="any" placeholder="0.50"></label><p class="note" id="stkNote" role="status"></p></div>
+          <div class="row" id="stkRow" hidden><label class="field"><span id="stkLbl">📦 Alaabta bakhaarka (ikhtiyaari)</span><select id="txStk"></select></label><label class="field" id="stkQWrap" hidden><span id="stkQLbl">Tirada</span><input id="txStkQ" type="number" inputmode="decimal" min="0" step="any" placeholder="1"></label><label class="field" id="stkPWrap" hidden><span id="stkPLbl">Qiimaha halkii</span><input id="txStkP" type="number" inputmode="decimal" min="0" step="any" placeholder="0.50"></label><p class="note" id="stkNote" role="status"></p><div class="stkown1" id="stkOwnRow" hidden><input id="txStkNew" type="text" maxlength="50" autocomplete="off"><button type="button" class="primary" id="txStkNewOk">✓</button></div><p class="note" id="stkHelp"></p></div>
           <div class="row">
             <label class="field"><span id="placeLbl">Shirkadda ama meesha (ikhtiyaari)</span><input id="place" type="text" maxlength="40" list="placeList" placeholder="Tusaale: Hormuud, suuqa Bakaaraha"></label>
             <label class="field"><span>Faahfaahin (ikhtiyaari)</span><input id="note" type="text" maxlength="80" placeholder="Tusaale: bisha Nofembar"></label>
@@ -6707,7 +6707,7 @@ html[data-mode="business"] #hubSw{grid-template-columns:repeat(var(--hn,4),minma
 .skrow.gone{opacity:.85;border-style:dashed}
 .mgfixh{margin:0 0 8px;font-size:.85rem}#sBal[data-tdd],.mp[data-tdd]{cursor:pointer}#sBal[data-tdd]:hover,.mp[data-tdd]:hover,.mp[data-tdd].on{outline:2px solid var(--accent);outline-offset:2px;border-radius:10px}#sBal.on{text-decoration:underline dotted}.glance>#balTD{order:5}.mpact{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.mpact button{flex:1 1 140px;min-height:44px;border-radius:12px;font-weight:700}.mpact .mpin{background:var(--in);color:#06281a;border-color:var(--in)}.mpact .mpout{background:var(--out);color:#fff;border-color:var(--out)}.mpact .mptr2{flex:0 1 auto}.dfix{margin-top:6px;width:100%}.plent .dfix{grid-column:1/-1}
 .sktag{font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--out-soft);color:var(--out)}
-#stkRow .note{grid-column:1/-1;margin:0}
+#stkRow .note{grid-column:1/-1;margin:0}#stkRow .stkown1{grid-column:1/-1;display:flex;gap:6px}#stkRow .stkown1 input{flex:1 1 auto;min-width:0}#stkRow .stkown1 button{flex:none;white-space:nowrap}#stkHelp,.skhelp{font-size:.82rem}.skhelp{margin:0}#stkHelp a,.skhelp a{font-weight:600;color:var(--in)}
 .skdl{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0}
 .skdlr{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.skdlr select{width:auto;min-width:130px}.skdlr button{padding:6px 12px}
 </style>
@@ -7000,15 +7000,42 @@ function stkGoAdd(id,type){const s=items.find(i=>i.id===id);if(!s)return;if(edit
   setTimeout(()=>{stkRowUI(true);stkCat();$("txStk").value=id;$("txStkQ").value="1";stkAuto=true;stkFill(true);$("date").value=$("date").value||today();
     if(!$("note").value)$("note").value=s.name;
     $("stkRow").scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{$("txStkQ").focus();$("txStkQ").select()},300)},80)}
-function stkRowUI(force){const row=$("stkRow");if(!row)return;const l=stkAll(),show=stkMove()&&l.length>0&&!(MULTI_ON&&useGroups()&&!editing);row.hidden=!show;if(!show)return;
-  const type=curType(),sel=$("txStk"),cur=sel.value,key=JSON.stringify([LANG,type,l.map(s=>[s.id,s.name,s.u])]);
+const stkWa=()=>`<a href="https://wa.me/${WA_NUM}?text=${encodeURIComponent(L("Salaan, HantiGo caawimaad ayaan rabaa (bakhaarka)","Hi, I need help with HantiGo (inventory)","مرحبًا، أحتاج مساعدة في HantiGo (المخزون)","Habari, nahitaji msaada wa HantiGo (hifadhi)"))}" target="_blank" rel="noopener">💬 ${L("La xiriir maamulka HantiGo","Contact HantiGo support","تواصل مع إدارة HantiGo","Wasiliana na HantiGo")}</a>`;
+const stkHelpHtml=()=>`<p class="note skhelp">${L("Wixii ka dhiman liiska, milkiilaha shirkadda ayaa ku dari kara (✍️). Caawimaad ma u baahan tahay?","Anything missing from the list, the company owner can add (✍️). Need help?","ما ينقص القائمة يمكن لمالك الشركة إضافته (✍️). تحتاج مساعدة؟","Kinachokosekana kwenye orodha, mmiliki wa kampuni anaweza kukiongeza (✍️). Unahitaji msaada?")} ${stkWa()}</p>`;
+/* v191 (AM 2026-11-27): the 📦 dropdown in Ku dar lists your items AND the rest of your ready list, so an item can be picked straight away
+   (it joins Bakhaarka by itself). Anything missing: "✍️ Alaab kale" = the owner writes it. Help: WhatsApp to HantiGo. */
+const stkPreRest=()=>{if(!stkEdit())return [];const t=STK_PRE.find(x=>x.id===stkType());if(!t)return [];const have=new Set(stkAll().map(s=>ckey(s.name)));
+  return t.g.map(([gn,l],gi)=>({gn:L(gn[0],gn[1]),gi,l:l.map((it,ii)=>({nm:L(it.so,it.en),u:it.u,ii})).filter(x=>!have.has(ckey(x.nm)))})).filter(g=>g.l.length)};
+function stkRowUI(force){const row=$("stkRow");if(!row)return;const l=stkAll(),show=stkMove()&&(l.length>0||stkEdit())&&!(MULTI_ON&&useGroups()&&!editing);row.hidden=!show;if(!show)return;
+  const type=curType(),sel=$("txStk"),cur=sel.value,rest=stkPreRest(),key=JSON.stringify([LANG,type,l.map(s=>[s.id,s.name,s.u]),stkType(),stkEdit(),rest.map(g=>g.l.length)]);
   if(force||sel.dataset.k!==key){sel.dataset.k=key;
-    sel.innerHTML=`<option value="">— ${esc(L("Ma jirto (lacag kaliya)","None (money only)","لا شيء (مبلغ فقط)","Hakuna (pesa tu)"))} —</option>`+l.map(s=>`<option value="${esc(s.id)}">${esc(s.name)} (${esc(stkN(stkQty(s)))}${s.unit?" "+esc(s.unit):""})</option>`).join("");
+    const opt=s=>`<option value="${esc(s.id)}">${esc(s.name)} (${esc(stkN(stkQty(s)))}${s.unit?" "+esc(s.unit):""})</option>`;
+    sel.innerHTML=`<option value="">— ${esc(L("Ma jirto (lacag kaliya)","None (money only)","لا شيء (مبلغ فقط)","Hakuna (pesa tu)"))} —</option>`
+      +(l.length?(rest.length?`<optgroup label="📦 ${esc(L("Bakhaarkaaga","Your inventory","مخزونك","Hifadhi yako"))}">${l.map(opt).join("")}</optgroup>`:l.map(opt).join("")):"")
+      +rest.map(g=>`<optgroup label="${esc(g.gn)}">${g.l.map(x=>`<option value="pre:${g.gi}:${x.ii}">${esc(x.nm)}</option>`).join("")}</optgroup>`).join("")
+      +(stkEdit()?`<option value="__own">✍️ ${esc(L("Alaab kale: adiga qor magaca…","Another item: write its name…","صنف آخر: اكتب اسمه…","Bidhaa nyingine: andika jina…"))}</option>`:"");
     sel.value=l.some(s=>s.id===cur)?cur:"";
+    $("txStkNew").placeholder=L("Magaca alaabta cusub","Name of the new item","اسم الصنف الجديد","Jina la bidhaa mpya");$("txStkNewOk").textContent="✓ "+L("Ku dar","Add","إضافة","Ongeza");
+    const wa=stkWa();
+    $("stkHelp").innerHTML=(stkEdit()?L("Alaabtaadu liiska kuma jirto? Dooro “✍️ Alaab kale” oo qor magaceeda.","Your item is not in the list? Choose “✍️ Another item” and write its name.","صنفك غير موجود في القائمة؟ اختر “✍️ صنف آخر” واكتب اسمه.","Bidhaa yako haipo kwenye orodha? Chagua “✍️ Bidhaa nyingine” uandike jina lake.")
+      :L("Alaab cusub waxaa ku dari kara milkiilaha shirkadda.","Only the company owner can add new items.","يمكن لمالك الشركة فقط إضافة أصناف جديدة.","Mmiliki wa kampuni tu ndiye anaweza kuongeza bidhaa mpya."))+" "+L("Caawimaad ma u baahan tahay?","Need help?","تحتاج مساعدة؟","Unahitaji msaada?")+" "+wa;
     $("stkLbl").textContent="📦 "+L("Alaabta bakhaarka (ikhtiyaari)","Inventory item (optional)","صنف من المخزون (اختياري)","Bidhaa ya hifadhi (hiari)")}
   $("stkQLbl").textContent=type==="in"?L("Tirada la iibiyay","Quantity sold","الكمية المباعة","Idadi iliyouzwa"):L("Tirada la soo iibsaday","Quantity bought","الكمية المشتراة","Idadi iliyonunuliwa");
   $("stkPLbl").textContent=type==="in"?L("Qiimaha iibka halkii","Sale price each","سعر البيع للوحدة","Bei ya kuuza kwa kimoja"):L("Qiimaha iibsiga halkii","Cost each","سعر الشراء للوحدة","Gharama kwa kimoja");
   stkHint()}
+async function stkPickNew(name,unit,grp){name=String(name||"").trim().replace(/\s+/g," ").slice(0,50);if(!name||!stkEdit())return;
+  const ex=stkAll().find(s=>ckey(s.name)===ckey(name));let id=ex&&ex.id;
+  if(!id){id=uid();await put({id,kind:"stk",mode:"business",name,unit:unit||"",grp:grp||"",q:0,buy:0,sell:0,pre:1,created:new Date().toISOString()});
+    {const cb=$("coStkBox");if(cb)cb.dataset.k=""}skKey="";const P=$("skPanel");if(P)P.dataset.k=""}
+  stkRowUI(true);const sel=$("txStk");sel.value=id;$("stkOwnRow").hidden=true;$("txStkNew").value="";
+  if(!$("txStkQ").value)$("txStkQ").value="1";stkAuto=true;stkCat();stkFill(true);setTimeout(()=>{$("txStkQ").focus();$("txStkQ").select()},60)}
+document.addEventListener("change",e=>{if(e.target.id!=="txStk")return;const v=e.target.value;
+  if(v!=="__own")$("stkOwnRow").hidden=true;
+  if(v==="__own"){e.stopImmediatePropagation();e.target.value="";stkHint();$("stkOwnRow").hidden=false;$("txStkNew").focus();return}
+  if(v.startsWith("pre:")){e.stopImmediatePropagation();const [,gi,ii]=v.split(":").map(Number),t=STK_PRE.find(x=>x.id===stkType()),g=t&&t.g[gi],it=g&&g[1][ii];e.target.value="";
+    if(it)stkPickNew(L(it.so,it.en),it.u,L(g[0][0],g[0][1]).replace(/^\S+\s/,""))}},true);
+document.addEventListener("click",e=>{if(e.target.id==="txStkNewOk")stkPickNew($("txStkNew").value)});
+document.addEventListener("keydown",e=>{if(e.target.id==="txStkNew"&&e.key==="Enter"){e.preventDefault();stkPickNew(e.target.value)}});
 function stkHint(){const id=$("txStk").value,s=id&&items.find(i=>i.id===id),n=$("stkNote");$("stkQWrap").hidden=$("stkPWrap").hidden=!s;if(!s){n.textContent="";return}
   const q=Number($("txStkQ").value)||0,type=curType(),old=editing&&items.find(i=>i.id===editing);
   let now=stkQty(s);if(old&&old.stk===s.id){const o=Number(old.sq||0);now+=old.type==="in"?o:old.type==="out"?-o:0}   // editing: count it as if this entry weren't there yet
@@ -7196,7 +7223,7 @@ function skPreHtml(ctx){const hm=new Map(stkAll().map(s=>[ckey(s.name),s])),have
     ${t?`<p class="note" style="margin:0">${L("Calaamadee waxa aad haysato, kadib riix “Ku dar”. Tirada iyo qiimaha hadhow ayaad ku qori kartaa (✏️ Beddel).","Tick what you have, then tap “Add”. You can type the quantity and prices later (✏️ Edit).","حدّد ما لديك ثم اضغط “إضافة”. يمكنك كتابة الكمية والأسعار لاحقًا (✏️ تعديل).","Weka alama kwa ulivyo navyo, kisha bonyeza “Ongeza”. Idadi na bei unaweza kuandika baadaye (✏️ Hariri).")}</p>
     <div class="skprel">${t.g.map(([gn,l])=>ctx?`<details class="skgrp"${l.some(it=>hm.has(ckey(L(it.so,it.en))))?"":" open"}><summary><b>${esc(L(gn[0],gn[1]))}</b><span class="note">${l.filter(it=>hm.has(ckey(L(it.so,it.en)))).length} / ${l.length}</span></summary><div class="skchips">${l.map((it,i)=>{const nm=L(it.so,it.en),hv=hm.get(ckey(nm));if(hv)return `<button type="button" class="skhave${stkBlank(hv)?" blank":stkLow(hv,stkQty(hv))?" low":""}" data-skgo="${esc(hv.id)}">✓ ${esc(nm)} · ${stkBlank(hv)?esc(L("buuxi","fill in","املأ","jaza")):esc(stkN(stkQty(hv))+(hv.unit?" "+hv.unit:""))}</button>`;return `<label><input type="checkbox" data-skpre="${esc(nm)}" data-skpu="${esc(it.u)}" data-skpg="${esc(L(gn[0],gn[1]).replace(/^\S+\s/,""))}">${esc(nm)}</label>`}).join("")}</div></details>`:`<fieldset><legend>${esc(L(gn[0],gn[1]))}</legend>${l.map((it,i)=>{const nm=L(it.so,it.en),hv=hm.get(ckey(nm));if(hv)return `<button type="button" class="skhave${stkBlank(hv)?" blank":stkLow(hv,stkQty(hv))?" low":""}" data-skgo="${esc(hv.id)}">✓ ${esc(nm)} · ${stkBlank(hv)?esc(L("buuxi","fill in","املأ","jaza")):esc(stkN(stkQty(hv))+(hv.unit?" "+hv.unit:""))}</button>`;return `<label><input type="checkbox" data-skpre="${esc(nm)}" data-skpu="${esc(it.u)}" data-skpg="${esc(L(gn[0],gn[1]).replace(/^\S+\s/,""))}">${esc(nm)}</label>`}).join("")}</fieldset>`).join("")}</div>
     <div class="goal-actions"><button type="button" id="skPreAll">☑ ${L("Dooro dhammaan","Tick all","تحديد الكل","Chagua zote")}</button><button type="button" class="primary" id="skPreAdd">➕ ${L("Ku dar kuwa la doortay","Add the ticked items","أضف المحدد","Ongeza vilivyochaguliwa")}</button></div>`:""}
-    ${ctx&&!own?`<details class="skownd"><summary>✍️ ${L("Ku dar alaab aan liiska ku jirin (adiga qor)","Add items not in the list (write them)","أضف أصنافًا غير موجودة في القائمة","Ongeza bidhaa zisizo kwenye orodha")}</summary>${skOwnHtml()}</details>`:""}</div>`}
+    ${!own?`<details class="skownd"><summary>✍️ ${L("Ku dar alaab aan liiska ku jirin (adiga qor)","Add items not in the list (write them)","أضف أصنافًا غير موجودة في القائمة","Ongeza bidhaa zisizo kwenye orodha")}</summary>${skOwnHtml()}</details>`:""}${stkHelpHtml()}</div>`}
 {const _fb=skFormBox;skFormBox=function(ed,cur){return _fb(ed,cur)+(ed&&!cur?skPreHtml():"")}}
 document.addEventListener("change",async e=>{if(e.target.id!=="skPreType")return;skPreOpen=e.target.value||"";
   if(skPreOpen&&!TEAM&&settings().stkType!==skPreOpen){await put({...settings(),stkType:skPreOpen})}
